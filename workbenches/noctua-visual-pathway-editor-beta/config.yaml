@@ -1,5 +1,5 @@
 menu-name: "Landing Page (Beta Version)"
 page-name: "Landing Page (Beta Version)"
-type: "universal"
 is-beta: true
+type: "model"
 help-link: "https://github.com/geneontology/noctua-visual-pathway-editor/issues"

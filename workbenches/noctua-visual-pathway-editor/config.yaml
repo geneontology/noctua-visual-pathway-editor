@@ -1,4 +1,4 @@
 menu-name: "Visual Pathway Editor"
 page-name: "Visual Pathway Editor"
-type: "universal"
-help-link: "https://github.com/geneontology/visual-pathway-editor/issues"
+type: "model"
+help-link: "https://github.com/geneontology/noctua-visual-pathway-editor/issues"
