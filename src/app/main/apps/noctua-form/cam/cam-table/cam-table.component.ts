@@ -44,7 +44,6 @@ export class CamTableComponent implements OnInit, OnDestroy {
   searchFormData: any = [];
   searchForm: FormGroup;
   activityTypeOptions = noctuaFormConfig.activityType.options;
-  sortByOptions = noctuaFormConfig.activitySortField.options;
 
   @Input('panelDrawer')
   panelDrawer: MatDrawer;
