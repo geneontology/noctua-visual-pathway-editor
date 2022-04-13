@@ -590,9 +590,8 @@ export class CamCanvas {
                 nodes.push(link);
             }
         });
-
+        self.canvasPaper.setDimensions('30000px', '30000px')
         self.canvasPaper.scaleContentToFit({ minScaleX: 0.3, minScaleY: 0.3, maxScaleX: 1, maxScaleY: 1 });
-        self.canvasPaper.setDimensions('10000px', '10000px')
         self.canvasGraph.resetCells(nodes);
 
         if (!cam.manualLayout) {
@@ -601,6 +600,7 @@ export class CamCanvas {
 
         self.canvasPaper.unfreeze();
         self.canvasPaper.render();
+
 
         /*    each(self.canvasGraph.getCells(), (cell: any) => {
    
