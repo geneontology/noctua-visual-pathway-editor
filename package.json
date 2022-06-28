@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4203",
+    "start": "ng serve --port 4204",
     "start:high-memory": "node --max-old-space-size=4048 ./node_modules/@angular/cli/bin/ng serve --port 4202",
     "clean": "rm -r workbenches/noctua-visual-pathway-editor/public workbenches/noctua-visual-pathway-editor-beta/public",
     "build": "node --max_old_space_size=6144 ./node_modules/@angular/cli/bin/ng build --configuration production --index src/inject.tmpl  --base-href  /workbench/noctua-visual-pathway-editor/ ",
