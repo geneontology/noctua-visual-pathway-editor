@@ -234,26 +234,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     this.camService.updateWithList(self.noctuaActivityFormService.activity, this.entity);
   }
 
-  updateTermList() {
-    const self = this;
-    this.camService.updateTermList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateEvidenceList() {
-    const self = this;
-    this.camService.updateEvidenceList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateReferenceList() {
-    const self = this;
-    this.camService.updateReferenceList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateWithList() {
-    const self = this;
-    this.camService.updateWithList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
 
   termDisplayFn(term): string | undefined {
     return term && term.id ? `${term.label} (${term.id})` : undefined;
