@@ -132,14 +132,15 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       case EditorCategory.evidenceAll:
         self.noctuaActivityEntityService.addEvidence().then(() => {
           this.close();
-          self.noctuaFormDialogService.openInfoToast('Activity successfully updated.', 'OK');
+          self.noctuaFormDialogService.openInfoToast('Evidence successfully updated.', 'OK');
         });
         break;
-      default:
-        self.noctuaActivityEntityService.saveActivity().then(() => {
+      case EditorCategory.all:
+        self.noctuaActivityEntityService.addIndividual().then(() => {
           this.close();
           self.noctuaFormDialogService.openInfoToast('Activity successfully updated.', 'OK');
         });
+        break;
     }
   }
 
@@ -212,26 +213,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
 
     self.entity.clearValues();
     self.noctuaActivityFormService.initializeForm();
-  }
-
-  updateTermList() {
-    const self = this;
-    this.camService.updateTermList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateEvidenceList() {
-    const self = this;
-    this.camService.updateEvidenceList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateReferenceList() {
-    const self = this;
-    this.camService.updateReferenceList(self.noctuaActivityFormService.activity, this.entity);
-  }
-
-  updateWithList() {
-    const self = this;
-    this.camService.updateWithList(self.noctuaActivityFormService.activity, this.entity);
   }
 
   updateTermList() {
