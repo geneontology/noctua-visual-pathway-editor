@@ -60,6 +60,7 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   evidenceFormArray: FormArray;
 
   private _unsubscribeAll: Subject<any>;
+  relationshipOptions: any;
 
   constructor(
     private confirmDialogService: NoctuaConfirmDialogService,
@@ -84,6 +85,8 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
         }
         this.connectorFormGroup = connectorFormGroup;
         this.connectorActivity = this.noctuaActivityConnectorService.connectorActivity;
+        this.relationshipOptions = this.noctuaFormConfigService[this.connectorActivity.connectorType + 'Relationship']['options']
+
       });
 
     this.noctuaCommonMenuService.onCamSettingsChanged

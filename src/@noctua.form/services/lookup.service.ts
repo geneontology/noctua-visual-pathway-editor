@@ -483,7 +483,6 @@ export class NoctuaLookupService {
         xref: xref
       };
     });
-
     return result;
   }
 
