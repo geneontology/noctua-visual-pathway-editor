@@ -134,7 +134,7 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   deleteConnectorEdge() {
     const self = this;
     const success = () => {
-      self.noctuaActivityConnectorService.deleteConnectorEdge(this.connectorActivity).then(() => {
+      self.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
         self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
       });
     };
