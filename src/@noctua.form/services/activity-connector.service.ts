@@ -142,7 +142,7 @@ export class NoctuaActivityConnectorService {
   private _onActivityFormChanges(): void {
     this.connectorFormGroup.getValue().valueChanges.subscribe(value => {
       this.connectorActivity.checkConnection(value);
-      if (this._allowRequestWatch && (this.connectorActivity.state === ConnectorState.editing)) {
+      if (this.connectorActivity.predicate?.edge?.id && this._allowRequestWatch && (this.connectorActivity.state === ConnectorState.editing)) {
         this.saveActivity()
       }
       this._allowRequestWatch = true

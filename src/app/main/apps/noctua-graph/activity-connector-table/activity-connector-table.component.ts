@@ -84,6 +84,7 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
           return;
         }
         this.connectorFormGroup = connectorFormGroup;
+        this.currentConnectorActivity = this.noctuaActivityConnectorService.currentConnectorActivity;
         this.connectorActivity = this.noctuaActivityConnectorService.connectorActivity;
         this.relationshipOptions = this.noctuaFormConfigService[this.connectorActivity.connectorType + 'Relationship']['options']
 
