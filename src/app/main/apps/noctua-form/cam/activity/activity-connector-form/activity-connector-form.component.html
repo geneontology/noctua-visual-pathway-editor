@@ -142,7 +142,7 @@
       Why is the "Save" button disabled?
     </button>
     <span fxFlex></span>
-    <button [disabled]="!connectorFormGroup.valid" (click)="save()" type="submit" class="noc-rounded-button"
-      mat-raised-button color="primary">Save</button>
+    <button [disabled]="!connectorActivity?.predicate.edge?.id" (click)="save()" type="submit"
+      class="noc-rounded-button" mat-raised-button color="primary">Save</button>
   </div>
 </form>

@@ -12,9 +12,13 @@
   <div class="noc-drawer-body" fxLayout="column" fxLayoutAlign="start start" noctuaPerfectScrollbar>
     <div *ngIf="connectorFormGroup" class="noc-connector-form">
       <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-100-p">
-        <div class="noc-section-body w-100-p p-0" fxLayout="column" fxLayoutAlign="start center">
+        <!--   <div class="noc-section-body w-100-p p-0" fxLayout="column" fxLayoutAlign="start center">
           <noc-graph-preview [nodes]="connectorActivity?.graphPreview.nodes"
             [edges]="connectorActivity?.graphPreview.edges" class="noc-graph-preview"></noc-graph-preview>
+        </div> -->
+        <div *ngIf="!connectorActivity?.rule.relationship?.id" class="alert alert-warning w-100-p">
+          This relation is not supported, please choose a new relation below <br>
+          (<strong>{{currentConnectorActivity?.predicate?.edge.label}}</strong>)
         </div>
         <div class="noc-form-section p-0 w-100-p">
           <div class="px-8 noc-group-row" fxLayout="row" fxLayoutAlign="start center">

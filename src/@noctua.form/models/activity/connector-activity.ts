@@ -62,11 +62,18 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
     const self = this;
     const question = self.edgeToConnectorQuestion(self.predicate.edge);
 
-    Object.entries(question).forEach(entry => {
-      const [key, value] = entry;
-      const id = (value as string).split(':');
-      self.rule[key] = noctuaFormConfig[id[0]][id[1]]
-    });
+    if (question) {
+
+      Object.entries(question).forEach(entry => {
+        const [key, value] = entry;
+        const id = (value as string).split(':');
+        self.rule[key] = noctuaFormConfig[id[0]][id[1]]
+      });
+    } else {
+      self.rule.relationship = null;
+      self.rule.directness = null;
+      self.rule.effectDirection = null;
+    }
 
   }
 
@@ -123,7 +130,7 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
     }
 
     self.predicate.edge = this.getCausalConnectorEdge(
-      value.relationship.id,
+      value.relationship?.id,
       self.rule.displaySection.effectDirection && value.effectDirection ? value.effectDirection.id : null,
       self.rule.displaySection.directness && value.directness ? value.directness.id : null);
 
@@ -183,7 +190,7 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
         }
       }
     }
-    return {};
+    return null;
   }
 
   edgeToConnectorQuestion(edge: Entity) {
