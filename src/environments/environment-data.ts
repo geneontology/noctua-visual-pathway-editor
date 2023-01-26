@@ -1784,7 +1784,7 @@ export const globalKnownRelations = [
     "relevant": true
   },
   {
-    "id": "RO:00002407",
+    "id": "RO:0002407",
     "label": "indirectly positively regulates",
     "relevant": false
   },
