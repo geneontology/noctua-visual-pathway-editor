@@ -93,7 +93,7 @@
           "edge": "RO:0002629"
         },
         "directness:indirect": {
-          "edge": "RO:00002407"
+          "edge": "RO:0002407"
         }
       },
       "effectDirection:negative": {
