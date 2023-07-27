@@ -169,11 +169,11 @@ export const noctuaFormConfig = {
       },
       'activity': {
         'id': 'activity',
-        'label': 'Default'
+        'label': 'Simple view'
       },
       'detailed': {
         'id': 'detailed',
-        'label': 'Detailed'
+        'label': 'Default'
       },
     }
   },
