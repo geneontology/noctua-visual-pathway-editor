@@ -105,13 +105,34 @@ export class CamGraphService {
   }
 
   createActivity(element: joint.shapes.noctua.NodeCellList, x: number, y: number) {
-    const self = this;
-    const node = element.get('node') as StencilItemNode;
 
-    self.placeholderElement.position(x, y);
-    self._activityFormService.setActivityType(node.type)
-    self._activityFormService.activity.validateEvidence = false;
-    self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
+    const isGroupMember = this.cam.groups.some((group) => {
+      return this._noctuaUserService.user.groups?.some((userGroup) => {
+        return group.url === userGroup.id;
+      });
+    });
+
+
+    const success = () => {
+      const self = this;
+      const node = element.get('node') as StencilItemNode;
+
+      self.placeholderElement.position(x, y);
+      self._activityFormService.setActivityType(node.type)
+      self._activityFormService.activity.validateEvidence = false;
+      self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
+    };
+
+    if (this.cam.groups?.length === 0 || isGroupMember) {
+      success();
+    } else {
+      this.confirmDialogService.openConfirmDialog(
+        'Confirm?',
+        'You are about to edit a model associated with a different group. Do you want to continue or cancel?',
+        success
+      );
+    }
+
   }
 
   createActivityConnector(
@@ -120,8 +141,28 @@ export class CamGraphService {
     link: joint.shapes.noctua.NodeLink) {
     const self = this;
 
-    self._activityConnectorService.initializeForm(sourceId, targetId);
-    self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY_CONNECTOR);
+    const isGroupMember = this.cam.groups.some((group) => {
+      return this._noctuaUserService.user.groups?.some((userGroup) => {
+        return group.url === userGroup.id;
+      });
+    });
+
+    const success = () => {
+      self._activityConnectorService.initializeForm(sourceId, targetId);
+      self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY_CONNECTOR);
+    }
+
+    if (this.cam.groups?.length === 0 || isGroupMember) {
+      success();
+    } else {
+      this.confirmDialogService.openConfirmDialog(
+        'Confirm?',
+        'You are about to edit a model associated with a different group. Do you want to continue or cancel?',
+        success
+      );
+    }
+
+
   }
 
   addActivity(activity: Activity, graphLayoutDetail: string) {

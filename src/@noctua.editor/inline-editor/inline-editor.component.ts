@@ -12,9 +12,11 @@ import {
     NoctuaActivityEntityService,
     ActivityNode,
     Activity,
-    Cam
+    Cam,
+    NoctuaUserService
 } from '@geneontology/noctua-form-base';
 import { EditorCategory } from './../models/editor-category';
+import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
     selector: 'noctua-inline-editor',
@@ -37,6 +39,8 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
 
     constructor(private inlineEditorService: InlineEditorService,
         private camService: CamService,
+        private _noctuaUserService: NoctuaUserService,
+        private confirmDialogService: NoctuaConfirmDialogService,
         private noctuaActivityEntityService: NoctuaActivityEntityService) {
         this._unsubscribeAll = new Subject();
     }
@@ -46,18 +50,39 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
     }
 
     openEditorDropdown(event) {
-        const displayEntity = cloneDeep(this.entity);
-        const data = {
-            cam: this.cam,
-            activity: this.activity,
-            entity: displayEntity,
-            category: this.category,
-            evidenceIndex: this.evidenceIndex
-        };
-        this.camService.onCamChanged.next(this.cam);
-        this.camService.activity = this.activity;
-        this.noctuaActivityEntityService.initializeForm(this.activity, displayEntity);
-        this.inlineEditorService.open(event.target, { data });
+
+        const isGroupMember = this.cam.groups.some((group) => {
+            return this._noctuaUserService.user.groups?.some((userGroup) => {
+                return group.url === userGroup.id;
+            });
+        });
+
+        const success = () => {
+            const displayEntity = cloneDeep(this.entity);
+            const data = {
+                cam: this.cam,
+                activity: this.activity,
+                entity: displayEntity,
+                category: this.category,
+                evidenceIndex: this.evidenceIndex
+            };
+            this.camService.onCamChanged.next(this.cam);
+            this.camService.activity = this.activity;
+            this.noctuaActivityEntityService.initializeForm(this.activity, displayEntity);
+            this.inlineEditorService.open(event.target, { data });
+        }
+
+        if (this.cam.groups?.length === 0 || isGroupMember) {
+            success();
+        } else {
+            this.confirmDialogService.openConfirmDialog(
+                'Confirm?',
+                'You are about to edit a model associated with a different group. Do you want to continue or cancel?',
+                success
+            );
+        }
+
+
     }
 
     ngOnDestroy(): void {
