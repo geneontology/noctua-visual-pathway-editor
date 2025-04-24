@@ -13,9 +13,9 @@
   <div *ngIf="!readonlyDialog" mat-dialog-actions class="m-0 p-16 noc-dialog-footer" fxLayout="row"
     fxLayoutAlign="space-between center">
     <span fxFlex></span>
-    <button (click)='cancel()' type="button" mat-raised-button color="" class="mr-8">
+    <button (click)='cancel()' type="button" mat-raised-button color="{{highlightCancel ? 'primary': ''}}" class="mr-8">
       {{cancelLabel}}</button>
-    <button (click)="confirm()" type="button" mat-raised-button color="primary">
+    <button (click)="confirm()" type="button" mat-raised-button color="{{highlightConfirm ? 'primary' : ''}}">
       {{confirmLabel}}
     </button>
   </div>

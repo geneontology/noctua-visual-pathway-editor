@@ -51,12 +51,6 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
 
     openEditorDropdown(event) {
 
-        const isGroupMember = this.cam.groups.some((group) => {
-            return this._noctuaUserService.user.groups?.some((userGroup) => {
-                return group.url === userGroup.id;
-            });
-        });
-
         const success = () => {
             const displayEntity = cloneDeep(this.entity);
             const data = {
@@ -72,16 +66,7 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
             this.inlineEditorService.open(event.target, { data });
         }
 
-        if (this.cam.groups?.length === 0 || isGroupMember) {
-            success();
-        } else {
-            this.confirmDialogService.openConfirmDialog(
-                'Confirm?',
-                'You are about to edit a model associated with a different group. Do you want to continue or cancel?',
-                success
-            );
-        }
-
+        this.camService.checkGroup(success)
 
     }
 
