@@ -1,6 +1,13 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+export interface ConfirmDialogData {
+    cancelLabel?: string;
+    confirmLabel?: string;
+    highlightCancel?: boolean;
+    highlightConfirm?: boolean;
+}
+
 @Component({
     selector: 'noctua-confirm-dialog',
     templateUrl: './confirm-dialog.component.html',
@@ -12,13 +19,19 @@ export class NoctuaConfirmDialogComponent {
     public readonlyDialog = false;
     public cancelLabel = 'Cancel'
     public confirmLabel = 'Confirm'
+    public highlightCancel = false
+    public highlightConfirm = true
 
     constructor(public dialogRef: MatDialogRef<NoctuaConfirmDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: any) {
+        @Inject(MAT_DIALOG_DATA) private _data: ConfirmDialogData) {
+
         if (_data) {
             this.cancelLabel = _data.cancelLabel ? _data.cancelLabel : 'Cancel';
             this.confirmLabel = _data.confirmLabel ? _data.confirmLabel : 'Confirm';
+            this.highlightCancel = _data.highlightCancel !== undefined ? _data.highlightCancel : false;
+            this.highlightConfirm = _data.highlightConfirm !== undefined ? _data.highlightConfirm : true;
         }
+
     }
 
     confirm() {
