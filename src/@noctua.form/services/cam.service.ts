@@ -18,6 +18,8 @@ import { environment } from './../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { finalize, map, mergeMap } from 'rxjs/operators';
 import { noctuaFormConfig } from './../noctua-form-config';
+import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogData } from '@noctua/components/confirm-dialog/confirm-dialog.component';
 
 declare const require: any;
 
@@ -48,6 +50,7 @@ export class CamService {
 
   constructor(
     public noctuaFormConfigService: NoctuaFormConfigService,
+    private confirmDialogService: NoctuaConfirmDialogService,
     private zone: NgZone,
     private httpClient: HttpClient,
     private noctuaUserService: NoctuaUserService,
@@ -536,6 +539,41 @@ export class CamService {
 
   }
 
+  isGroupMember() {
+    return this.cam.groups.some((group) => {
+      return this.noctuaUserService.user.groups?.some((userGroup) => {
+        return group.url === userGroup.id;
+      });
+    });
+
+  }
+
+  checkGroup(success) {
+    const isGroupMember = this.isGroupMember();
+
+    const data: ConfirmDialogData = {
+      highlightConfirm: false,
+      highlightCancel: true,
+      cancelLabel: 'Cancel',
+      confirmLabel: 'Continue and edit anyway'
+    }
+
+    const groups = this.cam.groups.map((group) => {
+      return group.name
+    }).join(", ");
+
+    if (this.cam.groups?.length === 0 || isGroupMember) {
+      success();
+    } else {
+      this.confirmDialogService.openConfirmDialog(
+        `Warning: Editing another group's model`,
+        `You are about to edit a model associated with a different group(s) (${groups}). Do you want to continue or cancel?`,
+        success,
+        data
+      );
+    }
+  }
+
   private _compareDateReviewAdded(a: Cam, b: Cam): number {
     if (a.dateReviewAdded < b.dateReviewAdded) {
       return 1;
@@ -543,6 +581,5 @@ export class CamService {
       return -1;
     }
   }
-
 
 }

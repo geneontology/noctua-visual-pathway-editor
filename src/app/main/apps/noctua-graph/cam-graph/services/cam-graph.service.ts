@@ -105,13 +105,19 @@ export class CamGraphService {
   }
 
   createActivity(element: joint.shapes.noctua.NodeCellList, x: number, y: number) {
-    const self = this;
-    const node = element.get('node') as StencilItemNode;
 
-    self.placeholderElement.position(x, y);
-    self._activityFormService.setActivityType(node.type)
-    self._activityFormService.activity.validateEvidence = false;
-    self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
+    const success = () => {
+      const self = this;
+      const node = element.get('node') as StencilItemNode;
+
+      self.placeholderElement.position(x, y);
+      self._activityFormService.setActivityType(node.type)
+      self._activityFormService.activity.validateEvidence = false;
+      self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
+    };
+
+    this._camService.checkGroup(success)
+
   }
 
   createActivityConnector(
@@ -120,8 +126,14 @@ export class CamGraphService {
     link: joint.shapes.noctua.NodeLink) {
     const self = this;
 
-    self._activityConnectorService.initializeForm(sourceId, targetId);
-    self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY_CONNECTOR);
+
+    const success = () => {
+      self._activityConnectorService.initializeForm(sourceId, targetId);
+      self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY_CONNECTOR);
+    }
+
+    this._camService.checkGroup(success)
+
   }
 
   addActivity(activity: Activity, graphLayoutDetail: string) {

@@ -485,10 +485,11 @@ export class NoctuaGraphService {
       return null;
     }
     const nodeInfo = self.getNodeInfo(node);
+    const nodeLabel = nodeInfo.label ? nodeInfo.label : nodeInfo.id
     const result = {
       uuid: objectId,
       date: self.getNodeDate(node),
-      term: new Entity(nodeInfo.id, nodeInfo.label, self.linker.url(nodeInfo.id), objectId),
+      term: new Entity(nodeInfo.id, nodeLabel, self.linker.url(nodeInfo.id), objectId),
       rootTypes: self.getNodeRootInfo(node),
       classExpression: nodeInfo.classExpression,
       location: self.getNodeLocation(node),

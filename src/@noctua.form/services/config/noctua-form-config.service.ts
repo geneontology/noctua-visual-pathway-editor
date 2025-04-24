@@ -387,7 +387,7 @@ export class NoctuaFormConfigService {
     let objectNode;
 
     each(nodeDescriptions, (nodeDescription: ModelDefinition.InsertNodeDescription) => {
-      if (bbopPredicateId === nodeDescription.predicate.id) {
+      if (bbopPredicateId === nodeDescription.predicate?.id) {
         if (partialObjectNode && partialObjectNode.hasRootTypes(nodeDescription.node.category)) {
           objectNode = ModelDefinition.insertNode(activity, subjectNode, nodeDescription);
           return false;
