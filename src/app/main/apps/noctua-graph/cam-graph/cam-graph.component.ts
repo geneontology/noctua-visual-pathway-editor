@@ -100,12 +100,17 @@ export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     this.noctuaGraphEditorService.onGraphLayoutDetailChanged.next(selected)
   }
 
+  selectLayoutSpacing(selected) {
+    this.noctuaGraphEditorService.selectedGraphLayoutSpacing = selected;
+    this.noctuaGraphEditorService.onGraphLayoutSpacingChanged.next(selected)
+  }
+
   canMove(e: any): boolean {
     return e.indexOf('Disabled') === -1;
   }
 
   automaticLayout() {
-    this.noctuaCamGraphService.autoLayoutGraph();
+    this.noctuaCamGraphService.autoLayoutGraph(this.noctuaGraphEditorService.selectedGraphLayoutSpacing.id);
   }
 
   zoomIn() {

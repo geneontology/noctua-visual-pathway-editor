@@ -36,6 +36,20 @@
           {{graphLayoutDetail.label}}
         </button>
       </mat-menu>
+      <span class='noc-title mr-4'>
+        Spacing :
+      </span>
+      <button mat-stroked-button class="noc-rounded-button noc-action-button noc-half-button noc-xs" color="primary"
+        [matMenuTriggerFor]="graphLayoutSpacingMenu">
+        {{noctuaGraphEditorService.selectedGraphLayoutSpacing.label}} <fa-icon *ngIf="cam.expanded"
+          [icon]="['fas', 'caret-down']"></fa-icon>
+      </button>
+      <mat-menu #graphLayoutSpacingMenu="matMenu" class="noc-dropdown-menu">
+        <button mat-menu-item *ngFor="let graphLayoutSpacing of noctuaFormConfigService.graphLayoutSpacing.options"
+          class="" (click)="selectLayoutSpacing(graphLayoutSpacing)">
+          {{graphLayoutSpacing.label}}
+        </button>
+      </mat-menu>
 
       <div class="noc-button-row ml-12">
         <span class='noc-title mr-4'>

@@ -177,6 +177,18 @@ export const noctuaFormConfig = {
       },
     }
   },
+  'graphLayoutSpacing': {
+    'options': {
+      'compact': {
+        'id': 'compact',
+        'label': 'Compact View'
+      },
+      'expanded': {
+        'id': 'expanded',
+        'label': 'Expanded View'
+      }
+    }
+  },
   'activityType': {
     'options': {
       'default': {
