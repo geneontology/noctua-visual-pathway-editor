@@ -544,15 +544,12 @@ export class CamService {
 
     cam.activities.forEach((activity: Activity) => {
       if (activity.mfNode?.term.id) {
-        console.log('Update MF Properties', activity.mfNode?.term.id);
         this.noctuaLookupService.getTermDetail(activity.mfNode.term.id)
           .subscribe((res) => {
             if (!Array.isArray(res) && res.neighborhoodGraphJson) {
               const parsed = JSON.parse(res.neighborhoodGraphJson);
-              console.log(parsed);
               const objs = DataUtils.processHasParticipants(parsed);
               activity.mfNode.chemicalParticipants = objs;
-              console.log('Participants', objs);
             }
           });
       }

@@ -1,7 +1,7 @@
 <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-drawer w-100-p h-100-p">
   <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
     <span class="noc-drawer-header-title">
-      Causal Relation Form</span>
+      Connect via Small Molecule Intermediate</span>
     <span fxFlex></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
       aria-label="Close dialog">
@@ -9,28 +9,59 @@
     </button>
   </div>
   <div class="noc-drawer-body" fxLayout="column" fxLayoutAlign="start start" noctuaPerfectScrollbar>
-    <div *ngIf="items.length > 0" vclass="noc-section-body w-full p-4 bg-sky-50" fxLayout="column"
-      fxLayoutAlign="start stretch">
-      <div>
-        <mat-checkbox [(ngModel)]="allSelected" (change)="selectAll()">
-          Select All
-        </mat-checkbox>
-      </div>
 
-      <div *ngFor="let item of items">
-        <mat-checkbox [(ngModel)]="item.selected" (ngModelChange)="onItemChange()">
-          {{ item.label }} ({{ item.id }})
-        </mat-checkbox>
+    <div *ngIf="commonItems.length > 0" fxLayout="column" fxLayoutAlign="start stretch"
+      class="noc-form-section w-100-p">
+      <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-heading">
+          Participants common to upstream and downstream activities
+        </div>
       </div>
-
-      <button (click)="saveParticipants()" class="noc-rounded-button" mat-raised-button color="primary">Create</button>
+      <div class="noc-section-body" fxLayout="column" fxLayoutAlign="start stretch">
+        <div *ngFor="let item of commonItems">
+          <mat-checkbox [(ngModel)]="item.selected" (ngModelChange)="onItemChange()">
+            {{ item.label }} ({{ item.id }})
+          </mat-checkbox>
+        </div>
+      </div>
     </div>
+
+    <div *ngIf="subjectItems.length > 0" fxLayout="column" fxLayoutAlign="start stretch"
+      class="noc-form-section w-100-p">
+      <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-heading">
+          Participants in upstream activity only
+        </div>
+      </div>
+      <div class="noc-section-body" fxLayout="column" fxLayoutAlign="start stretch">
+        <div *ngFor="let item of subjectItems">
+          <mat-checkbox [(ngModel)]="item.selected" (ngModelChange)="onItemChange()">
+            {{ item.label }} ({{ item.id }})
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="objectItems.length > 0" fxLayout="column" fxLayoutAlign="start stretch"
+      class="noc-form-section w-100-p">
+      <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-heading">
+          Participants in downstream activity only
+        </div>
+      </div>
+      <div class="noc-section-body" fxLayout="column" fxLayoutAlign="start stretch">
+
+        <div *ngFor="let item of objectItems">
+          <mat-checkbox [(ngModel)]="item.selected" (ngModelChange)="onItemChange()">
+            {{ item.label }} ({{ item.id }})
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
     <form name="connectorFormGroup" [formGroup]="connectorFormGroup" class="noc-connector-form">
       <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-100-p">
-        <div class="noc-section-body w-100-p p-0" fxLayout="column" fxLayoutAlign="start center">
-          <noc-graph-preview [nodes]="connectorActivity?.graphPreview.nodes"
-            [edges]="connectorActivity?.graphPreview.edges" class="noc-graph-preview"></noc-graph-preview>
-        </div>
+
 
         <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
           <div class="noc-section-heading">
@@ -85,12 +116,10 @@
     </form>
   </div>
   <div fxLayout="row" fxLayoutAlign="start center" class="noc-drawer-footer noc-submit-row">
-    <button *ngIf="!connectorFormGroup.valid" (click)='checkErrors()' mat-button color="warn"
-      class="noc-rounded-button noc-sm">
-      Why is the "Save" button disabled?
-    </button>
+
     <span fxFlex></span>
-    <button [disabled]="!connectorActivity?.predicate.edge?.id" (click)="save()" type="submit"
-      class="noc-rounded-button" mat-raised-button color="primary">Save</button>
+    <button [disabled]="getSelectedItems().length===0" (click)="save()" type="submit" class="noc-rounded-button"
+      mat-raised-button color="primary">Save</button>
+
   </div>
 </div>

@@ -79,7 +79,11 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   }
 
   openChemicalConnectorForm() {
+    if (this.closeDialog) {
+      this.closeDialog();
+    }
     this.noctuaFormDialogService.openCreateActivityDialog(FormType.CHEMICAL_CONNECTOR);
+
   }
 
   save() {

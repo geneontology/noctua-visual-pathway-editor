@@ -45,6 +45,9 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   allSelected: boolean = false;
 
   items = []
+  commonItems = []
+  subjectItems = []
+  objectItems = []
 
   private _unsubscribeAll: Subject<any>;
 
@@ -70,9 +73,22 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
         this.connectorActivity = this.noctuaActivityConnectorService.connectorActivity;
         this.relationshipOptions = this.noctuaFormConfigService[this.connectorActivity.connectorType + 'Relationship']['options']
 
-        this.items = DataUtils.findCommonItems(
+        this.commonItems = DataUtils.findCommonItems(
           this.connectorActivity.subjectNode.chemicalParticipants,
           this.connectorActivity.objectNode.chemicalParticipants)
+
+
+        this.subjectItems = DataUtils.findItemsNotInB(this.connectorActivity.subjectNode.chemicalParticipants,
+          this.connectorActivity.objectNode.chemicalParticipants)
+
+        this.objectItems = DataUtils.findItemsNotInB(this.connectorActivity.objectNode.chemicalParticipants,
+          this.connectorActivity.subjectNode.chemicalParticipants)
+
+
+        this.items = [...this.commonItems, ...this.subjectItems, ...this.objectItems];
+
+
+
       });
 
 
@@ -91,7 +107,15 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
     return this.items.filter(item => item.selected);
   }
 
+  onItemChangeOld() {
+    this.updateAllSelected();
+  }
+
   onItemChange() {
+
+
+    console.log('items', this.getSelectedItems().map(item => item.label));
+
     this.updateAllSelected();
   }
 
@@ -100,7 +124,7 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   }
 
 
-  saveParticipants() {
+  save() {
     this.noctuaActivityConnectorService.saveChemicalParticipants(this.connectorActivity.subjectNode, this.connectorActivity.objectNode, this.getSelectedItems())
       .subscribe(() => {
         this.noctuaFormDialogService.openInfoToast('Chemical Reactions created.', 'OK');
@@ -111,19 +135,6 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
           this.closeDialog();
         }
       });
-  }
-
-  save() {
-    const self = this;
-    this.noctuaActivityConnectorService.saveActivity().then(() => {
-      self.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
-
-      this.noctuaActivityConnectorService.initializeForm(
-        self.noctuaActivityConnectorService.subjectActivity.id, self.noctuaActivityConnectorService.objectActivity.id)
-      if (this.closeDialog) {
-        this.closeDialog();
-      }
-    });
   }
 
   close() {
