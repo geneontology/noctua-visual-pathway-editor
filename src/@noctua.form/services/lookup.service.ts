@@ -480,7 +480,8 @@ export class NoctuaLookupService {
         isObsolete: item.is_obsolete,
         replacedBy: item.replaced_by,
         rootTypes: self._makeEntitiesArray(item.isa_closure, item.isa_closure_label),
-        xref: xref
+        xref: xref,
+        neighborhoodGraphJson: item.neighborhood_graph_json,
       };
     });
 
