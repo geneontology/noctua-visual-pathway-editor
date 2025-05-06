@@ -209,8 +209,8 @@ export class CamGraphService {
 
   }
 
-  autoLayoutGraph() {
-    this.camCanvas.autoLayoutGraph(this.camCanvas.canvasGraph);
+  autoLayoutGraph(spacingId: string) {
+    this.camCanvas.autoLayoutGraph(this.camCanvas.canvasGraph, spacingId);
   }
 
   save() {

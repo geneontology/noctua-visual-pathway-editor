@@ -12,7 +12,8 @@ import {
   NoctuaActivityFormService,
   NoctuaFormConfigService,
   NoctuaUserService,
-  ConnectorType
+  ConnectorType,
+  FormType
 } from '@geneontology/noctua-form-base';
 import { NoctuaFormDialogService } from '../../../services/dialog.service';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
@@ -40,6 +41,7 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   searchCriteria: any = {};
   evidenceFormArray: FormArray;
   relationshipOptions;
+  displayChemicalConnector: boolean = false;
 
   private _unsubscribeAll: Subject<any>;
 
@@ -67,10 +69,21 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
 
       });
 
+    this.displayChemicalConnector = this.canConnectViaChemicals();
+
   }
 
-  openActivityConnector(connector: Activity) {
-    this.noctuaActivityConnectorService.initializeForm(this.noctuaActivityConnectorService.objectActivity.id, connector.id);
+  private canConnectViaChemicals(): boolean {
+    return this.connectorActivity.subjectNode.chemicalParticipants?.length > 0 ||
+      this.connectorActivity.objectNode.chemicalParticipants?.length > 0;
+  }
+
+  openChemicalConnectorForm() {
+    if (this.closeDialog) {
+      this.closeDialog();
+    }
+    this.noctuaFormDialogService.openCreateActivityDialog(FormType.CHEMICAL_CONNECTOR);
+
   }
 
   save() {

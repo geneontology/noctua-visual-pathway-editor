@@ -65,6 +65,18 @@ export class NoctuaFormConfigService {
     };
   }
 
+  get graphLayoutSpacing() {
+    const options = [
+      noctuaFormConfig.graphLayoutSpacing.options.compact,
+      noctuaFormConfig.graphLayoutSpacing.options.expanded,
+    ];
+
+    return {
+      options: options,
+      selected: options[0]
+    };
+  }
+
   findModelState(name) {
     const self = this;
 
