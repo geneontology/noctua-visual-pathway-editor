@@ -10,6 +10,11 @@ $accent: map-get($theme, accent);
   background-color: white;
   @include mat.elevation(4);
 
+  .noc-connect-button {
+    background-color: #337d33;
+    color: #fff;
+  }
+
   .noc-drawer-body {
     min-height: calc(100% - 80px);
   }

@@ -87,6 +87,8 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
 
         this.items = [...this.commonItems, ...this.subjectItems, ...this.objectItems];
 
+        console.log('items', this.items);
+
 
 
       });

@@ -25,7 +25,6 @@
         </div>
       </div>
     </div>
-
     <div *ngIf="subjectItems.length > 0" fxLayout="column" fxLayoutAlign="start stretch"
       class="noc-form-section w-100-p">
       <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
@@ -58,6 +57,15 @@
         </div>
       </div>
     </div>
+
+    <div *ngIf="subjectItems.length === 0 && objectItems.length > 0" class="noc-no-info">
+      no participants found for upstream activity
+    </div>
+
+    <div *ngIf="objectItems.length === 0 && subjectItems.length > 0" class="noc-no-info">
+      no participants found for downstream activity
+    </div>
+
 
     <form name="connectorFormGroup" [formGroup]="connectorFormGroup" class="noc-connector-form">
       <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-100-p">
