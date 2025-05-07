@@ -681,9 +681,9 @@ export class CamCanvas {
             joint.layout.DirectedGraph.layout(graph.getSubgraph(autoLayoutElements), {
                 align: 'UL',
                 setLabels: true,
-                rankSep: 200,
                 marginX: 50,
                 marginY: 50,
+                rankSep: 200,
                 ranker: 'network-simplex',
                 // nodeSep: 2000,
                 //edgeSep: 2000,

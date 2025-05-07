@@ -123,21 +123,23 @@ export class NoctuaActivityConnectorService {
       return nodes
     });
 
-    const triples = nodes.map((node) => {
-      const edge = new Entity(noctuaFormConfig.edge.hasInput.id, '')
+    const triples2 = nodes.map((node) => {
+      const edge = new Entity(noctuaFormConfig.edge.hasOutput.id, '')
       const predicate = new Predicate(edge);
       const triple = new Triple<ActivityNode>(
         subjectNode, node, predicate)
       return triple
     });
 
-    const triples2 = nodes.map((node) => {
-      const edge = new Entity(noctuaFormConfig.edge.hasOutput.id, '')
+    const triples = nodes.map((node) => {
+      const edge = new Entity(noctuaFormConfig.edge.hasInput.id, '')
       const predicate = new Predicate(edge);
       const triple = new Triple<ActivityNode>(
         objectNode, node, predicate)
       return triple
     });
+
+
 
 
 
