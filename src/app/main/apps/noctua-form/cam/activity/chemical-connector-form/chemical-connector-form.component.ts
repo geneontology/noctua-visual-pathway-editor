@@ -115,9 +115,6 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
 
   onItemChange() {
 
-
-    console.log('items', this.getSelectedItems().map(item => item.label));
-
     this.updateAllSelected();
   }
 
