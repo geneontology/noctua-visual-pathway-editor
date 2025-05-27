@@ -16,7 +16,7 @@
       "subject": "GO:0008150",
       "root_subject": "http://purl.obolibrary.org/obo/go/shapes/GoCamEntity",
       "object": [
-        "CHEBI:24431",
+        "CHEBI:33695",
         "CARO:0000000",
         "GO:0032991",
         "NCBITaxon:1"
@@ -31,7 +31,7 @@
       "subject": "GO:0008150",
       "root_subject": "http://purl.obolibrary.org/obo/go/shapes/GoCamEntity",
       "object": [
-        "CHEBI:24431",
+        "CHEBI:33695",
         "CARO:0000000",
         "GO:0032991"
       ],
@@ -546,7 +546,7 @@
       "subject": "GO:0003674",
       "root_subject": "http://purl.obolibrary.org/obo/go/shapes/GoCamEntity",
       "object": [
-        "CHEBI:24431",
+        "CHEBI:33695",
         "GO:0032991"
       ],
       "is_multivalued": true,
@@ -559,7 +559,7 @@
       "subject": "GO:0003674",
       "root_subject": "http://purl.obolibrary.org/obo/go/shapes/GoCamEntity",
       "object": [
-        "CHEBI:24431",
+        "CHEBI:33695",
         "GO:0032991"
       ],
       "is_multivalued": true,

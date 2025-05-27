@@ -251,7 +251,7 @@ export const canInsertEntity = {
             label: 'Add Has Input (Chemical/Protein Containing Complex)',
             id: ActivityNodeType.GoChemicalEntityHasInput,
             node: <ActivityNodeDisplay>{
-                category: [EntityDefinition.GoChemicalEntity, EntityDefinition.GoProteinContainingComplex],
+                category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 type: ActivityNodeType.GoChemicalEntityHasInput,
                 label: 'has input (Chemical/Protein Containing Complex)',
                 displaySection: noctuaFormConfig.displaySection.fd,
@@ -267,7 +267,7 @@ export const canInsertEntity = {
             label: 'Add Has Output (Chemical/Protein Containing Complex)',
             id: ActivityNodeType.GoChemicalEntityHasOutput,
             node: <ActivityNodeDisplay>{
-                category: [EntityDefinition.GoChemicalEntity, EntityDefinition.GoProteinContainingComplex],
+                category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 type: ActivityNodeType.GoChemicalEntityHasOutput,
                 label: 'has output (Chemical/Protein Containing Complex)',
                 displaySection: noctuaFormConfig.displaySection.fd,
