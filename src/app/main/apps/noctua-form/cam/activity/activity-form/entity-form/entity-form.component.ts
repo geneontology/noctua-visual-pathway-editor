@@ -44,7 +44,7 @@ export class EntityFormComponent implements OnInit, OnDestroy {
   friendNodes;
   friendNodesFlat;
   activityNodeType = ActivityNodeType;
-  displayAddButton = false;
+  displayAddButton = true;
 
   termData
 

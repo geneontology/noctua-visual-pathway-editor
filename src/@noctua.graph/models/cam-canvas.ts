@@ -436,11 +436,17 @@ export class CamCanvas {
     private _addFDEntity(treeNode: ActivityTreeNode, el: NodeCellList) {
         const self = this;
 
+        console.log('treeNode', treeNode.id);
+
         if (treeNode.node?.displaySection.id === noctuaFormConfig.displaySection.fd.id) {
             if (treeNode.node?.term) {
                 el.addEntity(NoctuaFormUtils.pad('—', treeNode.node.treeLevel - 2)
                     + treeNode.node.predicate.edge?.label, treeNode.node.term.label, treeNode.node.predicate.hasEvidence());
             }
+
+            treeNode.children.map(child => {
+                console.log('node --', child.id);
+            })
 
             treeNode.children.forEach(child => {
                 self._addFDEntity(child, el)
@@ -455,12 +461,14 @@ export class CamCanvas {
         //.setSuccessorCount(activity.successorCount)
 
         if (graphLayoutDetail === noctuaFormConfig.graphLayoutDetail.options.detailed.id) {
-            if (activity.activityType === ActivityType.proteinComplex) {
-                const gpNodes = activity.buildGPTrees();
-                gpNodes.forEach(gpNode => this._addGPEntity(gpNode, el));
-            }
+            //if (activity.activityType === ActivityType.proteinComplex) {
+            const gpNodes = activity.buildGPTrees();
+            gpNodes.forEach(gpNode => this._addGPEntity(gpNode, el));
+            // }
 
             const fdNodes = activity.buildTrees();
+
+            console.log('fdNodes', fdNodes);
             fdNodes.forEach(fdNode => this._addFDEntity(fdNode, el));
         } else if (graphLayoutDetail === noctuaFormConfig.graphLayoutDetail.options.activity.id) {
 
