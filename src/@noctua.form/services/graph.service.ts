@@ -815,7 +815,10 @@ export class NoctuaGraphService {
         activity.postRunUpdate();
         // }
 
-        activities.push(activity);
+        if (!environment.isGraph || activity.activityType !== ActivityType.ccOnly) {
+          activities.push(activity);
+        }
+
       }
     });
 
@@ -1424,9 +1427,6 @@ export class NoctuaGraphService {
 
     return objectNode;
   }
-
-
-
 
   private _compareSources(a: any, b: any) {
     return (a.value() > b.value()) ? -1 : 1;
