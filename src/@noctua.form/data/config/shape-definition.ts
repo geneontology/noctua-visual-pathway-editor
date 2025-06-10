@@ -97,23 +97,7 @@ export const canInsertEntity = {
             },
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToMany
-        },
-        <ShapeDescription>{
-            label: 'Add located in (CC)',
-            id: ActivityNodeType.GoCellularComponent,
-            node: <ActivityNodeDisplay>{
-                type: ActivityNodeType.GoCellularComponent,
-                category: [EntityDefinition.GoCellularComponent],
-                label: '(GP) located in (CC)',
-                aspect: 'C',
-                displaySection: noctuaFormConfig.displaySection.fd,
-                displayGroup: noctuaFormConfig.displayGroup.cc,
-                weight: 10,
-                showInMenu: true,
-            },
-            predicate: noctuaFormConfig.edge.locatedIn,
-            cardinality: CardinalityType.oneToMany
-        },
+        }
     ],
 
     [ActivityNodeType.GoProteinContainingComplex]: [

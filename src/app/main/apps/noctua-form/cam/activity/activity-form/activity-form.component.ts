@@ -78,7 +78,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
         if (this.activity.activityType === ActivityType.ccOnly) {
           this.descriptionSectionTitle = 'Localization Description';
         } else if (this.activity.activityType === ActivityType.molecule) {
-          this.annotatedSectionTitle = 'Small Molecule';
+          this.annotatedSectionTitle = 'Chemical';
           this.descriptionSectionTitle = 'Location (optional)';
         } else {
           this.descriptionSectionTitle = 'Function Description';

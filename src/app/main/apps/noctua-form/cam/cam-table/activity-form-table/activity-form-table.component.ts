@@ -115,13 +115,15 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
   ngOnInit(): void {
     this.loadTree()
     this.gpOptions = cloneDeep(this.options);
-    this.gpOptions.showMenu = this.activity.activityType === ActivityType.molecule ||
-      this.activity.activityType === ActivityType.proteinComplex;
+    /*  this.gpOptions.showMenu = this.activity.activityType === ActivityType.molecule ||
+       this.activity.activityType === ActivityType.proteinComplex */
+
+    this.gpOptions.showMenu = true;
 
     if (this.activity.activityType === ActivityType.ccOnly) {
       this.descriptionSectionTitle = 'Localization Description';
     } else if (this.activity.activityType === ActivityType.molecule) {
-      this.annotatedSectionTitle = 'Small Molecule';
+      this.annotatedSectionTitle = 'Chemical';
       this.descriptionSectionTitle = 'Location (optional)';
     } else {
       this.descriptionSectionTitle = 'Function Description';
@@ -135,7 +137,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
         }
         this.settings = settings;
         this.gpSettings = cloneDeep(settings)
-        this.gpSettings.showEvidence = false;
+        this.gpSettings.showEvidence = true;
         this.gpSettings.showEvidenceSummary = false;
       });
 
