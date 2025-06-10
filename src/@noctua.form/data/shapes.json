@@ -250,7 +250,7 @@
       "subject": "GO:0030154",
       "root_subject": "GO:0008150",
       "object": [
-        "CL:0000003"
+        "CL:0000000"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -262,7 +262,7 @@
       "subject": "GO:0051301",
       "root_subject": "GO:0008150",
       "object": [
-        "CL:0000003"
+        "CL:0000000"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -274,7 +274,7 @@
       "subject": "GO:0045165",
       "root_subject": "GO:0008150",
       "object": [
-        "CL:0000003"
+        "CL:0000000"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -286,7 +286,7 @@
       "subject": "GO:0001709",
       "root_subject": "GO:0008150",
       "object": [
-        "CL:0000003"
+        "CL:0000000"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -298,7 +298,7 @@
       "subject": "GO:0001708",
       "root_subject": "GO:0008150",
       "object": [
-        "CL:0000003"
+        "CL:0000000"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -882,7 +882,7 @@
       "exclude_from_extensions": false
     },
     {
-      "subject": "CL:0000003",
+      "subject": "CL:0000000",
       "root_subject": "http://purl.obolibrary.org/obo/go/shapes/GoCamEntity",
       "object": [
         "CARO:0000000"
