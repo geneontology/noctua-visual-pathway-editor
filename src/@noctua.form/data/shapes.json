@@ -967,7 +967,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0001025",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "GO:0032991",
@@ -980,7 +980,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0002432",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "GO:0032991",
@@ -1007,7 +1007,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0002490",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "GO:0032991",
@@ -1021,7 +1021,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0002491",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "CHEBI:36080",
