@@ -74,8 +74,10 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   }
 
   private canConnectViaChemicals(): boolean {
-    return this.connectorActivity.subjectNode.chemicalParticipants?.length > 0 ||
-      this.connectorActivity.objectNode.chemicalParticipants?.length > 0;
+
+    return this.connectorActivity.connectorType === ConnectorType.ACTIVITY_ACTIVITY &&
+      (this.connectorActivity.subjectNode.chemicalParticipants?.length > 0 ||
+        this.connectorActivity.objectNode.chemicalParticipants?.length > 0);
   }
 
   openChemicalConnectorForm() {

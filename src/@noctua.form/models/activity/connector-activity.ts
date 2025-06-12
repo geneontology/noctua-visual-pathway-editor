@@ -96,7 +96,7 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   checkConnection(value: any) {
     const self = this;
 
-    self.rule.displaySection.effectDirection = true;
+    //self.rule.displaySection.effectDirection = true;
 
     if (value.relationship) {
       switch (value.relationship.id) {
@@ -126,6 +126,8 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
           self.rule.displaySection.effectDirection = false;
           self.rule.displaySection.directness = false;
           break;
+        default:
+          self.rule.displaySection.effectDirection = true;
       }
     }
 
