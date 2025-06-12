@@ -89,9 +89,12 @@ export class NoctuaActivityConnectorService {
       this.connectorForm.directness.setValue(this.connectorActivity.rule.directness);
     } else if (this.connectorActivity.connectorType === ConnectorType.ACTIVITY_MOLECULE) {
       this.connectorForm.relationship.setValue(this.connectorActivity.rule.relationship);
+      this.connectorActivity.rule.displaySection.directness = false;
+      this.connectorActivity.rule.displaySection.effectDirection = false;
     } else if (this.connectorActivity.connectorType === ConnectorType.MOLECULE_ACTIVITY) {
       this.connectorForm.relationship.setValue(this.connectorActivity.rule.relationship);
       this.connectorForm.effectDirection.setValue(this.connectorActivity.rule.effectDirection);
+      this.connectorActivity.rule.displaySection.directness = false;
     }
 
     this._onActivityFormChanges();
@@ -138,12 +141,6 @@ export class NoctuaActivityConnectorService {
         objectNode, node, predicate)
       return triple
     });
-
-
-
-
-
-
 
     return forkJoin(this.noctuaGraphService.addActivity(this.cam, nodes, [...triples, ...triples2], this.cam.title));
 

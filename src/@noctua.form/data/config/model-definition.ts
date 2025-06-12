@@ -160,7 +160,7 @@ export const activityUnitDescription: ActivityDescription = {
         [ActivityNodeType.GoMolecularEntity]: <ActivityNodeDisplay>{
             id: EntityDefinition.GoMolecularEntity.id,
             type: ActivityNodeType.GoMolecularEntity,
-            category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
+            category: [EntityDefinition.GoMolecularEntity],
             label: 'enabled by (GP)',
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,

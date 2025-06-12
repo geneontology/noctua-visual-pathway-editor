@@ -1082,7 +1082,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0001025",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "CHEBI:33695",
@@ -1095,7 +1095,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0002432",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     },
     {
       "subject": "CHEBI:33695",
@@ -1119,7 +1119,7 @@
       "is_required": false,
       "context": "",
       "predicate": "RO:0002326",
-      "exclude_from_extensions": false
+      "exclude_from_extensions": true
     }
   ],
   "@type": "AssociationCollection"
