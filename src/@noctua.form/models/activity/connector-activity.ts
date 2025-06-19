@@ -95,33 +95,34 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
 
   checkConnection(value: any) {
 
+    this.rule.displaySection.chemicalIntermediate = false;
+    this.rule.displaySection.directness = false;
+
     if (value.relationship) {
       switch (value.relationship.id) {
         case noctuaFormConfig.activityRelationship.regulation.id:
           this.rule.displaySection.effectDirection = true;
           this.rule.displaySection.directness = true;
           break;
-        case noctuaFormConfig.activityRelationship.constitutivelyUpstream.id:
         case noctuaFormConfig.activityRelationship.providesInputFor.id:
+          this.rule.displaySection.chemicalIntermediate = true;
+          this.rule.displaySection.effectDirection = false;
+          break;
+        case noctuaFormConfig.activityRelationship.constitutivelyUpstream.id:
         case noctuaFormConfig.activityRelationship.removesInputFor.id:
           this.rule.displaySection.effectDirection = false;
-          this.rule.displaySection.directness = false;
           break;
         case noctuaFormConfig.activityRelationship.undetermined.id:
           this.rule.displaySection.effectDirection = true;
-          this.rule.displaySection.directness = false;
           break;
         case noctuaFormConfig.moleculeActivityRelationship.regulates.id:
           this.rule.displaySection.effectDirection = true;
-          this.rule.displaySection.directness = false;
           break;
         case noctuaFormConfig.moleculeActivityRelationship.substrate.id:
           this.rule.displaySection.effectDirection = false;
-          this.rule.displaySection.directness = false;
           break;
         case (noctuaFormConfig.activityMoleculeRelationship.product.id):
           this.rule.displaySection.effectDirection = false;
-          this.rule.displaySection.directness = false;
           break;
         default:
           this.rule.displaySection.effectDirection = true;
