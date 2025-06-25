@@ -149,42 +149,6 @@
       "exclude_from_extensions": false
     },
     {
-      "subject": "CHEBI:24431",
-      "root_subject": "",
-      "object": [
-        "GO:0003674"
-      ],
-      "is_multivalued": true,
-      "is_required": false,
-      "context": "",
-      "predicate": "RO:0012004",
-      "exclude_from_extensions": false
-    },
-    {
-      "subject": "CHEBI:24431",
-      "root_subject": "",
-      "object": [
-        "GO:0003674"
-      ],
-      "is_multivalued": true,
-      "is_required": false,
-      "context": "",
-      "predicate": "RO:0012005",
-      "exclude_from_extensions": false
-    },
-    {
-      "subject": "CHEBI:24431",
-      "root_subject": "",
-      "object": [
-        "GO:0003674"
-      ],
-      "is_multivalued": true,
-      "is_required": false,
-      "context": "",
-      "predicate": "RO:0012006",
-      "exclude_from_extensions": false
-    },
-    {
       "subject": "CHEBI:33695",
       "root_subject": "CHEBI:24431",
       "object": [
