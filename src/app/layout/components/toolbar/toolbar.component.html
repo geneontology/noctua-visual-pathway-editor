@@ -25,10 +25,7 @@
       </div>
     </div>
     <div class="noc-logo pl-0 h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="180px">
-      <button mat-icon-button (click)="openApps()" class="noc-br noc-apps-button" matTooltip="Open Workbenches Menu"
-        [matTooltipPosition]="'below'" [matTooltipShowDelay]="1000">
-        <mat-icon class="">apps</mat-icon>
-      </button>
+
       <ng-container *ngIf="!isBeta && !isDev">
         <a class="noc-main-logo" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
           Noctua
