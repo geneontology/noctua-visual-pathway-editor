@@ -25,10 +25,7 @@
       </div>
     </div>
     <div class="noc-logo pl-0 h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="180px">
-      <button mat-icon-button (click)="openApps()" class="noc-br noc-apps-button" matTooltip="Open Workbenches Menu"
-        [matTooltipPosition]="'below'" [matTooltipShowDelay]="1000">
-        <mat-icon class="">apps</mat-icon>
-      </button>
+
       <ng-container *ngIf="!isBeta && !isDev">
         <a class="noc-main-logo" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
           Noctua
@@ -56,14 +53,8 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="end center" fxFlex="">
       <div class="noc-br pr-12" fxLayout="row" fxLayoutAlign="start center">
-        <a mat-icon-button href="https://github.com/geneontology" target="blank">
+        <a mat-icon-button href="https://github.com/geneontology/go-ontology/issues" target="blank">
           <fa-icon [icon]="['fab', 'github']"></fa-icon>
-        </a>
-        <a mat-icon-button href="https://twitter.com/news4go" target="blank">
-          <fa-icon [icon]="['fab', 'twitter']"></fa-icon>
-        </a>
-        <a mat-icon-button href="https://www.facebook.com/pages/Gene-Ontology/305908656519" target="blank">
-          <fa-icon [icon]="['fab', 'facebook']"></fa-icon>
         </a>
       </div>
       <div class="noc-br pl-12 pr-12" fxLayout="row" fxLayoutAlign="start center">

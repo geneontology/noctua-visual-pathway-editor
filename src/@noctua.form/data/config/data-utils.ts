@@ -52,7 +52,12 @@ export class DataUtils {
       })
 
       const result = cloneDeep(lookupTable[shape.predicate])
-      result['rangeLabel'] = range.join(', ');
+
+      if (result) {
+        result['rangeLabel'] = range.join(', ');
+      } else {
+        result['rangeLabel'] = '';
+      }
 
       return result;
 

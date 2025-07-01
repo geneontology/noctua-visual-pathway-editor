@@ -94,52 +94,60 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   }
 
   checkConnection(value: any) {
-    const self = this;
 
-    //self.rule.displaySection.effectDirection = true;
+    this.rule.displaySection.chemicalIntermediate = false;
+    this.rule.displaySection.directness = false;
 
     if (value.relationship) {
       switch (value.relationship.id) {
         case noctuaFormConfig.activityRelationship.regulation.id:
-          self.rule.displaySection.effectDirection = true;
-          self.rule.displaySection.directness = true;
+          this.rule.displaySection.effectDirection = true;
+          this.rule.displaySection.directness = true;
+          break;
+        case noctuaFormConfig.activityRelationship.providesInputFor.id:
+          this.rule.displaySection.chemicalIntermediate = true;
+          this.rule.displaySection.effectDirection = false;
           break;
         case noctuaFormConfig.activityRelationship.constitutivelyUpstream.id:
-        case noctuaFormConfig.activityRelationship.providesInputFor.id:
         case noctuaFormConfig.activityRelationship.removesInputFor.id:
-          self.rule.displaySection.effectDirection = false;
-          self.rule.displaySection.directness = false;
+          this.rule.displaySection.effectDirection = false;
           break;
         case noctuaFormConfig.activityRelationship.undetermined.id:
-          self.rule.displaySection.effectDirection = true;
-          self.rule.displaySection.directness = false;
+          this.rule.displaySection.effectDirection = true;
           break;
         case noctuaFormConfig.moleculeActivityRelationship.regulates.id:
-          self.rule.displaySection.effectDirection = true;
-          self.rule.displaySection.directness = false;
+          this.rule.displaySection.effectDirection = true;
           break;
         case noctuaFormConfig.moleculeActivityRelationship.substrate.id:
-          self.rule.displaySection.effectDirection = false;
-          self.rule.displaySection.directness = false;
+          this.rule.displaySection.effectDirection = false;
           break;
         case (noctuaFormConfig.activityMoleculeRelationship.product.id):
-          self.rule.displaySection.effectDirection = false;
-          self.rule.displaySection.directness = false;
+          this.rule.displaySection.effectDirection = false;
           break;
         default:
-          self.rule.displaySection.effectDirection = true;
+          this.rule.displaySection.effectDirection = true;
       }
     }
 
-    self.predicate.edge = this.getCausalConnectorEdge(
-      value.relationship?.id,
-      self.rule.displaySection.effectDirection && value.effectDirection ? value.effectDirection.id : null,
-      self.rule.displaySection.directness && value.directness ? value.directness.id : null);
+    /* 
+        if (value.relationship && value.effectDirection) {
+          switch (value.effectDirection.id) {
+            case noctuaFormConfig.effectDirection.negative.id:
+            case noctuaFormConfig.effectDirection.positive.id:
+              this.rule.displaySection.directness = true;
+              break;
+          }
+        } */
 
-    self.prepareSave(value);
+    this.predicate.edge = this.getCausalConnectorEdge(
+      value.relationship?.id,
+      this.rule.displaySection.effectDirection && value.effectDirection ? value.effectDirection.id : null,
+      this.rule.displaySection.directness && value.directness ? value.directness.id : null);
+
+    this.prepareSave(value);
 
     this.setLinkDirection();
-    self.setPreview();
+    this.setPreview();
   }
 
   getVPEEdge(relationship: string, effectDirection?: string, directness?: string): string | undefined {
