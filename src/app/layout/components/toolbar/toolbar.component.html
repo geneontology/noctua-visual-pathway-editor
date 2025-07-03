@@ -17,13 +17,7 @@
   </ng-container>
   <mat-toolbar fxLayout="row" fxLayoutAlign="start center" [ngClass]="{'noc-dev': isDev, 'noc-beta': isBeta }">
     <mat-progress-bar *ngIf="showLoadingBar" class="loading-bar" color="accent" mode="indeterminate"></mat-progress-bar>
-    <div class="noc-br h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="200px">
-      <div class="noc-logo pl-8" fxLayout="row" fxLayoutAlign="start">
-        <a href="http://geneontology.org/" target="_blank">
-          <img src="assets/images/logos/go-logo.large.png">
-        </a>
-      </div>
-    </div>
+
     <div class="noc-logo pl-0 h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="180px">
 
       <ng-container *ngIf="!isBeta && !isDev">
@@ -58,17 +52,7 @@
         </a>
       </div>
       <div class="noc-br pl-12 pr-12" fxLayout="row" fxLayoutAlign="start center">
-        <a mat-button class="" [matMenuTriggerFor]="aboutMenu">
-          About
-        </a>
-        <mat-menu #aboutMenu="matMenu">
-          <a href="http://geneontology.org/docs/introduction-to-go-resource/" target="_blank" mat-menu-item>
-            About The GO
-          </a>
-          <a href="http://geneontology.org/docs/gocam-overview/" target="_blank" mat-menu-item>
-            About GO-CAM
-          </a>
-        </mat-menu>
+
         <a mat-button class="" [matMenuTriggerFor]="helpMenu">
           Help
         </a>
@@ -108,6 +92,13 @@
             Login
           </a>
         </div>
+      </div>
+    </div>
+    <div class="noc-br h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="200px">
+      <div class="noc-logo pl-8" fxLayout="row" fxLayoutAlign="start">
+        <a href="http://geneontology.org/" target="_blank">
+          <img src="assets/images/logos/go-logo.large.png">
+        </a>
       </div>
     </div>
     <div class="noc-bl noc-logo" fxLayout="row" fxLayoutAlign="start">
