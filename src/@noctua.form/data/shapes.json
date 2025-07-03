@@ -104,7 +104,9 @@
       "subject": "CARO:0000000",
       "root_subject": "",
       "object": [
-        "CARO:0000000"
+        "CL:0000000",
+        "CARO:0000000",
+        "NCBITaxon:1"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -116,7 +118,9 @@
       "subject": "CL:0000000",
       "root_subject": "",
       "object": [
-        "CARO:0000000"
+        "CL:0000000",
+        "CARO:0000000",
+        "NCBITaxon:1"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -128,7 +132,9 @@
       "subject": "GO:0005575",
       "root_subject": "",
       "object": [
-        "CARO:0000000"
+        "CL:0000000",
+        "CARO:0000000",
+        "NCBITaxon:1"
       ],
       "is_multivalued": false,
       "is_required": false,

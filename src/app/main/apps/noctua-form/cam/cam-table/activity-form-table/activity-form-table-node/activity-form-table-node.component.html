@@ -46,12 +46,9 @@
         [matMenuTriggerFor]="entityMenu">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu">
+      <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">
         <!--  <button mat-menu-item *ngIf="entity.aspect" class="" (click)="openSearchDatabaseDialog(entity)">
           Search Annotations
-        </button>
-      <button mat-menu-item *ngIf="entity.aspect" class="" (click)="editEntity(entity)">
-          Edit
         </button> -->
         <button mat-menu-item *ngIf="entity.insertMenuNodes" [matMenuTriggerFor]="addMenu">Add</button>
         <button mat-menu-item [matMenuTriggerFor]="evidenceMenu">Evidence</button>
@@ -59,19 +56,20 @@
           Delete
         </button>
       </mat-menu>
-      <mat-menu #addMenu="matMenu">
-        <button mat-menu-item *ngFor="let insertMenuItem of entity.insertMenuNodes" class=""
-          (click)="insertEntity(entity, insertMenuItem)">
-          {{insertMenuItem.label}}
+
+      <mat-menu #addMenu="matMenu" class="noc-extensions-menu-panel">
+        <button mat-menu-item *ngFor="let insertMenuItem of entity.insertMenuNodes" fxLayout="column"
+          fxLayoutAlign="start start" class="w-100-p" (click)="insertEntity(entity, insertMenuItem)">
+          {{insertMenuItem?.label}}
+          <div class="noc-terms-description">
+            {{insertMenuItem?.rangeLabel}}
+          </div>
         </button>
       </mat-menu>
-      <mat-menu #evidenceMenu="matMenu">
-        <button mat-menu-item (click)="addEvidence(entity)" class="">
+      <mat-menu #evidenceMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">
+        <button mat-menu-item (click)="addEvidence(entity)">
           Add Evidence
         </button>
-        <!--   <button (click)="removeEvidence(entity,i)" mat-menu-item>
-              Remove Evidence
-            </button> -->
       </mat-menu>
     </div>
   </div>
