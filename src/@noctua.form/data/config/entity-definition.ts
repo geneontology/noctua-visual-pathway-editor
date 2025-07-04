@@ -112,8 +112,8 @@ export const GoAnatomicalEntity = {
 
 export const GoOrganism = {
     id: ActivityNodeType.GoOrganism,
-    category: 'NCBITaxon',
-    categoryType: 'idspace',
+    category: 'NCBITaxon:1',
+    categoryType: 'isa_closure',
 } as GoCategory;
 
 export const GoBiologicalPhase = {

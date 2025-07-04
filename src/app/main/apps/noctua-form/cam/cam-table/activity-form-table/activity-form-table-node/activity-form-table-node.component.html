@@ -40,39 +40,44 @@
         </div>
       </div>
     </div>
+    <span fxFlex=""></span>
     <div *ngIf="noctuaUserService.user &&  options.showMenu" class="noc-cell noc-action-cell" fxLayout="column"
       fxLayoutAlign="center center">
-      <button mat-icon-button (click)="updateCurrentMenuEvent($event)" class="noc-action-button" fxFlex="40px"
-        [matMenuTriggerFor]="entityMenu">
+      <button *ngIf="settings.displayMenuButton" mat-icon-button (click)="updateCurrentMenuEvent($event)"
+        class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu">
+      <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">
         <!--  <button mat-menu-item *ngIf="entity.aspect" class="" (click)="openSearchDatabaseDialog(entity)">
           Search Annotations
-        </button>
-      <button mat-menu-item *ngIf="entity.aspect" class="" (click)="editEntity(entity)">
-          Edit
         </button> -->
-        <button mat-menu-item *ngIf="entity.insertMenuNodes" [matMenuTriggerFor]="addMenu">Add</button>
+        <button mat-menu-item *ngIf="entity.insertMenuNodes?.length>0" [matMenuTriggerFor]="addMenu">Add</button>
         <button mat-menu-item [matMenuTriggerFor]="evidenceMenu">Evidence</button>
         <button mat-menu-item *ngIf="entity.canDelete" class="" color="warn" (click)="deleteEntity(entity)">
           Delete
         </button>
       </mat-menu>
-      <mat-menu #addMenu="matMenu">
-        <button mat-menu-item *ngFor="let insertMenuItem of entity.insertMenuNodes" class=""
-          (click)="insertEntity(entity, insertMenuItem)">
-          {{insertMenuItem.label}}
+      <button mat-icon-button *ngIf="settings?.displayAddButton && entity.insertMenuNodes?.length>0"
+        (click)="updateCurrentMenuEvent($event)" class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="addMenu">
+        <fa-icon [icon]="['fas', 'plus']"></fa-icon>
+      </button>
+      <mat-menu #addMenu="matMenu" class="noc-extensions-menu-panel">
+        <button mat-menu-item *ngFor="let insertMenuItem of entity.insertMenuNodes" fxLayout="column"
+          fxLayoutAlign="start start" class="w-100-p" (click)="insertEntity(entity, insertMenuItem)">
+          {{insertMenuItem?.label}}
+          <div class="noc-terms-description">
+            {{insertMenuItem?.rangeLabel}}
+          </div>
         </button>
       </mat-menu>
-      <mat-menu #evidenceMenu="matMenu">
-        <button mat-menu-item (click)="addEvidence(entity)" class="">
+      <mat-menu #evidenceMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">
+        <button mat-menu-item (click)="addEvidence(entity)">
           Add Evidence
         </button>
-        <!--   <button (click)="removeEvidence(entity,i)" mat-menu-item>
-              Remove Evidence
-            </button> -->
       </mat-menu>
+
+
+
     </div>
   </div>
 </div>
