@@ -1408,8 +1408,6 @@ export class NoctuaGraphService {
       }
     });
 
-    console.log('activity', activity);
-
     return activity;
   }
 

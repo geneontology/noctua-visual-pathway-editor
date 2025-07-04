@@ -12,6 +12,8 @@ export class SettingsOptions {
   showGroup = true;
   showContributor = true;
   showAddEvidenceButton = false;
+  displayAddButton = false;
+  displayMenuButton = true;
 
   createSettingsForm() {
     return new FormGroup({
@@ -49,5 +51,7 @@ export class SettingsOptions {
     this.showWith = true;
     this.showGroup = false;
     this.showContributor = false;
+    this.displayAddButton = false;
+    this.displayMenuButton = true;
   }
 };

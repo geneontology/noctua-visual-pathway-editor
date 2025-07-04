@@ -137,8 +137,10 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
         }
         this.settings = settings;
         this.gpSettings = cloneDeep(settings)
-        this.gpSettings.showEvidence = true;
+        this.gpSettings.showEvidence = false;
         this.gpSettings.showEvidenceSummary = false;
+        this.gpSettings.displayAddButton = true;
+        this.gpSettings.displayMenuButton = false;
       });
 
     if (this.options?.editableTerms) {
@@ -158,6 +160,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
   }
 
   ngAfterViewInit(): void {
+
 
     this.gpTree?.treeModel.filterNodes((node) => {
       const activityNode = node.data.node as ActivityNode;

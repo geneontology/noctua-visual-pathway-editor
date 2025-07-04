@@ -84,7 +84,8 @@ export const getShexJson = (subjectIds: string[]) => {
 export const canInsertEntity = {
     [ActivityNodeType.GoMolecularEntity]: [
         <ShapeDescription>{
-            label: 'Add part of (Protein Complex)',
+            label: 'part of',
+            rangeLabel: 'Protein Complex',
             id: ActivityNodeType.GoProteinContainingComplex,
             node: <ActivityNodeDisplay>{
                 type: ActivityNodeType.GoProteinContainingComplex,
@@ -103,7 +104,8 @@ export const canInsertEntity = {
 
     [ActivityNodeType.GoProteinContainingComplex]: [
         <ShapeDescription>{
-            label: 'Add has part (Gene Product)',
+            label: 'has part',
+            rangeLabel: 'Information Biomacromolecule',
             id: ActivityNodeType.GoMolecularEntity,
             node: <ActivityNodeDisplay>{
                 type: ActivityNodeType.GoMolecularEntity,

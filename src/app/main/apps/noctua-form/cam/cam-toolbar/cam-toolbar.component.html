@@ -81,11 +81,11 @@
   </div>
 
   <div fxFlex="180px" fxLayout="row" fxLayoutAlign="end center">
-    <button mat-stroked-button [matMenuTriggerFor]="exportMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"
+    <button mat-stroked-button [matMenuTriggerFor]="viewMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"
       color="primary">
       VIEW IN
     </button>
-    <mat-menu #exportMenu="matMenu">
+    <mat-menu #viewMenu="matMenu">
       <a [href]='cam?.model?.modelInfo?.annotationPreviewUrl' target="_blank" mat-menu-item>
         Annotation Preview
       </a>
