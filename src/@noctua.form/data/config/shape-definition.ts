@@ -105,7 +105,7 @@ export const canInsertEntity = {
     [ActivityNodeType.GoProteinContainingComplex]: [
         <ShapeDescription>{
             label: 'has part',
-            rangeLabel: 'Information Biomacromolecule',
+            rangeLabel: 'Gene Product',
             id: ActivityNodeType.GoMolecularEntity,
             node: <ActivityNodeDisplay>{
                 type: ActivityNodeType.GoMolecularEntity,
@@ -123,7 +123,7 @@ export const canInsertEntity = {
     ],
     [ActivityNodeType.GoMolecularFunction]: [
         <ShapeDescription>{
-            label: 'Add enabled by Protein Complex',
+            label: 'enabled by Protein Complex',
             id: ActivityNodeType.GoProteinContainingComplex,
             node: <ActivityNodeDisplay>{
                 id: EntityDefinition.GoProteinContainingComplex.id,
@@ -140,7 +140,7 @@ export const canInsertEntity = {
             cardinality: CardinalityType.oneToOne
         },
         <ShapeDescription>{
-            label: 'Add enabled by GP',
+            label: 'enabled by GP',
             id: ActivityNodeType.GoMolecularEntity,
             node: <ActivityNodeDisplay>{
                 id: EntityDefinition.GoMolecularEntity.id,
@@ -192,7 +192,7 @@ export const canInsertEntity = {
         },
         <ShapeDescription>{
             label: 'has input',
-            rangeLabel: 'Information Biomacromolecule, Protein Complex',
+            rangeLabel: 'Gene Product, Protein Complex',
             id: ActivityNodeType.GoChemicalEntityHasInput,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
@@ -259,12 +259,12 @@ export const canInsertEntity = {
 
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'Cell, Anatomical Entity, Organism',
+            rangeLabel: 'CC, Cell, Anatomy, Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
-                label: 'part of (Anatomy)',
+                label: 'part of (CC/Cell/Anatomy/Organism)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.cc,
                 isExtension: true,
@@ -278,12 +278,12 @@ export const canInsertEntity = {
     [ActivityNodeType.GoCellTypeEntity]: [
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'Cell, Anatomical Entity, Organism',
+            rangeLabel: 'CC, Cell, Anatomy, Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
-                label: 'part of (Anatomy)',
+                label: 'part of (CC/Cell/Anatomy/Organism)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.cc,
                 isExtension: true,
@@ -297,12 +297,12 @@ export const canInsertEntity = {
     [ActivityNodeType.GoAnatomicalEntity]: [
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'Cell, Anatomical Entity, Organism',
+            rangeLabel: 'CC, Cell, Anatomy, Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
-                label: 'part of (Anatomy)',
+                label: 'part of (CC/Cell/Anatomy/Organism)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.cc,
                 isExtension: true,

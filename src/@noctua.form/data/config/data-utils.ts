@@ -54,7 +54,7 @@ export class DataUtils {
       const result = cloneDeep(lookupTable[shape.predicate])
 
       if (result) {
-        result['rangeLabel'] = range.join(', ');
+        result['rangeLabel'] = range.join('/');
       } else {
         result['rangeLabel'] = '';
       }

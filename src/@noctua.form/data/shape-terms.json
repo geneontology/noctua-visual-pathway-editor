@@ -1,7 +1,7 @@
 [
   {
     "id": "CHEBI:33695",
-    "label": "information biomacromolecule",
+    "label": "Gene Product",
     "definition": "",
     "comment": "",
     "synonyms": [
@@ -266,7 +266,7 @@
   },
   {
     "id": "CARO:0000000",
-    "label": "anatomy",
+    "label": "CC, Anatomy, Cell",
     "definition": "",
     "comment": "",
     "synonyms": [

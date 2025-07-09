@@ -141,11 +141,11 @@
             NOT Qualifier
           </button>
           <button mat-menu-item *ngIf="entity.insertMenuNodes?.length>0" [matMenuTriggerFor]="addMenu">
-            Add an Extension
+            Add
           </button>
           <button mat-menu-item [matMenuTriggerFor]="evidenceMenu">Evidence</button>
           <button mat-menu-item *ngIf="entity.aspect" class="" (click)="addRootTerm()">
-            Add Root Term
+            Fill with root term
           </button>
           <button mat-menu-item class="" (click)="clearValues()">
             Clear Values
