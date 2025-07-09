@@ -104,7 +104,6 @@
       "subject": "CARO:0000000",
       "root_subject": "",
       "object": [
-        "CL:0000000",
         "CARO:0000000",
         "NCBITaxon:1"
       ],
@@ -118,7 +117,6 @@
       "subject": "CL:0000000",
       "root_subject": "",
       "object": [
-        "CL:0000000",
         "CARO:0000000",
         "NCBITaxon:1"
       ],
@@ -132,7 +130,6 @@
       "subject": "GO:0005575",
       "root_subject": "",
       "object": [
-        "CL:0000000",
         "CARO:0000000",
         "NCBITaxon:1"
       ],
