@@ -192,12 +192,12 @@ export const canInsertEntity = {
         },
         <ShapeDescription>{
             label: 'has input',
-            rangeLabel: 'Gene Product, Protein Complex',
+            rangeLabel: 'Gene Product/Protein Complex',
             id: ActivityNodeType.GoChemicalEntityHasInput,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 type: ActivityNodeType.GoChemicalEntityHasInput,
-                label: 'has input (Chemical/Protein Containing Complex)',
+                label: 'has input (Chemical/Protein Complex)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.mf,
                 isExtension: true,
@@ -209,12 +209,12 @@ export const canInsertEntity = {
         },
         <ShapeDescription>{
             label: 'happens during',
-            rangeLabel: 'Biological Phase, Stage, Plant Stage',
+            rangeLabel: 'Biological Phase/Stage/Plant Stage',
             id: ActivityNodeType.GoBiologicalPhase,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoBiologicalPhase, EntityDefinition.UberonStage],
                 type: ActivityNodeType.GoBiologicalPhase,
-                label: 'happens during (Biological Phase)',
+                label: 'happens during (Biological Phase/Stage/Plant Stage)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.mf,
                 isExtension: true,
@@ -259,7 +259,7 @@ export const canInsertEntity = {
 
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'CC, Cell, Anatomy, Organism',
+            rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
@@ -278,7 +278,7 @@ export const canInsertEntity = {
     [ActivityNodeType.GoCellTypeEntity]: [
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'CC, Cell, Anatomy, Organism',
+            rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
@@ -297,7 +297,7 @@ export const canInsertEntity = {
     [ActivityNodeType.GoAnatomicalEntity]: [
         <ShapeDescription>{
             label: 'part of',
-            rangeLabel: 'CC, Cell, Anatomy, Organism',
+            rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
