@@ -12,19 +12,19 @@ import {
   NoctuaActivityFormService,
   NoctuaFormConfigService,
   NoctuaUserService,
-  ConnectorType,
-  FormType
+  ConnectorType
 } from '@geneontology/noctua-form-base';
 import { NoctuaFormDialogService } from '../../../services/dialog.service';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { takeUntil } from 'rxjs/operators';
+import { DataUtils } from '@noctua.form/data/config/data-utils';
 
 @Component({
-  selector: 'noc-activity-connector',
-  templateUrl: './activity-connector-form.component.html',
-  styleUrls: ['./activity-connector-form.component.scss']
+  selector: 'noc-chemical-connector-form',
+  templateUrl: './chemical-connector-form.component.html',
+  styleUrls: ['./chemical-connector-form.component.scss']
 })
-export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
+export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType
 
   @Input('panelDrawer')
@@ -41,7 +41,13 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   searchCriteria: any = {};
   evidenceFormArray: FormArray;
   relationshipOptions;
-  displayChemicalConnector: boolean = false;
+
+  allSelected: boolean = false;
+
+  items = []
+  commonItems = []
+  subjectItems = []
+  objectItems = []
 
   private _unsubscribeAll: Subject<any>;
 
@@ -67,64 +73,63 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
         this.connectorActivity = this.noctuaActivityConnectorService.connectorActivity;
         this.relationshipOptions = this.noctuaFormConfigService[this.connectorActivity.connectorType + 'Relationship']['options']
 
+        this.commonItems = DataUtils.findCommonItems(
+          this.connectorActivity.subjectNode.chemicalParticipants,
+          this.connectorActivity.objectNode.chemicalParticipants)
+
+
+        this.subjectItems = DataUtils.findItemsNotInB(this.connectorActivity.subjectNode.chemicalParticipants,
+          this.connectorActivity.objectNode.chemicalParticipants)
+
+        this.objectItems = DataUtils.findItemsNotInB(this.connectorActivity.objectNode.chemicalParticipants,
+          this.connectorActivity.subjectNode.chemicalParticipants)
+
+
+        this.items = [...this.commonItems, ...this.subjectItems, ...this.objectItems];
+
       });
 
-    this.displayChemicalConnector = this.canConnectViaChemicals();
 
   }
 
-  private canConnectViaChemicals(): boolean {
-
-    return this.connectorActivity.connectorType === ConnectorType.ACTIVITY_ACTIVITY &&
-      (this.connectorActivity.subjectNode.chemicalParticipants?.length > 0 ||
-        this.connectorActivity.objectNode.chemicalParticipants?.length > 0);
+  updateAllSelected() {
+    this.allSelected = this.items.every(item => item.selected);
   }
 
-  openChemicalConnectorForm() {
-    if (this.closeDialog) {
-      this.closeDialog();
-    }
-    this.noctuaFormDialogService.openCreateActivityDialog(FormType.CHEMICAL_CONNECTOR);
-
+  selectAll() {
+    this.allSelected = !this.allSelected;
+    this.items.forEach(item => item.selected = this.allSelected);
   }
+
+  getSelectedItems(): any[] {
+    return this.items.filter(item => item.selected);
+  }
+
+  onItemChangeOld() {
+    this.updateAllSelected();
+  }
+
+  onItemChange() {
+
+    this.updateAllSelected();
+  }
+
+  openActivityConnector(connector: Activity) {
+    this.noctuaActivityConnectorService.initializeForm(this.noctuaActivityConnectorService.objectActivity.id, connector.id);
+  }
+
 
   save() {
-    const self = this;
-    this.noctuaActivityConnectorService.saveActivity().then(() => {
-      self.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
+    this.noctuaActivityConnectorService.saveChemicalParticipants(this.connectorActivity.subjectNode, this.connectorActivity.objectNode, this.getSelectedItems())
+      .subscribe(() => {
+        this.noctuaFormDialogService.openInfoToast('Chemical Reactions created.', 'OK');
 
-      this.noctuaActivityConnectorService.initializeForm(
-        self.noctuaActivityConnectorService.subjectActivity.id, self.noctuaActivityConnectorService.objectActivity.id)
-      if (this.closeDialog) {
-        this.closeDialog();
-      }
-    });
-  }
-
-  editActivity() {
-    const self = this;
-    const success = () => {
-      self.noctuaActivityConnectorService.saveActivity().then(() => {
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully updated.', 'OK');
+        this.noctuaActivityConnectorService.initializeForm(
+          this.noctuaActivityConnectorService.subjectActivity.id, this.noctuaActivityConnectorService.objectActivity.id)
+        if (this.closeDialog) {
+          this.closeDialog();
+        }
       });
-    };
-
-    this.confirmDialogService.openConfirmDialog('Confirm Delete?',
-      'You are about to remove the causal relation',
-      success);
-  }
-
-  deleteConnectorEdge() {
-    const self = this;
-    const success = () => {
-      self.noctuaActivityConnectorService.deleteConnectorEdge(this.connectorActivity).then(() => {
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
-      });
-    };
-
-    this.confirmDialogService.openConfirmDialog('Confirm Delete?',
-      'You are about to remove the causal relation',
-      success);
   }
 
   close() {
@@ -136,9 +141,6 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  termDisplayFn(term): string | undefined {
-    return term && term.id ? `${term.label} (${term.id})` : undefined;
-  }
 
   evidenceDisplayFn(evidence): string | undefined {
     return evidence && evidence.id ? `${evidence.label} (${evidence.id})` : undefined;

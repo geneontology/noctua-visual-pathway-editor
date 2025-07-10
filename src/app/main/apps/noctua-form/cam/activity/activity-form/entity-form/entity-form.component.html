@@ -52,11 +52,11 @@
       </mat-autocomplete>
     </mat-form-field>
   </div>
-  <div fxFlex="60%" fxLayout="column" fxLayoutAlign="start stretch">
+  <div fxFlex="65%" fxLayout="column" fxLayoutAlign="start stretch">
     <div formArrayName="evidenceFormArray"
       *ngFor="let evidence of entityFormGroup.get('evidenceFormArray')?.controls; let i = index;">
       <div [formGroupName]="i" fxLayout="row" fxLayoutAlign="start stretch" class="w-100-p">
-        <div class="p-4" fxFlex="55">
+        <div class="p-4" fxFlex="50">
           <mat-form-field appearance="outline" class="noc-sm w-100-p">
             <mat-label>Evidence</mat-label>
             <textarea type="text" matInput formControlName="evidence" (focus)="updateEvidenceList(entity)"
@@ -107,7 +107,7 @@
             </mat-autocomplete>
           </mat-form-field>
         </div>
-        <div class="p-4" fxFlex fxFlex="20">
+        <div class="p-4" fxFlex fxFlex="25">
           <mat-form-field appearance="outline" class="noc-sm w-100-p">
             <mat-label>With</mat-label>
             <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
@@ -128,7 +128,8 @@
           </mat-form-field>
         </div>
         <span fxFlex=""></span>
-        <button *ngIf="!displayAddButton" mat-icon-button class="noc-action-button" fxFlex="40px"
+
+        <button *ngIf="displayMenuButton" mat-icon-button class="noc-action-button" fxFlex="40px"
           [matMenuTriggerFor]="entityMenu">
           <mat-icon>more_vert</mat-icon>
         </button>
@@ -140,11 +141,11 @@
             NOT Qualifier
           </button>
           <button mat-menu-item *ngIf="entity.insertMenuNodes?.length>0" [matMenuTriggerFor]="addMenu">
-            Add an Extension
+            Add
           </button>
           <button mat-menu-item [matMenuTriggerFor]="evidenceMenu">Evidence</button>
           <button mat-menu-item *ngIf="entity.aspect" class="" (click)="addRootTerm()">
-            Add Root Term
+            Fill with root term
           </button>
           <button mat-menu-item class="" (click)="clearValues()">
             Clear Values
@@ -176,6 +177,7 @@
       </div>
     </div>
   </div>
+
   <button *ngIf="displayAddButton" mat-icon-button class="noc-action-button" fxFlex="40px"
     [matMenuTriggerFor]="ccOnlyAddMenu">
     <fa-icon [icon]="['fas', 'plus']"></fa-icon>

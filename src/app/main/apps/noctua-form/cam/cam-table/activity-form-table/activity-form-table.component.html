@@ -27,11 +27,13 @@
               [treeAllowDrop]="node.allowDrop" [treeDrag]="node" [treeDragEnabled]="node.allowDrag()">
 
               <div class="noc-annotation-row" fxFlex="" fxLayout="column" fxLayoutAlign="start stretch">
-                <noc-activity-form-table-node *ngIf="node.data.node?.id ===activity.gpNode?.id" [settings]="gpSettings"
-                  [options]="gpOptions" [cam]="cam" [activity]="activity" [entity]="node.data.node" class="w-100-p">
+                <noc-activity-form-table-node *ngIf="node.data.node?.uuid ===activity.gpNode?.uuid"
+                  [settings]="gpSettings" [options]="gpOptions" [cam]="cam" [activity]="activity"
+                  [entity]="node.data.node" class="w-100-p">
                 </noc-activity-form-table-node>
-                <noc-activity-form-table-node *ngIf="node.data.node?.id !==activity.gpNode?.id" [settings]="settings"
-                  [options]="options" [cam]="cam" [activity]="activity" [entity]="node.data.node" class="w-100-p">
+                <noc-activity-form-table-node *ngIf="node.data.node?.uuid !==activity.gpNode?.uuid"
+                  [settings]="settings" [options]="options" [cam]="cam" [activity]="activity" [entity]="node.data.node"
+                  class="w-100-p">
                 </noc-activity-form-table-node>
               </div>
             </div>

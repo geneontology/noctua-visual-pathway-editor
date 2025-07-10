@@ -134,6 +134,8 @@ export class Activity extends SaeGraph<ActivityNode> {
     this.bpNode = this.getRootNodeByType(ActivityNodeType.GoBiologicalProcess)
     this.ccNode = this.getRootNodeByType(ActivityNodeType.GoCellularComponent)
 
+    //console.log('MF', this.mfNode)
+
   }
 
   get id() {

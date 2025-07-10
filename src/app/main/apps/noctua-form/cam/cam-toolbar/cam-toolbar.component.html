@@ -18,7 +18,8 @@
     </mat-menu>
   </div>
   <div *ngIf="cam.title" class="noc-title" fxLayout="row" fxLayoutAlign="start center">
-    <div class="text-truncate pr-8">
+    <div class="text-truncate pr-8" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'"
+      [matTooltipShowDelay]="2000">
       <strong>Title: </strong>{{cam.title }}
     </div>
     <div class="noc-icon-action" (click)="openCamForm()">
@@ -78,7 +79,24 @@
       </mat-chip>
     </mat-chip-list>
   </div>
-  <div fxFlex="115px" fxLayout="row" fxLayoutAlign="start center">
+
+  <div fxFlex="180px" fxLayout="row" fxLayoutAlign="end center">
+    <button mat-stroked-button [matMenuTriggerFor]="viewMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"
+      color="primary">
+      VIEW IN
+    </button>
+    <mat-menu #viewMenu="matMenu">
+      <a [href]='cam?.model?.modelInfo?.annotationPreviewUrl' target="_blank" mat-menu-item>
+        Annotation Preview
+      </a>
+      <a [href]='cam?.model?.modelInfo?.pathwayViewerUrl' target="_blank" mat-menu-item>
+        Pathway Viewer
+      </a>
+      <a [href]='cam?.model?.modelInfo?.graphEditorUrl' target="_blank" mat-menu-item>
+        Graph Editor
+      </a>
+
+    </mat-menu>
     <button mat-stroked-button [matMenuTriggerFor]="exportMenu" class="noc-edit-button noc-rounded-button noc-sm"
       color="primary">
       EXPORT AS
@@ -92,7 +110,4 @@
       </a>
     </mat-menu>
   </div>
-  <button mat-icon-button (click)="openSettings()" class="noc-icon-button" color="primary">
-    <fa-icon [icon]="['fas', 'cog']"></fa-icon>
-  </button>
 </div>

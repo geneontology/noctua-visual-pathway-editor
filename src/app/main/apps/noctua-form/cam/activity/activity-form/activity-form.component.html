@@ -15,7 +15,7 @@
             CC Annotation Form
           </span>
           <span *ngSwitchCase="ActivityType.molecule">
-            Molecule Form
+            Chemical Form
           </span>
           <span *ngSwitchCase="ActivityType.proteinComplex">
             Protein Complex Form
@@ -53,8 +53,8 @@
           <div [formArrayName]="'gp'" *ngFor="let nodeGroup of activityFormGroup.get('gp')?.controls; let i = index;"
             class="mat-elevation-z1 noc-term-group mb-4 px-8 pt-4  {{nodeGroup.get('name').value}}">
             <div [formGroupName]="i" *ngFor="let entityForm of nodeGroup.get('entityGroup')?.controls" class="">
-              <noc-entity-form [entityFormGroup]="entityForm" fxLayout="row" fxLayoutAlign="start center"
-                class="w-100-p">
+              <noc-entity-form [entityFormGroup]="entityForm" [displayAddButton]="true" [displayMenuButton]="false"
+                fxLayout="row" fxLayoutAlign="start center" class="w-100-p">
               </noc-entity-form>
             </div>
           </div>

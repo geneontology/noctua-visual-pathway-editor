@@ -9,6 +9,7 @@ export class ConnectorRule {
   displaySection = {
     directness: true,
     effectDirection: true,
+    chemicalIntermediate: false,
   };
 
   constructor(connectorType: ConnectorType) {

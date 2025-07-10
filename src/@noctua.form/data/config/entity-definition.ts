@@ -100,7 +100,7 @@ export const GoEvidenceNode = {
 
 export const GoCellTypeEntity = {
     id: ActivityNodeType.GoCellTypeEntity,
-    category: 'CL:0000003',
+    category: 'CL:0000000',
     categoryType: 'isa_closure',
 } as GoCategory;
 
@@ -112,8 +112,8 @@ export const GoAnatomicalEntity = {
 
 export const GoOrganism = {
     id: ActivityNodeType.GoOrganism,
-    category: 'NCBITaxon',
-    categoryType: 'idspace',
+    category: 'NCBITaxon:1',
+    categoryType: 'isa_closure',
 } as GoCategory;
 
 export const GoBiologicalPhase = {

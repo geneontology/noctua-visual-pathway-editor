@@ -20,5 +20,7 @@
 </div> -->
 
 <noc-activity-form *ngIf="formType===FormType.ACTIVITY" [closeDialog]="closeDialog"> </noc-activity-form>
-<noc-activity-connector *ngIf="formType===FormType.ACTIVITY_CONNECTOR" [closeDialog]="closeDialog">
-</noc-activity-connector>
+<noc-activity-connector *ngIf="formType===FormType.ACTIVITY_CONNECTOR"
+  [closeDialog]="closeDialog"></noc-activity-connector>
+<noc-chemical-connector-form *ngIf="formType===FormType.CHEMICAL_CONNECTOR"
+  [closeDialog]="closeDialog"></noc-chemical-connector-form>

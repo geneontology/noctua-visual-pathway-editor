@@ -34,6 +34,10 @@ export class EntityFormComponent implements OnInit, OnDestroy {
   @Input('entityFormGroup')
   public entityFormGroup: FormGroup;
 
+  @Input('displayAddButton') public displayAddButton = false;
+
+  @Input('displayMenuButton') public displayMenuButton = true;
+
   @ViewChild('evidenceDBreferenceMenuTrigger', { static: true, read: MatMenuTrigger })
   evidenceDBreferenceMenuTrigger: MatMenuTrigger;
 
@@ -44,7 +48,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
   friendNodes;
   friendNodesFlat;
   activityNodeType = ActivityNodeType;
-  displayAddButton = false;
 
   termData
 
@@ -64,10 +67,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.entity = this.noctuaActivityFormService.activity.getNode(this.entityFormGroup.get('id').value);
     this.friendNodes = this.camService.getNodesByType(this.entity.type);
-    if (this.noctuaActivityFormService.activity.activityType === ActivityType.ccOnly
-      && this.entity.type === ActivityNodeType.GoMolecularEntity) {
-      this.displayAddButton = true;
-    }
 
     if (this.noctuaActivityFormService.activity.activityType === ActivityType.proteinComplex
       && this.entity.type === ActivityNodeType.GoProteinContainingComplex) {
@@ -315,7 +314,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
     self.noctuaFormDialogService.openSelectEvidenceDialog(evidences, success);
   }
   updateMenu(entity) {
-    console.log(entity.rootTypes)
     this.noctuaActivityFormService.initializeForm(entity.rootTypes);
   }
 

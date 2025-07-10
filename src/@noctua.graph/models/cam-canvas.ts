@@ -357,7 +357,7 @@ export class CamCanvas {
 
         link.addTo(self.canvasGraph);
         if (autoLayout) {
-            self.autoLayoutGraph(self.canvasGraph);
+            self.autoLayoutGraph(self.canvasGraph, 'compact');
             // self.addCanvasGraph(self.activity);
         }
     }
@@ -410,7 +410,7 @@ export class CamCanvas {
         cell.attr('./visibility', 'visible');
         activity.expanded = !activity.expanded;
 
-        self.autoLayoutGraph(self.canvasGraph);
+        self.autoLayoutGraph(self.canvasGraph, 'compact');
 
         self.canvasPaper.translate(0, 0);
 
@@ -455,12 +455,13 @@ export class CamCanvas {
         //.setSuccessorCount(activity.successorCount)
 
         if (graphLayoutDetail === noctuaFormConfig.graphLayoutDetail.options.detailed.id) {
-            if (activity.activityType === ActivityType.proteinComplex) {
-                const gpNodes = activity.buildGPTrees();
-                gpNodes.forEach(gpNode => this._addGPEntity(gpNode, el));
-            }
+            //if (activity.activityType === ActivityType.proteinComplex) {
+            const gpNodes = activity.buildGPTrees();
+            gpNodes.forEach(gpNode => this._addGPEntity(gpNode, el));
+            // }
 
             const fdNodes = activity.buildTrees();
+
             fdNodes.forEach(fdNode => this._addFDEntity(fdNode, el));
         } else if (graphLayoutDetail === noctuaFormConfig.graphLayoutDetail.options.activity.id) {
 
@@ -590,7 +591,7 @@ export class CamCanvas {
         self.canvasGraph.resetCells(nodes);
 
         if (!cam.manualLayout) {
-            self.autoLayoutGraph(self.canvasGraph);
+            self.autoLayoutGraph(self.canvasGraph, 'compact');
         }
 
         self.canvasPaper.unfreeze();
@@ -655,7 +656,7 @@ export class CamCanvas {
         });
     }
 
-    autoLayoutGraph(graph) {
+    autoLayoutGraph(graph, spacingId: string) {
         const autoLayoutElements = [];
         const manualLayoutElements = [];
         graph.getElements().forEach((el) => {
@@ -663,18 +664,33 @@ export class CamCanvas {
                 autoLayoutElements.push(el);
             }
         });
-        // Automatic Layout
-        joint.layout.DirectedGraph.layout(graph.getSubgraph(autoLayoutElements), {
-            align: 'UL',
-            setLabels: true,
-            rankSep: 50,
-            marginX: 10,
-            marginY: 10,
-            ranker: 'network-simplex',
-            // nodeSep: 2000,
-            //edgeSep: 2000,
-            rankDir: "TB"
-        });
+
+        if (spacingId === 'compact') {
+            // Automatic Layout
+            joint.layout.DirectedGraph.layout(graph.getSubgraph(autoLayoutElements), {
+                align: 'UL',
+                setLabels: true,
+                rankSep: 50,
+                marginX: 10,
+                marginY: 10,
+                ranker: 'network-simplex',
+                // nodeSep: 2000,
+                //edgeSep: 2000,
+                rankDir: "TB"
+            });
+        } else {
+            joint.layout.DirectedGraph.layout(graph.getSubgraph(autoLayoutElements), {
+                align: 'UL',
+                setLabels: true,
+                marginX: 50,
+                marginY: 50,
+                rankSep: 200,
+                ranker: 'network-simplex',
+                // nodeSep: 2000,
+                //edgeSep: 2000,
+                rankDir: "TB"
+            });
+        }
         // Manual Layout
         manualLayoutElements.forEach(function (el) {
             const neighbor = graph.getNeighbors(el, { inbound: true })[0];

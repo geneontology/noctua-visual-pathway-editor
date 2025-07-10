@@ -68,6 +68,7 @@ import { ActivityFormTableComponent } from './cam/cam-table/activity-form-table/
 import { EvidenceFormTableComponent } from './cam/cam-table/activity-form-table/evidence-table/evidence-table.component';
 import { ConfirmCopyModelDialogComponent } from './dialogs/confirm-copy-model/confirm-copy-model.component';
 import { CamToolbarComponent } from './cam/cam-toolbar/cam-toolbar.component';
+import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connector-form/chemical-connector-form.component';
 
 const routes = [
   {
@@ -140,6 +141,7 @@ const routes = [
     EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
     CamToolbarComponent,
+    ChemicalConnectorFormComponent
   ],
   providers: [
     NoctuaFormDialogService,
@@ -184,7 +186,8 @@ const routes = [
     StatementStatsComponent,
     EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
-    CamToolbarComponent
+    CamToolbarComponent,
+    ChemicalConnectorFormComponent
   ],
 })
 

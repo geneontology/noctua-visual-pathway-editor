@@ -1,6 +1,5 @@
-
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, forkJoin } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
 import { NoctuaLookupService } from './lookup.service';
@@ -16,6 +15,7 @@ import { Entity } from '../models/activity/entity';
 import { noctuaFormConfig } from '../noctua-form-config';
 import { Triple } from '../models/activity/triple';
 import { cloneDeep } from 'lodash';
+import { Predicate } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -82,6 +82,9 @@ export class NoctuaActivityConnectorService {
     this.connectorForm = this.createConnectorForm();
     this.connectorFormGroup.next(this._fb.group(this.connectorForm));
 
+    this.connectorActivity.rule.displaySection.directness = false;
+    this.connectorActivity.rule.displaySection.effectDirection = false;
+
     if (this.connectorActivity.connectorType === ConnectorType.ACTIVITY_ACTIVITY) {
       this.connectorForm.relationship.setValue(this.connectorActivity.rule.relationship);
       this.connectorForm.effectDirection.setValue(this.connectorActivity.rule.effectDirection);
@@ -112,6 +115,34 @@ export class NoctuaActivityConnectorService {
     connectorForm.createEntityForms(self.connectorActivity.predicate);
 
     return connectorForm;
+  }
+
+  saveChemicalParticipants(subjectNode: ActivityNode, objectNode: ActivityNode, chemicals: any[]) {
+    const nodes = chemicals.map((chemical) => {
+      const nodes = new ActivityNode()
+      nodes.term.id = chemical.id
+
+      return nodes
+    });
+
+    const triples2 = nodes.map((node) => {
+      const edge = new Entity(noctuaFormConfig.edge.hasOutput.id, '')
+      const predicate = new Predicate(edge);
+      const triple = new Triple<ActivityNode>(
+        subjectNode, node, predicate)
+      return triple
+    });
+
+    const triples = nodes.map((node) => {
+      const edge = new Entity(noctuaFormConfig.edge.hasInput.id, '')
+      const predicate = new Predicate(edge);
+      const triple = new Triple<ActivityNode>(
+        objectNode, node, predicate)
+      return triple
+    });
+
+    return forkJoin(this.noctuaGraphService.addActivity(this.cam, nodes, [...triples, ...triples2], this.cam.title));
+
   }
 
   saveActivity() {
