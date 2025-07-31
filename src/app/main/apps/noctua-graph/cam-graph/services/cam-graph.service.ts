@@ -112,7 +112,7 @@ export class CamGraphService {
 
       self.placeholderElement.position(x, y);
       self._activityFormService.setActivityType(node.type)
-      self._activityFormService.activity.validateEvidence = false;
+      self._activityFormService.activity.validateEvidence = true;
       self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
     };
 

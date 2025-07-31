@@ -1,6 +1,7 @@
 import { cloneDeep } from "lodash";
 import { ShexShapeAssociation } from "../shape";
 import shapeTerms from './../shape-terms.json'
+import allowedDBs from './../with-form-prefix.json'
 import { Entity } from "./../../models/activity/entity";
 
 export class DataUtils {
@@ -103,5 +104,72 @@ export class DataUtils {
     }
 
     return Array.from(uniqueMap.values());
+  }
+
+
+  public static validateDatabaseIdentifiers(input: string): string | null {
+
+    const identifiers = input.split(/[,|]/);
+    const allowedLowerCase = new Set(allowedDBs.map(db => db.toLowerCase()));
+
+    for (const identifier of identifiers) {
+      const trimmed = identifier.trim();
+      if (!trimmed) continue; // Skip empty entries
+
+      const colonIndex = trimmed.indexOf(':');
+      if (colonIndex === -1) {
+        return `Invalid format: "${trimmed}" - expected format is "DATABASE:accession"`;
+      }
+
+      const dbPrefix = trimmed.substring(0, colonIndex);
+      const dbPrefixLower = dbPrefix.toLowerCase();
+
+      if (!allowedLowerCase.has(dbPrefixLower)) {
+        return `Invalid database prefix: "${dbPrefix}" is not part of allowed entities`;
+      }
+    }
+
+    return null; // All identifiers are valid
+  }
+
+  public static correctDatabaseIdentifierCase(input: string): string {
+    const parts = input.split(/([,|])/);
+
+    const caseMap = new Map<string, string>();
+    allowedDBs.forEach(db => {
+      caseMap.set(db.toLowerCase(), db);
+    });
+
+    const correctedParts = parts.map(part => {
+      if (part === ',' || part === '|') {
+        return part;
+      }
+
+      const trimmed = part.trim();
+      if (!trimmed) return part;
+
+      // Extract database prefix and accession
+      const colonIndex = trimmed.indexOf(':');
+      if (colonIndex === -1) {
+        return part; // Return original if invalid format
+      }
+
+      const dbPrefix = trimmed.substring(0, colonIndex);
+      const accession = trimmed.substring(colonIndex);
+      const dbPrefixLower = dbPrefix.toLowerCase();
+
+      // Get the correct case from our map
+      const correctCase = caseMap.get(dbPrefixLower);
+      if (correctCase) {
+        // Preserve any leading/trailing whitespace from original part
+        const leadingSpace = part.match(/^\s*/)?.[0] || '';
+        const trailingSpace = part.match(/\s*$/)?.[0] || '';
+        return leadingSpace + correctCase + accession + trailingSpace;
+      }
+
+      return part; // Return original if not found in allowed list
+    });
+
+    return correctedParts.join('');
   }
 }
