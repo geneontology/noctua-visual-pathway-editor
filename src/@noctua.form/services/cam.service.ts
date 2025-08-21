@@ -557,9 +557,9 @@ export class CamService {
   }
 
   isGroupMember() {
-    return this.cam.groups.some((group) => {
-      return this.noctuaUserService.user.groups?.some((userGroup) => {
-        return group.url === userGroup.id;
+    return this.cam.groupIds.some((groupId) => {
+      return this.noctuaUserService.user?.groups?.some((userGroup) => {
+        return groupId === userGroup?.id;
       });
     });
 

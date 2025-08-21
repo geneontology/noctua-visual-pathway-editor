@@ -193,6 +193,12 @@ export class NoctuaGraphService {
       return c.value();
     })
 
+    if (groupAnnotations.length > 0) {
+      cam.groupIds = groupAnnotations.map(g => {
+        return g.value();
+      })
+    }
+
     if (stateAnnotations.length > 0) {
       cam.state = self.noctuaFormConfigService.findModelState(stateAnnotations[0].value());
     }
@@ -247,6 +253,12 @@ export class NoctuaGraphService {
       return c.value();
     })
 
+    if (groupAnnotations.length > 0) {
+      cam.groupIds = groupAnnotations.map(g => {
+        return g.value();
+      })
+    }
+
     if (stateAnnotations.length > 0) {
       cam.state = self.noctuaFormConfigService.findModelState(stateAnnotations[0].value());
     }
@@ -297,6 +309,12 @@ export class NoctuaGraphService {
 
     if (titleAnnotations.length > 0) {
       cam.title = titleAnnotations[0].value();
+    }
+
+    if (groupAnnotations.length > 0) {
+      cam.groupIds = groupAnnotations.map(g => {
+        return g.value();
+      })
     }
 
     cam.comments = commentAnnotations.map(c => {
