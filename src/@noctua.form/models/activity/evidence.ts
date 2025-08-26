@@ -9,6 +9,7 @@ import { Contributor } from "../contributor";
 import { Group } from "../group";
 import { PendingChange } from "./pending-change";
 import { NoctuaFormUtils } from "../../utils/noctua-form-utils";
+import { DataUtils } from "@noctua.form/data/config/data-utils";
 
 export class EvidenceExt {
   term: Entity;
@@ -163,10 +164,10 @@ export class Evidence {
     } else {
       self.evidenceRequired = true;
 
-      const error = new ActivityError(ErrorLevel.error, ErrorType.general, `No evidence for "${node.label}": on evidence(${position})`, meta);
+      // const error = new ActivityError(ErrorLevel.error, ErrorType.general, `No evidence for "${node.label}": on evidence(${position})`, meta);
 
-      errors.push(error);
-      result = false;
+      // errors.push(error);
+      // result = false;
     }
 
     if (self.evidence.id && !self.reference) {
@@ -185,6 +186,10 @@ export class Evidence {
       result = self._enableReferenceSubmit(errors, self.reference, node, position);
     }
 
+    if (self.with) {
+      result = self._enableWithFromSubmit(errors, self.with, node, position) && result;
+    }
+
     return result;
   }
 
@@ -200,6 +205,8 @@ export class Evidence {
       errors.push(error);
       return false;
     }
+
+
 
     const DBAccession = NoctuaFormUtils.splitAndAppend(reference, ':', 1);
     const db = DBAccession[0].trim().toLowerCase();
@@ -217,6 +224,26 @@ export class Evidence {
     if (accession === '') {
       const error = new ActivityError(ErrorLevel.error, ErrorType.general,
         `"${db}" accession is required "${node.label}" on evidence(${position})`,
+        meta);
+      errors.push(error);
+      return false;
+    }
+
+    return true;
+  }
+
+
+  private _enableWithFromSubmit(errors, withFrom: string, node: ActivityNode, position): boolean {
+    const meta = {
+      aspect: node.label
+    };
+
+    const hasError = DataUtils.validateDatabaseIdentifiers(withFrom)
+
+    if (hasError) {
+
+      const error = new ActivityError(ErrorLevel.error, ErrorType.general,
+        `With/From field "${node.label}" on evidence(${position})  -${hasError}`,
         meta);
       errors.push(error);
       return false;

@@ -7,6 +7,7 @@ import { ActivityFormMetadata } from './../forms/activity-form-metadata';
 import { evidenceValidator } from './validators/evidence-validator';
 import { Entity } from '../activity/entity';
 import { Predicate } from '../activity/predicate';
+import { DataUtils } from '@noctua.form/data/config/data-utils';
 
 export class EvidenceForm {
     uuid;
@@ -33,9 +34,10 @@ export class EvidenceForm {
     }
 
     populateEvidence(evidence: Evidence) {
+        const withFrom = this.with.value ? DataUtils.correctDatabaseIdentifierCase(this.with.value) : null;
         evidence.evidence = new Entity(this.evidence.value.id, this.evidence.value.label);
-        evidence.reference = this.reference.value;
-        evidence.with = this.with.value;
+        evidence.reference = this.reference.value ? this.reference.value.replace(/\s/g, '') : null;
+        evidence.with = withFrom ? withFrom.replace(/\s/g, '') : null;
     }
 
     onValueChanges(predicate: Predicate) {
