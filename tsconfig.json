@@ -5,16 +5,14 @@
     "module": "es2020",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
-    //"strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    //"noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "downlevelIteration": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2017",
+    "target": "ES2022",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -32,7 +30,8 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "allowSyntheticDefaultImports": true,

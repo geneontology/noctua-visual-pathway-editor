@@ -87,7 +87,7 @@ const appRoutes: Routes = [
         BrowserAnimationsModule,
         HttpClientModule,
         HttpClientJsonpModule,
-        RouterModule.forRoot(appRoutes, { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot(appRoutes, {}),
         // Noctua Main and Shared modules
         NoctuaModule.forRoot(noctuaConfig),
         NoctuaSharedModule,
