@@ -193,6 +193,7 @@ export class NoctuaActivityEntityService {
     const oldEntity = cloneDeep(self.entity);
     self.activityEntityFormToActivity();
     self.entity.addPendingChanges(oldEntity);
+
     return self.camService.bulkEditActivityNode(cam, self.entity);
 
   }
