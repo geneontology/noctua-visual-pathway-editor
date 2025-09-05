@@ -1101,6 +1101,7 @@ export class NoctuaGraphService {
     }
 
     reqs.store_model(cam.id);
+
     return cam.manager.request_with(reqs);
   }
 
@@ -1136,6 +1137,8 @@ export class NoctuaGraphService {
     if (self.noctuaUserService.user && self.noctuaUserService.user.groups.length > 0) {
       reqs.use_groups([self.noctuaUserService.user.group.id]);
     }
+
+    reqs.store_model(cam.id);
 
     return cam.replaceManager.request_with(reqs);
   }
