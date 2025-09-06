@@ -5,7 +5,6 @@ import { NoctuaSharedModule } from './../../../../@noctua/shared.module';
 import { NoctuaFormDialogService } from './services/dialog.service';
 import { ActivityFormComponent } from './cam/activity/activity-form/activity-form.component';
 import { EntityFormComponent } from './cam/activity/activity-form/entity-form/entity-form.component';
-import { CamTableComponent } from './cam/cam-table/cam-table.component';
 import { CamFormComponent } from './cam/cam-form/cam-form.component';
 import { AddEvidenceDialogComponent } from './dialogs/add-evidence/add-evidence.component';
 import { ActivityErrorsDialogComponent } from './dialogs/activity-errors/activity-errors.component';
@@ -13,7 +12,6 @@ import { BeforeSaveDialogComponent } from './dialogs/before-save/before-save.com
 import { SelectEvidenceDialogComponent } from './dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './dialogs/search-database/search-database.component';
 import { ActivityConnectorFormComponent } from './cam/activity/activity-connector-form/activity-connector-form.component';
-import { ActivityTableComponent } from './cam/cam-table/activity-table/activity-table.component';
 import { NoctuaConfirmDialogModule } from '@noctua/components';
 import { NoctuaEditorModule } from '@noctua.editor/noctua-editor.module';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
@@ -39,9 +37,6 @@ import { SelectEvidenceComponent } from './components/select-evidence/select-evi
 import { CopyModelComponent } from './components/copy-model/copy-model.component';
 import { MatTreeModule } from '@angular/material/tree';
 import { CamErrorsDialogComponent } from './dialogs/cam-errors/cam-errors.component';
-import { EvidenceTableComponent } from './cam/cam-table/activity-table/evidence-table/evidence-table.component';
-import { ActivityTreeComponent } from './cam/cam-table/activity-tree/activity-tree.component';
-import { ActivityTreeNodeComponent } from './cam/cam-table/activity-tree/activity-tree-node/activity-tree-node.component';
 import { CreateActivityDialogComponent } from './dialogs/create-activity/create-activity.component';
 import { ActivityTreeTableComponent } from './cam/cam-table/activity-tree-table/activity-tree-table.component';
 import { ResizableModule } from 'angular-resizable-element';
@@ -89,7 +84,6 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
   exports: [
     ActivityFormComponent,
     EntityFormComponent,
-    CamTableComponent,
     AddEvidenceDialogComponent,
     CreateActivityDialogComponent,
     ActivityErrorsDialogComponent,
@@ -101,10 +95,7 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     CamFormComponent,
     CopyModelComponent,
     ActivityConnectorFormComponent,
-    ActivityTableComponent,
-    ActivityTreeComponent,
     ActivityTreeTableComponent,
-    ActivityTreeNodeComponent,
     ActivityFormTableComponent,
     ActivityFormTableNodeComponent,
     EvidenceFormTableComponent,
@@ -118,7 +109,6 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
   declarations: [
     ActivityFormComponent,
     EntityFormComponent,
-    CamTableComponent,
     AddEvidenceDialogComponent,
     CreateActivityDialogComponent,
     ActivityErrorsDialogComponent,
@@ -130,11 +120,7 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     CamFormComponent,
     CopyModelComponent,
     ActivityConnectorFormComponent,
-    ActivityTableComponent,
     ActivityTreeTableComponent,
-    EvidenceTableComponent,
-    ActivityTreeComponent,
-    ActivityTreeNodeComponent,
     ActivityFormTableComponent,
     ActivityFormTableNodeComponent,
     SelectEvidenceComponent,
