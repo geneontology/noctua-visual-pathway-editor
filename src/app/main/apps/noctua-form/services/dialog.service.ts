@@ -5,7 +5,6 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 
 import { ActivityErrorsDialogComponent } from './../dialogs/activity-errors/activity-errors.component';
 import { BeforeSaveDialogComponent } from './../dialogs/before-save/before-save.component';
-import { CreateFromExistingDialogComponent } from './../dialogs/create-from-existing/create-from-existing.component';
 import { SelectEvidenceDialogComponent } from './../dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './../dialogs/search-database/search-database.component';
 
@@ -145,18 +144,6 @@ export class NoctuaFormDialogService {
             });
     }
 
-    openCreateFromExistingDialog(cam): void {
-        this.dialogRef = this._matDialog.open(CreateFromExistingDialogComponent, {
-            panelClass: 'create-from-existing-dialog',
-            data: {
-                cam: cam
-            }
-        });
-        this.dialogRef.afterClosed()
-            .subscribe(response => {
-
-            });
-    }
 
     openSelectEvidenceDialog(evidence: Evidence[], success): void {
         this.dialogRef = this._matDialog.open(SelectEvidenceDialogComponent, {

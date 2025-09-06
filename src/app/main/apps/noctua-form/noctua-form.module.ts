@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { TreeModule } from '@ali-hm/angular-tree-component';
-import { NoctuaFormComponent } from './noctua-form.component';
 import { NoctuaSharedModule } from './../../../../@noctua/shared.module';
 import { NoctuaFormDialogService } from './services/dialog.service';
 import { ActivityFormComponent } from './cam/activity/activity-form/activity-form.component';
@@ -12,15 +10,11 @@ import { CamFormComponent } from './cam/cam-form/cam-form.component';
 import { AddEvidenceDialogComponent } from './dialogs/add-evidence/add-evidence.component';
 import { ActivityErrorsDialogComponent } from './dialogs/activity-errors/activity-errors.component';
 import { BeforeSaveDialogComponent } from './dialogs/before-save/before-save.component';
-import { CreateFromExistingDialogComponent } from './dialogs/create-from-existing/create-from-existing.component';
 import { SelectEvidenceDialogComponent } from './dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './dialogs/search-database/search-database.component';
 import { ActivityConnectorFormComponent } from './cam/activity/activity-connector-form/activity-connector-form.component';
 import { ActivityTableComponent } from './cam/cam-table/activity-table/activity-table.component';
-import { GraphPreviewComponent } from './cam/cam-preview/graph-preview/graph-preview.component';
 import { NoctuaConfirmDialogModule } from '@noctua/components';
-import { CamPreviewComponent } from './cam/cam-preview/cam-preview.component';
-import { CamGraphComponent } from './cam/cam-preview/cam-graph/cam-graph.component';
 import { NoctuaEditorModule } from '@noctua.editor/noctua-editor.module';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
@@ -60,20 +54,12 @@ import { ConfirmCopyModelDialogComponent } from './dialogs/confirm-copy-model/co
 import { CamToolbarComponent } from './cam/cam-toolbar/cam-toolbar.component';
 import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connector-form/chemical-connector-form.component';
 
-const routes = [
-  {
-    path: 'f',
-    component: NoctuaFormComponent
-  }
-];
-
 @NgModule({
   imports: [
     NoctuaSharedModule,
     TreeModule,
     CommonModule,
     // NoctuaModule.forRoot(noctuaConfig),
-    RouterModule.forChild(routes),
     NoctuaConfirmDialogModule,
     NoctuaEditorModule,
     NgxChartsModule,
@@ -109,7 +95,6 @@ const routes = [
     ActivityErrorsDialogComponent,
     CamErrorsDialogComponent,
     BeforeSaveDialogComponent,
-    CreateFromExistingDialogComponent,
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
@@ -122,8 +107,6 @@ const routes = [
     ActivityTreeNodeComponent,
     ActivityFormTableComponent,
     ActivityFormTableNodeComponent,
-    CamPreviewComponent,
-    GraphPreviewComponent,
     EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
     CamToolbarComponent,
@@ -133,7 +116,6 @@ const routes = [
     NoctuaFormDialogService,
   ],
   declarations: [
-    NoctuaFormComponent,
     ActivityFormComponent,
     EntityFormComponent,
     CamTableComponent,
@@ -142,7 +124,6 @@ const routes = [
     ActivityErrorsDialogComponent,
     CamErrorsDialogComponent,
     BeforeSaveDialogComponent,
-    CreateFromExistingDialogComponent,
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
@@ -152,9 +133,6 @@ const routes = [
     ActivityTableComponent,
     ActivityTreeTableComponent,
     EvidenceTableComponent,
-    GraphPreviewComponent,
-    CamPreviewComponent,
-    CamGraphComponent,
     ActivityTreeComponent,
     ActivityTreeNodeComponent,
     ActivityFormTableComponent,
