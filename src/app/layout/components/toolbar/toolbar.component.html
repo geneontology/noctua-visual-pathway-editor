@@ -1,20 +1,4 @@
 <div class="w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <ng-container *ngIf="announcement">
-    <div class="noc-announcement alert alert-{{announcement.level}}" fxLayout="row" fxLayoutAlign="center center">
-      <div class="noc-announcement-header" fxLayout="row" fxLayoutAlign="start center">
-        <div fxFlex>
-          <strong>{{announcement.title}}</strong> {{announcement.description}}
-          <a *ngIf="announcement.descriptionUrl" href="{{announcement.descriptionUrl}}" target="_banl">
-            More Details
-          </a>
-        </div>
-        <button mat-stroked-button (click)="openAnnouncements()" class="noc-rounded-button ml-8 noc-sm"
-          matTooltip="Open Announcements" [matTooltipPosition]="'below'" [matTooltipShowDelay]="1500">
-          View More
-        </button>
-      </div>
-    </div>
-  </ng-container>
   <mat-toolbar fxLayout="row" fxLayoutAlign="start center" [ngClass]="{'noc-dev': isDev, 'noc-beta': isBeta }">
     <mat-progress-bar *ngIf="showLoadingBar" class="loading-bar" color="accent" mode="indeterminate"></mat-progress-bar>
 

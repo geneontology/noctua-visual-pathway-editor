@@ -19,8 +19,6 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 import { ArtBasket } from '@noctua.search/models/art-basket';
 import { NoctuaReviewSearchService } from '@noctua.search/services/noctua-review-search.service';
 import { NoctuaSearchDialogService } from '@noctua.search/services/dialog.service';
-import { NoctuaAnnouncementService } from '@noctua.announcement/services/cam.service';
-import { Announcement } from '@noctua.announcement/models/announcement';
 import { NoctuaSearchMenuService } from '@noctua.search/services/search-menu.service';
 
 @Component({
@@ -32,8 +30,6 @@ import { NoctuaSearchMenuService } from '@noctua.search/services/search-menu.ser
 export class NoctuaToolbarComponent implements OnInit, OnDestroy {
     ActivityType = ActivityType;
     artBasket: ArtBasket
-    announcements: Announcement[];
-    announcement: Announcement;
     public cam: Cam;
     userStatusOptions: any[];
     showLoadingBar: boolean;
@@ -57,7 +53,6 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
         private router: Router,
         private camService: CamService,
         private noctuaCommonMenuService: NoctuaCommonMenuService,
-        private noctuaAnnouncementService: NoctuaAnnouncementService,
         public noctuaUserService: NoctuaUserService,
         private noctuaSearchDialogService: NoctuaSearchDialogService,
         public noctuaConfigService: NoctuaFormConfigService,
@@ -106,21 +101,6 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
             .subscribe((artBasket: ArtBasket) => {
                 if (artBasket) {
                     this.artBasket = artBasket;
-                }
-            });
-        this.noctuaAnnouncementService.onAnnouncementsChanged.pipe(
-            takeUntil(this._unsubscribeAll))
-            .subscribe((announcements: Announcement[]) => {
-                if (announcements) {
-                    this.announcements = announcements
-                }
-            });
-
-        this.noctuaAnnouncementService.onAnnouncementChanged.pipe(
-            takeUntil(this._unsubscribeAll))
-            .subscribe((announcement: Announcement) => {
-                if (announcement) {
-                    this.announcement = announcement
                 }
             });
 

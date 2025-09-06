@@ -41,8 +41,7 @@
         </div>
       </mat-drawer-content>
       <mat-drawer #rightDrawer class="noc-right-drawer" mode="over" position="end">
-        <div [ngSwitch]="noctuaCommonMenuService.selectedRightPanel" class="h-100-p" #scrollbarRef
-          [perfectScrollbar]="scrollbarConfig">
+        <div [ngSwitch]="noctuaCommonMenuService.selectedRightPanel" class="h-100-p" #scrollbarRef>
           <noc-cam-table [ngStyle]="{width:tableWidth}" [panelDrawer]="rightDrawer" *ngSwitchCase="RightPanel.camTable"
             [cam]="cam" [options]="tableOptions"></noc-cam-table>
 

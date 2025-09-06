@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NoctuaAnnouncementModule } from '@noctua.announcement/@noctua.announcement.module';
 import { NoctuaSharedModule } from '@noctua/shared.module';
 import { ContentModule } from 'app/layout/components/content/content.module';
 import { NoctuaFooterModule } from 'app/layout/components/footer/footer.module';
@@ -21,7 +20,6 @@ import { NoctuaAppsModule } from '../components/noctua-apps/noctua-apps.module';
         QuickPanelModule,
         NoctuaToolbarModule,
         NoctuaAppsModule,
-        NoctuaAnnouncementModule
     ],
     exports: [
         LayoutNoctuaComponent
