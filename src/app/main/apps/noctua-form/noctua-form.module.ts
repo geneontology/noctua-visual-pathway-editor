@@ -13,7 +13,6 @@ import { AddEvidenceDialogComponent } from './dialogs/add-evidence/add-evidence.
 import { ActivityErrorsDialogComponent } from './dialogs/activity-errors/activity-errors.component';
 import { BeforeSaveDialogComponent } from './dialogs/before-save/before-save.component';
 import { CreateFromExistingDialogComponent } from './dialogs/create-from-existing/create-from-existing.component';
-import { LinkToExistingDialogComponent } from './dialogs/link-to-existing/link-to-existing.component';
 import { SelectEvidenceDialogComponent } from './dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './dialogs/search-database/search-database.component';
 import { ActivityConnectorFormComponent } from './cam/activity/activity-connector-form/activity-connector-form.component';
@@ -23,7 +22,6 @@ import { NoctuaConfirmDialogModule } from '@noctua/components';
 import { CamPreviewComponent } from './cam/cam-preview/cam-preview.component';
 import { CamGraphComponent } from './cam/cam-preview/cam-graph/cam-graph.component';
 import { NoctuaEditorModule } from '@noctua.editor/noctua-editor.module';
-import { PreviewActivityDialogComponent } from './dialogs/preview-activity/preview-activity.component';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete';
@@ -44,6 +42,7 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
 import { MatIconModule } from '@angular/material/icon';
 import { SearchEvidenceDialogComponent } from './dialogs/search-evidence/search-evidence.component';
 import { SelectEvidenceComponent } from './components/select-evidence/select-evidence.component';
+import { CopyModelComponent } from './components/copy-model/copy-model.component';
 import { MatTreeModule } from '@angular/material/tree';
 import { CamErrorsDialogComponent } from './dialogs/cam-errors/cam-errors.component';
 import { EvidenceTableComponent } from './cam/cam-table/activity-table/evidence-table/evidence-table.component';
@@ -51,18 +50,9 @@ import { ActivityTreeComponent } from './cam/cam-table/activity-tree/activity-tr
 import { ActivityTreeNodeComponent } from './cam/cam-table/activity-tree/activity-tree-node/activity-tree-node.component';
 import { CreateActivityDialogComponent } from './dialogs/create-activity/create-activity.component';
 import { ActivityTreeTableComponent } from './cam/cam-table/activity-tree-table/activity-tree-table.component';
-import { PreviewActivityComponent } from './cam/activity/preview-activity/preview-activity.component';
-import { NoctuaSearchBaseModule } from '@noctua.search';
-import { CopyModelComponent } from './cam/copy-model/copy-model.component';
 import { ResizableModule } from 'angular-resizable-element';
 import { NoctuaTermDetailComponent } from './components/term-detail/term-detail.component';
-import { CamStatsComponent } from './components/cam-stats/cam-stats.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { GeneralStatsComponent } from './components/cam-stats/general-stats/general-stats.component';
-import { AspectStatsComponent } from './components/cam-stats/aspect-stats/aspect-stats.component';
-import { ContributionStatsComponent } from './components/cam-stats/contribution-stats/contribution-stats.component';
-import { StatementStatsComponent } from './components/cam-stats/statement-stats/statement-stats.component';
-import { GPStatsComponent } from './components/cam-stats/gp-stats/gp-stats.component';
 import { ActivityFormTableNodeComponent } from './cam/cam-table/activity-form-table/activity-form-table-node/activity-form-table-node.component';
 import { ActivityFormTableComponent } from './cam/cam-table/activity-form-table/activity-form-table.component';
 import { EvidenceFormTableComponent } from './cam/cam-table/activity-form-table/evidence-table/evidence-table.component';
@@ -86,7 +76,6 @@ const routes = [
     RouterModule.forChild(routes),
     NoctuaConfirmDialogModule,
     NoctuaEditorModule,
-    NoctuaSearchBaseModule,
     NgxChartsModule,
 
     //Material
@@ -121,11 +110,9 @@ const routes = [
     CamErrorsDialogComponent,
     BeforeSaveDialogComponent,
     CreateFromExistingDialogComponent,
-    LinkToExistingDialogComponent,
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
-    PreviewActivityDialogComponent,
     CamFormComponent,
     CopyModelComponent,
     ActivityConnectorFormComponent,
@@ -136,7 +123,6 @@ const routes = [
     ActivityFormTableComponent,
     ActivityFormTableNodeComponent,
     CamPreviewComponent,
-    PreviewActivityComponent,
     GraphPreviewComponent,
     EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
@@ -156,9 +142,7 @@ const routes = [
     ActivityErrorsDialogComponent,
     CamErrorsDialogComponent,
     BeforeSaveDialogComponent,
-    PreviewActivityDialogComponent,
     CreateFromExistingDialogComponent,
-    LinkToExistingDialogComponent,
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
@@ -176,14 +160,7 @@ const routes = [
     ActivityFormTableComponent,
     ActivityFormTableNodeComponent,
     SelectEvidenceComponent,
-    PreviewActivityComponent,
     NoctuaTermDetailComponent,
-    CamStatsComponent,
-    GPStatsComponent,
-    AspectStatsComponent,
-    GeneralStatsComponent,
-    ContributionStatsComponent,
-    StatementStatsComponent,
     EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
     CamToolbarComponent,

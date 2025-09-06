@@ -96,7 +96,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
       case ActivityNodeType.GoCellularComponent:
         self.entity.linkedNode = true;
         self.entity.uuid = node.uuid;
-        self.noctuaActivityFormService.activity.insertSubgraph(activity, self.entity, node);
     }
 
     self.noctuaActivityFormService.initializeForm();
@@ -212,34 +211,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
       //errors.push(error);
       // self.dialogService.openActivityErrorsDialog(ev, entity, errors)
     }
-  }
-
-  linkNode(entity: ActivityNode) {
-    const self = this;
-    const nodes = this.camService.getNodesByType(entity.type);
-    const data = {
-      entity: entity,
-      nodes: nodes
-    };
-
-    const success = function (selected) {
-      if (selected.activityNode) {
-        const selectedActivityNode = selected.activityNode as ActivityNode;
-        entity.uuid = selectedActivityNode.uuid;
-        entity.term = selectedActivityNode.term;
-
-        entity.linkedNode = true;
-        //  self.noctuaActivityFormService.activity.insertSubgraph(selected.activity, entity.id);
-        self.noctuaActivityFormService.initializeForm();
-      }
-    };
-    self.noctuaFormDialogService.openLinkToExistingDialogComponent(data, success);
-
-  }
-
-  unlinkNode(entity: ActivityNode) {
-    entity.linkedNode = false;
-    entity.uuid = null;
   }
 
   openSearchModels() {

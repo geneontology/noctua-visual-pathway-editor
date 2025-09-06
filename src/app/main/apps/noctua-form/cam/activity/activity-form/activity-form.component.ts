@@ -127,9 +127,6 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  preview() {
-    this.noctuaFormDialogService.openPreviewActivityDialog();
-  }
 
   clear() {
     this.noctuaActivityFormService.clearForm();

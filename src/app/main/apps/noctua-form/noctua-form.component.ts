@@ -13,26 +13,18 @@ import {
   NoctuaFormConfigService,
   NoctuaActivityFormService,
   CamService,
-
   noctuaFormConfig,
-  MiddlePanel,
-  LeftPanel,
-  Activity,
   NoctuaGraphService,
   ActivityDisplayType,
-  CamLoadingIndicator,
-  ReloadType,
-  RightPanel
 } from '@geneontology/noctua-form-base';
 
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { NoctuaDataService } from '@noctua.common/services/noctua-data.service';
 import { TableOptions } from '@noctua.common/models/table-options';
-import { NoctuaSearchDialogService } from '@noctua.search/services/dialog.service';
-import { NoctuaReviewSearchService } from '@noctua.search/services/noctua-review-search.service';
 import { ResizeEvent } from 'angular-resizable-element';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
+import { LeftPanel, MiddlePanel, RightPanel } from '@noctua.common/models/menu-panels';
 
 @Component({
   selector: 'app-noctua-form',
@@ -83,9 +75,6 @@ export class NoctuaFormComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private camService: CamService,
     private _noctuaGraphService: NoctuaGraphService,
-    private noctuaDataService: NoctuaDataService,
-    private noctuaReviewSearchService: NoctuaReviewSearchService,
-    public noctuaSearchDialogService: NoctuaSearchDialogService,
     public noctuaUserService: NoctuaUserService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaActivityFormService: NoctuaActivityFormService,
@@ -187,25 +176,6 @@ export class NoctuaFormComponent implements OnInit, OnDestroy {
     this.cam = this.camService.getCam(modelId);
   }
 
-
-  openSearch() {
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.findReplace);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
-  openTermsSummary() {
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camTermsSummary);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
-  openCamStats() {
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camStats);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
   openCamForm() {
     this.camService.initializeForm(this.cam);
     this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camForm);
@@ -226,53 +196,5 @@ export class NoctuaFormComponent implements OnInit, OnDestroy {
     this.noctuaCommonMenuService.openLeftDrawer();
   }
 
-  resetCam(cam: Cam) {
-    const self = this;
-
-    const summary = self.camService.reviewCamChanges(cam);
-    const success = (ok) => {
-      if (ok) {
-        cam.loading = new CamLoadingIndicator(true, 'Resetting Model ...');
-        self.camService.reloadCam(cam, ReloadType.RESET)
-        self.noctuaReviewSearchService.onClearForm.next(true);
-        self.noctuaReviewSearchService.clear();
-        self.cam.clearHighlight()
-      }
-    }
-
-    const options = {
-      title: 'Discard Unsaved Changes',
-      message: `All your changes will be discarded for model. Model Name:"${cam.title}"`,
-      cancelLabel: 'Cancel',
-      confirmLabel: 'OK'
-    }
-
-    self.noctuaSearchDialogService.openCamReviewChangesDialog(success, summary, options)
-  }
-
-  storeCam(cam: Cam) {
-
-    const self = this;
-    const summary = self.camService.reviewCamChanges(cam);
-
-    const success = (replace) => {
-      if (replace) {
-        cam.loading = new CamLoadingIndicator(true, 'Saving Model ...');
-        self.camService.reloadCam(cam, ReloadType.STORE)
-        self.noctuaReviewSearchService.onClearForm.next(true);
-        self.noctuaReviewSearchService.clear();
-        self.cam.clearHighlight()
-      }
-    };
-
-    const options = {
-      title: 'Save Changes?',
-      message: `All your changes will be saved for model. Model Name:"${cam.title}"`,
-      cancelLabel: 'Go Back',
-      confirmLabel: 'Submit'
-    }
-
-    self.noctuaSearchDialogService.openCamReviewChangesDialog(success, summary, options)
-  }
 }
 

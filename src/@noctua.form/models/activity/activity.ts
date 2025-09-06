@@ -677,34 +677,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     return deleteData;
   }
 
-  setPreview() {
-    const self = this;
-    const saveData = self.createSave();
-
-    self.graphPreview.nodes = <NgxNode[]>saveData.nodes.map((node: ActivityNode) => {
-      return {
-        id: node.id,
-        label: node.term.label ? node.term.label : '',
-      };
-    });
-
-    self.graphPreview.edges = <NgxEdge[]>saveData.triples.map((triple: Triple<ActivityNode>) => {
-      return {
-        source: triple.subject.id,
-        target: triple.object.id,
-        label: triple.predicate.edge.label
-      };
-    });
-  }
-
-  insertSubgraph(activity: Activity, toNode: ActivityNode, fromNode: ActivityNode) {
-    const self = this;
-
-    const graph = activity.getTrimmedGraph(fromNode.id);
-
-    // self.addSubGraph(graph, toNode.id, fromNode.id);
-  }
-
   get title() {
     const self = this;
     const gp = self.getGPNode();

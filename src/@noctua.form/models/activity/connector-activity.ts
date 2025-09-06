@@ -55,7 +55,6 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
     this.setRule();
     this.setLinkDirection()
     this.createGraph();
-    this.setPreview();
   }
 
   setRule() {
@@ -147,7 +146,6 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
     this.prepareSave(value);
 
     this.setLinkDirection();
-    this.setPreview();
   }
 
   getVPEEdge(relationship: string, effectDirection?: string, directness?: string): string | undefined {
@@ -225,28 +223,6 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
       && this.predicate.edge.id === noctuaFormConfig.edge.hasInput.id);
   }
 
-  setPreview() {
-    this.graphPreview.nodes = [...this._getPreviewNodes()];
-    this.graphPreview.edges = [...this._getPreviewEdges()];
-  }
-
-  private _getPreviewNodes(): NgxNode[] {
-    const self = this;
-    let nodes: NgxNode[] = [];
-
-    let activityNodes = [self.subject, self.object];
-
-
-    nodes = <NgxNode[]>activityNodes.map((activity: Activity) => {
-      const node = activity.getMFNode()
-      return {
-        id: activity.id,
-        label: node ? node?.term.label : '',
-      };
-    });
-
-    return nodes;
-  }
 
   createSave() {
     const self = this;

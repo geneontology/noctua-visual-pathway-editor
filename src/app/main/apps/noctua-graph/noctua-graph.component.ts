@@ -15,14 +15,9 @@ import {
 } from '@geneontology/noctua-form-base';
 
 import { FormGroup } from '@angular/forms';
-import { NoctuaSearchService } from '@noctua.search/services/noctua-search.service';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { CamPage } from '@noctua.search/models/cam-page';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
-import { ReviewMode } from '@noctua.search/models/review-mode';
 import { LeftPanel, MiddlePanel, RightPanel } from '@noctua.common/models/menu-panels';
-import { ArtBasket } from '@noctua.search/models/art-basket';
-import { NoctuaReviewSearchService } from '@noctua.search/services/noctua-review-search.service';
 import { PerfectScrollbarDirective } from 'ngx-perfect-scrollbar';
 import { TableOptions } from '@noctua.common/models/table-options';
 import { SettingsOptions } from '@noctua.common/models/graph-settings';
@@ -57,13 +52,10 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   ActivityType = ActivityType;
-  ReviewMode = ReviewMode;
   LeftPanel = LeftPanel;
   MiddlePanel = MiddlePanel;
   RightPanel = RightPanel;
-  artBasket: ArtBasket = new ArtBasket();
 
-  camPage: CamPage;
   public cam: Cam;
   public user: Contributor;
 
@@ -109,11 +101,9 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private camService: CamService,
     public noctuaActivityFormService: NoctuaActivityFormService,
-    public noctuaReviewSearchService: NoctuaReviewSearchService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaUserService: NoctuaUserService,
-    public noctuaSearchService: NoctuaSearchService,
+    public noctuaUserService: NoctuaUserService
   ) {
     this._unsubscribeAll = new Subject();
 
@@ -162,22 +152,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cam = this.camService.getCam(modelId);
   }
 
-  openGraph() {
-    this.noctuaCommonMenuService.closeLeftDrawer();
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camGraph)
-  }
-
-  openTable() {
-    //this.noctuaCommonMenuService.closeLeftDrawer();
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camTable)
-  }
-
-  openPreview() {
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camPreview)
-  }
-
   openLeftDrawer(panel) {
     this.noctuaCommonMenuService.selectLeftPanel(panel);
     // this.noctuaCommonMenuService.openLeftDrawer();
@@ -202,10 +176,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     this.noctuaCommonMenuService.createModel(type);
   }
 
-  openSettings() {
-    this.openRightDrawer(RightPanel.graphSettings)
-  }
-
   getTableWidth(settings: SettingsOptions) {
     let width = 500;
 
@@ -221,20 +191,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     return width + 'px'
   }
 
-
-  search() {
-    const searchCriteria = this.searchForm.value;
-    this.noctuaSearchService.search(searchCriteria);
-  }
-
-  refresh() {
-    this.noctuaSearchService.updateSearch();
-  }
-
-  reset() {
-    this.noctuaSearchService.clearSearchCriteria();
-  }
-
   openCamForm() {
     this.camService.initializeForm(this.cam);
     this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camForm);
@@ -242,12 +198,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     this.noctuaCommonMenuService.openLeftDrawer();
   }
 
-  openActivityForm(activityType: ActivityType) {
-    this.noctuaActivityFormService.setActivityType(activityType);
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.activityForm);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
 
   openCopyModel() {
     this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.copyModel);
