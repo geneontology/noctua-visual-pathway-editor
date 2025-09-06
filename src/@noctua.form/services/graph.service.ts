@@ -29,7 +29,6 @@ import { graph as bbopGraph } from 'bbop-graph-noctua';
 
 declare const require: any;
 
-//const model = require('bbop-graph-noctua');
 const barista_client = require('bbop-client-barista');
 const amigo = require('amigo2');
 const barista_response = require('bbop-response-barista');
@@ -119,21 +118,14 @@ export class NoctuaGraphService {
   registerBaristaClient(cam: Cam) {
     const self = this;
     const barclient = new barista_client(environment.globalBaristaLocation, this.noctuaUserService.baristaToken);
-    //barclient.register('connect', resFunc);
-    //barclient.register('initialization', resFunc);
-    // barclient.register('message', resFunc);
-    //barclient.register('broadcast', resFunc);
-    //barclient.register('clairvoyance', resFunc);
-    //barclient.register('telekinesis', resFunc);
+    
     barclient.register('merge', function (response) {
       console.log('barista/merge response');
       self.onCamMergeSignal(cam, response)
     });
-    // _on_model_update);
     barclient.register('rebuild', function (response) {
       console.log('barista/rebuild response');
       self.onCamRebuildSignal(cam, response)
-
     });
 
     barclient.connect(cam.id);
@@ -829,9 +821,7 @@ export class NoctuaGraphService {
 
         activity.postRunUpdateCompliment();
 
-        // if (environment.isGraph) {
         activity.postRunUpdate();
-        // }
 
         if (!environment.isGraph || activity.activityType !== ActivityType.ccOnly) {
           activities.push(activity);

@@ -17,7 +17,6 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
   selector: 'noc-cam-toolbar',
   templateUrl: './cam-toolbar.component.html',
   styleUrls: ['./cam-toolbar.component.scss'],
-  // encapsulation: ViewEncapsulation.None,
 })
 export class CamToolbarComponent implements OnInit, OnDestroy {
 
@@ -47,7 +46,6 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
 
   openLeftDrawer(panel) {
     this.noctuaCommonMenuService.selectLeftPanel(panel);
-    // this.noctuaCommonMenuService.openLeftDrawer();
   }
 
   selectMiddlePanel(panel: MiddlePanel) {

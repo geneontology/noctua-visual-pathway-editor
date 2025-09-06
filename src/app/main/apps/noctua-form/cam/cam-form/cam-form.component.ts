@@ -36,8 +36,6 @@ export class CamFormComponent implements OnInit, OnDestroy {
     public noctuaFormConfigService: NoctuaFormConfigService
   ) {
     this._unsubscribeAll = new Subject();
-    // this.activity = self.noctuaCamFormService.activity;
-    //  this.camFormPresentation = this.noctuaCamFormService.activityPresentation;
   }
 
   ngOnInit(): void {

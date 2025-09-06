@@ -133,9 +133,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     this.mfNode = this.getMFNode()
     this.bpNode = this.getRootNodeByType(ActivityNodeType.GoBiologicalProcess)
     this.ccNode = this.getRootNodeByType(ActivityNodeType.GoCellularComponent)
-
-    //console.log('MF', this.mfNode)
-
   }
 
   get id() {
@@ -231,7 +228,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     if (!rootNode) return;
 
     self.date = (moment as any)(rootNode.date, 'YYYY-MM-DD')
-    // self.date = rootNode.date
 
     each(self.nodes, (node: ActivityNode) => {
       const nodeDate = (moment as any)(node.date, 'YYYY-MM-DD')

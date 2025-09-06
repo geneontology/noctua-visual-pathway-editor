@@ -47,12 +47,8 @@ export class NoctuaLookupService {
     this.name = 'DefaultLookupName';
     this.linker = new amigo.linker();
     this.golrURLBase = environment.globalGolrNeoServer + `select?`;
-    // this.trusted = this.$sce.trustAsResourceUrl(this.golrURLBase);
 
     this.localClosures = [];
-
-    //  this.golrLookupManager();
-
   }
 
   lookupFunc() {

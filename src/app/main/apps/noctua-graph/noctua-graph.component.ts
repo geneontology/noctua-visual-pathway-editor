@@ -28,7 +28,6 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
   selector: 'noc-noctua-graph',
   templateUrl: './noctua-graph.component.html',
   styleUrls: ['./noctua-graph.component.scss'],
-  // encapsulation: ViewEncapsulation.None,
   animations: noctuaAnimations
 })
 export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -154,7 +153,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openLeftDrawer(panel) {
     this.noctuaCommonMenuService.selectLeftPanel(panel);
-    // this.noctuaCommonMenuService.openLeftDrawer();
   }
 
   selectMiddlePanel(panel: MiddlePanel) {
