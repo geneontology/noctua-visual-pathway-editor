@@ -9,7 +9,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "downlevelIteration": true,
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
@@ -18,7 +17,6 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "paths": {
       "@geneontology/noctua-form-base": [
         "@noctua.form/"
