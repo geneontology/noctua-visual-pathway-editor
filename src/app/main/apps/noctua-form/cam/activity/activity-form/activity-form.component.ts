@@ -56,9 +56,6 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     public noctuaActivityFormService: NoctuaActivityFormService
   ) {
     this._unsubscribeAll = new Subject();
-
-    // this.activity = self.noctuaActivityFormService.activity;
-    // this.activityFormPresentation = this.noctuaActivityFormService.activityPresentation;
   }
 
   ngOnInit(): void {
@@ -127,9 +124,6 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  preview() {
-    this.noctuaFormDialogService.openPreviewActivityDialog();
-  }
 
   clear() {
     this.noctuaActivityFormService.clearForm();

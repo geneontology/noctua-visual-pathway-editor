@@ -17,7 +17,6 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
   selector: 'noc-cam-toolbar',
   templateUrl: './cam-toolbar.component.html',
   styleUrls: ['./cam-toolbar.component.scss'],
-  // encapsulation: ViewEncapsulation.None,
 })
 export class CamToolbarComponent implements OnInit, OnDestroy {
 
@@ -45,25 +44,8 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
 
-  openGraph() {
-    this.noctuaCommonMenuService.closeLeftDrawer();
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camGraph)
-  }
-
-  openTable() {
-    //this.noctuaCommonMenuService.closeLeftDrawer();
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camTable)
-  }
-
-  openPreview() {
-    this.noctuaCommonMenuService.selectMiddlePanel(MiddlePanel.camPreview)
-  }
-
   openLeftDrawer(panel) {
     this.noctuaCommonMenuService.selectLeftPanel(panel);
-    // this.noctuaCommonMenuService.openLeftDrawer();
   }
 
   selectMiddlePanel(panel: MiddlePanel) {
@@ -84,20 +66,9 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
     this.noctuaCommonMenuService.createModel(type);
   }
 
-  openSettings() {
-    this.openRightDrawer(RightPanel.graphSettings)
-  }
-
   openCamForm() {
     this.camService.initializeForm(this.cam);
     this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camForm);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
-  openActivityForm(activityType: ActivityType) {
-    this.noctuaActivityFormService.setActivityType(activityType);
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.activityForm);
     this.noctuaCommonMenuService.closeRightDrawer();
     this.noctuaCommonMenuService.openLeftDrawer();
   }

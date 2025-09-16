@@ -126,7 +126,6 @@ export class Cam {
   groupIds = []; // for checking group
   expanded = false;
   model: any;
-  //connectorActivities: ConnectorActivity[] = [];
   causalRelations: Triple<Activity>[] = [];
   sortBy: CamSortBy = new CamSortBy();
   error = false;
@@ -144,11 +143,8 @@ export class Cam {
 
   //bbop graphs
   graph;
-  storedGraph;
-  pendingGraph;
 
   // bbop managers 
-  baristaClient;
   engine;
   manager;
   copyModelManager;
@@ -242,23 +238,6 @@ export class Cam {
     });
 
     this._storedActivities = srcActivities;
-  }
-
-  updateSortBy(field: ActivitySortField, label: string) {
-    this.sortBy.field = field
-    this.sortBy.label = label
-  }
-
-  toggleExpand() {
-    this.expanded = !this.expanded;
-  }
-
-  expandAllActivities(expand: boolean) {
-    const self = this;
-
-    each(self.activities, (activity: Activity) => {
-      activity.expanded = expand;
-    });
   }
 
   getCausalRelation(subjectId: string, objectId: string): Triple<Activity> {
@@ -383,34 +362,6 @@ export class Cam {
         if (match) {
           self._filteredActivities.push(activity);
         }
-      });
-    }
-  }
-
-  applyWeights(weight = 0) {
-    const self = this;
-
-    if (self.queryMatch && self.queryMatch.terms.length > 0) {
-
-      each(self.activities, (activity: Activity) => {
-        each(activity.nodes, (node: ActivityNode) => {
-          const matchNode = find(self.queryMatch.terms, { uuid: node.term.uuid }) as Entity;
-
-          if (matchNode) {
-            matchNode.weight = node.term.weight = weight;
-            weight++;
-          }
-
-          each(node.predicate.evidence, (evidence: Evidence) => {
-            const matchNode = find(self.queryMatch.terms, { uuid: evidence.referenceEntity.uuid }) as Entity;
-
-            if (matchNode) {
-              matchNode.weight = evidence.referenceEntity.weight = weight;
-              weight++;
-            }
-          });
-        });
-
       });
     }
   }

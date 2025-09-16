@@ -1,13 +1,10 @@
 import { Injectable, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 
 import { ActivityErrorsDialogComponent } from './../dialogs/activity-errors/activity-errors.component';
 import { BeforeSaveDialogComponent } from './../dialogs/before-save/before-save.component';
-import { CreateFromExistingDialogComponent } from './../dialogs/create-from-existing/create-from-existing.component';
-import { LinkToExistingDialogComponent } from './../dialogs/link-to-existing/link-to-existing.component';
 import { SelectEvidenceDialogComponent } from './../dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './../dialogs/search-database/search-database.component';
 
@@ -17,7 +14,6 @@ import {
 } from '@geneontology/noctua-form-base';
 
 import { NoctuaConfirmDialogComponent } from '@noctua/components/confirm-dialog/confirm-dialog.component';
-import { PreviewActivityDialogComponent } from '../dialogs/preview-activity/preview-activity.component';
 import { SearchEvidenceDialogComponent } from '../dialogs/search-evidence/search-evidence.component';
 import { CamErrorsDialogComponent } from '../dialogs/cam-errors/cam-errors.component';
 import { CreateActivityDialogComponent } from '../dialogs/create-activity/create-activity.component';
@@ -148,29 +144,6 @@ export class NoctuaFormDialogService {
             });
     }
 
-    openCreateFromExistingDialog(cam): void {
-        this.dialogRef = this._matDialog.open(CreateFromExistingDialogComponent, {
-            panelClass: 'create-from-existing-dialog',
-            data: {
-                cam: cam
-            }
-        });
-        this.dialogRef.afterClosed()
-            .subscribe(response => {
-
-            });
-    }
-
-    openLinkToExistingDialogComponent(data, success): void {
-        this.dialogRef = this._matDialog.open(LinkToExistingDialogComponent, {
-            panelClass: 'noc-link-to-existing-dialog',
-            data
-        });
-        this.dialogRef.afterClosed()
-            .subscribe((response) => {
-                success(response);
-            });
-    }
 
     openSelectEvidenceDialog(evidence: Evidence[], success): void {
         this.dialogRef = this._matDialog.open(SelectEvidenceDialogComponent, {
@@ -219,10 +192,4 @@ export class NoctuaFormDialogService {
             });
     }
 
-    openPreviewActivityDialog(): void {
-        this.dialogRef = this._matDialog.open(PreviewActivityDialogComponent, {
-            panelClass: 'noc-preview-activity-dialog',
-            width: '600px',
-        });
-    }
 }

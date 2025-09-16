@@ -96,41 +96,8 @@ export class NoctuaActivityFormService {
     });
   }
 
-  getActivityFormErrors() {
-    let errors = [];
-
-    this.activityForm.getErrors(errors);
-
-    return errors;
-  }
-
   setActivityType(activityType: ActivityType) {
     this.activity = this.noctuaFormConfigService.createActivityModel(activityType);
-    this.initializeForm();
-  }
-
-  linkFormNode(entity, srcNode) {
-    entity.uuid = srcNode.uuid;
-    entity.term = srcNode.getTerm();
-  }
-
-  cloneForm(srcActivity, filterNodes) {
-    this.activity = this.noctuaFormConfigService.createActivityModel(
-      srcActivity.activityType
-    );
-
-    if (filterNodes) {
-      each(filterNodes, function (srcNode) {
-
-        let destNode = this.activity.getNode(srcNode.id);
-        if (destNode) {
-          destNode.copyValues(srcNode);
-        }
-      });
-    } else {
-      // this.activity.copyValues(srcActivity);
-    }
-
     this.initializeForm();
   }
 
