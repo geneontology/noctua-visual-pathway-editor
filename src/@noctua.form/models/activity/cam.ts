@@ -143,11 +143,8 @@ export class Cam {
 
   //bbop graphs
   graph;
-  storedGraph;
-  pendingGraph;
 
   // bbop managers 
-  baristaClient;
   engine;
   manager;
   copyModelManager;

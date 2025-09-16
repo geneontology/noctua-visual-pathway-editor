@@ -21,10 +21,6 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
 import { ConfirmDialogData } from '@noctua/components/confirm-dialog/confirm-dialog.component';
 import { DataUtils } from '@noctua.form/data/config/data-utils';
 
-declare const require: any;
-
-const model = require('bbop-graph-noctua');
-
 @Injectable({
   providedIn: 'root'
 })
@@ -127,8 +123,6 @@ export class CamService {
     return cam;
   }
 
-
-
   bulkEditCam(cam: Cam): Observable<any> {
     const self = this;
     const promises = [];
@@ -173,7 +167,6 @@ export class CamService {
     return this.cam.getNodesByTypeFlat(activityType);
   }
 
-
   getUniqueTerms(formActivity?: Activity): ActivityNode[] {
     const activityNodes = this.cam.getTerms(formActivity);
     const result = uniqWith(activityNodes, compareTerm);
@@ -191,7 +184,7 @@ export class CamService {
   copyModel(cam: Cam, title: string, includeEvidence = false) {
     const self = this;
 
-    return self._noctuaGraphService.copyModelRaw(cam, title, includeEvidence).subscribe((response) => {
+    return self._noctuaGraphService.copyModel(cam, title, includeEvidence).subscribe((response) => {
       const cam: Cam = self._noctuaGraphService.getMetadata(response['data'])
       self.onCopyModelChanged.next(cam)
     });
