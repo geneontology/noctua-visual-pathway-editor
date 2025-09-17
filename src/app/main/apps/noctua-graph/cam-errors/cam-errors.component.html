@@ -1,0 +1,78 @@
+<div fxLayout="column" fxLayoutAlign="start stretch" class="noc-drawer w-100-p h-100-p">
+  <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
+    <span class="noc-drawer-header-title">
+    </span>
+    <span fxFlex></span>
+    <button mat-icon-button class="" fxFlex="40px" color="primary" [matMenuTriggerFor]="activityOptionMenu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #activityOptionMenu="matMenu" class="noc-dropdown-menu">
+      <button mat-menu-item color="warn" class="" (click)="deleteActivity(activity)">
+        Delete
+      </button>
+    </mat-menu>
+    <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
+      aria-label="Close dialog">
+      <mat-icon>close</mat-icon> Close
+    </button>
+  </div>
+  <div class="noc-drawer-body" fxLayout="column" fxLayoutAlign="start start" noctuaPerfectScrollbar>
+
+    <div class="" fxLayout="column" fxLayoutAlign="start stretch">
+      @for (error of cam.errors; track error; let i = $index) {
+      <div class="noc-error-row" fxLayout="row">
+        <div class="noc-number">
+          {{i+1}}
+        </div>
+        <div fxFlex class="noc-error-row-body">
+          <div class="noc-heading">
+            <strong>{{error.meta?.aspect}}</strong>: {{error.message}}
+          </div>
+          @if (error.type===ErrorType.relation) {
+          <div class="pb-3" fxLayout="row">
+            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+              <div> {{error.meta?.subjectNode?.label}}</div>
+            </div>
+            <div class="noc-edge-card" fxLayout="column" fxLayoutAlign="center stretch" fxFlex>
+              <div class="noc-line">
+                {{error.meta?.edge?.label}}
+              </div>
+            </div>
+            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+              <div>{{error.meta?.objectNode?.label}}</div>
+            </div>
+          </div>
+          }
+          @if (error.type===ErrorType.cardinality) {
+          <div class="pb-3" fxLayout="row" fxLayoutAlign="center center">
+            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+              {{error.meta?.subjectNode?.label}}
+            </div>
+            <div class="noc-edge-card" fxFlex fxLayout="column" fxLayoutAlign="center stretch">
+              <div class="noc-line">
+                {{error.meta?.edge?.label}}
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="noc-annotation-row" fxFlex="" fxLayout="column" fxLayoutAlign="start stretch">
+
+      @for (node of cam.diffNodes; track node) {
+      <div class="noc-annotation-node-row" fxLayout="row" fxLayoutAlign="start stretch">
+        <div class="noc-number">
+          {{node.id}}
+        </div>
+        <div fxFlex class="noc-annotation-node-row-body">
+          <div class="noc-heading">
+            <strong>{{node.term?.label}}</strong> ({{node.term?.id}})
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
