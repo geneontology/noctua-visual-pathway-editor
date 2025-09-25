@@ -12,7 +12,6 @@
   </div>
   }
 
-  @if (cam.hasViolations) {
   <div class="noc-error" fxLayout="row" fxLayoutAlign="start center">
     <mat-chip class="noc-error-chip noc-chip-xs ml-8" fxLayout="row" fxLayoutAlign="start center"
       (click)="openCamErrors()">
@@ -20,11 +19,10 @@
         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
       </div>
       <div fxFlex="" class="noc-chip-label">
-        {{cam.violations?.length}} Errors Found
+        {{cam.violations?.length}} Error(s) Found
       </div>
     </mat-chip>
   </div>
-  }
   <div class="noc-br noc-bl px-4">
     <button mat-icon-button class="noc-toolbar-button noc-rounded-button" (click)="openCamForm()"
       matTooltip="{{cam?.comments}}" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1000">

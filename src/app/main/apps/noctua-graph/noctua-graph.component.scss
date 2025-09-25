@@ -13,6 +13,7 @@ $accent: map-get($theme, accent);
     display: block;
   }
 
+  noc-cam-errors,
   noc-activity-connector {
     display: block;
     @include deep-width(600px);

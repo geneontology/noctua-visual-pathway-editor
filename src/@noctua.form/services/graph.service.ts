@@ -648,6 +648,8 @@ export class NoctuaGraphService {
       triple.predicate.evidence = evidence;
       triple.predicate.uuid = bbopEdge.id();
 
+      triples.push(triple);
+
     });
 
     return triples;
@@ -655,16 +657,12 @@ export class NoctuaGraphService {
 
   graphRawNodes(camGraph): ActivityNode[] {
     const nodes: ActivityNode[] = [];
-    const nodeIds = new Set<string>();
 
-    camGraph.all_edges()?.forEach((bbopEdge) => {
-      nodeIds.add(bbopEdge.subject_id());
-      nodeIds.add(bbopEdge.object_id());
-    });
+    camGraph.all_nodes()?.forEach((bbopNode) => {
 
-    Array.from(nodeIds).forEach((nodeId) => {
-      const node = this.nodeToActivityNode(camGraph, nodeId) as ActivityNode;
-      if (node) {
+      const node = this.nodeToActivityNode(camGraph, bbopNode.id()) as ActivityNode;
+
+      if (node && !node.hasRootType(EntityDefinition.GoEvidenceNode)) {
         nodes.push(node);
       }
     });
