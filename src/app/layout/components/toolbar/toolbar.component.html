@@ -1,34 +1,21 @@
 <div class="w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <ng-container *ngIf="announcement">
-    <div class="noc-announcement alert alert-{{announcement.level}}" fxLayout="row" fxLayoutAlign="center center">
-      <div class="noc-announcement-header" fxLayout="row" fxLayoutAlign="start center">
-        <div fxFlex>
-          <strong>{{announcement.title}}</strong> {{announcement.description}}
-          <a *ngIf="announcement.descriptionUrl" href="{{announcement.descriptionUrl}}" target="_banl">
-            More Details
-          </a>
-        </div>
-        <button mat-stroked-button (click)="openAnnouncements()" class="noc-rounded-button ml-8 noc-sm"
-          matTooltip="Open Announcements" [matTooltipPosition]="'below'" [matTooltipShowDelay]="1500">
-          View More
-        </button>
-      </div>
-    </div>
-  </ng-container>
   <mat-toolbar fxLayout="row" fxLayoutAlign="start center" [ngClass]="{'noc-dev': isDev, 'noc-beta': isBeta }">
-    <mat-progress-bar *ngIf="showLoadingBar" class="loading-bar" color="accent" mode="indeterminate"></mat-progress-bar>
+    @if (showLoadingBar) {
+    <mat-progress-bar class="loading-bar" color="accent" mode="indeterminate"></mat-progress-bar>
+    }
 
     <div class="noc-logo pl-0 h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="180px">
 
-      <ng-container *ngIf="!isBeta && !isDev">
-        <a class="noc-main-logo" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
-          Noctua
-        </a>
-        <a class="noc-sub-logo" href="{{noctuaConfigService.homeUrl}}" target=" _blank">
-          Visual Pathway Editor
-        </a>
-      </ng-container>
-      <div *ngIf="isDev || isBeta" class="noc-beta-logo" fxLayout="column" fxLayoutAlign="center start ">
+      @if (!isBeta && !isDev) {
+      <a class="noc-main-logo" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
+        Noctua
+      </a>
+      <a class="noc-sub-logo" href="{{noctuaConfigService.homeUrl}}" target=" _blank">
+        Visual Pathway Editor
+      </a>
+      }
+      @if (isDev || isBeta) {
+      <div class="noc-beta-logo" fxLayout="column" fxLayoutAlign="center start ">
         <div class="noc-title">
           <a class="" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
             Noctua
@@ -44,6 +31,7 @@
           </a> for production version
         </div>
       </div>
+      }
     </div>
     <div fxLayout="row" fxLayoutAlign="end center" fxFlex="">
       <div class="noc-br pr-12" fxLayout="row" fxLayoutAlign="start center">
@@ -61,15 +49,10 @@
             Noctua User's Guide
           </a>
         </mat-menu>
-        <!--      <button mat-icon-button (click)="openAnnouncements()" class="noc-announcement-button">
-          <fa-icon [icon]="['far', 'bell']"></fa-icon>
-          <div *ngIf="announcements?.length > 0" class="noc-badge">
-            {{announcements.length}}
-          </div>
-        </button> -->
       </div>
       <div class="noc-br pr-12" fxLayout="row" fxLayoutAlign="start center">
-        <button *ngIf="noctuaUserService.user" mat-button class="noc-name-button" [matMenuTriggerFor]="userMenu">
+        @if (noctuaUserService.user) {
+        <button mat-button class="noc-name-button" [matMenuTriggerFor]="userMenu">
           <div fxLayout="row" fxLayoutAlign="start center">
             <div class="noc-info" fxLayout="column" fxLayoutAlign="start start">
               <div class="noc-name text-truncate">
@@ -82,16 +65,19 @@
             <mat-icon>arrow_drop_down</mat-icon>
           </div>
         </button>
+        }
         <mat-menu #userMenu="matMenu" class="">
           <a mat-button (click)="logout()" class="red-500-fg w-100-p">
             Logout
           </a>
         </mat-menu>
-        <div *ngIf="!noctuaUserService.user">
+        @if (!noctuaUserService.user) {
+        <div>
           <a mat-button href="{{noctuaConfigService.loginUrl}}" class="noc-login-button">
             Login
           </a>
         </div>
+        }
       </div>
     </div>
     <div class="noc-br h-100-p" fxLayout="row" fxLayoutAlign="start center" fxFlex="200px">

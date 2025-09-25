@@ -138,11 +138,6 @@ $code-color-attr-name: #B65611 !default;
     }
 }
 
-// pre[class*="language-"],
-// :not(pre) > code[class*="language-"] {
-// 	background: $code-background;
-// }
-
 // prism tokens
 // 
 $code-color-comment: null !default;
@@ -215,11 +210,6 @@ $code-color-punctuation: $code-color-fade !default;
         &.placeholder,
         &.variable {
             color: $code-color-variable;
-        }
-
-        &.property,
-        &.tag {
-            // font-style: italic;
         }
 
         &.property {

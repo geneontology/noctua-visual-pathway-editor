@@ -133,9 +133,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     this.mfNode = this.getMFNode()
     this.bpNode = this.getRootNodeByType(ActivityNodeType.GoBiologicalProcess)
     this.ccNode = this.getRootNodeByType(ActivityNodeType.GoCellularComponent)
-
-    //console.log('MF', this.mfNode)
-
   }
 
   get id() {
@@ -231,7 +228,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     if (!rootNode) return;
 
     self.date = (moment as any)(rootNode.date, 'YYYY-MM-DD')
-    // self.date = rootNode.date
 
     each(self.nodes, (node: ActivityNode) => {
       const nodeDate = (moment as any)(node.date, 'YYYY-MM-DD')
@@ -675,34 +671,6 @@ export class Activity extends SaeGraph<ActivityNode> {
     deleteData.uuids = uuids;
 
     return deleteData;
-  }
-
-  setPreview() {
-    const self = this;
-    const saveData = self.createSave();
-
-    self.graphPreview.nodes = <NgxNode[]>saveData.nodes.map((node: ActivityNode) => {
-      return {
-        id: node.id,
-        label: node.term.label ? node.term.label : '',
-      };
-    });
-
-    self.graphPreview.edges = <NgxEdge[]>saveData.triples.map((triple: Triple<ActivityNode>) => {
-      return {
-        source: triple.subject.id,
-        target: triple.object.id,
-        label: triple.predicate.edge.label
-      };
-    });
-  }
-
-  insertSubgraph(activity: Activity, toNode: ActivityNode, fromNode: ActivityNode) {
-    const self = this;
-
-    const graph = activity.getTrimmedGraph(fromNode.id);
-
-    // self.addSubGraph(graph, toNode.id, fromNode.id);
   }
 
   get title() {

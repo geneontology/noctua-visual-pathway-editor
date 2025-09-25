@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -65,7 +65,7 @@ import { faGithub, faFacebook, faTwitter } from '@fortawesome/free-brands-svg-ic
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { NoctuaDataService } from '@noctua.common/services/noctua-data.service';
 import { StartupService } from './startup.service';
-import { TreeModule } from '@circlon/angular-tree-component';
+import { TreeModule } from '@ali-hm/angular-tree-component';
 
 export function startup(startupService: StartupService) {
     return () => startupService.loadData();
@@ -82,12 +82,11 @@ const appRoutes: Routes = [
     declarations: [
         AppComponent
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [
+        AppComponent
+    ], imports: [BrowserModule,
         BrowserAnimationsModule,
-        HttpClientModule,
-        HttpClientJsonpModule,
-        RouterModule.forRoot(appRoutes, { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot(appRoutes, {}),
         // Noctua Main and Shared modules
         NoctuaModule.forRoot(noctuaConfig),
         NoctuaSharedModule,
@@ -96,25 +95,19 @@ const appRoutes: Routes = [
         MatSidenavModule,
         NoctuaProgressBarModule,
         TreeModule,
-
         //Material 
         MatSidenavModule,
-
         //Noctua App 
-        AppsModule
-    ],
-    providers: [
-        StartupService,
-        {
-            provide: APP_INITIALIZER,
-            useFactory: startup,
-            deps: [StartupService, NoctuaDataService],
-            multi: true
-        }
-    ],
-    bootstrap: [
-        AppComponent
-    ]
+        AppsModule], providers: [
+            StartupService,
+            {
+                provide: APP_INITIALIZER,
+                useFactory: startup,
+                deps: [StartupService, NoctuaDataService],
+                multi: true
+            },
+            provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())
+        ]
 })
 
 export class AppModule {

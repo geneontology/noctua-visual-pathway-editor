@@ -65,7 +65,7 @@
       "subject": "GO:0003674",
       "root_subject": "",
       "object": [
-        "CARO:0000000"
+        "UBERON:0001062"
       ],
       "is_multivalued": false,
       "is_required": false,
@@ -101,10 +101,10 @@
       "exclude_from_extensions": false
     },
     {
-      "subject": "CARO:0000000",
+      "subject": "UBERON:0001062",
       "root_subject": "",
       "object": [
-        "CARO:0000000",
+        "UBERON:0001062",
         "NCBITaxon:1"
       ],
       "is_multivalued": false,
@@ -117,7 +117,7 @@
       "subject": "CL:0000000",
       "root_subject": "",
       "object": [
-        "CARO:0000000",
+        "UBERON:0001062",
         "NCBITaxon:1"
       ],
       "is_multivalued": false,
@@ -130,7 +130,7 @@
       "subject": "GO:0005575",
       "root_subject": "",
       "object": [
-        "CARO:0000000",
+        "UBERON:0001062",
         "NCBITaxon:1"
       ],
       "is_multivalued": false,

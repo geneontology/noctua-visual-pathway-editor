@@ -12,7 +12,6 @@ import {
   CamService,
   Entity,
 } from '@geneontology/noctua-form-base';
-import { SparqlService } from '@noctua.sparql/services/sparql/sparql.service';
 
 @Component({
   selector: 'noc-cam-form',
@@ -32,14 +31,11 @@ export class CamFormComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;
 
   constructor(public noctuaUserService: NoctuaUserService,
-    private sparqlService: SparqlService,
     private camService: CamService,
     private noctuaGraphService: NoctuaGraphService,
     public noctuaFormConfigService: NoctuaFormConfigService
   ) {
     this._unsubscribeAll = new Subject();
-    // this.activity = self.noctuaCamFormService.activity;
-    //  this.camFormPresentation = this.noctuaCamFormService.activityPresentation;
   }
 
   ngOnInit(): void {

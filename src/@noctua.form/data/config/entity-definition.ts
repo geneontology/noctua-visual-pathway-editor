@@ -84,6 +84,7 @@ export const GoChemicalEntity = {
     id: ActivityNodeType.GoChemicalEntity,
     category: 'CHEBI:24431',
     categoryType: 'isa_closure',
+    suffix: `OR NOT ${GoMolecularEntity.categoryType}:"${GoMolecularEntity.category}"`,
 } as GoCategory;
 
 export const GoEvidence = {
@@ -106,7 +107,7 @@ export const GoCellTypeEntity = {
 
 export const GoAnatomicalEntity = {
     id: ActivityNodeType.GoAnatomicalEntity,
-    category: 'CARO:0000000',
+    category: 'UBERON:0001062',
     categoryType: 'isa_closure',
 } as GoCategory;
 

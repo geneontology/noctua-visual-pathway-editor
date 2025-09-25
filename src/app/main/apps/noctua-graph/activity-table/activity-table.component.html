@@ -17,8 +17,10 @@
     </button>
   </div>
   <div class="noc-drawer-body" fxLayout="column" fxLayoutAlign="start start" noctuaPerfectScrollbar>
-    <noc-activity-form-table *ngIf="activity" [options]="options" [cam]="cam" [activity]="activity"
-      class="noc-activities-table-body" fxLayout="row" fxLayoutAlign="start center">
-    </noc-activity-form-table>
+    @if (activity) {
+      <noc-activity-form-table [options]="options" [cam]="cam" [activity]="activity"
+        class="noc-activities-table-body" fxLayout="row" fxLayoutAlign="start center">
+      </noc-activity-form-table>
+    }
   </div>
 </div>

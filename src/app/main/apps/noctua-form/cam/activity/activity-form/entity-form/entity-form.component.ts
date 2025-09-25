@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormArray } from '@angular/forms';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatLegacyMenuTrigger as MatMenuTrigger } from '@angular/material/legacy-menu';
 import { Subject } from 'rxjs';
 import { NoctuaFormDialogService } from './../../../../services/dialog.service';
 import {
@@ -96,7 +96,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
       case ActivityNodeType.GoCellularComponent:
         self.entity.linkedNode = true;
         self.entity.uuid = node.uuid;
-        self.noctuaActivityFormService.activity.insertSubgraph(activity, self.entity, node);
     }
 
     self.noctuaActivityFormService.initializeForm();
@@ -212,34 +211,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
       //errors.push(error);
       // self.dialogService.openActivityErrorsDialog(ev, entity, errors)
     }
-  }
-
-  linkNode(entity: ActivityNode) {
-    const self = this;
-    const nodes = this.camService.getNodesByType(entity.type);
-    const data = {
-      entity: entity,
-      nodes: nodes
-    };
-
-    const success = function (selected) {
-      if (selected.activityNode) {
-        const selectedActivityNode = selected.activityNode as ActivityNode;
-        entity.uuid = selectedActivityNode.uuid;
-        entity.term = selectedActivityNode.term;
-
-        entity.linkedNode = true;
-        //  self.noctuaActivityFormService.activity.insertSubgraph(selected.activity, entity.id);
-        self.noctuaActivityFormService.initializeForm();
-      }
-    };
-    self.noctuaFormDialogService.openLinkToExistingDialogComponent(data, success);
-
-  }
-
-  unlinkNode(entity: ActivityNode) {
-    entity.linkedNode = false;
-    entity.uuid = null;
   }
 
   openSearchModels() {

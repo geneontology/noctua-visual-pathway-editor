@@ -1,4 +1,4 @@
-@import "src/@noctua/scss/noctua";
+@import "@noctua/scss/noctua";
 
 $primary: map-get($theme, primary);
 $accent: map-get($theme, accent);
@@ -15,7 +15,7 @@ $accent: map-get($theme, accent);
       background-color: map-get($accent, default);
 
       mat-icon {
-        color: #FFF;
+        color: #fff;
       }
     }
   }
