@@ -173,7 +173,8 @@ export class Cam {
   // Error Handling
   isReasoned = false;
   hasViolations = false;
-  violations: Violation[];
+  violations: Violation[] = [];
+  errors = [];
 
   //Graph
   manualLayout = false;
@@ -183,6 +184,13 @@ export class Cam {
   private _activities: Activity[] = [];
   private _storedActivities: Activity[] = [];
   private _id: string;
+
+  diffNodes: ActivityNode[] = [];
+  diffEdges: Triple<ActivityNode>[] = [];
+
+  //raw data
+  rawTriples: Triple<ActivityNode>[];
+  rawNodes: ActivityNode[];
 
   constructor() {
   }
@@ -240,6 +248,37 @@ export class Cam {
     this._storedActivities = srcActivities;
   }
 
+
+  setDiffs(nodes: ActivityNode[], triples?: Triple<ActivityNode>[]) {
+    const existingNodeUuids = new Set<string>();
+    const existingTripleUuids = new Set<string>();
+
+    this._activities.forEach((activity: Activity) => {
+      console.log(activity.activityType)
+      activity.nodes.forEach((node: ActivityNode) => {
+        existingNodeUuids.add(node.uuid);
+      });
+
+      activity.edges.forEach((edge: Triple<ActivityNode>) => {
+        existingTripleUuids.add(edge.predicate.uuid);
+      });
+    });
+
+    console.log('existingNodeUuids', existingNodeUuids.size)
+    console.log('nodes', nodes.length)
+
+    console.log('existingTripleUuids', existingTripleUuids)
+    console.log('triples', triples)
+
+    this.diffNodes = nodes.filter((node: ActivityNode) => !existingNodeUuids.has(node.uuid));
+
+    console.log('diffNodes', this.diffNodes)
+    this.diffEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.predicate.uuid));
+
+    console.log('diffEdges', this.diffEdges)
+
+  }
+
   getCausalRelation(subjectId: string, objectId: string): Triple<Activity> {
     const self = this;
 
@@ -249,21 +288,6 @@ export class Cam {
       }
       return triple.subject?.id === subjectId && triple.object?.id === objectId;
     })
-  }
-
-  clearHighlight() {
-    const self = this;
-
-    each(self._activities, (activity: Activity) => {
-      each(activity.nodes, (node: ActivityNode) => {
-        node.term.highlight = false;
-        each(node.predicate.evidence, (evidence: Evidence) => {
-          evidence.evidence.highlight = false;
-          evidence.referenceEntity.highlight = false;
-          evidence.withEntity.highlight = false;
-        });
-      });
-    });
   }
 
   findNodeById(uuid, activities: Activity[]): ActivityNode {
@@ -322,49 +346,8 @@ export class Cam {
     });
   }
 
-  applyFilter() {
-    const self = this;
 
-    self.clearHighlight();
 
-    if (self.queryMatch && self.queryMatch.terms.length > 0) {
-      self._filteredActivities = [];
-      self.matchedCount = 0;
-
-      each(self._activities, (activity: Activity) => {
-        let match = false;
-        each(activity.nodes, (node: ActivityNode) => {
-          each(self.queryMatch.terms, (term) => {
-
-            if (node.term.uuid === term.uuid) {
-              node.term.highlight = true;
-              node.term.activityDisplayId = term.activityDisplayId = activity.displayId;
-
-              self.matchedCount += 1;
-              match = true;
-            }
-          });
-
-          each(node.predicate.evidence, (evidence: Evidence) => {
-            each(self.queryMatch.terms, (term) => {
-
-              if (evidence.uuid === term.uuid) {
-                evidence.referenceEntity.highlight = true;
-                evidence.referenceEntity.activityDisplayId = term.activityDisplayId = activity.displayId;
-
-                self.matchedCount += 1;
-                match = true;
-              }
-            });
-          });
-        });
-
-        if (match) {
-          self._filteredActivities.push(activity);
-        }
-      });
-    }
-  }
 
   addPendingChanges(findEntities: Entity[], replaceWith: string, category) {
     const self = this;
@@ -484,8 +467,7 @@ export class Cam {
 
 
   setViolations() {
-    const self = this;
-    self.violations?.forEach((violation: Violation) => {
+    this.violations?.forEach((violation: Violation) => {
       const activities = this.findActivityByNodeUuid(violation.node.uuid);
 
       if (activities) {
@@ -498,10 +480,9 @@ export class Cam {
   }
 
   getViolationDisplayErrors() {
-    const self = this;
     const result = [];
 
-    result.push(...self.violations.map((violation: Violation) => {
+    result.push(...this.violations.map((violation: Violation) => {
       return violation.getDisplayError();
     }));
 

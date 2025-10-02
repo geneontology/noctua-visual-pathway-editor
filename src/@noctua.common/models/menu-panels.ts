@@ -13,6 +13,7 @@ export enum RightPanel {
     camForm = 'camForm',
     camTable = 'camTable',
     activityTable = 'activityTable',
+    camErrors = 'camErrors',
     activityConnectorTable = 'activityConnectorTable',
     termDetail = 'termDetail'
 }

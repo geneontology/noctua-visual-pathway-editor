@@ -89,8 +89,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
     this.optionsDisplay = { ...this.options, hideHeader: true };
     this.relationWidth = 250 - (this.entity.treeLevel) * 16 + 'px';
 
-    console.log('settings', this.settings);
-
   }
 
   toggleExpand(activity: Activity) {
