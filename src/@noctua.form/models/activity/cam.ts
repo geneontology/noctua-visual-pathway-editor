@@ -254,7 +254,6 @@ export class Cam {
     const existingTripleUuids = new Set<string>();
 
     this._activities.forEach((activity: Activity) => {
-      console.log(activity.activityType)
       activity.nodes.forEach((node: ActivityNode) => {
         existingNodeUuids.add(node.uuid);
       });
@@ -264,18 +263,9 @@ export class Cam {
       });
     });
 
-    console.log('existingNodeUuids', existingNodeUuids.size)
-    console.log('nodes', nodes.length)
-
-    console.log('existingTripleUuids', existingTripleUuids)
-    console.log('triples', triples)
-
     this.diffNodes = nodes.filter((node: ActivityNode) => !existingNodeUuids.has(node.uuid));
 
-    console.log('diffNodes', this.diffNodes)
     this.diffEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.predicate.uuid));
-
-    console.log('diffEdges', this.diffEdges)
 
   }
 

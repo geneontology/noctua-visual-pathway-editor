@@ -101,32 +101,6 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  editActivity() {
-    const self = this;
-    const success = () => {
-      self.noctuaActivityConnectorService.saveActivity().then(() => {
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully updated.', 'OK');
-      });
-    };
-
-    this.confirmDialogService.openConfirmDialog('Confirm Delete?',
-      'You are about to remove the causal relation',
-      success);
-  }
-
-  deleteConnectorEdge() {
-    const self = this;
-    const success = () => {
-      self.noctuaActivityConnectorService.deleteConnectorEdge(this.connectorActivity).then(() => {
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
-      });
-    };
-
-    this.confirmDialogService.openConfirmDialog('Confirm Delete?',
-      'You are about to remove the causal relation',
-      success);
-  }
-
   close() {
     if (this.panelDrawer) {
       this.panelDrawer.close();
