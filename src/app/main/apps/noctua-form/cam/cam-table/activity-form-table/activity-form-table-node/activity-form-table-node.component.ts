@@ -138,6 +138,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
     const success = () => {
       this.noctuaActivityEntityService.deleteActivityNode(self.activity, entity).then(() => {
+        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${entity.term.label} successfully deleted.`, 'OK');
       });
     };

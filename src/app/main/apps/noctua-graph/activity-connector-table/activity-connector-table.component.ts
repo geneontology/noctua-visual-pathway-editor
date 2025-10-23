@@ -14,7 +14,8 @@ import {
   NoctuaFormConfigService,
   NoctuaUserService,
   ConnectorType,
-  NoctuaActivityEntityService
+  NoctuaActivityEntityService,
+  CamService
 } from '@geneontology/noctua-form-base';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { takeUntil } from 'rxjs/operators';
@@ -64,6 +65,7 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private confirmDialogService: NoctuaConfirmDialogService,
+    private _camService: CamService,
     public noctuaActivityConnectorService: NoctuaActivityConnectorService,
     public noctuaUserService: NoctuaUserService,
     private noctuaFormDialogService: NoctuaFormDialogService,
@@ -135,6 +137,9 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
     const self = this;
     const success = () => {
       self.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
+        this._camService.onSelectedActivityChanged.next(null);
+        this.noctuaCommonMenuService.closeRightDrawer();
+        this._camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
       });
     };

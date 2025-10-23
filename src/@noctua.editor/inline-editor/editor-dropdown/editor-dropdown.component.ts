@@ -125,7 +125,7 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
             self.zone.run(() => {
 
             })
-            // self.noctuaFormDialogService.openInfoToast('Activity successfully updated.', 'OK');
+            // self.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
 
           });
         break;
@@ -138,7 +138,7 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       case EditorCategory.all:
         self.noctuaActivityEntityService.addIndividual().then(() => {
           this.close();
-          self.noctuaFormDialogService.openInfoToast('Activity successfully updated.', 'OK');
+          self.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
         });
         break;
     }
