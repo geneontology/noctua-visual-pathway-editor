@@ -74,6 +74,7 @@ export class CamGraphService {
     self.camCanvas.elementOnClick = self.openTable.bind(self);
     self.camCanvas.editOnClick = self.openTable.bind(self);
     self.camCanvas.deleteOnClick = self.deleteActivity.bind(self);
+    self.camCanvas.copyOnClick = self.copyActivity.bind(self);
     self.camCanvas.linkOnClick = self.openConnector.bind(self);
     self.camCanvas.onLinkCreated = self.createActivityConnector.bind(self);
     self.camCanvas.onUpdateCamLocations = self.updateCamLocations.bind(self);
@@ -173,6 +174,33 @@ export class CamGraphService {
         'Deleting this cannot be undone. Continue?',
         success);
     }
+  }
+
+  copyActivity(element: joint.shapes.noctua.NodeCellList) {
+
+    const success = () => {
+      const self = this;
+      const sourceActivity = element.get('activity') as Activity;
+      const position = element.prop('position') as joint.dia.Point;
+
+      // Position the placeholder element with a slight offset from the original
+      self.placeholderElement.position(position.x + 50, position.y + 50);
+
+      // Create a new activity with the same type as the source
+      self._activityFormService.activity = self._activityFormService.noctuaFormConfigService.createActivityModel(sourceActivity.activityType);
+
+      // Copy the values from the source activity to the newly created activity
+      self._activityFormService.activity.copyValues(sourceActivity);
+      self._activityFormService.activity.validateEvidence = true;
+
+      // Initialize the form with the copied values
+      self._activityFormService.initializeForm();
+
+      // Open the activity form dialog
+      self._noctuaFormDialogService.openCreateActivityDialog(FormType.ACTIVITY);
+    };
+
+    this._camService.checkGroup(success);
   }
 
 

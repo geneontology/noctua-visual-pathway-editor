@@ -26,6 +26,7 @@ export class CamCanvas {
     elementOnClick: (element: joint.shapes.noctua.NodeCellList) => void;
     editOnClick: (element: joint.shapes.noctua.NodeCellList) => void;
     deleteOnClick: (element: joint.shapes.noctua.NodeCellList) => void;
+    copyOnClick: (element: joint.shapes.noctua.NodeCellList) => void;
     linkOnClick: (element: joint.shapes.noctua.NodeLink) => void;
     onUpdateCamLocations: (cam: Cam) => void
     onLinkCreated: (
@@ -201,6 +202,14 @@ export class CamCanvas {
 
             const element = elementView.model;
             self.deleteOnClick(element);
+
+        });
+
+        this.canvasPaper.on('element:.copy:pointerdown', function (elementView: joint.dia.ElementView, evt) {
+            evt.stopPropagation();
+
+            const element = elementView.model;
+            self.copyOnClick(element);
 
         });
 

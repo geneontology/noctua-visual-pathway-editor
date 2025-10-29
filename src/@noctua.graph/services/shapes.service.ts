@@ -154,6 +154,7 @@ export class NodeCellList extends listShape.NodeCellList {
     self.attr('.wrapper/strokeWidth', on ? 40 : 0);
     self.attr('.edit/visibility', on ? 'visible' : 'hidden');
     self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    self.attr('.copy/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }
@@ -217,6 +218,7 @@ export class NodeCellMolecule extends shapes.NodeCellMolecule {
     self.attr('.wrapper/strokeWidth', on ? 40 : 0);
     self.attr('.edit/visibility', on ? 'visible' : 'hidden');
     self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    self.attr('.copy/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }
@@ -391,6 +393,7 @@ export class NodeCellList2 extends shapes.NodeCellList {
     self.attr('.wrapper/strokeWidth', on ? 40 : 0);
     self.attr('.edit/visibility', on ? 'visible' : 'hidden');
     self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    self.attr('.copy/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }

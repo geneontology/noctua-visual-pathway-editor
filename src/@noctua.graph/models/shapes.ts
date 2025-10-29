@@ -428,6 +428,17 @@ export const NodeCellMolecule = joint.dia.Element.define('noctua.NodeCellMolecul
       cursor: 'pointer',
       visibility: 'hidden',
     },
+    '.copy': {
+      event: 'element:.copy:pointerdown',
+      'xlink:href': './assets/icons/clone.svg',
+      ref: '.wrapper',
+      refX: '100%',
+      refX2: 5,
+      y: 60,
+      height: 20,
+      cursor: 'pointer',
+      visibility: 'hidden',
+    },
   }
 }, {
   markup: [
@@ -439,6 +450,7 @@ export const NodeCellMolecule = joint.dia.Element.define('noctua.NodeCellMolecul
     '<text class="label"/>',
     '<image class="delete"/>',
     '<image class="edit"/>',
+    '<image class="copy"/>',
     '</g>'
   ].join(''),
 }, {

@@ -171,6 +171,17 @@ const headerAttributes = {
       cursor: 'pointer',
       visibility: 'hidden',
     },
+    '.copy': {
+      event: 'element:.copy:pointerdown',
+      'xlink:href': './assets/icons/clone.svg',
+      ref: '.wrapper',
+      refX: '100%',
+      refX2: 5,
+      y: 60,
+      height: 20,
+      cursor: 'pointer',
+      visibility: 'hidden',
+    },
 
   },
   markup: [{
@@ -194,6 +205,9 @@ const headerAttributes = {
   }, {
     tagName: 'image',
     selector: '.delete',
+  }, {
+    tagName: 'image',
+    selector: '.copy',
   }]
 };
 
