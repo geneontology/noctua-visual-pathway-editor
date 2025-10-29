@@ -44,7 +44,7 @@
   </div>
 
   <!-- Error List -->
-  <div class="error-drawer__body" fxLayout="column" noctuaPerfectScrollbar>
+  <div class="error-drawer__body overflow-y-auto" fxLayout="column">
     <div class="error-list">
       @for (error of cam.errors; track error; let i = $index) {
       <div class="error-item" fxLayout="column">
