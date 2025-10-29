@@ -1,6 +1,6 @@
 <form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <div formArrayName="companies" class="noc-form-secion w-100-p" fxLayout="column" fxLayoutAlign="start stretch"
-    noctuaPerfectScrollbar>
+  <div formArrayName="companies" class="noc-form-secion w-100-p overflow-y-auto" fxLayout="column"
+    fxLayoutAlign="start stretch">
     <!--     <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
     <mat-form-field appearance="outline" fxFlex="100px" class="noc-sm  mr-12">
       <mat-select placeholder="" formControlName="db">
@@ -35,55 +35,55 @@
     </div> -->
 
     @for (comp of myForm.get('companies')?.controls; track comp; let i = $index) {
-      <div class="noc-with-group">
-        <div [formGroupName]="i">
-          <div formArrayName="projects">
-            @for (project of comp.get('projects').controls; track project; let j = $index) {
-              <div>
-                <div [formGroupName]="j">
-                  <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
-                    <input matInput formControlName="projectName" type="text" placeholder="Accession" autocomplete="off"
-                      [matAutocomplete]="withAuto">
-                    </mat-form-field>
-                    <button mat-icon-button (click)="addNewProject(comp.controls.projects)">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="deleteProject(comp.controls.projects, j)">
-                      <mat-icon>delete_forever</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              }
-              @if (comp.get('projects').controls.length===0) {
-                <div class="p-16">
-                  <a (click)="addNewProject(comp.controls.projects)">
-                    Add With/From
-                  </a>
-                </div>
-              }
+    <div class="noc-with-group">
+      <div [formGroupName]="i">
+        <div formArrayName="projects">
+          @for (project of comp.get('projects').controls; track project; let j = $index) {
+          <div>
+            <div [formGroupName]="j">
+              <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
+                <input matInput formControlName="projectName" type="text" placeholder="Accession" autocomplete="off"
+                  [matAutocomplete]="withAuto">
+              </mat-form-field>
+              <button mat-icon-button (click)="addNewProject(comp.controls.projects)">
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteProject(comp.controls.projects, j)">
+                <mat-icon>delete_forever</mat-icon>
+              </button>
             </div>
           </div>
+          }
+          @if (comp.get('projects').controls.length===0) {
+          <div class="p-16">
+            <a (click)="addNewProject(comp.controls.projects)">
+              Add With/From
+            </a>
+          </div>
+          }
         </div>
+      </div>
+    </div>
+    }
+    <mat-autocomplete #withAuto="matAutocomplete">
+      @for (option of filteredOptions | async; track option) {
+      <mat-option [value]="option">
+        {{option}}
+      </mat-option>
       }
-      <mat-autocomplete #withAuto="matAutocomplete">
-        @for (option of filteredOptions | async; track option) {
-          <mat-option [value]="option">
-            {{option}}
-          </mat-option>
-        }
-      </mat-autocomplete>
-      <button mat-button (click)="addNewCompany()">Add Group</button><br><br>
+    </mat-autocomplete>
+    <button mat-button (click)="addNewCompany()">Add Group</button><br><br>
 
 
 
-      <!--   <pre>{{myForm.value | json}}</pre> -->
-    </div>
-    <div class="w-100-p" fxLayout="row" fxLayoutAlign="end center">
-      <button mat-icon-button (click)="close()">
-        Cancel
-      </button>
-      <button mat-icon-button color="primary" (click)="save()">
-        Ok
-      </button>
-    </div>
-  </form>
+    <!--   <pre>{{myForm.value | json}}</pre> -->
+  </div>
+  <div class="w-100-p" fxLayout="row" fxLayoutAlign="end center">
+    <button mat-icon-button (click)="close()">
+      Cancel
+    </button>
+    <button mat-icon-button color="primary" (click)="save()">
+      Ok
+    </button>
+  </div>
+</form>

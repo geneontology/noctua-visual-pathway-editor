@@ -11,7 +11,7 @@
       <mat-icon>close</mat-icon> Close
     </button>
   </div>
-  <div class="noc-body w-100-p" noctuaPerfectScrollbar>
+  <div class="noc-body w-100-p overflow-y-auto">
     <div class="noc-section-row">
       <div class="noc-title">
         Term
@@ -34,12 +34,12 @@
       </div>
       <div class="noc-description">
         @for (rootType of termDetail.rootTypes; track rootType) {
-          <div>
-            {{rootType.label}}<small>({{rootType.id}})</small>
-            <a (click)="useTerm(rootType)">
-              Use
-            </a>
-          </div>
+        <div>
+          {{rootType.label}}<small>({{rootType.id}})</small>
+          <a (click)="useTerm(rootType)">
+            Use
+          </a>
+        </div>
         }
       </div>
     </div>
