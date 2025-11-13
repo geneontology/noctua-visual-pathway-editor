@@ -11,6 +11,7 @@ import { NoctuaGraphComponent } from './noctua-graph.component';
 import { RelationPreviewComponent } from './relation-preview/relation-preview.component';
 import { ActivityTableComponent } from './activity-table/activity-table.component';
 import { ActivityConnectorTableComponent } from './activity-connector-table/activity-connector-table.component';
+import { CamErrorsComponent } from './cam-errors/cam-errors.component';
 
 
 const routes = [
@@ -36,6 +37,7 @@ const routes = [
     CamGraphComponent,
     RelationPreviewComponent,
     ActivityTableComponent,
+    CamErrorsComponent,
     ActivityConnectorTableComponent
   ]
 })

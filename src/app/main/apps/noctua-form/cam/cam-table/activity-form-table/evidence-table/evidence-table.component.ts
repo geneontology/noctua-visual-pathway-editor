@@ -117,6 +117,8 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidence(evidence.uuid).then(() => {
+        this.camService.onSelectedActivityChanged.next(null);
+        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.evidence.label} successfully deleted.`, 'OK');
       });
     };
@@ -134,6 +136,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidenceReference(evidence.uuid, evidence.reference).then(() => {
+        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.reference} successfully deleted.`, 'OK');
       });
     };
@@ -149,6 +152,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidenceWith(evidence.uuid, evidence.with).then(() => {
+        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.with} successfully deleted.`, 'OK');
       });
     };

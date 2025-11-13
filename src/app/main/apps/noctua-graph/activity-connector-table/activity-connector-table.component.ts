@@ -14,7 +14,9 @@ import {
   NoctuaFormConfigService,
   NoctuaUserService,
   ConnectorType,
-  NoctuaActivityEntityService
+  NoctuaActivityEntityService,
+  CamService,
+  NoctuaGraphService
 } from '@geneontology/noctua-form-base';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { takeUntil } from 'rxjs/operators';
@@ -64,6 +66,8 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private confirmDialogService: NoctuaConfirmDialogService,
+    private _camService: CamService,
+    private _noctuaGraphService: NoctuaGraphService,
     public noctuaActivityConnectorService: NoctuaActivityConnectorService,
     public noctuaUserService: NoctuaUserService,
     private noctuaFormDialogService: NoctuaFormDialogService,
@@ -97,6 +101,23 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
           return;
         }
         this.settings = settings;
+      });
+
+    this._noctuaGraphService.onCamGraphChanged
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((cam: Cam) => {
+        if (!cam || cam.id !== this.cam.id) {
+          return;
+        }
+        this.cam = cam;
+        // Re-initialize the connector form to refresh evidence data
+        if (this.noctuaActivityConnectorService.subjectActivity &&
+          this.noctuaActivityConnectorService.objectActivity) {
+          this.noctuaActivityConnectorService.initializeForm(
+            this.noctuaActivityConnectorService.subjectActivity.id,
+            this.noctuaActivityConnectorService.objectActivity.id
+          );
+        }
       });
 
   }
@@ -135,6 +156,9 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
     const self = this;
     const success = () => {
       self.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
+        this._camService.onSelectedActivityChanged.next(null);
+        this.noctuaCommonMenuService.closeRightDrawer();
+        this._camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
       });
     };

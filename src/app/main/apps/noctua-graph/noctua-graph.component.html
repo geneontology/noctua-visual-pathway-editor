@@ -24,7 +24,7 @@
         </div>
       </mat-drawer>
       <mat-drawer-content class="w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-        <div class="w-100-p h-100-p" noctuaPerfectScrollbar>
+        <div class="w-100-p h-100-p overflow-y-auto">
           <noc-cam-graph [cam]="cam"></noc-cam-graph>
         </div>
       </mat-drawer-content>
@@ -35,6 +35,10 @@
           @case (RightPanel.activityTable) {
           <noc-graph-activity-table [panelDrawer]="rightDrawer" [options]="tableOptions" [cam]="cam">
           </noc-graph-activity-table>
+          }
+          @case (RightPanel.camErrors) {
+          <noc-cam-errors [panelDrawer]="rightDrawer" [cam]="cam">
+          </noc-cam-errors>
           }
           @case (RightPanel.activityConnectorTable) {
           <noc-activity-connector-table [panelDrawer]="rightDrawer" [cam]="cam">

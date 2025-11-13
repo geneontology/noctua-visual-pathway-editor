@@ -9,7 +9,7 @@
       <mat-icon>close</mat-icon> Close
     </button>
   </div>
-  <div class="noc-drawer-body" fxLayout="column" fxLayoutAlign="start start" noctuaPerfectScrollbar>
+  <div class="noc-drawer-body  overflow-y-auto" fxLayout="column" fxLayoutAlign="start start">
 
     @if (connectorFormGroup) {
     <div class="noc-connector-form">
@@ -161,7 +161,7 @@
   </div>
   <div fxLayout="row" fxLayoutAlign="start center" class="noc-drawer-footer noc-submit-row">
     @if (!connectorFormGroup.valid) {
-    <button (click)='checkErrors()' mat-button color="warn" class="noc-rounded-button noc-sm">
+    <button mat-button color="warn" class="noc-rounded-button noc-sm">
       Why is the "Save" button disabled?
     </button>
     }

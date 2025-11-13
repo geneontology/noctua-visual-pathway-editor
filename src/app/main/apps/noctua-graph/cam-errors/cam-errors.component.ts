@@ -8,7 +8,9 @@ import {
   CamService,
   noctuaFormConfig,
   NoctuaUserService,
-  ActivityType
+  ActivityType,
+  ErrorLevel,
+  ErrorType
 } from '@geneontology/noctua-form-base';
 
 import {
@@ -25,25 +27,21 @@ import { NoctuaFormDialogService } from '../../noctua-form';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 
 @Component({
-  selector: 'noc-graph-activity-table',
-  templateUrl: './activity-table.component.html',
-  styleUrls: ['./activity-table.component.scss']
+  selector: 'noc-cam-errors',
+  templateUrl: './cam-errors.component.html',
+  styleUrls: ['./cam-errors.component.scss']
 })
-export class ActivityTableComponent implements OnInit, OnDestroy {
+export class CamErrorsComponent implements OnInit, OnDestroy {
+  ErrorType = ErrorType;
+  ErrorLevel = ErrorLevel;
   EditorCategory = EditorCategory;
-  ActivityType = ActivityType;
-  activityTypeOptions = noctuaFormConfig.activityType.options;
 
-  @Input('options') options: any = {};
   @Input('panelDrawer') panelDrawer: MatDrawer;
   @Input('cam') cam: Cam;
 
   activity: Activity
 
-  gpNode: ActivityNode;
   nodes: ActivityNode[] = [];
-  editableTerms = false;
-  currentMenuEvent: any = {};
 
   private _unsubscribeAll: Subject<any>;
 
@@ -62,24 +60,7 @@ export class ActivityTableComponent implements OnInit, OnDestroy {
     this._unsubscribeAll = new Subject();
   }
 
-  ngOnInit(): void {
-    const self = this;
-
-    this.camService.onSelectedActivityChanged
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((activity: Activity) => {
-        if (!activity) {
-          return;
-        }
-        this.activity = null
-
-        setTimeout(() => {
-          this.activity = activity
-        }, 100);
-
-      });
-
-  }
+  ngOnInit(): void { }
 
   deleteActivity(activity: Activity) {
     const self = this;

@@ -197,7 +197,7 @@ export const canInsertEntity = {
             node: <ActivityNodeDisplay>{
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 type: ActivityNodeType.GoChemicalEntityHasInput,
-                label: 'has input (Chemical/Protein Complex)',
+                label: 'has input (Gene Product/Protein Complex)',
                 displaySection: noctuaFormConfig.displaySection.fd,
                 displayGroup: noctuaFormConfig.displayGroup.mf,
                 isExtension: true,

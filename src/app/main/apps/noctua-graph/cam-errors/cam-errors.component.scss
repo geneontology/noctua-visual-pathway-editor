@@ -1,0 +1,318 @@
+// Variables
+$primary: #1976d2;
+$accent: #ff4081;
+$warn: #f44336;
+$success: #4caf50;
+
+$bg-primary: #fafafa;
+$bg-secondary: #ffffff;
+$text-primary: #212121;
+$text-secondary: #757575;
+$border: #e0e0e0;
+
+$radius: 8px;
+$shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+
+// Main container
+.error-drawer {
+  height: 100vh;
+  background: $bg-primary;
+
+  // Header
+  &__header {
+    background: $primary;
+    color: white;
+    padding: 16px 24px;
+
+    &-content {
+      gap: 16px;
+    }
+
+    &-icon {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: $radius;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    &-subtitle {
+      font-size: 14px;
+      opacity: 0.8;
+      margin: 0;
+    }
+
+    &-actions {
+      gap: 8px;
+    }
+  }
+
+  &__close-btn {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__menu-btn {
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Summary
+  &__summary {
+    background: $bg-secondary;
+    padding: 16px 24px;
+    border-bottom: 1px solid $border;
+    gap: 16px;
+  }
+
+  &__stat {
+    padding: 12px;
+    border-radius: $radius;
+    border: 1px solid $border;
+    text-align: center;
+    min-width: 100px;
+
+    &--total {
+      background: #ffebee;
+      border-color: $warn;
+      color: $warn;
+    }
+
+    &--relation {
+      background: #e3f2fd;
+      border-color: $primary;
+      color: $primary;
+    }
+
+    &--cardinality {
+      background: #fff3e0;
+      border-color: #ff9800;
+      color: #ff9800;
+    }
+
+    &-number {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    &-label {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+  }
+
+  // Body
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
+// Error list
+.error-list {
+  padding: 24px;
+}
+
+.error-item {
+  background: $bg-secondary;
+  border-radius: $radius;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid $warn;
+  box-shadow: $shadow;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+  }
+
+  &__header {
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  &__number {
+    background: $warn;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &__title {
+    font-size: 16px;
+    color: $text-primary;
+  }
+
+  &__aspect {
+    color: $warn;
+    font-weight: 600;
+  }
+
+  &__details {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid $border;
+  }
+}
+
+// Relation visualization
+.relation-viz {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: $radius;
+  gap: 16px;
+
+  &__node {
+    background: $primary;
+    color: white;
+    padding: 8px 16px;
+    border-radius: $radius;
+    font-weight: 500;
+    font-size: 14px;
+    text-align: center;
+    min-width: 80px;
+
+    &--warning {
+      background: #ff9800;
+    }
+  }
+
+  &__label {
+    background: $accent;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 12px;
+    white-space: nowrap;
+
+    &--warning {
+      background: #ff9800;
+    }
+  }
+}
+
+.cardinality-viz {
+  background: #fff8e1;
+  border: 1px solid #ff9800;
+}
+
+// Annotations
+.annotations {
+  background: $bg-secondary;
+  border-top: 1px solid $border;
+
+  &__section {
+    padding: 24px;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__header {
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  &__icon {
+    background: $success;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: $radius;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  &__count {
+    background: #e8f5e8;
+    color: $success;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.annotation-item {
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: $radius;
+  border: 1px solid $border;
+  gap: 12px;
+
+  &:hover {
+    background: $bg-secondary;
+    border-color: $success;
+  }
+
+  &__id {
+    background: $success;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    min-width: 40px;
+    text-align: center;
+
+    &--edge {
+      background: $accent;
+      min-width: 24px;
+    }
+  }
+
+  &__label {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &__term-id {
+    font-size: 12px;
+    color: $text-secondary;
+    font-family: monospace;
+  }
+
+  &--edge &__content {
+    font-size: 14px;
+    color: $text-secondary;
+    font-family: monospace;
+  }
+}

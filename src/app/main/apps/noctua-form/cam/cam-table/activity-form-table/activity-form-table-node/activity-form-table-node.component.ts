@@ -89,8 +89,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
     this.optionsDisplay = { ...this.options, hideHeader: true };
     this.relationWidth = 250 - (this.entity.treeLevel) * 16 + 'px';
 
-    console.log('settings', this.settings);
-
   }
 
   toggleExpand(activity: Activity) {
@@ -140,6 +138,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
     const success = () => {
       this.noctuaActivityEntityService.deleteActivityNode(self.activity, entity).then(() => {
+        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${entity.term.label} successfully deleted.`, 'OK');
       });
     };

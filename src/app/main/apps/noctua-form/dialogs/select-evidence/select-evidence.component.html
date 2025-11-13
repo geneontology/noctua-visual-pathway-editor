@@ -15,9 +15,9 @@
         Select Evidence
       </div>
     </div>
-    <div class="noc-section-body w-100-p" noctuaPerfectScrollbar>
-      <mat-table class="noc-evidence-table w-100-p" #table [dataSource]="dataSource" matSort
-        [@animateStagger]="{value:'50'}" noctuaPerfectScrollbar>
+    <div class="noc-section-body w-100-p overflow-y-auto">
+      <mat-table class="noc-evidence-table w-100-p overflow-y-auto" #table [dataSource]="dataSource" matSort
+        [@animateStagger]="{value:'50'}">
         <ng-container matColumnDef="select" class="">
           <mat-header-cell *matHeaderCellDef fxFlex="30px">
             <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"

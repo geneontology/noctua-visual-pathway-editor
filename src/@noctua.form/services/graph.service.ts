@@ -21,6 +21,7 @@ import { Triple } from './../models/activity/triple';
 import * as moment from 'moment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { graph as bbopGraph } from 'bbop-graph-noctua';
+import { CardinalityViolation, RelationViolation } from '@noctua.form/models/activity/error/violation-error';
 
 declare const require: any;
 
@@ -115,7 +116,7 @@ export class NoctuaGraphService {
     cam.loading = new CamLoadingIndicator(true, 'Loading Model Activities ...');
     cam.id = modelId;
     //cam.baristaClient = this.registerBaristaClient(cam);
-    cam.manager = this.registerManager();
+    cam.manager = this.registerManager(true);
     cam.copyModelManager = this.registerManager();
     cam.groupManager = this.registerManager();
     cam.replaceManager = this.registerManager(false);
@@ -229,39 +230,46 @@ export class NoctuaGraphService {
       cam.state = self.noctuaFormConfigService.findModelState(stateAnnotations[0].value());
     }
 
+    this.loadViolations(cam, response.data()['validation-results'])
     self.loadCam(cam);
     cam.loading.status = false;
   }
 
   loadCam(cam: Cam, publish = true) {
-    const self = this;
-    const activities = self.graphToActivities(cam.graph);
+    const activities = this.graphToActivities(cam.graph);
+
+    cam.errors = cam.getViolationDisplayErrors();
 
     if (environment.isGraph) {
-      const molecules = self.graphToMolecules(cam.graph);
+      const molecules = this.graphToMolecules(cam.graph);
 
       activities.push(...molecules);
 
       if (cam.operation === CamOperation.ADD_ACTIVITY) {
-        const activity = self.getAddedActivity(activities, cam.activities);
-        self.onActivityAdded.next(activity);
+        const activity = this.getAddedActivity(activities, cam.activities);
+        this.onActivityAdded.next(activity);
       }
 
       cam.activities = activities;
-      cam.causalRelations = self.getCausalRelations(cam);
-      self.getActivityLocations(cam)
+      cam.causalRelations = this.getCausalRelations(cam);
+      this.getActivityLocations(cam)
     } else {
       cam.activities = activities;
     }
 
-    cam.applyFilter();
+    cam.rawNodes = this.graphRawNodes(cam.graph);
+    cam.rawTriples = this.graphRawEdges(cam.graph);
+
     cam.updateActivityDisplayNumber();
     cam.updateProperties()
     cam.operation = CamOperation.NONE;
 
+    cam.setDiffs(cam.rawNodes, cam.rawTriples);
+
     if (publish) {
-      self.onCamGraphChanged.next(cam);
+      this.onCamGraphChanged.next(cam);
     }
+
   }
 
   getAddedActivity(a: Activity[], b: Activity[]): Activity {
@@ -273,6 +281,63 @@ export class NoctuaGraphService {
 
     return null;
 
+  }
+
+  loadViolations(cam: Cam, validationResults) {
+    const self = this;
+    let violations;
+
+    if (validationResults &&
+      validationResults['shex-validation'] &&
+      validationResults['shex-validation']['violations']) {
+      violations = validationResults['shex-validation']['violations'];
+      cam.hasViolations = violations.length > 0;
+      cam.violations = [];
+      violations.forEach((violation: any) => {
+        violation.explanations.forEach((explanation) => {
+          explanation.constraints.forEach((constraint) => {
+            const camViolation = self.generateViolation(cam, violation.node, constraint);
+
+            if (camViolation) {
+              cam.violations.push(camViolation);
+            }
+          });
+        });
+      });
+    }
+
+    cam.setViolations();
+  }
+
+  generateViolation(cam: Cam, node, constraint) {
+    const self = this;
+    const activityNode = self.nodeToActivityNode(cam.graph, node)
+
+    if (!activityNode) {
+      return null;
+    }
+
+    let violation;
+    if (constraint.cardinality) {
+      const edge = self.noctuaFormConfigService.findEdge(constraint.property);
+      violation = new CardinalityViolation(
+        activityNode,
+        edge,
+        constraint.nobjects,
+        constraint.cardinality
+      );
+    } else if (constraint.object) {
+      violation = new RelationViolation(activityNode);
+      violation.predicate = self.noctuaFormConfigService.findEdge(constraint.property);
+
+      const object = constraint.object.startsWith('http')
+        ? self.curieUtil.getCurie(constraint.object)
+        : constraint.object
+
+      violation.object = self.nodeToActivityNode(cam.graph, object);
+    }
+
+    return violation;
   }
 
   getNodeInfo(node) {
@@ -559,6 +624,50 @@ export class NoctuaGraphService {
     });
 
     return triples;
+  }
+
+
+
+
+  graphRawEdges(camGraph): Triple<ActivityNode>[] {
+    const self = this;
+    const triples: Triple<ActivityNode>[] = [];
+
+    each(camGraph.all_edges(), (bbopEdge) => {
+      const bbopSubjectId = bbopEdge.subject_id();
+      const bbopObjectId = bbopEdge.object_id();
+      const subjectNode = self.nodeToActivityNode(camGraph, bbopSubjectId) as ActivityNode;
+      const objectNode = self.nodeToActivityNode(camGraph, bbopObjectId) as ActivityNode;
+
+
+      const bbopPredicateId = bbopEdge.predicate_id();
+      const evidence = self.edgeToEvidence(camGraph, bbopEdge);
+      const triple = new Triple<ActivityNode>(subjectNode, objectNode, new Predicate(this.noctuaFormConfigService.findEdge(bbopPredicateId), evidence));
+
+      triple.predicate.isComplement = triple.object.isComplement;
+      triple.predicate.evidence = evidence;
+      triple.predicate.uuid = bbopEdge.id();
+
+      triples.push(triple);
+
+    });
+
+    return triples;
+  }
+
+  graphRawNodes(camGraph): ActivityNode[] {
+    const nodes: ActivityNode[] = [];
+
+    camGraph.all_nodes()?.forEach((bbopNode) => {
+
+      const node = this.nodeToActivityNode(camGraph, bbopNode.id()) as ActivityNode;
+
+      if (node && !node.hasRootType(EntityDefinition.GoEvidenceNode)) {
+        nodes.push(node);
+      }
+    });
+
+    return nodes;
   }
 
   saveModelGroup(cam: Cam, groupId) {
