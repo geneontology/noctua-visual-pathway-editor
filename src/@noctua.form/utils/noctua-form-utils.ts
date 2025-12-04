@@ -1,5 +1,12 @@
 export class NoctuaFormUtils {
 
+    public static generateTripleId(subject: any, predicate: any, object: any): string {
+        const subjectId = subject?.uuid || '';
+        const predicateId = predicate?.edge?.id || predicate?.id || '';
+        const objectId = object?.uuid || '';
+        return `${subjectId}_${predicateId}_${objectId}`;
+    }
+
     public static cleanID(dirtyId: string) {
         if (dirtyId) {
             return dirtyId.replace(/\W/g, '_')

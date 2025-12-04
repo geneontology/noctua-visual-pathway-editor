@@ -420,7 +420,7 @@ export class CamCanvas {
     private _addGPEntity(treeNode: ActivityTreeNode, el: NodeCellList) {
         const self = this;
 
-        if (treeNode.node?.displaySection.id === noctuaFormConfig.displaySection.gp.id) {
+        if (treeNode?.node?.displaySection.id === noctuaFormConfig.displaySection.gp.id) {
             if (treeNode.node?.term && treeNode.node.predicate.edge?.id !== noctuaFormConfig.edge.enabledBy.id) {
                 el.addEntity(NoctuaFormUtils.pad('—', treeNode.node.treeLevel - 2)
                     + treeNode.node.predicate.edge?.label, treeNode.node.term.label,
