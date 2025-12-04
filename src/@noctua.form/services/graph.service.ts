@@ -543,6 +543,7 @@ export class NoctuaGraphService {
         subjectActivityNode.uuid = bbopSubjectId;
         self._graphToActivityDFS(camGraph, activity, subjectEdges, subjectActivityNode);
         activity.id = bbopSubjectId;
+        activity.uuid = bbopSubjectId;
 
         activity.postRunUpdateCompliment();
 
@@ -639,14 +640,12 @@ export class NoctuaGraphService {
       const subjectNode = self.nodeToActivityNode(camGraph, bbopSubjectId) as ActivityNode;
       const objectNode = self.nodeToActivityNode(camGraph, bbopObjectId) as ActivityNode;
 
-
       const bbopPredicateId = bbopEdge.predicate_id();
       const evidence = self.edgeToEvidence(camGraph, bbopEdge);
       const triple = new Triple<ActivityNode>(subjectNode, objectNode, new Predicate(this.noctuaFormConfigService.findEdge(bbopPredicateId), evidence));
 
       triple.predicate.isComplement = triple.object.isComplement;
       triple.predicate.evidence = evidence;
-      triple.predicate.uuid = bbopEdge.id();
 
       triples.push(triple);
 

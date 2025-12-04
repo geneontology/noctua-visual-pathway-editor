@@ -66,6 +66,7 @@ export class ActivityPosition {
 }
 
 export class Activity extends SaeGraph<ActivityNode> {
+  uuid: string;
   gp;
   label: string;
   date: moment.Moment;

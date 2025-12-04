@@ -258,14 +258,18 @@ export class Cam {
         existingNodeUuids.add(node.uuid);
       });
 
-      activity.edges.forEach((edge: Triple<ActivityNode>) => {
-        existingTripleUuids.add(edge.predicate.uuid);
+      activity.edges.forEach((triple: Triple<ActivityNode>) => {
+        existingTripleUuids.add(triple.id);
       });
+    });
+
+    this.causalRelations.forEach((triple: Triple<Activity>) => {
+      existingTripleUuids.add(triple.id);
     });
 
     this.diffNodes = nodes.filter((node: ActivityNode) => !existingNodeUuids.has(node.uuid));
 
-    this.diffEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.predicate.uuid));
+    this.diffEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.id));
 
   }
 

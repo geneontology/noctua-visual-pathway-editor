@@ -155,8 +155,7 @@ export class NoctuaLookupService {
         'document_category: "annotation"',
         '-qualifier:"not"',
         'aspect: "' + aspect + '"',
-        'bioentity: "' + gp + '"',
-        '-type:"protein_complex"'
+        'bioentity: "' + gp + '"'
       ],
       'facet.field': [
         'source',
