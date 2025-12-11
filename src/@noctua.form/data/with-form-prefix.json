@@ -12,5 +12,11 @@
   "UniProtKB",
   "WB",
   "Xenbase",
-  "ZFIN"
+  "ZFIN",
+  "CHEBI",
+  "ComplexPortal",
+  "EC",
+  "InterPro",
+  "PANTHER",
+  "RHEA"
 ]

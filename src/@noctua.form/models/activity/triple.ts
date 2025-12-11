@@ -5,19 +5,22 @@ import { Activity } from './activity';
 
 import { ActivityNode } from './activity-node';
 import { Predicate } from './predicate';
+import { NoctuaFormUtils } from '../../utils/noctua-form-utils';
 
-export class Triple<T extends ActivityNode | Activity>  {
+export class Triple<T extends ActivityNode | Activity> {
 
-  id
   object: T;
   predicate: Predicate;
   subject: T;
 
   constructor(subject: T, object: T, predicate: Predicate) {
-    this.id = uuid();
     this.subject = subject;
     this.object = object;
     this.predicate = predicate;
+  }
+
+  get id(): string {
+    return NoctuaFormUtils.generateTripleId(this.subject, this.predicate, this.object);
   }
 
   isTripleComplete() {
@@ -29,7 +32,6 @@ export class ActivityTriple<T extends Activity> {
   objectId: string;
   predicateId: string;
   subjectId: string;
-  id: string;
   title: string;
   triples: ActivityTriple<T>[];
   object: T;
@@ -37,11 +39,13 @@ export class ActivityTriple<T extends Activity> {
   subject: T;
 
   constructor(subject: T, object: T, predicate: T) {
-
-    this.id = uuid();
     this.subject = subject;
     this.object = object;
     this.predicate = predicate;
+  }
+
+  get id(): string {
+    return NoctuaFormUtils.generateTripleId(this.subject, this.predicate, this.object);
   }
 
 

@@ -153,6 +153,7 @@ export class NoctuaLookupService {
       'facet.limit': '2000',
       fq: [
         'document_category: "annotation"',
+        '-qualifier:"not"',
         'aspect: "' + aspect + '"',
         'bioentity: "' + gp + '"'
       ],
