@@ -220,6 +220,10 @@ export class Cam {
     }
   }
 
+  get totalErrors() {
+    return this.errors.length + this.diffEdges.length + this.diffNodes.length;
+  }
+
   set activities(srcActivities: Activity[]) {
     each(srcActivities, (activity: Activity) => {
       const prevActivity = this.findActivityById(activity.id);

@@ -1,4 +1,10 @@
+@import "@noctua/scss/noctua";
+@import "@noctua.common/scss/noctua.common";
+$primary: map-get($theme, primary);
+$accent: map-get($theme, accent);
+
 .allowed-databases-list {
+  width: 100%;
   max-height: 400px;
   overflow-y: auto;
 
