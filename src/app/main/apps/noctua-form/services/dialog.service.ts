@@ -19,6 +19,7 @@ import { CamErrorsDialogComponent } from '../dialogs/cam-errors/cam-errors.compo
 import { CreateActivityDialogComponent } from '../dialogs/create-activity/create-activity.component';
 import { AddEvidenceDialogComponent } from '../dialogs/add-evidence/add-evidence.component';
 import { ConfirmCopyModelDialogComponent } from '../dialogs/confirm-copy-model/confirm-copy-model.component';
+import { AllowedWithDatabasesDialogComponent } from '../dialogs/allowed-with-databases/allowed-with-databases.component';
 
 
 @Injectable({
@@ -190,6 +191,13 @@ export class NoctuaFormDialogService {
                     success(response);
                 }
             });
+    }
+
+    openAllowedWithDatabasesDialog(): void {
+        this.dialogRef = this._matDialog.open(AllowedWithDatabasesDialogComponent, {
+            panelClass: 'noc-allowed-with-databases-dialog',
+            width: '500px',
+        });
     }
 
 }

@@ -1,0 +1,14 @@
+.allowed-databases-list {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .database-item {
+    border-radius: 4px;
+    width: 100%;
+
+    .database-name {
+      font-weight: 500;
+      font-size: 14px;
+    }
+  }
+}
