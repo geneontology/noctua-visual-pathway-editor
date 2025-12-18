@@ -2,29 +2,43 @@
   <div formArrayName="databaseGroups" class="noc-form-secion w-100-p overflow-y-auto" fxLayout="column"
     fxLayoutAlign="start stretch">
 
-    @for (comp of myForm.get('databaseGroups')?.controls; track comp; let i = $index) {
-    <div class="noc-with-group">
+    @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
+    <div class="noc-with-group mb-16">
       <div [formGroupName]="i">
-        <div formArrayName="projects">
-          @for (project of comp.get('projects').controls; track project; let j = $index) {
-          <div>
-            <div [formGroupName]="j">
-              <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
-                <input matInput formControlName="projectName" type="text" placeholder="Accession" autocomplete="off"
-                  [matAutocomplete]="withAuto">
+        <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
+          <strong class="mr-8">With/From Group</strong>
+          <button mat-icon-button (click)="deleteGroup(i)" matTooltip="Delete Group">
+            <mat-icon>delete_forever</mat-icon>
+          </button>
+        </div>
+        <div formArrayName="entities">
+          @for (entity of group.get('entities').controls; track entity; let j = $index) {
+          <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
+            <div [formGroupName]="j" fxLayout="row" fxLayoutAlign="start center" fxFlex="">
+              <mat-form-field appearance="outline" fxFlex="120px" class="noc-sm mr-12">
+                <mat-select formControlName="db" placeholder="Database">
+                  @for (db of dbOptions; track db) {
+                  <mat-option [value]="db">
+                    {{db}}
+                  </mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
-              <button mat-icon-button (click)="addNewProject(comp.controls.projects)">
-                <mat-icon>add</mat-icon>
-              </button>
-              <button mat-icon-button (click)="deleteProject(comp.controls.projects, j)">
-                <mat-icon>delete_forever</mat-icon>
-              </button>
+              <mat-form-field appearance="outline" fxFlex="" class="noc-sm">
+                <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
+              </mat-form-field>
             </div>
+            <button mat-icon-button (click)="addNewEntity(group.get('entities'), null, null)" matTooltip="Add Entity">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteEntity(group.get('entities'), j)" matTooltip="Delete Entity">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
           </div>
           }
-          @if (comp.get('projects').controls.length===0) {
+          @if (group.get('entities').controls.length === 0) {
           <div class="p-16">
-            <a (click)="addNewProject(comp.controls.projects)">
+            <a (click)="addNewEntity(group.get('entities'), null, null)">
               Add With/From
             </a>
           </div>
@@ -33,16 +47,7 @@
       </div>
     </div>
     }
-    <mat-autocomplete #withAuto="matAutocomplete">
-      @for (option of filteredOptions | async; track option) {
-      <mat-option [value]="option">
-        {{option}}
-      </mat-option>
-      }
-    </mat-autocomplete>
-    <button mat-button (click)="addNewCompany()">Add Group</button><br><br>
-
-
+    <button mat-button (click)="addNewGroup()">Add Group</button>
 
     <!--   <pre>{{myForm.value | json}}</pre> -->
   </div>

@@ -83,6 +83,15 @@
             {{descriptionSectionTitle}}
           </div>
           <span fxFlex></span>
+          <div fxFlex="65%" fxLayout="row" fxLayoutAlign="end center">
+            <div fxFlex="25">
+              <button mat-icon-button matSuffix (click)="showAllowedWithDatabases($event)"
+                class="noc-evidence-db-trigger">
+                <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
+              </button>
+            </div>
+            <span fxFlex="40px"></span>
+          </div>
         </div>
         <div class="noc-section-body p-0" fxLayout="column" fxLayoutAlign="start stretch">
           @if (noctuaActivityFormService.activity.activityType===ActivityType.bpOnly) {
