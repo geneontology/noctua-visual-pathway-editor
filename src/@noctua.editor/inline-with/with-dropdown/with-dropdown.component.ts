@@ -87,12 +87,12 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
       entities: this.fb.array([])
     });
     control.push(group);
-    
+
     // Add one empty entity by default
     if (addEntity) {
       this.addNewEntity(group.get('entities') as FormArray, 'None', '');
     }
-    
+
     return group;
   }
 
@@ -125,7 +125,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
             if (entity.db === 'None' && (!entity.accession || !entity.accession.trim())) {
               return null;
             }
-            
+
             // Validate that if accession is provided, db must not be None
             if (entity.accession && entity.accession.trim() && entity.db === 'None') {
               const error = new ActivityError(ErrorLevel.error, ErrorType.general, `Please select a database for the accession value "${entity.accession.trim()}"`);
@@ -133,7 +133,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
               canSave = false;
               return null;
             }
-            
+
             // Validate that if db is selected, accession must be provided
             if (entity.db !== 'None' && (!entity.accession || !entity.accession.trim())) {
               const error = new ActivityError(ErrorLevel.error, ErrorType.general, `Accession value is required for database "${entity.db}"`);
@@ -141,12 +141,12 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
               canSave = false;
               return null;
             }
-            
+
             // Only include valid entities (both db and accession present)
             if (entity.db !== 'None' && entity.accession && entity.accession.trim()) {
               return `${entity.db}:${entity.accession.trim()}`;
             }
-            
+
             return null;
           })
           .filter(item => item !== null)

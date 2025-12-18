@@ -1,9 +1,9 @@
 <form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <div formArrayName="databaseGroups" class="noc-form-secion w-100-p overflow-y-auto" fxLayout="column"
+  <div formArrayName="databaseGroups" class="noc-form-section w-100-p overflow-y-auto" fxLayout="column"
     fxLayoutAlign="start stretch">
 
     @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
-    <div class="noc-with-group mb-16">
+    <div class="noc-with-group mb-16 px-12">
       <div [formGroupName]="i">
         <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
           <strong class="mr-8">With/From Group</strong>
