@@ -7,12 +7,9 @@ import {
   NoctuaFormConfigService,
   NoctuaActivityFormService,
   ActivityError,
-  noctuaFormConfig,
-  Article,
-  NoctuaLookupService,
-  withfrom,
   ErrorLevel,
-  ErrorType
+  ErrorType,
+  withFromAllowedDBs
 } from '@geneontology/noctua-form-base';
 
 import { withDropdownData } from './with-dropdown.tokens';
@@ -30,7 +27,6 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   evidenceDBForm: FormGroup;
   formControl: FormControl;
 
-  weeks = [];
   connectedTo = [];
 
   myForm: FormGroup;
@@ -38,7 +34,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;
 
   indata = {
-    companies: [
+    databaseGroups: [
       {
         projects: [
           {
@@ -50,14 +46,13 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   }
 
 
-  options: string[] = withfrom;
+  options: string[] = withFromAllowedDBs;
   filteredOptions: Observable<string[]>;
 
 
 
   constructor(private fb: FormBuilder, public dialogRef: WithDropdownOverlayRef,
     @Inject(withDropdownData) public data: any,
-    private noctuaLookupService: NoctuaLookupService,
     private noctuaFormDialogService: NoctuaFormDialogService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaActivityFormService: NoctuaActivityFormService,
@@ -66,7 +61,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
     this.formControl = data.formControl;
 
     this.myForm = this.fb.group({
-      companies: this.fb.array([])
+      databaseGroups: this.fb.array([])
     });
     const withfroms = this.formControl.value;
     if (withfroms) {
@@ -77,34 +72,6 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
 
     }
 
-    //this.setCompanies();
-
-
-
-    this.weeks = [
-      {
-        id: 'week-1',
-        weeklist: [
-          "item 1",
-          "item 2",
-          "item 3",
-          "item 4",
-          "item 5"
-        ]
-      }, {
-        id: 'week-2',
-        weeklist: [
-          "item 1",
-          "item 2",
-          "item 3",
-          "item 4",
-          "item 5"
-        ]
-      }
-    ];
-    for (let week of this.weeks) {
-      this.connectedTo.push(week.id);
-    };
   }
 
   private _filter(value: string): string[] {
@@ -122,7 +89,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   }
 
   addNewCompany() {
-    let control = <FormArray>this.myForm.controls['companies'];
+    let control = <FormArray>this.myForm.controls['databaseGroups'];
     control.push(
       this.fb.group({
         company: [''],
@@ -132,7 +99,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   }
 
   deleteCompany(index) {
-    let control = <FormArray>this.myForm.controls['companies'];
+    let control = <FormArray>this.myForm.controls['databaseGroups'];
     control.removeAt(index)
   }
 
@@ -147,9 +114,9 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
     control.removeAt(index)
   }
 
-  setCompanies() {
-    let control = <FormArray>this.myForm.controls['companies'];
-    this.indata.companies.forEach(x => {
+  setdatabaseGroups() {
+    let control = <FormArray>this.myForm.controls['databaseGroups'];
+    this.indata.databaseGroups.forEach(x => {
       control.push(this.fb.group({
         projects: this.setProjects(x)
       }));
@@ -180,7 +147,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
     const errors = [];
     let canSave = true;
 
-    const withs = this.myForm.value.companies.map((project) => {
+    const withs = this.myForm.value.databaseGroups.map((project) => {
       return project.projects.map((item) => {
         if (!item.projectName.includes(':')) {
           const error = new ActivityError(ErrorLevel.error, ErrorType.general, `${item.projectName} wrong format, Did you forget ':'`);
@@ -190,14 +157,6 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
         return item.projectName;
       }).join('|');
     }).join(',');
-
-
-    /*   if (accession.trim() === '') {
-        const error = new ActivityError(ErrorLevel.error, ErrorType.general,  `${db.name} accession is required`);
-        errors.push(error);
-        self.noctuaFormDialogService.openActivityErrorsDialog(errors);
-        canSave = false;
-      } */
 
     if (canSave) {
       this.formControl.setValue(withs);

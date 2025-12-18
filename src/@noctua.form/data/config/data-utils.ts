@@ -1,8 +1,8 @@
 import { cloneDeep } from "lodash";
 import { ShexShapeAssociation } from "../shape";
 import shapeTerms from './../shape-terms.json'
-import allowedDBs from './../with-form-prefix.json'
 import { Entity } from "./../../models/activity/entity";
+import { withFromAllowedDBs } from "../withfrom";
 
 export class DataUtils {
 
@@ -110,7 +110,7 @@ export class DataUtils {
   public static validateDatabaseIdentifiers(input: string): string | null {
 
     const identifiers = input.split(/[,|]/);
-    const allowedLowerCase = new Set(allowedDBs.map(db => db.toLowerCase()));
+    const allowedLowerCase = new Set(withFromAllowedDBs.map(db => db.toLowerCase()));
 
     for (const identifier of identifiers) {
       const trimmed = identifier.trim();
@@ -136,7 +136,7 @@ export class DataUtils {
     const parts = input.split(/([,|])/);
 
     const caseMap = new Map<string, string>();
-    allowedDBs.forEach(db => {
+    withFromAllowedDBs.forEach(db => {
       caseMap.set(db.toLowerCase(), db);
     });
 

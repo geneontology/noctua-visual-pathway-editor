@@ -1,40 +1,8 @@
 <form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <div formArrayName="companies" class="noc-form-secion w-100-p overflow-y-auto" fxLayout="column"
+  <div formArrayName="databaseGroups" class="noc-form-secion w-100-p overflow-y-auto" fxLayout="column"
     fxLayoutAlign="start stretch">
-    <!--     <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
-    <mat-form-field appearance="outline" fxFlex="100px" class="noc-sm  mr-12">
-      <mat-select placeholder="" formControlName="db">
-        <mat-option *ngFor="let evidenceDB of noctuaFormConfigService.evidenceDBs.options" [value]="evidenceDB">
-          {{evidenceDB.label}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
-      <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
-    </mat-form-field>
-    <button mat-icon-button (click)="add()">
-      <mat-icon>add</mat-icon>
-    </button>
-    <button mat-icon-button (click)="remove()">
-      <mat-icon>check_circle</mat-icon>
-    </button>
-  </div>
-  <div class="w-100-p" ngFor="let item of myForm.get('items').controls; let i=index;">
-    <div class="drag-container">
-      <div class="section-heading">Week {{week.id}}</div>
-      <div cdkDropList id="{{week.id}}" [cdkDropListData]="week.weeklist" [cdkDropListConnectedTo]="connectedTo"
-        class="item-list" (cdkDropListDropped)="drop($event)">
-        <div class="item-box" *ngFor="let weekItem of week.weeklist" cdkDrag>
-          <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
-            <input matInput type="text" [value]="weekItem" (ngModel)="weekItem" placeholder="Accession"
-              autocomplete="off">
-            </mat-form-field>
-          </div>
-        </div>
-      </div>
-    </div> -->
 
-    @for (comp of myForm.get('companies')?.controls; track comp; let i = $index) {
+    @for (comp of myForm.get('databaseGroups')?.controls; track comp; let i = $index) {
     <div class="noc-with-group">
       <div [formGroupName]="i">
         <div formArrayName="projects">
