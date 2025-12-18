@@ -8,7 +8,7 @@ import allowedDBs from '@noctua.form/data/with-form-prefix.json';
   styleUrls: ['./allowed-with-databases.component.scss']
 })
 export class AllowedWithDatabasesDialogComponent {
-  allowedDatabases: string[] = allowedDBs;
+  allowedDatabases: string[] = allowedDBs.slice().sort();
 
   constructor(
     private _matDialogRef: MatDialogRef<AllowedWithDatabasesDialogComponent>,
