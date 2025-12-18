@@ -8,10 +8,10 @@ import {
   NoctuaActivityFormService,
   ActivityError,
   ErrorLevel,
-  ErrorType
+  ErrorType,
+  withFromAllowedDBs
 } from '@geneontology/noctua-form-base';
 
-import { withFromAllowedDBs } from '@noctua.form/data/withfrom';
 
 import { withDropdownData } from './with-dropdown.tokens';
 import { WithDropdownOverlayRef } from './with-dropdown-ref';

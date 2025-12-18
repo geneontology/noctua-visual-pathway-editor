@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import { ShexShapeAssociation } from "../shape";
 import shapeTerms from './../shape-terms.json'
 import { Entity } from "./../../models/activity/entity";
-import { withFromAllowedDBs } from "../withfrom";
+import { withFromAllowedDBs } from "../withfrom-dbs";
 
 export class DataUtils {
 

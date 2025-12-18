@@ -85,6 +85,12 @@
           <span fxFlex></span>
           <div fxFlex="65%" fxLayout="row" fxLayoutAlign="end center">
             <div fxFlex="25">
+              <button mat-icon-button matSuffix (click)="showAllowedReferenceDatabases($event)"
+                class="noc-evidence-db-trigger">
+                <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
+              </button>
+            </div>
+            <div fxFlex="25">
               <button mat-icon-button matSuffix (click)="showAllowedWithDatabases($event)"
                 class="noc-evidence-db-trigger">
                 <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
