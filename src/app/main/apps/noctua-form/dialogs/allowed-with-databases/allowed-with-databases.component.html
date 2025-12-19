@@ -1,13 +1,13 @@
 <div class="dialog-content-wrapper noc-dialog" fxLayout="column" fxLayoutAlign="start stretch">
   <div class="m-0 noc-dialog-header" fxLayout="row" fxLayoutAlign="start center">
-    <span class="noc-dialog-header-title">Allowed "With" Databases</span>
+    <span class="noc-dialog-header-title">{{ dialogTitle }}</span>
     <span fxFlex></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
       <mat-icon>close</mat-icon> Close
     </button>
   </div>
   <div fxLayout="column" fxLayoutAlign="start start" class="noc-dialog-body">
-    <p class="p-8">The following database prefixes are allowed for the "With" field:</p>
+    <p class="p-8">The following database prefixes are allowed:</p>
     <ul class="allowed-databases-list" fxLayout="column" fxLayoutAlign="start start">
       @for (db of allowedDatabases; track db) {
       <li class="database-item p-8">

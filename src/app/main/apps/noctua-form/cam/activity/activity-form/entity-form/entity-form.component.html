@@ -148,8 +148,9 @@
           <mat-label>With</mat-label>
           <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
             autocomplete="off"></textarea>
-          <button mat-icon-button matSuffix (click)="showAllowedWithDatabases($event)" class="noc-evidence-db-trigger">
-            <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
+          <button mat-icon-button matSuffix (click)="openAddWith($event, evidence, 'with')"
+            class="noc-evidence-db-trigger">
+            <mat-icon>playlist_add</mat-icon>
           </button>
           <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
             @for (item of entity?.predicate?.withLookup.results; track item) {

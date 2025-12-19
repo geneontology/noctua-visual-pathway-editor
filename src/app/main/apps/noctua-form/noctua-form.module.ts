@@ -11,7 +11,7 @@ import { ActivityErrorsDialogComponent } from './dialogs/activity-errors/activit
 import { BeforeSaveDialogComponent } from './dialogs/before-save/before-save.component';
 import { SelectEvidenceDialogComponent } from './dialogs/select-evidence/select-evidence.component';
 import { SearchDatabaseDialogComponent } from './dialogs/search-database/search-database.component';
-import { AllowedWithDatabasesDialogComponent } from './dialogs/allowed-with-databases/allowed-with-databases.component';
+import { AllowedDatabasesDialogComponent } from './dialogs/allowed-with-databases/allowed-with-databases.component';
 import { ActivityConnectorFormComponent } from './cam/activity/activity-connector-form/activity-connector-form.component';
 import { NoctuaConfirmDialogModule } from '@noctua/components';
 import { NoctuaEditorModule } from '@noctua.editor/noctua-editor.module';
@@ -93,7 +93,7 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
-    AllowedWithDatabasesDialogComponent,
+    AllowedDatabasesDialogComponent,
     CamFormComponent,
     CopyModelComponent,
     ActivityConnectorFormComponent,
@@ -119,7 +119,7 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     SelectEvidenceDialogComponent,
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
-    AllowedWithDatabasesDialogComponent,
+    AllowedDatabasesDialogComponent,
     CamFormComponent,
     CopyModelComponent,
     ActivityConnectorFormComponent,

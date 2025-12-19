@@ -324,11 +324,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
     this.inlineWithService.open(event.target, { data });
   }
 
-  showAllowedWithDatabases(event) {
-    event.stopPropagation();
-    this.noctuaFormDialogService.openAllowedWithDatabasesDialog();
-  }
-
   unselectItemDisplay() {
     this.selectedItemDisplay = null;
   }
