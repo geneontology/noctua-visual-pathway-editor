@@ -193,6 +193,11 @@
           Fill with root term
         </button>
         }
+        @if (entity.aspect) {
+        <button mat-menu-item class="" (click)="addEvidenceISS()">
+          Add ISS Evidence
+        </button>
+        }
         <button mat-menu-item class="" (click)="clearValues()">
           Clear Values
         </button>

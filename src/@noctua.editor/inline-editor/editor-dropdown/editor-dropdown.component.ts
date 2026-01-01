@@ -233,7 +233,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     });
 
     if (term) {
-
       const evidence = new Evidence();
       evidence.setEvidence(new Entity(
         noctuaFormConfig.evidenceAutoPopulate.nd.evidence.id,
@@ -241,6 +240,19 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       evidence.reference = noctuaFormConfig.evidenceAutoPopulate.nd.reference;
       self.noctuaActivityEntityService.reinitializeForm(new Entity(term.id, term.label), [evidence]);
     }
+  }
+
+  addEvidenceISS() {
+    const self = this;
+
+    const evidence = new Evidence();
+    evidence.setEvidence(new Entity(
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.label));
+    evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
+
+    self.entity.predicate.setEvidence([evidence]);
+    self.noctuaActivityFormService.initializeForm();
   }
 
   clearValues() {
