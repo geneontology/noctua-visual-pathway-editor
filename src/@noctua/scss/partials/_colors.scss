@@ -105,35 +105,37 @@ A700;
   }
 
   // Input
+  /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
   .mat-form-field-label {
     color: map_get($noctuaForeground, hint-text);
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
   .mat-form-field-underline {
     background-color: map_get($noctuaForeground, divider);
   }
 
   // Select
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
   .mat-select-trigger,
   .mat-select-arrow {
     color: map_get($noctuaForeground, hint-text);
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
   .mat-select-underline {
     background-color: map_get($noctuaForeground, divider);
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
   .mat-select-disabled .mat-select-value,
   .mat-select-arrow,
   .mat-select-trigger {
     color: map_get($noctuaForeground, hint-text);
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
   .mat-select-content,
   .mat-select-panel-done-animating {
     background: map_get($background, card);
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
   .mat-select-value {
     color: map_get($noctuaForeground, text);
   }

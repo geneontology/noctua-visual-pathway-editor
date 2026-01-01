@@ -59,6 +59,7 @@ i {
   @include deep-width(initial!important);
 }
 
+/*TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version.*/
 mat-chip {
   &.noc-chip-sm {
     @include deep-height(25px);
@@ -192,16 +193,18 @@ textarea {
   overflow: hidden;
 }
 
-.mat-form-field {
+.mat-mdc-form-field {
+  /*TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
   .mat-form-field-wrapper {
     padding-bottom: 0;
   }
-
+  /*TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
   .mat-form-field-underline {
     bottom: 0;
   }
 
   &.noc-sm {
+    /*TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
     .mat-form-field-wrapper {
       font-size: 12px;
     }
@@ -234,15 +237,15 @@ textarea {
   justify-content: left;
   align-items: center;
 
-  .mat-paginator-page-size {
+  .mat-mdc-paginator-page-size {
     align-items: center;
   }
-
+  /*TODO(mdc-migration): The following rule targets internal classes of paginator that may no longer apply for the MDC version.*/
   .mat-paginator-page-size-select {
     margin-top: -15px;
   }
 
-  .mat-paginator-container {
+  .mat-mdc-paginator-container {
     @include deep-height(50px !important);
   }
 }

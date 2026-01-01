@@ -110,6 +110,7 @@ $accent: map-get($theme, accent);
       }
 
       &.noc-aspect-cell {
+        /* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version.*/
         mat-chip {
           text-align: center;
           @include deep-height(20px);

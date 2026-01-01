@@ -8,7 +8,7 @@ $accent: map-get($theme, accent);
 :host {
   padding: 0px;
   width: 100%;
-
+  /*TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version.*/
   mat-chip {
     &.default {
       border: #cdf1d2 solid 2px;
@@ -240,16 +240,16 @@ $accent: map-get($theme, accent);
       // width: 800px;
       @include deep-width(100%);
       overflow: auto;
-      .mat-footer-row,
-      .mat-header-row,
-      .mat-row {
+      .mat-mdc-footer-row,
+      .mat-mdc-header-row,
+      .mat-mdc-row {
         display: inline-flex;
         min-width: 100%;
       }
     }
 
-    tr.mat-footer-row,
-    tr.mat-row {
+    tr.mat-mdc-footer-row,
+    tr.mat-mdc-row {
       height: auto;
 
       &.noc-row-term {
@@ -267,8 +267,8 @@ $accent: map-get($theme, accent);
       }
     }
 
-    tr.mat-header-row,
-    tr.mat-row {
+    tr.mat-mdc-header-row,
+    tr.mat-mdc-row {
       padding-left: 15px;
     }
 
@@ -276,7 +276,7 @@ $accent: map-get($theme, accent);
       min-width: 150px !important;
     }
 
-    .mat-header-cell {
+    .mat-mdc-header-cell {
       padding: 0 10px;
       font-size: 10px !important;
       //color: #0F0; // map-get($primary, default);
@@ -286,7 +286,7 @@ $accent: map-get($theme, accent);
       font-weight: bold;
     }
 
-    .mat-header-row {
+    .mat-mdc-header-row {
       @include deep-height(30px);
       border-bottom: $noc-primary-color-light solid 1px;
     }
@@ -302,7 +302,7 @@ $accent: map-get($theme, accent);
       font-size: 12px;
     }
 
-    .mat-cell {
+    .mat-mdc-cell {
       display: flex;
       align-items: center;
 
