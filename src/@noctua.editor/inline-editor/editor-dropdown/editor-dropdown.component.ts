@@ -25,6 +25,7 @@ import { EditorCategory } from './../../models/editor-category';
 import { concatMap, finalize, take, takeUntil } from 'rxjs/operators';
 import { find } from 'lodash';
 import { InlineReferenceService } from './../../inline-reference/inline-reference.service';
+import { InlineWithService } from './../../inline-with/inline-with.service';
 
 @Component({
   selector: 'noc-editor-dropdown',
@@ -63,6 +64,7 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     private camService: CamService,
     private noctuaActivityEntityService: NoctuaActivityEntityService,
     private inlineReferenceService: InlineReferenceService,
+    private inlineWithService: InlineWithService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaActivityFormService: NoctuaActivityFormService,
   ) {
@@ -97,6 +99,14 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     };
     this.inlineReferenceService.open(event.target, { data });
 
+  }
+
+  openAddWith(event, name: string) {
+    event.stopPropagation();
+    const data = {
+      formControl: this.evidenceFormGroup.controls[name] as FormControl,
+    };
+    this.inlineWithService.open(event.target, { data });
   }
 
   save() {
