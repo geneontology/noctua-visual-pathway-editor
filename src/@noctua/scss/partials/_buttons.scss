@@ -1,4 +1,4 @@
-$noc-border-color: #BBB;
+$noc-border-color: #bbb;
 
 .noc-rounded-button {
   border-radius: 20px !important;
@@ -6,6 +6,22 @@ $noc-border-color: #BBB;
   line-height: 36px;
   font-size: 14px;
   font-weight: normal;
+
+  // Support for new Material button structure
+  &.mat-mdc-button,
+  &.mat-mdc-raised-button,
+  &.mat-mdc-stroked-button,
+  &.mat-mdc-flat-button,
+  &.mat-mdc-icon-button {
+    .mdc-button__label {
+      line-height: inherit;
+    }
+
+    .mat-mdc-button-persistent-ripple,
+    .mat-mdc-button-ripple {
+      border-radius: inherit !important;
+    }
+  }
 
   &.noc-xxs {
     padding: 0 5px;

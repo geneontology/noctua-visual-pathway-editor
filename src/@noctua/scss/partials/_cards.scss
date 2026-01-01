@@ -1,4 +1,4 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 .noctua-card {
   max-width: 320px;
   min-width: 320px;
@@ -12,12 +12,16 @@
     min-width: 0;
     max-width: none;
   }
-  .mat-button {
+  .mat-button,
+  .mat-mdc-button,
+  .mdc-button {
     min-width: 0 !important;
     padding: 0 8px !important;
   }
   .mat-button-toggle-group,
-  .mat-button-toggle-standalone {
+  .mat-button-toggle-standalone,
+  .mat-mdc-button-toggle-group,
+  .mat-mdc-button-toggle-standalone {
     box-shadow: none !important;
   }
   .mat-tab-labels {

@@ -118,7 +118,8 @@
     height: 100%;
   }
 
-  .noc-action-button {
+  .noc-action-button,
+  button.noc-action-button {
     margin: 8px 0 0 0;
     //   background-color: #FAFAFA;
     //  width: 35px;
@@ -145,7 +146,9 @@
     background-color: #eee;
     border-bottom: #ccc solid 1px;
 
-    mat-icon-button {
+    mat-icon-button,
+    button[mat-icon-button],
+    .mat-mdc-icon-button {
       @include deep-height(30px);
       @include deep-width(30px);
       line-height: 30px;

@@ -1,4 +1,6 @@
-.mat-button {
+.mat-button,
+.mat-mdc-button,
+.mdc-button {
   min-width: 20px !important;
 }
 
@@ -25,8 +27,11 @@
   margin: 0 !important;
 }
 
-.mat-icon-button {
-  .mat-button-ripple {
+.mat-icon-button,
+.mat-mdc-icon-button {
+  .mat-button-ripple,
+  .mat-mdc-button-ripple,
+  .mat-ripple {
     border-radius: 50%;
   }
 }
@@ -103,6 +108,300 @@ mat-chip {
 
 .mat-card-image {
   max-width: none !important;
+}
+
+// New Material Button Module Fixes
+// Support for mat-mdc-button classes
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-flat-button,
+.mat-mdc-icon-button,
+.mat-mdc-outlined-button {
+  // Ensure proper height inheritance
+  &.noc-rounded-button,
+  &.noc-action-button,
+  &.noc-toolbar-button,
+  &.noc-edit-button {
+    .mat-mdc-button-touch-target {
+      height: inherit;
+    }
+
+    .mdc-button__label {
+      line-height: inherit;
+    }
+  }
+
+  // Match legacy button behavior for icon buttons
+  &.mat-mdc-icon-button {
+    padding: 0;
+
+    .mat-mdc-button-touch-target {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+// Ensure raised and stroked buttons work with custom classes
+button[mat-raised-button],
+button[mat-stroked-button],
+button[mat-flat-button],
+button[mat-button],
+button[mat-icon-button] {
+  &.noc-rounded-button,
+  &.noc-action-button,
+  &.noc-toolbar-button,
+  &.noc-edit-button {
+    .mat-mdc-button-persistent-ripple,
+    .mat-mdc-button-ripple {
+      border-radius: inherit;
+    }
+  }
+}
+
+// Fix for MDC button touch targets
+.mdc-button {
+  .mdc-button__label {
+    z-index: 1;
+  }
+}
+
+// Additional MDC button fixes for height and padding
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  &:not(:disabled) {
+    // Ensure buttons respect custom heights
+    .mat-mdc-button-persistent-ripple::before {
+      background-color: currentColor;
+    }
+  }
+}
+
+// Fix icon button sizing
+.mat-mdc-icon-button {
+  width: auto;
+  height: auto;
+  padding: 8px;
+
+  &.noc-action-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mat-mdc-button-touch-target {
+    position: absolute;
+  }
+}
+
+// Icon buttons in form fields (matSuffix)
+.mat-form-field {
+  .mat-mdc-icon-button {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+
+    &[matsuffix],
+    &.mat-mdc-form-field-icon-suffix {
+      margin-right: -8px;
+    }
+
+    mat-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+      line-height: 24px;
+    }
+  }
+
+  // Legacy icon button support
+  .mat-icon-button {
+    width: 40px;
+    height: 40px;
+
+    &[matsuffix] {
+      margin-right: -8px;
+    }
+  }
+}
+
+// Fix for small icon buttons in form fields
+button.noc-evidence-db-trigger {
+  &.mat-mdc-icon-button,
+  &.mat-icon-button {
+    width: 20px !important;
+    height: 20px !important;
+    padding: 0 !important;
+    line-height: 20px !important;
+
+    mat-icon {
+      width: 18px !important;
+      height: 18px !important;
+      font-size: 18px !important;
+      line-height: 18px !important;
+    }
+
+    .mat-mdc-button-touch-target {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Ensure mat-stroked-button border works properly
+.mat-mdc-outlined-button:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+// Fix stroked/outlined buttons with icons and text
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button,
+button[mat-stroked-button] {
+  // Proper spacing for icon + text buttons
+  mat-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  // Ensure icons are properly sized
+  .mat-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    line-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Fix alignment in the mdc button
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon,
+    .mat-icon {
+      margin-right: 4px;
+      margin-left: 0;
+    }
+  }
+
+  // Override for rounded buttons with specific sizes
+  &.noc-rounded-button {
+    &.noc-sm {
+      mat-icon,
+      .mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        line-height: 18px;
+      }
+    }
+
+    &.noc-xs {
+      mat-icon,
+      .mat-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+        line-height: 16px;
+      }
+    }
+
+    &.noc-xxs {
+      mat-icon,
+      .mat-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px;
+        line-height: 14px;
+      }
+    }
+  }
+}
+
+// Fix raised buttons with icons
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+button[mat-raised-button],
+button[mat-flat-button] {
+  mat-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .mat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon,
+    .mat-icon {
+      margin-right: 4px;
+      margin-left: 0;
+    }
+  }
+}
+
+// Fix basic mat-button with icons
+.mat-mdc-button,
+button[mat-button] {
+  mat-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .mat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon,
+    .mat-icon {
+      margin-right: 4px;
+      margin-left: 0;
+    }
+
+    // If icon is the only child (icon-only button), remove margin
+    mat-icon:only-child,
+    .mat-icon:only-child {
+      margin-right: 0;
+      margin-left: 0;
+    }
+  }
+}
+
+// Universal fix for icon-only buttons in all button types
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button,
+button[mat-button],
+button[mat-raised-button],
+button[mat-stroked-button],
+button[mat-flat-button] {
+  .mdc-button__label {
+    // Icon-only buttons should have no margin
+    > mat-icon:only-child,
+    > .mat-icon:only-child {
+      margin: 0 !important;
+    }
+  }
 }
 
 .mat-tooltip {

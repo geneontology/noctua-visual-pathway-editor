@@ -1,7 +1,7 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 html {
   font-size: 62.5%;
-  font-family: 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: "Roboto", "Helvetica Neue", "Arial", sans-serif;
   line-height: 1.4 !important;
   letter-spacing: -0.1px !important;
 }
@@ -65,7 +65,11 @@ h6,
 a {
   color: mat.get-color-from-palette($accent);
   text-decoration: none;
-  &:not(.mat-button):not(.mat-raised-button):not(.mat-icon-button) {
+  &:not(.mat-button):not(.mat-raised-button):not(.mat-icon-button):not(
+      .mat-mdc-button
+    ):not(.mat-mdc-raised-button):not(.mat-mdc-icon-button):not(
+      .mat-mdc-stroked-button
+    ):not(.mat-mdc-flat-button) {
     &:hover,
     &:active {
       text-decoration: underline;
@@ -88,7 +92,7 @@ blockquote {
   footer {
     font-style: normal;
     &:before {
-      content: '\2014 \00A0';
+      content: "\2014 \00A0";
     }
   }
   &.reverse {
@@ -99,10 +103,10 @@ blockquote {
     padding-right: 16px;
     footer {
       &:before {
-        content: '';
+        content: "";
       }
       &:after {
-        content: '\2014 \00A0';
+        content: "\2014 \00A0";
       }
     }
   }
@@ -110,11 +114,10 @@ blockquote {
 
 // Code
 code {
-  font-family: 'Monaco', 'Menlo', 'Consolas', 'Ubuntu Mono', monospace;
-  ;
+  font-family: "Monaco", "Menlo", "Consolas", "Ubuntu Mono", monospace;
   &:not(.highlight) {
     background: rgba(0, 0, 0, 0.065);
-    color: #106CC8;
+    color: #106cc8;
     margin: 0 1px;
     padding: 2px 3px;
     border-radius: 2px;
@@ -133,7 +136,7 @@ dl {
 
 // Mark
 mark {
-  background: #F7F49A;
+  background: #f7f49a;
 }
 
 // Pre
@@ -285,7 +288,7 @@ strong {
     margin-bottom: 24px;
     padding: 24px 32px;
     @include mat.elevation(2);
-    >.title {
+    > .title {
       display: flex;
       align-items: center;
       margin-bottom: 24px;
@@ -316,22 +319,22 @@ strong {
       }
       .breaking-changes {
         .title {
-          background: #F44336;
+          background: #f44336;
         }
       }
       .new {
         .title {
-          background: #43A047;
+          background: #43a047;
         }
       }
       .improved {
         .title {
-          background: #673AB7;
+          background: #673ab7;
         }
       }
       .fixed {
         .title {
-          background: #2196F3;
+          background: #2196f3;
         }
       }
       ul {
@@ -348,25 +351,25 @@ strong {
 // Message boxes
 .message-box {
   padding: 16px;
-  background: #607D8B;
-  border-left: 6px solid #37474F;
+  background: #607d8b;
+  border-left: 6px solid #37474f;
   color: rgba(255, 255, 255, 1);
   &.error {
-    background: #EF5350;
-    border-left-color: #B71C1C;
+    background: #ef5350;
+    border-left-color: #b71c1c;
   }
   &.warning {
-    background: #FFECB3;
-    border-left-color: #FFC107;
+    background: #ffecb3;
+    border-left-color: #ffc107;
     color: rgba(0, 0, 0, 0.87);
   }
   &.success {
-    background: #4CAF50;
-    border-left-color: #2E7D32;
+    background: #4caf50;
+    border-left-color: #2e7d32;
   }
   &.info {
-    background: #B3E5FC;
-    border-left-color: #03A9F4;
+    background: #b3e5fc;
+    border-left-color: #03a9f4;
     color: rgba(0, 0, 0, 0.87);
   }
 }

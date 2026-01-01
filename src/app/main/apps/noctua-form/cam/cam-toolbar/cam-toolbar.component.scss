@@ -96,7 +96,9 @@ $accent: map-get($theme, accent);
       max-width: 150px;
     }
 
-    mat-icon-button {
+    mat-icon-button,
+    button[mat-icon-button],
+    .mat-mdc-icon-button {
       border-radius: 0 !important;
     }
   }

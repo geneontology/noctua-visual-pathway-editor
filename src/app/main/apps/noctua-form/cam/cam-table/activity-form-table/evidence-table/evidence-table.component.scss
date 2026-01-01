@@ -150,7 +150,9 @@ $accent: map-get($theme, accent);
     font-style: italic;
     color: #aaa;
 
-    .mat-button {
+    .mat-button,
+    .mat-mdc-button,
+    .mdc-button {
       position: relative;
     }
   }

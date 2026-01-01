@@ -24,7 +24,11 @@ $accent: map-get($theme, accent);
   mat-toolbar-row {
     @include deep-height(40px);
 
-    button {
+    button,
+    .mat-mdc-button,
+    .mat-mdc-raised-button,
+    .mat-mdc-stroked-button,
+    .mat-mdc-icon-button {
       color: #eee;
       border: #ccc solid 1px;
 
@@ -103,7 +107,11 @@ $accent: map-get($theme, accent);
       font-weight: bold;
     }
 
-    button {
+    button,
+    .mat-mdc-button,
+    .mat-mdc-raised-button,
+    .mat-mdc-stroked-button,
+    .mat-mdc-icon-button {
       color: #eee;
       border: #ccc solid 1px;
 
@@ -147,7 +155,8 @@ $accent: map-get($theme, accent);
       color: #555;
     }
 
-    .noc-action-button {
+    .noc-action-button,
+    button.noc-action-button {
       margin: 0px;
       height: 30px; // line-height: 36px;
     }
@@ -165,7 +174,11 @@ $accent: map-get($theme, accent);
   background-color: $noc-toolbar-color;
   z-index: 10;
 
-  button {
+  button,
+  .mat-mdc-button,
+  .mat-mdc-raised-button,
+  .mat-mdc-stroked-button,
+  .mat-mdc-icon-button {
     @include deep-height(30px);
     line-height: 30px;
   }

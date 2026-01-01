@@ -86,4 +86,4 @@ $background: map-get($theme, background);
 $foreground: map-get($theme, foreground);
 
 // Force the input field font sizes to 16px
-$typography: mat.define-legacy-typography-config($input: mat.define-typography-level(16px, 1.125, 400))
+$typography: mat.define-typography-config($body-1: mat.define-typography-level(16px, 1.125, 400))
