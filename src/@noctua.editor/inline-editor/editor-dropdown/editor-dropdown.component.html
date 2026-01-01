@@ -24,7 +24,7 @@
       </textarea>
       <mat-autocomplete #termAuto="matAutocomplete" [displayWith]="termDisplayFn" class="noc-term-autocomplete">
         @for (item of entity?.termLookup.results; track item) {
-        <mat-option [value]="item">
+        <mat-option [value]="item" [disabled]="item.notAnnotatable===false">
           <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
             <div class="noc-term-label">
               {{ item.label }}
