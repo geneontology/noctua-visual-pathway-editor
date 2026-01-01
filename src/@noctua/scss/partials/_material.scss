@@ -50,12 +50,12 @@ mat-radio-button {
   }
 }
 
-.mat-menu-panel {
+.mat-mdc-menu-panel {
   &.noc-menu-panel {
     background-color: #d2e8f8;
     max-width: none !important;
 
-    .mat-menu-item {
+    .mat-mdc-menu-item {
       //@include deep-height(25px !important);
       //max-width: 300px !important;
       font-size: 10px;
@@ -76,7 +76,7 @@ mat-radio-button {
     background-color: #d2e8f8;
     max-width: none !important;
 
-    .mat-menu-item {
+    .mat-mdc-menu-item {
       padding: 4px 12px;
       //@include deep-height(25px !important);
       //max-width: 300px !important;
@@ -137,7 +137,62 @@ mat-radio-button {
   }
 }
 
-.mat-menu-panel {
+// MDC Autocomplete support
+.mat-mdc-autocomplete-panel {
+  &.noc-term-autocomplete {
+    background-color: #fbf9de;
+    @include deep-width(400px !important);
+    max-height: 400px;
+
+    &.scard-lg {
+      @include deep-width(600px !important);
+    }
+
+    .mat-mdc-option,
+    .mdc-list-item {
+      padding: 8px !important;
+      border-bottom: rgba(map-get($primary, default), 0.6) solid 1px;
+      height: auto !important;
+      min-height: auto !important;
+      line-height: 18px !important;
+      white-space: normal !important;
+
+      .mdc-list-item__primary-text {
+        white-space: normal !important;
+        line-height: 18px !important;
+      }
+
+      .noc-term-id {
+        font-size: 10px;
+      }
+
+      .noc-term-label {
+        font-size: 12px;
+      }
+
+      .noc-term-detail-trigger {
+        padding: 0 8px;
+        @include deep-width(50px);
+      }
+
+      &.mat-mdc-option-disabled,
+      &.mdc-list-item--disabled {
+        background-color: #f8cccc;
+      }
+    }
+
+    // Deprecated terms
+    .mat-mdc-option.noc-deprecated {
+      background-color: #f8cccc;
+    }
+
+    .scard-more-info {
+      @include deep-width(200px !important);
+    }
+  }
+}
+
+.mat-mdc-menu-panel {
   &.noc-evidence-db-menu {
     background-color: #fbf9de;
     @include deep-width(400px !important);

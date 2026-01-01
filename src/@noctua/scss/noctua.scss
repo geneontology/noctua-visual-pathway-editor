@@ -71,6 +71,43 @@ mat-chip {
   }
 }
 
+// MDC chip support
+.mat-mdc-chip,
+mat-chip-option,
+mat-chip-row {
+  &.noc-chip-sm {
+    @include deep-height(25px);
+    font-size: 10px;
+    min-height: 25px;
+    
+    .mat-mdc-chip-action-label,
+    .mdc-evolution-chip__action--primary {
+      font-size: 10px;
+      padding: 0 8px;
+    }
+  }
+
+  &.noc-chip-xs {
+    @include deep-height(20px);
+    font-size: 10px;
+    min-height: 20px;
+    
+    .mat-mdc-chip-action-label,
+    .mdc-evolution-chip__action--primary {
+      font-size: 10px;
+      padding: 0 6px;
+    }
+  }
+}
+
+// MDC chip list support
+.mat-mdc-chip-listbox,
+.mat-mdc-chip-set {
+  .mat-mdc-chip {
+    margin: 2px;
+  }
+}
+
 .navbar {
   display: none !important;
   visibility: hidden;
@@ -189,7 +226,20 @@ mat-chip {
 
 textarea {
   resize: none !important;
-  overflow: hidden;
+  overflow: auto !important;
+  font-family: inherit;
+  line-height: 1.4 !important;
+}
+
+// MDC textarea improvements
+.mat-mdc-form-field {
+  textarea.mat-mdc-input-element {
+    resize: none !important;
+    overflow: auto !important;
+    font-family: inherit;
+    line-height: 1.4 !important;
+    box-sizing: border-box;
+  }
 }
 
 .mat-form-field {
@@ -208,6 +258,98 @@ textarea {
 
     textarea {
       @include deep-height(26px);
+    }
+  }
+}
+
+// MDC-based form field support
+.mat-mdc-form-field {
+  width: 100%;
+
+  &.noc-sm {
+    font-size: 12px;
+
+    .mat-mdc-text-field-wrapper {
+      font-size: 12px;
+    }
+
+    .mat-mdc-form-field-infix {
+      min-height: auto;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    textarea.mat-mdc-input-element {
+      min-height: 50px;
+      max-height: 200px;
+    }
+
+    .mat-mdc-input-element {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      font-size: 10px;
+    }
+  }
+
+  &.w-100-p {
+    width: 100%;
+  }
+
+  // Ensure proper spacing and appearance
+  &.mat-mdc-form-field-appearance-outline {
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+
+    .mat-mdc-form-field-flex {
+      align-items: stretch;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding-top: 16px;
+      padding-bottom: 16px;
+      border-top: none;
+    }
+
+    // Label positioning
+    .mat-mdc-floating-label {
+      top: 28px;
+    }
+
+    &.mat-form-field-has-label {
+      .mat-mdc-floating-label {
+        &.mdc-floating-label--float-above {
+          transform: translateY(-24px) scale(0.75);
+        }
+      }
+    }
+  }
+
+  // Textarea specific styling
+  textarea.mat-mdc-input-element {
+    resize: vertical;
+    overflow: auto;
+    min-height: 50px;
+    line-height: 1.4;
+    padding: 8px 0;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    background: transparent;
+  }
+
+  // Input element styling for better appearance
+  .mat-mdc-input-element {
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    
+    &::placeholder {
+      color: rgba(0, 0, 0, 0.42);
     }
   }
 }

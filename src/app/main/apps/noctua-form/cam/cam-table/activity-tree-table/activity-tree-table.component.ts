@@ -23,7 +23,7 @@ import {
 
 import { EditorCategory } from '@noctua.editor/models/editor-category';
 import { NoctuaUtils } from '@noctua/utils/noctua-utils';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Component({
