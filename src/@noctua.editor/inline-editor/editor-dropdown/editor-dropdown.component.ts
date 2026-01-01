@@ -111,6 +111,34 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
 
   save() {
     const self = this;
+    const errors = [];
+    let canSave = true;
+
+    // Validate reference and with values using Evidence class methods
+    if (this.evidenceFormGroup) {
+      const referenceValue = this.evidenceFormGroup.get('reference')?.value;
+      const withValue = this.evidenceFormGroup.get('with')?.value;
+      const tempEvidence = new Evidence();
+
+      // Validate reference using Evidence's method
+      if (referenceValue && referenceValue.trim()) {
+        if (!tempEvidence.enableReferenceSubmit(errors, referenceValue, this.entity, this.evidenceIndex)) {
+          canSave = false;
+        }
+      }
+
+      // Validate with using Evidence's method
+      if (withValue && withValue.trim()) {
+        if (!tempEvidence.enableWithFromSubmit(errors, withValue, this.entity, this.evidenceIndex)) {
+          canSave = false;
+        }
+      }
+    }
+
+    if (!canSave) {
+      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      return;
+    }
     switch (self.category) {
       case EditorCategory.term:
       case EditorCategory.evidence:
