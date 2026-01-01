@@ -114,8 +114,8 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     const errors = [];
     let canSave = true;
 
-    // Validate reference and with values using Evidence class methods
-    if (this.evidenceFormGroup) {
+    // Validate reference and with values using Evidence class methods for all categories
+    if (this.evidenceFormGroup && (this.displaySection.reference || this.displaySection.with)) {
       const referenceValue = this.evidenceFormGroup.get('reference')?.value;
       const withValue = this.evidenceFormGroup.get('with')?.value;
       const tempEvidence = new Evidence();
@@ -139,6 +139,7 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       self.noctuaFormDialogService.openActivityErrorsDialog(errors);
       return;
     }
+
     switch (self.category) {
       case EditorCategory.term:
       case EditorCategory.evidence:
@@ -150,20 +151,16 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
           take(1),
           concatMap((result) => {
             return EMPTY;
-            //return self.camService.getStoredModel(self.cam)
           }),
           finalize(() => {
             self.zone.run(() => {
               self.cam.loading.status = false;
               self.cam.reviewCamChanges()
-              //self.camService.reviewChangesCams();
             })
           }))
           .subscribe(() => {
             self.zone.run(() => {
-
             })
-            // self.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
 
           });
         break;
