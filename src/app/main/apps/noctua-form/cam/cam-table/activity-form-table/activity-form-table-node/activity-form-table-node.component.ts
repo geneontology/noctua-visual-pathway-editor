@@ -253,6 +253,19 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
     }
   }
 
+  addEvidenceISS(entity: ActivityNode) {
+    const self = this;
+
+    const evidence = new Evidence();
+    evidence.setEvidence(new Entity(
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.label));
+    evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
+
+    entity.predicate.setEvidence([evidence]);
+    self.noctuaActivityFormService.initializeForm();
+  }
+
   clearValues(entity: ActivityNode) {
     const self = this;
 

@@ -122,6 +122,12 @@ export class DataUtils {
       }
 
       const dbPrefix = trimmed.substring(0, colonIndex);
+      const accession = trimmed.substring(colonIndex + 1).trim();
+
+      if (!accession) {
+        return `Invalid format: "${trimmed}" - accession cannot be empty`;
+      }
+
       const dbPrefixLower = dbPrefix.toLowerCase();
 
       if (!allowedLowerCase.has(dbPrefixLower)) {

@@ -183,17 +183,17 @@ export class Evidence {
     }
 
     if (self.reference) {
-      result = self._enableReferenceSubmit(errors, self.reference, node, position);
+      result = self.enableReferenceSubmit(errors, self.reference, node, position);
     }
 
     if (self.with) {
-      result = self._enableWithFromSubmit(errors, self.with, node, position) && result;
+      result = self.enableWithFromSubmit(errors, self.with, node, position) && result;
     }
 
     return result;
   }
 
-  private _enableReferenceSubmit(errors, reference: string, node: ActivityNode, position): boolean {
+  enableReferenceSubmit(errors, reference: string, node: ActivityNode, position): boolean {
     const meta = {
       aspect: node.label
     };
@@ -233,7 +233,7 @@ export class Evidence {
   }
 
 
-  private _enableWithFromSubmit(errors, withFrom: string, node: ActivityNode, position): boolean {
+  enableWithFromSubmit(errors, withFrom: string, node: ActivityNode, position): boolean {
     const meta = {
       aspect: node.label
     };

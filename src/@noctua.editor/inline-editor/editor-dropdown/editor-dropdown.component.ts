@@ -25,6 +25,7 @@ import { EditorCategory } from './../../models/editor-category';
 import { concatMap, finalize, take, takeUntil } from 'rxjs/operators';
 import { find } from 'lodash';
 import { InlineReferenceService } from './../../inline-reference/inline-reference.service';
+import { InlineWithService } from './../../inline-with/inline-with.service';
 
 @Component({
   selector: 'noc-editor-dropdown',
@@ -63,6 +64,7 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     private camService: CamService,
     private noctuaActivityEntityService: NoctuaActivityEntityService,
     private inlineReferenceService: InlineReferenceService,
+    private inlineWithService: InlineWithService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaActivityFormService: NoctuaActivityFormService,
   ) {
@@ -99,8 +101,45 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
 
   }
 
+  openAddWith(event, name: string) {
+    event.stopPropagation();
+    const data = {
+      formControl: this.evidenceFormGroup.controls[name] as FormControl,
+    };
+    this.inlineWithService.open(event.target, { data });
+  }
+
   save() {
     const self = this;
+    const errors = [];
+    let canSave = true;
+
+    // Validate reference and with values using Evidence class methods for all categories
+    if (this.evidenceFormGroup && (this.displaySection.reference || this.displaySection.with)) {
+      const referenceValue = this.evidenceFormGroup.get('reference')?.value;
+      const withValue = this.evidenceFormGroup.get('with')?.value;
+      const tempEvidence = new Evidence();
+
+      // Validate reference using Evidence's method
+      if (referenceValue && referenceValue.trim()) {
+        if (!tempEvidence.enableReferenceSubmit(errors, referenceValue, this.entity, this.evidenceIndex)) {
+          canSave = false;
+        }
+      }
+
+      // Validate with using Evidence's method
+      if (withValue && withValue.trim()) {
+        if (!tempEvidence.enableWithFromSubmit(errors, withValue, this.entity, this.evidenceIndex)) {
+          canSave = false;
+        }
+      }
+    }
+
+    if (!canSave) {
+      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      return;
+    }
+
     switch (self.category) {
       case EditorCategory.term:
       case EditorCategory.evidence:
@@ -112,20 +151,16 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
           take(1),
           concatMap((result) => {
             return EMPTY;
-            //return self.camService.getStoredModel(self.cam)
           }),
           finalize(() => {
             self.zone.run(() => {
               self.cam.loading.status = false;
               self.cam.reviewCamChanges()
-              //self.camService.reviewChangesCams();
             })
           }))
           .subscribe(() => {
             self.zone.run(() => {
-
             })
-            // self.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
 
           });
         break;
@@ -198,7 +233,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     });
 
     if (term) {
-
       const evidence = new Evidence();
       evidence.setEvidence(new Entity(
         noctuaFormConfig.evidenceAutoPopulate.nd.evidence.id,
@@ -206,6 +240,19 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       evidence.reference = noctuaFormConfig.evidenceAutoPopulate.nd.reference;
       self.noctuaActivityEntityService.reinitializeForm(new Entity(term.id, term.label), [evidence]);
     }
+  }
+
+  addEvidenceISS() {
+    const self = this;
+
+    const evidence = new Evidence();
+    evidence.setEvidence(new Entity(
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.label));
+    evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
+
+    self.entity.predicate.setEvidence([evidence]);
+    self.noctuaActivityFormService.initializeForm();
   }
 
   clearValues() {

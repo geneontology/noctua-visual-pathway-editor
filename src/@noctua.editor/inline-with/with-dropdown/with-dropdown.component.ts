@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormBuilder, FormArray } from '@angular/forms';
 import { Subject, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, startWith, map } from 'rxjs/operators';
 
 import {
   NoctuaFormConfigService,
@@ -16,7 +15,6 @@ import {
 import { withDropdownData } from './with-dropdown.tokens';
 import { WithDropdownOverlayRef } from './with-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'noc-with-dropdown',
@@ -32,7 +30,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
 
   myForm: FormGroup;
   allowedDBs: string[] = withFromAllowedDBs;
-  dbOptions: string[] = ['None', ...withFromAllowedDBs];
+  dbOptions: string[] = ['None', ...withFromAllowedDBs.slice().sort()];
 
   private _unsubscribeAll: Subject<any>;
 

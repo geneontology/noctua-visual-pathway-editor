@@ -258,6 +258,19 @@ export class EntityFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  addEvidenceISS() {
+    const self = this;
+
+    const evidence = new Evidence();
+    evidence.setEvidence(new Entity(
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
+      noctuaFormConfig.evidenceAutoPopulate.iss.evidence.label));
+    evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
+
+    self.entity.predicate.setEvidence([evidence]);
+    self.noctuaActivityFormService.initializeForm();
+  }
+
   clearValues() {
     const self = this;
 
