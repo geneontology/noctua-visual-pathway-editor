@@ -124,6 +124,15 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  showAllowedWithDatabases(event) {
+    event.stopPropagation();
+    this.noctuaFormDialogService.openAllowedWithDatabasesDialog();
+  }
+
+  showAllowedReferenceDatabases(event) {
+    event.stopPropagation();
+    this.noctuaFormDialogService.openAllowedReferenceDatabasesDialog();
+  }
 
   clear() {
     this.noctuaActivityFormService.clearForm();

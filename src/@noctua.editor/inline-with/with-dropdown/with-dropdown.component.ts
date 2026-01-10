@@ -1,24 +1,20 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormBuilder, FormArray } from '@angular/forms';
 import { Subject, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, startWith, map } from 'rxjs/operators';
 
 import {
   NoctuaFormConfigService,
   NoctuaActivityFormService,
   ActivityError,
-  noctuaFormConfig,
-  Article,
-  NoctuaLookupService,
-  withfrom,
   ErrorLevel,
-  ErrorType
+  ErrorType,
+  withFromAllowedDBs
 } from '@geneontology/noctua-form-base';
+
 
 import { withDropdownData } from './with-dropdown.tokens';
 import { WithDropdownOverlayRef } from './with-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'noc-with-dropdown',
@@ -30,34 +26,18 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   evidenceDBForm: FormGroup;
   formControl: FormControl;
 
-  weeks = [];
   connectedTo = [];
 
   myForm: FormGroup;
+  allowedDBs: string[] = withFromAllowedDBs;
+  dbOptions: string[] = ['None', ...withFromAllowedDBs.slice().sort()];
 
   private _unsubscribeAll: Subject<any>;
-
-  indata = {
-    companies: [
-      {
-        projects: [
-          {
-            projectName: "WB:145787",
-          }
-        ]
-      }
-    ]
-  }
-
-
-  options: string[] = withfrom;
-  filteredOptions: Observable<string[]>;
 
 
 
   constructor(private fb: FormBuilder, public dialogRef: WithDropdownOverlayRef,
     @Inject(withDropdownData) public data: any,
-    private noctuaLookupService: NoctuaLookupService,
     private noctuaFormDialogService: NoctuaFormDialogService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaActivityFormService: NoctuaActivityFormService,
@@ -66,144 +46,118 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
     this.formControl = data.formControl;
 
     this.myForm = this.fb.group({
-      companies: this.fb.array([])
+      databaseGroups: this.fb.array([])
     });
+
     const withfroms = this.formControl.value;
-    if (withfroms) {
+    if (withfroms && withfroms.trim()) {
+      // Parse existing value: groups separated by ',', entities within group by '|'
       const groups = withfroms.split(',');
-      const items = groups.map((group) => {
-        return group.split('|');
-      })
-
+      groups.forEach(group => {
+        const trimmedGroup = group.trim();
+        if (trimmedGroup) {
+          const entities = trimmedGroup.split('|');
+          const groupControl = this.addNewGroup(false); // Don't auto-add entity when parsing
+          entities.forEach(entity => {
+            const trimmedEntity = entity.trim();
+            if (trimmedEntity) {
+              const parts = trimmedEntity.split(':');
+              const db = (parts[0] || 'None').trim();
+              const accession = parts.slice(1).join(':').trim();
+              this.addNewEntity(groupControl.get('entities') as FormArray, db, accession);
+            }
+          });
+        }
+      });
+    } else {
+      // Default: display one group with one empty entity
+      this.addNewGroup(true);
     }
-
-    //this.setCompanies();
-
-
-
-    this.weeks = [
-      {
-        id: 'week-1',
-        weeklist: [
-          "item 1",
-          "item 2",
-          "item 3",
-          "item 4",
-          "item 5"
-        ]
-      }, {
-        id: 'week-2',
-        weeklist: [
-          "item 1",
-          "item 2",
-          "item 3",
-          "item 4",
-          "item 5"
-        ]
-      }
-    ];
-    for (let week of this.weeks) {
-      this.connectedTo.push(week.id);
-    };
-  }
-
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-
-    return this.options.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   ngOnInit(): void {
     this.evidenceDBForm = this._createEvidenceDBForm();
   }
 
-  clearValues() {
-
-  }
-
-  addNewCompany() {
-    let control = <FormArray>this.myForm.controls['companies'];
-    control.push(
-      this.fb.group({
-        company: [''],
-        projects: this.fb.array([])
-      })
-    )
-  }
-
-  deleteCompany(index) {
-    let control = <FormArray>this.myForm.controls['companies'];
-    control.removeAt(index)
-  }
-
-  addNewProject(control, value?) {
-    const projectName = new FormControl(value);
-    control.push(this.fb.group({ projectName: projectName }));
-
-    this._onValueChange(projectName)
-  }
-
-  deleteProject(control, index) {
-    control.removeAt(index)
-  }
-
-  setCompanies() {
-    let control = <FormArray>this.myForm.controls['companies'];
-    this.indata.companies.forEach(x => {
-      control.push(this.fb.group({
-        projects: this.setProjects(x)
-      }));
-    })
-  }
-
-  setProjects(x) {
-    let arr = new FormArray([]);
-    x.projects.forEach(y => {
-      this.addNewProject(arr, y.projectName);
+  addNewGroup(addEntity: boolean = true) {
+    const control = this.myForm.get('databaseGroups') as FormArray;
+    const group = this.fb.group({
+      entities: this.fb.array([])
     });
-    return arr;
+    control.push(group);
+
+    // Add one empty entity by default
+    if (addEntity) {
+      this.addNewEntity(group.get('entities') as FormArray, 'None', '');
+    }
+
+    return group;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
-    }
+  deleteGroup(index: number) {
+    const control = this.myForm.get('databaseGroups') as FormArray;
+    control.removeAt(index);
+  }
+
+  addNewEntity(control: FormArray, db?: string, accession?: string) {
+    control.push(this.fb.group({
+      db: [db || 'None'],
+      accession: [accession || '']
+    }));
+  }
+
+  deleteEntity(control: FormArray, index: number) {
+    control.removeAt(index);
   }
 
   save() {
-    const self = this;
     const errors = [];
     let canSave = true;
 
-    const withs = this.myForm.value.companies.map((project) => {
-      return project.projects.map((item) => {
-        if (!item.projectName.includes(':')) {
-          const error = new ActivityError(ErrorLevel.error, ErrorType.general, `${item.projectName} wrong format, Did you forget ':'`);
-          errors.push(error);
-          canSave = false;
-        }
-        return item.projectName;
-      }).join('|');
-    }).join(',');
+    // Build the string: groups separated by ',', entities within group by '|', each entity as 'db:accession'
+    const withs = this.myForm.value.databaseGroups
+      .map((group, groupIndex) => {
+        return group.entities
+          .map((entity, entityIndex) => {
+            // Skip entities with None or empty values
+            if (entity.db === 'None' && (!entity.accession || !entity.accession.trim())) {
+              return null;
+            }
 
+            // Validate that if accession is provided, db must not be None
+            if (entity.accession && entity.accession.trim() && entity.db === 'None') {
+              const error = new ActivityError(ErrorLevel.error, ErrorType.general, `Please select a database for the accession value "${entity.accession.trim()}"`);
+              errors.push(error);
+              canSave = false;
+              return null;
+            }
 
-    /*   if (accession.trim() === '') {
-        const error = new ActivityError(ErrorLevel.error, ErrorType.general,  `${db.name} accession is required`);
-        errors.push(error);
-        self.noctuaFormDialogService.openActivityErrorsDialog(errors);
-        canSave = false;
-      } */
+            // Validate that if db is selected, accession must be provided
+            if (entity.db !== 'None' && (!entity.accession || !entity.accession.trim())) {
+              const error = new ActivityError(ErrorLevel.error, ErrorType.general, `Accession value is required for database "${entity.db}"`);
+              errors.push(error);
+              canSave = false;
+              return null;
+            }
+
+            // Only include valid entities (both db and accession present)
+            if (entity.db !== 'None' && entity.accession && entity.accession.trim()) {
+              return `${entity.db}:${entity.accession.trim()}`;
+            }
+
+            return null;
+          })
+          .filter(item => item !== null)
+          .join('|');
+      })
+      .filter(group => group.length > 0)
+      .join(',');
 
     if (canSave) {
       this.formControl.setValue(withs);
       this.close();
     } else {
-      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      this.noctuaFormDialogService.openActivityErrorsDialog(errors);
     }
   }
 
@@ -219,19 +173,6 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
           Validators.required,
         ])
     });
-  }
-
-  private _onValueChange(formControl: FormControl) {
-    const self = this;
-
-    this.filteredOptions = formControl.valueChanges
-      .pipe(
-        takeUntil(this._unsubscribeAll),
-        distinctUntilChanged(),
-        debounceTime(400),
-        startWith(''),
-        map(value => this._filter(value))
-      );
   }
 
   close() {

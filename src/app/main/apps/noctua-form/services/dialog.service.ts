@@ -19,6 +19,8 @@ import { CamErrorsDialogComponent } from '../dialogs/cam-errors/cam-errors.compo
 import { CreateActivityDialogComponent } from '../dialogs/create-activity/create-activity.component';
 import { AddEvidenceDialogComponent } from '../dialogs/add-evidence/add-evidence.component';
 import { ConfirmCopyModelDialogComponent } from '../dialogs/confirm-copy-model/confirm-copy-model.component';
+import { AllowedDatabasesDialogComponent, AllowedDatabasesDialogData } from '../dialogs/allowed-with-databases/allowed-with-databases.component';
+import { referenceAllowedDBs, withFromAllowedDBs } from '@geneontology/noctua-form-base';
 
 
 @Injectable({
@@ -190,6 +192,28 @@ export class NoctuaFormDialogService {
                     success(response);
                 }
             });
+    }
+
+    openAllowedWithDatabasesDialog(): void {
+        this.dialogRef = this._matDialog.open(AllowedDatabasesDialogComponent, {
+            panelClass: 'noc-allowed-with-databases-dialog',
+            width: '500px',
+            data: {
+                databases: withFromAllowedDBs,
+                title: 'Allowed "With" Databases'
+            } as AllowedDatabasesDialogData
+        });
+    }
+
+    openAllowedReferenceDatabasesDialog(): void {
+        this.dialogRef = this._matDialog.open(AllowedDatabasesDialogComponent, {
+            panelClass: 'noc-allowed-reference-databases-dialog',
+            width: '500px',
+            data: {
+                databases: referenceAllowedDBs,
+                title: 'Allowed Reference Databases'
+            } as AllowedDatabasesDialogData
+        });
     }
 
 }
