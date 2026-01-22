@@ -469,7 +469,13 @@ export const NodeLink = joint.shapes.devs.Link.define('noctua.NodeLink', {
         type: 'path',
         stroke: 'black',
         fill: 'black',
-        d: 'M 10 -5 0 0 10 5 Z'
+        d: 'M 10 -5 0 0 10 5 Z',
+        markerUnits: 'userSpaceOnUse',
+        markerWidth: 10,
+        markerHeight: 10,
+        refX: 10,
+        refY: 0,
+        orient: 'auto'
       }
     },
     defaultLabel: {
