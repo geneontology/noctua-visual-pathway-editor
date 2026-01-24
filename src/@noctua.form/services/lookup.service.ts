@@ -133,9 +133,23 @@ export class NoctuaLookupService {
   }
 
 
-  companionLookup(gp, aspect, extraParams) {
+  companionLookup(gp, aspect, extraParams, relationId?: string) {
     const self = this;
     const golrUrl = environment.globalGolrServer + `select?`;
+
+    const fqFilters = [
+      'document_category: "annotation"',
+      '-qualifier:"not"',
+      'bioentity: "' + gp + '"'
+    ];
+
+    // Filter CC annotations to cellular anatomical structure (GO:0110165) when relation is occurs_in
+    // This prevents protein-containing complexes from being selected for MF occurs_in CC assertions
+    if (aspect === 'C' && relationId === 'BFO:0000066') {
+      fqFilters.push('isa_partof_closure:"GO:0110165"');
+    } else {
+      fqFilters.push('aspect: "' + aspect + '"');
+    }
 
     const requestParams = {
       defType: 'edismax',
@@ -151,12 +165,7 @@ export class NoctuaLookupService {
       'facet.sort': 'count',
       'json.nl': 'arrarr',
       'facet.limit': '2000',
-      fq: [
-        'document_category: "annotation"',
-        '-qualifier:"not"',
-        'aspect: "' + aspect + '"',
-        'bioentity: "' + gp + '"'
-      ],
+      fq: fqFilters,
       'facet.field': [
         'source',
         'assigned_by',

@@ -53,7 +53,8 @@ export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
     self.noctuaLookupService.companionLookup(
       this.searchCriteria.gpNode.id,
       this.searchCriteria.aspect,
-      this.searchCriteria.params)
+      this.searchCriteria.params,
+      this.searchCriteria.relationId)
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((response) => {
         this.activityNodes = response;
