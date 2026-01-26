@@ -165,7 +165,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
         gpNode: gpNode.term,
         aspect: entity.aspect,
         entity: entity,
-        relationId: entity.predicate?.edge?.id,
         params: {
           term: '',
           evidence: ''

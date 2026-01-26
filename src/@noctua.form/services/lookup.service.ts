@@ -133,7 +133,7 @@ export class NoctuaLookupService {
   }
 
 
-  companionLookup(gp, aspect, extraParams, relationId?: string) {
+  companionLookup(gp, aspect, extraParams) {
     const self = this;
     const golrUrl = environment.globalGolrServer + `select?`;
 
@@ -145,7 +145,7 @@ export class NoctuaLookupService {
 
     // Filter CC annotations to cellular anatomical structure (GO:0110165) when relation is occurs_in
     // This prevents protein-containing complexes from being selected for MF occurs_in CC assertions
-    if (aspect === 'C' && relationId === 'BFO:0000066') {
+    if (aspect === 'C') {
       fqFilters.push('isa_partof_closure:"GO:0110165"');
     } else {
       fqFilters.push('aspect: "' + aspect + '"');

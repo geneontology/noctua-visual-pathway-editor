@@ -189,7 +189,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
         gpNode: gpNode.term,
         aspect: entity.aspect,
         entity: entity,
-        relationId: entity.predicate?.edge?.id,
         params: {
           term: '',
           evidence: ''
@@ -202,17 +201,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
 
           if (selected.evidences && selected.evidences.length > 0) {
             self.noctuaActivityEntityService.reinitializeForm(term, selected.evidences);
-
-            /*  selected.evidences.forEach((evidence: Evidence) => {
-               evidence.evidenceExts.forEach((evidenceExt) => {
-                 evidenceExt.relations.forEach((relation) => {
-                   const node = self.noctuaFormConfigService.insertActivityNodeByPredicate(self.noctuaActivityFormService.activity, self.entity, relation.id);
-                   node.term = new Entity(evidenceExt.term.id, evidenceExt.term.id);
-                   node.predicate.setEvidence([evidence]);
-                 });
-               });
- 
-             }); */
           }
         }
       };
