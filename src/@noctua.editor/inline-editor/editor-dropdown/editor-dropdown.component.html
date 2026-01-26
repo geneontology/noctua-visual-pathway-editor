@@ -139,20 +139,20 @@
     }
   </ng-container>
   }
-  @if (true) {
+  @if (category === EditorCategory.all || category === EditorCategory.evidenceAll) {
   <button mat-icon-button class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
     <mat-icon>more_vert</mat-icon>
   </button>
   }
   <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu">
-    @if (entity.aspect) {
+    @if (entity.aspect && category !== EditorCategory.evidenceAll) {
     <button mat-menu-item class="" (click)="openSearchDatabaseDialog(entity)">
       Search Annotations
     </button>
     }
 
     <!-- <button mat-menu-item [matMenuTriggerFor]="evidenceMenu">Evidence</button> -->
-    @if (entity.aspect) {
+    @if (entity.aspect && category !== EditorCategory.evidenceAll) {
     <button mat-menu-item class="" (click)="addRootTerm()">
       Fill with root term
     </button>
