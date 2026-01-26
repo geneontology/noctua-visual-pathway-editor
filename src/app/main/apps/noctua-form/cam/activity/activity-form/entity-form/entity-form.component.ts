@@ -155,18 +155,6 @@ export class EntityFormComponent implements OnInit, OnDestroy {
 
           if (selected.evidences && selected.evidences.length > 0) {
             entity.predicate.setEvidence(selected.evidences);
-
-            selected.evidences.forEach((evidence: Evidence) => {
-
-              evidence.evidenceExts.forEach((evidenceExt) => {
-                /*          evidenceExt.relations.forEach((relation) => {
-                           const node = self.noctuaFormConfigService.insertActivityNodeByPredicate(self.noctuaActivityFormService.activity, self.entity, relation.id);
-                           node.term = new Entity(evidenceExt.term.id, evidenceExt.term.id);
-                           node.predicate.setEvidence([evidence]);
-                         }); */
-              });
-
-            });
           }
 
 
