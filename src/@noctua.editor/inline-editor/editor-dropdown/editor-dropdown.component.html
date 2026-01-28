@@ -139,7 +139,7 @@
     }
   </ng-container>
   }
-  @if (category === EditorCategory.all || category === EditorCategory.evidenceAll) {
+  @if (category === EditorCategory.all) {
   <button mat-icon-button class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
     <mat-icon>more_vert</mat-icon>
   </button>
@@ -158,7 +158,7 @@
     </button>
     }
     @if (entity.aspect) {
-    <!--  <button mat-menu-item class="" (click)="addEvidenceISS()">
+    <!-- <button mat-menu-item class="" (click)="addEvidenceISS()">
       Add ISS Evidence
     </button> -->
     }
