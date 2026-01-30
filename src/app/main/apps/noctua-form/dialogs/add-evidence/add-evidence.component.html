@@ -5,7 +5,7 @@
     </span>
     <span fxFlex></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
-      <mat-icon>close</mat-icon> Close
+      <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
   <div class="noc-dialog-body pt-20">
@@ -55,7 +55,7 @@
             (focus)="updateReferenceList()"></textarea>
             <button mat-icon-button matSuffix (click)="openAddReference($event, 'reference')"
               class="noc-evidence-db-trigger">
-              <mat-icon>playlist_add</mat-icon>
+              <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
             </button>
             <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
               @for (item of entity?.predicate?.referenceLookup.results; track item) {

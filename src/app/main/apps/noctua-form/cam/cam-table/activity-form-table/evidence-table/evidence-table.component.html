@@ -82,7 +82,7 @@
     <div class="noc-cell noc-action-cell" fxLayout="column" fxLayoutAlign="center center">
       <button mat-icon-button (click)="updateCurrentMenuEvent($event)" class="noc-action-button" fxFlex="40px"
         [matMenuTriggerFor]="evidenceMenu">
-        <mat-icon>more_vert</mat-icon>
+        <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
       </button>
       <mat-menu #evidenceMenu="matMenu">
         <button mat-menu-item (click)="addEvidence(entity)" class="">

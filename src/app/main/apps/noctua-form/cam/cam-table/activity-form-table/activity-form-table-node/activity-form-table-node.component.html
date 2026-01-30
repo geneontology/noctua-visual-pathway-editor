@@ -58,7 +58,7 @@
       @if (settings.displayMenuButton) {
       <button mat-icon-button (click)="updateCurrentMenuEvent($event)" class="noc-action-button" fxFlex="40px"
         [matMenuTriggerFor]="entityMenu">
-        <mat-icon>more_vert</mat-icon>
+        <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
       </button>
       }
       <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">

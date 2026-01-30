@@ -13,10 +13,10 @@
       <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
     </mat-form-field>
     <button mat-icon-button (click)="close()">
-      <mat-icon>cancel</mat-icon>
+      <fa-icon [icon]="['far', 'times-circle']"></fa-icon>
     </button>
     <button mat-icon-button (click)="save()">
-      <mat-icon>check_circle</mat-icon>
+      <fa-icon [icon]="['fas', 'check-circle']"></fa-icon>
     </button>
   </div>
   <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
@@ -28,10 +28,10 @@
           </a>
         </div>
         <div class="noc-article-author w-100-p">
-          <mat-icon class="s-16 mr-4">person</mat-icon> <span>{{article.author}}</span>
+          <fa-icon [icon]="['fas', 'user']" class="s-16 mr-4"></fa-icon> <span>{{article.author}}</span>
         </div>
         <div class="noc-article-date w-100-p">
-          <mat-icon class="s-16 mr-4">date_range</mat-icon> <span>{{article.date}}</span>
+          <fa-icon [icon]="['fas', 'calendar-alt']" class="s-16 mr-4"></fa-icon> <span>{{article.date}}</span>
         </div>
       </div>
     }

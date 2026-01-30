@@ -4,7 +4,7 @@
     </span>
     <span fxFlex></span>
     <button mat-icon-button class="" fxFlex="40px" color="primary" [matMenuTriggerFor]="activityOptionMenu">
-      <mat-icon>more_vert</mat-icon>
+      <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
     </button>
     <mat-menu #activityOptionMenu="matMenu" class="noc-dropdown-menu">
       <button mat-menu-item color="warn" class="" (click)="deleteActivity(activity)">
@@ -13,7 +13,7 @@
     </mat-menu>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
       aria-label="Close dialog">
-      <mat-icon>close</mat-icon> Close
+      <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
   <div class="noc-drawer-body overflow-y-auto" fxLayout="column" fxLayoutAlign="start start">

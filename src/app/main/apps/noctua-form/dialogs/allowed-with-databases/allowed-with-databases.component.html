@@ -3,7 +3,7 @@
     <span class="noc-dialog-header-title">{{ dialogTitle }}</span>
     <span fxFlex></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
-      <mat-icon>close</mat-icon> Close
+      <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
   <div fxLayout="column" fxLayoutAlign="start start" class="noc-dialog-body">

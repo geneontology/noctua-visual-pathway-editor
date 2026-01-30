@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { NoctuaPipesModule } from '../../pipes/pipes.module';
 import { NoctuaMaterialColorPickerComponent } from './material-color-picker.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { NoctuaMaterialColorPickerComponent } from './material-color-picker.comp
         MatIconModule,
         MatMenuModule,
         MatRippleModule,
-        NoctuaPipesModule
+        NoctuaPipesModule,
+        FontAwesomeModule
     ],
     exports: [
         NoctuaMaterialColorPickerComponent

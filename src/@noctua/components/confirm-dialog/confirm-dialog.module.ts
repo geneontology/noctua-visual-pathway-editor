@@ -6,6 +6,7 @@ import { NoctuaConfirmDialogComponent } from './confirm-dialog.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
     declarations: [
@@ -17,7 +18,8 @@ import { BrowserModule } from '@angular/platform-browser';
         MatDialogModule,
         MatButtonModule,
         MatIconModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        FontAwesomeModule
     ]
 })
 

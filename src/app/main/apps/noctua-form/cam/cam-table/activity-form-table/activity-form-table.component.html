@@ -12,7 +12,7 @@
         <ng-template #treeNodeWrapperTemplate let-node let-index="index">
           <div class="node-wrapper noc-tree-node" fxLayout="row" fxLayoutAlign="start center"
             [style.padding-left]="node.getNodePadding()">
-            <button mat-icon-button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
+            <button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
               *ngIf="node.hasChildren">
               <fa-icon *ngIf="node?.isCollapsed" [icon]="['fas', 'caret-right']"></fa-icon>
               <fa-icon *ngIf="node?.isExpanded" [icon]="['fas', 'caret-down']"></fa-icon>
@@ -53,7 +53,7 @@
         <ng-template #treeNodeWrapperTemplate let-node let-index="index">
           <div class="node-wrapper noc-tree-node" fxLayout="row" fxLayoutAlign="start center"
             [style.padding-left]="node.getNodePadding()">
-            <button mat-icon-button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
+            <button mat-button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
               *ngIf="node.hasChildren">
               <fa-icon *ngIf="node?.isCollapsed" [icon]="['fas', 'caret-right']"></fa-icon>
               <fa-icon *ngIf="node?.isExpanded" [icon]="['fas', 'caret-down']"></fa-icon>

@@ -98,7 +98,7 @@
           (focus)="updateReferenceList()"></textarea>
         <button mat-icon-button matSuffix (click)="openAddReference($event, 'reference')"
           class="noc-evidence-db-trigger">
-          <mat-icon>playlist_add</mat-icon>
+          <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
         </button>
         <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
           @for (item of entity?.predicate?.referenceLookup.results; track item) {
@@ -121,7 +121,7 @@
         <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
           autocomplete="off"></textarea>
         <button mat-icon-button matSuffix (click)="openAddWith($event, 'with')" class="noc-evidence-db-trigger">
-          <mat-icon>playlist_add</mat-icon>
+          <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
         </button>
         <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
           @for (item of entity?.predicate?.withLookup.results; track item) {
@@ -141,7 +141,7 @@
   }
   @if (category === EditorCategory.all || category === EditorCategory.evidenceAll) {
   <button mat-icon-button class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
-    <mat-icon>more_vert</mat-icon>
+    <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
   </button>
   }
   <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu">
@@ -167,9 +167,9 @@
 
   </mat-menu>
   <button mat-icon-button (click)="close()">
-    <mat-icon>cancel</mat-icon>
+    <fa-icon [icon]="['far', 'times-circle']"></fa-icon>
   </button>
   <button mat-icon-button (click)="save()">
-    <mat-icon>check_circle</mat-icon>
+    <fa-icon [icon]="['fas', 'check-circle']"></fa-icon>
   </button>
 </div>

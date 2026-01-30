@@ -4,7 +4,7 @@
       Search Annotations</span>
     <span fxFlex></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
-      <mat-icon>close</mat-icon> Close
+      <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
   <div fxLayout="row" fxLayoutAlign="start start" class="noc-dialog-body">
@@ -22,7 +22,7 @@
         <div class="noc-term-box" (click)="selectActivityNode(activityNode)"
           [ngClass]="{'noc-term-selected': activityNode.getTerm().id===selectedActivityNode?.getTerm().id}"
           fxLayout="row" fxLayoutAlign="start center">
-          <mat-icon fkFlex="25px" class="green-300-fg mr-4">check_circle</mat-icon>
+          <fa-icon [icon]="['fas', 'check-circle']" fkFlex="25px" class="green-300-fg mr-4"></fa-icon>
           {{activityNode.getTerm().label}}
         </div>
         }

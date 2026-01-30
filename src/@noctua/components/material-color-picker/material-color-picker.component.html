@@ -1,6 +1,6 @@
 <button mat-icon-button type="button" class="mat-elevation-z1" [matMenuTriggerFor]="colorMenu" (menuOpened)="onMenuOpen()"
   [ngClass]="'mat-'+selectedPalette+'-'+selectedHue+'-bg'">
-  <mat-icon>palette</mat-icon>
+  <fa-icon [icon]="['fas', 'palette']"></fa-icon>
 </button>
 
 <mat-menu #colorMenu="matMenu" class="noctua-material-color-picker-menu">
@@ -9,7 +9,7 @@
 
     <button mat-icon-button [style.visibility]="view==='hues'?'visible':'hidden'" (click)="$event.stopPropagation();backToPaletteSelection()"
       aria-label="Palette">
-      <mat-icon class="s-20">arrow_back</mat-icon>
+      <fa-icon [icon]="['fas', 'arrow-left']" class="s-20"></fa-icon>
     </button>
 
     @if (selectedColor?.palette) {
@@ -23,7 +23,7 @@
       </span>
     }
     <button mat-icon-button class="remove-color-button" (click)="$event.stopPropagation();removeColor()" aria-label="Remove Color">
-      <mat-icon class="s-20">delete</mat-icon>
+      <fa-icon [icon]="['fas', 'trash']" class="s-20"></fa-icon>
     </button>
   </header>
   <div class="views">
@@ -53,7 +53,7 @@
                   {{hue}}
                 </span>
                 @if (selectedHue === hue) {
-                  <mat-icon class="s-16">check</mat-icon>
+                  <fa-icon [icon]="['fas', 'check']" class="s-16"></fa-icon>
                 }
               </div>
             }

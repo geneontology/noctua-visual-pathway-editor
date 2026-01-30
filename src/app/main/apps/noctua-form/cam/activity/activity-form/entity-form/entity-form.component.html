@@ -128,7 +128,7 @@
             (focus)="updateReferenceList()"></textarea>
           <button mat-icon-button matSuffix (click)="openAddReference($event, evidence, 'reference')"
             class="noc-evidence-db-trigger">
-            <mat-icon>playlist_add</mat-icon>
+            <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>
           <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
             @for (item of entity?.predicate?.referenceLookup.results; track item) {
@@ -150,7 +150,7 @@
             autocomplete="off"></textarea>
           <button mat-icon-button matSuffix (click)="openAddWith($event, evidence, 'with')"
             class="noc-evidence-db-trigger">
-            <mat-icon>playlist_add</mat-icon>
+            <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>
           <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
             @for (item of entity?.predicate?.withLookup.results; track item) {
@@ -168,7 +168,7 @@
       <span fxFlex=""></span>
       @if (displayMenuButton) {
       <button mat-icon-button class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
-        <mat-icon>more_vert</mat-icon>
+        <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
       </button>
       }
       <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">

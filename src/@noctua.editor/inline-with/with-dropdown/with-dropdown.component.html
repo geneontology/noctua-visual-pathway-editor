@@ -8,7 +8,7 @@
         <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
           <strong class="mr-8">With/From</strong>
           <button mat-icon-button (click)="deleteGroup(i)" matTooltip="Delete Group">
-            <mat-icon>delete_forever</mat-icon>
+            <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
           </button>
         </div>
         <div formArrayName="entities">
@@ -29,10 +29,10 @@
               </mat-form-field>
             </div>
             <button mat-icon-button (click)="addNewEntity(group.get('entities'), null, null)" matTooltip="Add Entity">
-              <mat-icon>add</mat-icon>
+              <fa-icon [icon]="['fas', 'plus']"></fa-icon>
             </button>
             <button mat-icon-button (click)="deleteEntity(group.get('entities'), j)" matTooltip="Delete Entity">
-              <mat-icon>delete_forever</mat-icon>
+              <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
             </button>
           </div>
           }
@@ -52,10 +52,10 @@
     <!--   <pre>{{myForm.value | json}}</pre> -->
   </div>
   <div class="w-100-p" fxLayout="row" fxLayoutAlign="end center">
-    <button mat-icon-button (click)="close()">
+    <button mat-button (click)="close()">
       Cancel
     </button>
-    <button mat-icon-button color="primary" (click)="save()">
+    <button mat-button color="primary" (click)="save()">
       Ok
     </button>
   </div>

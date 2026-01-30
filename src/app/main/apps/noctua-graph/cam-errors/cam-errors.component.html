@@ -3,7 +3,7 @@
   <div class="error-drawer__header" fxLayout="row" fxLayoutAlign="space-between center">
     <div class="error-drawer__header-content" fxLayout="row" fxLayoutAlign="start center">
       <div class="error-drawer__header-icon">
-        <mat-icon>error_outline</mat-icon>
+        <fa-icon [icon]="['fas', 'exclamation-circle']"></fa-icon>
       </div>
       <div class="error-drawer__header-text">
         <h1 class="error-drawer__header-title">Validation Errors</h1>
@@ -11,16 +11,16 @@
     </div>
     <div class="error-drawer__header-actions" fxLayout="row" fxLayoutAlign="end center">
       <button mat-icon-button [matMenuTriggerFor]="activityOptionMenu" class="error-drawer__menu-btn">
-        <mat-icon>more_vert</mat-icon>
+        <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
       </button>
       <mat-menu #activityOptionMenu="matMenu" class="error-drawer__dropdown">
         <button mat-menu-item (click)="deleteActivity(activity)" class="error-drawer__delete-btn">
-          <mat-icon>delete</mat-icon>
+          <fa-icon [icon]="['fas', 'trash']"></fa-icon>
           Delete
         </button>
       </mat-menu>
       <button mat-stroked-button (click)="close()" class="error-drawer__close-btn">
-        <mat-icon>close</mat-icon>
+        <fa-icon [icon]="['fas', 'times']"></fa-icon>
         Close
       </button>
     </div>
@@ -97,7 +97,7 @@
       <!-- Nodes Section -->
       <div class="annotations__section">
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
-          <mat-icon class="annotations__icon">account_tree</mat-icon>
+          <fa-icon [icon]="['fas', 'sitemap']" class="annotations__icon"></fa-icon>
           <h3 class="annotations__title">Nodes</h3>
           <span class="annotations__count">{{ cam.diffNodes.length }}</span>
         </div>
@@ -116,7 +116,7 @@
 
       <div class="annotations__section">
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
-          <mat-icon class="annotations__icon">link</mat-icon>
+          <fa-icon [icon]="['fas', 'link']" class="annotations__icon"></fa-icon>
           <h3 class="annotations__title">Edges</h3>
           <span class="annotations__count">{{ cam.diffEdges.length }}</span>
         </div>
