@@ -63,7 +63,7 @@ h6,
 }
 
 a {
-  color: mat.get-color-from-palette($accent);
+  color: mat.m2-get-color-from-palette($accent);
   text-decoration: none;
   &:not(.mat-mdc-button):not(.mat-mdc-raised-button):not(.mat-mdc-icon-button) {
     &:hover,
