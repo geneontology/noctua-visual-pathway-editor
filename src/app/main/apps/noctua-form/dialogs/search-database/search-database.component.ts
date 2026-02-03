@@ -17,10 +17,11 @@ import {
 import { noctuaAnimations } from './../../../../../../@noctua/animations';
 
 @Component({
-  selector: 'app-search-database',
-  templateUrl: './search-database.component.html',
-  styleUrls: ['./search-database.component.scss'],
-  animations: noctuaAnimations
+    selector: 'app-search-database',
+    templateUrl: './search-database.component.html',
+    styleUrls: ['./search-database.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

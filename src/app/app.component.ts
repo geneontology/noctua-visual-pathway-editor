@@ -13,7 +13,8 @@ import { NoctuaUserService } from '@geneontology/noctua-form-base';
     selector: 'noctua-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy {
     noctuaConfig: any;

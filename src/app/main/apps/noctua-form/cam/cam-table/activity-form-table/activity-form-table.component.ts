@@ -35,10 +35,11 @@ import { TableOptions } from '@noctua.common/models/table-options';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
-  selector: 'noc-activity-form-table',
-  templateUrl: './activity-form-table.component.html',
-  styleUrls: ['./activity-form-table.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-activity-form-table',
+    templateUrl: './activity-form-table.component.html',
+    styleUrls: ['./activity-form-table.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ActivityDisplayType = ActivityDisplayType;

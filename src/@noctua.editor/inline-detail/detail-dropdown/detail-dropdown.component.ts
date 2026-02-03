@@ -12,9 +12,10 @@ import { DetailDropdownOverlayRef } from './detail-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 
 @Component({
-  selector: 'noc-detail-dropdown',
-  templateUrl: './detail-dropdown.component.html',
-  styleUrls: ['./detail-dropdown.component.scss']
+    selector: 'noc-detail-dropdown',
+    templateUrl: './detail-dropdown.component.html',
+    styleUrls: ['./detail-dropdown.component.scss'],
+    standalone: false
 })
 
 export class NoctuaDetailDropdownComponent implements OnInit, OnDestroy {

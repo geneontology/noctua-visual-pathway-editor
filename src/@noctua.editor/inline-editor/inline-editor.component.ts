@@ -21,7 +21,8 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
 @Component({
     selector: 'noctua-inline-editor',
     templateUrl: './inline-editor.component.html',
-    styleUrls: ['./inline-editor.component.scss']
+    styleUrls: ['./inline-editor.component.scss'],
+    standalone: false
 })
 export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
     collapsed: boolean;

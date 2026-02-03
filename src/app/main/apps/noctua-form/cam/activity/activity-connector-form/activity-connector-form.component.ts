@@ -20,9 +20,10 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'noc-activity-connector',
-  templateUrl: './activity-connector-form.component.html',
-  styleUrls: ['./activity-connector-form.component.scss']
+    selector: 'noc-activity-connector',
+    templateUrl: './activity-connector-form.component.html',
+    styleUrls: ['./activity-connector-form.component.scss'],
+    standalone: false
 })
 export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType

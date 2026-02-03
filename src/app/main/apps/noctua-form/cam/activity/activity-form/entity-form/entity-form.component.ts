@@ -25,9 +25,10 @@ import { InlineWithService } from '@noctua.editor/inline-with/inline-with.servic
 import { InlineDetailService } from '@noctua.editor/inline-detail/inline-detail.service';
 
 @Component({
-  selector: 'noc-entity-form',
-  templateUrl: './entity-form.component.html',
-  styleUrls: ['./entity-form.component.scss'],
+    selector: 'noc-entity-form',
+    templateUrl: './entity-form.component.html',
+    styleUrls: ['./entity-form.component.scss'],
+    standalone: false
 })
 
 export class EntityFormComponent implements OnInit, OnDestroy {

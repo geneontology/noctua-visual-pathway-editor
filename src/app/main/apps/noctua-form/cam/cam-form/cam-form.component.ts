@@ -14,9 +14,10 @@ import {
 } from '@geneontology/noctua-form-base';
 
 @Component({
-  selector: 'noc-cam-form',
-  templateUrl: './cam-form.component.html',
-  styleUrls: ['./cam-form.component.scss'],
+    selector: 'noc-cam-form',
+    templateUrl: './cam-form.component.html',
+    styleUrls: ['./cam-form.component.scss'],
+    standalone: false
 })
 
 export class CamFormComponent implements OnInit, OnDestroy {

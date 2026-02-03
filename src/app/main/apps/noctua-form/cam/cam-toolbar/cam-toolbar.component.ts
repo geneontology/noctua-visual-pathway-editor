@@ -14,9 +14,10 @@ import { WorkbenchId } from '@noctua.common/models/workench-id';
 import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
 
 @Component({
-  selector: 'noc-cam-toolbar',
-  templateUrl: './cam-toolbar.component.html',
-  styleUrls: ['./cam-toolbar.component.scss'],
+    selector: 'noc-cam-toolbar',
+    templateUrl: './cam-toolbar.component.html',
+    styleUrls: ['./cam-toolbar.component.scss'],
+    standalone: false
 })
 export class CamToolbarComponent implements OnInit, OnDestroy {
 

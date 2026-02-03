@@ -34,10 +34,11 @@ import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
-  selector: 'noc-activity-form-table-node',
-  templateUrl: './activity-form-table-node.component.html',
-  styleUrls: ['./activity-form-table-node.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-activity-form-table-node',
+    templateUrl: './activity-form-table-node.component.html',
+    styleUrls: ['./activity-form-table-node.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

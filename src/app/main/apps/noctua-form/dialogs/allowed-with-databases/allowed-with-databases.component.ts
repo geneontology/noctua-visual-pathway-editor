@@ -7,9 +7,10 @@ export interface AllowedDatabasesDialogData {
 }
 
 @Component({
-  selector: 'noc-allowed-databases-dialog',
-  templateUrl: './allowed-with-databases.component.html',
-  styleUrls: ['./allowed-with-databases.component.scss']
+    selector: 'noc-allowed-databases-dialog',
+    templateUrl: './allowed-with-databases.component.html',
+    styleUrls: ['./allowed-with-databases.component.scss'],
+    standalone: false
 })
 export class AllowedDatabasesDialogComponent {
   allowedDatabases: string[];

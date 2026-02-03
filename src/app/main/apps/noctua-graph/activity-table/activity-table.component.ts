@@ -25,9 +25,10 @@ import { NoctuaFormDialogService } from '../../noctua-form';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 
 @Component({
-  selector: 'noc-graph-activity-table',
-  templateUrl: './activity-table.component.html',
-  styleUrls: ['./activity-table.component.scss']
+    selector: 'noc-graph-activity-table',
+    templateUrl: './activity-table.component.html',
+    styleUrls: ['./activity-table.component.scss'],
+    standalone: false
 })
 export class ActivityTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

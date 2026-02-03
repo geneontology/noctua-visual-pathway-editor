@@ -7,9 +7,10 @@ import { StencilItemNode } from '@noctua.graph/data/cam-stencil';
 import { getEdgeColor } from '@noctua.graph/data/edge-display';
 
 @Component({
-  selector: 'noc-relation-preview',
-  templateUrl: './relation-preview.component.html',
-  styleUrls: ['./relation-preview.component.scss']
+    selector: 'noc-relation-preview',
+    templateUrl: './relation-preview.component.html',
+    styleUrls: ['./relation-preview.component.scss'],
+    standalone: false
 })
 export class RelationPreviewComponent implements OnInit {
 

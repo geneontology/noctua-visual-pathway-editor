@@ -26,9 +26,10 @@ import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 
 @Component({
-  selector: 'noc-activity-connector-table',
-  templateUrl: './activity-connector-table.component.html',
-  styleUrls: ['./activity-connector-table.component.scss']
+    selector: 'noc-activity-connector-table',
+    templateUrl: './activity-connector-table.component.html',
+    styleUrls: ['./activity-connector-table.component.scss'],
+    standalone: false
 })
 export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType

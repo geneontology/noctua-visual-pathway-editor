@@ -9,9 +9,10 @@ import { NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
 
 @Component({
-  selector: 'app-before-save',
-  templateUrl: './before-save.component.html',
-  styleUrls: ['./before-save.component.scss']
+    selector: 'app-before-save',
+    templateUrl: './before-save.component.html',
+    styleUrls: ['./before-save.component.scss'],
+    standalone: false
 })
 export class BeforeSaveDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

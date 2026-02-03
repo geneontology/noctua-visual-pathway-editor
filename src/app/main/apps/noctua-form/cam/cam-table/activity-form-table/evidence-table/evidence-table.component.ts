@@ -27,10 +27,11 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form/services/dial
 
 
 @Component({
-  selector: 'noc-evidence-form-table',
-  templateUrl: './evidence-table.component.html',
-  styleUrls: ['./evidence-table.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-evidence-form-table',
+    templateUrl: './evidence-table.component.html',
+    styleUrls: ['./evidence-table.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

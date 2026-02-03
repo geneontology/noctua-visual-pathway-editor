@@ -4,7 +4,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
     selector: 'noctua-content',
     templateUrl: './content.component.html',
     styleUrls: ['./content.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class ContentComponent {
     /**

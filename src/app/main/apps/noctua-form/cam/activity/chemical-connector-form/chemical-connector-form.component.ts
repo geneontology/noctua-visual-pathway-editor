@@ -20,9 +20,10 @@ import { takeUntil } from 'rxjs/operators';
 import { DataUtils } from '@noctua.form/data/config/data-utils';
 
 @Component({
-  selector: 'noc-chemical-connector-form',
-  templateUrl: './chemical-connector-form.component.html',
-  styleUrls: ['./chemical-connector-form.component.scss']
+    selector: 'noc-chemical-connector-form',
+    templateUrl: './chemical-connector-form.component.html',
+    styleUrls: ['./chemical-connector-form.component.scss'],
+    standalone: false
 })
 export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType

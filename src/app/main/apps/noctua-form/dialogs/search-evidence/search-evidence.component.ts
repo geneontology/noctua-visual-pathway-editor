@@ -38,10 +38,11 @@ export class EvidenceItemFlatNode {
 }
 
 @Component({
-  selector: 'app-search-evidence',
-  templateUrl: './search-evidence.component.html',
-  styleUrls: ['./search-evidence.component.scss'],
-  animations: noctuaAnimations
+    selector: 'app-search-evidence',
+    templateUrl: './search-evidence.component.html',
+    styleUrls: ['./search-evidence.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

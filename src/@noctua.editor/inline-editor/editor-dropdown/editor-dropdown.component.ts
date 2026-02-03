@@ -28,9 +28,10 @@ import { InlineReferenceService } from './../../inline-reference/inline-referenc
 import { InlineWithService } from './../../inline-with/inline-with.service';
 
 @Component({
-  selector: 'noc-editor-dropdown',
-  templateUrl: './editor-dropdown.component.html',
-  styleUrls: ['./editor-dropdown.component.scss']
+    selector: 'noc-editor-dropdown',
+    templateUrl: './editor-dropdown.component.html',
+    styleUrls: ['./editor-dropdown.component.scss'],
+    standalone: false
 })
 
 export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {

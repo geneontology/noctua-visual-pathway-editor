@@ -9,9 +9,10 @@ import {
 
 
 @Component({
-  selector: 'noc-term-details',
-  templateUrl: './term-detail.component.html',
-  styleUrls: ['./term-detail.component.scss']
+    selector: 'noc-term-details',
+    templateUrl: './term-detail.component.html',
+    styleUrls: ['./term-detail.component.scss'],
+    standalone: false
 })
 
 export class NoctuaTermDetailComponent implements OnInit, OnDestroy {

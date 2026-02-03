@@ -14,10 +14,11 @@ import {
 import { noctuaAnimations } from '@noctua/animations';
 
 @Component({
-  selector: 'noc-select-evidence',
-  templateUrl: './select-evidence.component.html',
-  styleUrls: ['./select-evidence.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-select-evidence',
+    templateUrl: './select-evidence.component.html',
+    styleUrls: ['./select-evidence.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class SelectEvidenceComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

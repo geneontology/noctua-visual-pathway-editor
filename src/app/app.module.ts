@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -108,12 +108,10 @@ const appRoutes: Routes = [
         //Noctua App 
         AppsModule], providers: [
             StartupService,
-            {
-                provide: APP_INITIALIZER,
-                useFactory: startup,
-                deps: [StartupService, NoctuaDataService],
-                multi: true
-            },
+            provideAppInitializer(() => {
+        const initializerFn = (startup)(inject(StartupService), inject(NoctuaDataService));
+        return initializerFn();
+      }),
             provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())
         ]
 })

@@ -10,9 +10,10 @@ import { InlineReferenceService } from '@noctua.editor/inline-reference/inline-r
 
 
 @Component({
-  selector: 'app-add-evidence',
-  templateUrl: './add-evidence.component.html',
-  styleUrls: ['./add-evidence.component.scss']
+    selector: 'app-add-evidence',
+    templateUrl: './add-evidence.component.html',
+    styleUrls: ['./add-evidence.component.scss'],
+    standalone: false
 })
 export class AddEvidenceDialogComponent implements OnInit, OnDestroy {
   private _fb = new FormBuilder();

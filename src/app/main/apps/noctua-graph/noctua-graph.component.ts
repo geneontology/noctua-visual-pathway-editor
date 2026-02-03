@@ -25,10 +25,11 @@ import { WorkbenchId } from '@noctua.common/models/workench-id';
 import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
 
 @Component({
-  selector: 'noc-noctua-graph',
-  templateUrl: './noctua-graph.component.html',
-  styleUrls: ['./noctua-graph.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-noctua-graph',
+    templateUrl: './noctua-graph.component.html',
+    styleUrls: ['./noctua-graph.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 

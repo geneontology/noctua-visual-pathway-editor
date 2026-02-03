@@ -14,9 +14,10 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
 
 
 @Component({
-  selector: 'noc-copy-model',
-  templateUrl: './copy-model.component.html',
-  styleUrls: ['./copy-model.component.scss'],
+    selector: 'noc-copy-model',
+    templateUrl: './copy-model.component.html',
+    styleUrls: ['./copy-model.component.scss'],
+    standalone: false
 })
 
 export class CopyModelComponent implements OnInit, OnDestroy {

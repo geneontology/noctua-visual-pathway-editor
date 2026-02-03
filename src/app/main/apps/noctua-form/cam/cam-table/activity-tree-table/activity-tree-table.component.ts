@@ -27,10 +27,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Component({
-  selector: 'noc-activity-tree-table',
-  templateUrl: './activity-tree-table.component.html',
-  styleUrls: ['./activity-tree-table.component.scss'],
-  animations: noctuaAnimations
+    selector: 'noc-activity-tree-table',
+    templateUrl: './activity-tree-table.component.html',
+    styleUrls: ['./activity-tree-table.component.scss'],
+    animations: noctuaAnimations,
+    standalone: false
 })
 export class ActivityTreeTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

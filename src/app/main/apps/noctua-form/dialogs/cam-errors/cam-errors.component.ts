@@ -8,9 +8,10 @@ import { ErrorLevel, ErrorType, NoctuaFormConfigService } from '@geneontology/no
 
 
 @Component({
-  selector: 'app-cam-errors',
-  templateUrl: './cam-errors.component.html',
-  styleUrls: ['./cam-errors.component.scss']
+    selector: 'app-cam-errors',
+    templateUrl: './cam-errors.component.html',
+    styleUrls: ['./cam-errors.component.scss'],
+    standalone: false
 })
 export class CamErrorsDialogComponent implements OnInit, OnDestroy {
   ErrorType = ErrorType;

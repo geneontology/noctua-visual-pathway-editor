@@ -18,7 +18,8 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 @Component({
     selector: 'noctua-toolbar',
     templateUrl: './toolbar.component.html',
-    styleUrls: ['./toolbar.component.scss']
+    styleUrls: ['./toolbar.component.scss'],
+    standalone: false
 })
 
 export class NoctuaToolbarComponent implements OnInit, OnDestroy {

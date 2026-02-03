@@ -17,9 +17,10 @@ import { WithDropdownOverlayRef } from './with-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 
 @Component({
-  selector: 'noc-with-dropdown',
-  templateUrl: './with-dropdown.component.html',
-  styleUrls: ['./with-dropdown.component.scss']
+    selector: 'noc-with-dropdown',
+    templateUrl: './with-dropdown.component.html',
+    styleUrls: ['./with-dropdown.component.scss'],
+    standalone: false
 })
 
 export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {

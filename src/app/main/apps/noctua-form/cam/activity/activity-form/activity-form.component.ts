@@ -16,9 +16,10 @@ import {
 import { ResizeEvent } from 'angular-resizable-element';
 
 @Component({
-  selector: 'noc-activity-form',
-  templateUrl: './activity-form.component.html',
-  styleUrls: ['./activity-form.component.scss'],
+    selector: 'noc-activity-form',
+    templateUrl: './activity-form.component.html',
+    styleUrls: ['./activity-form.component.scss'],
+    standalone: false
 })
 
 export class ActivityFormComponent implements OnInit, OnDestroy {

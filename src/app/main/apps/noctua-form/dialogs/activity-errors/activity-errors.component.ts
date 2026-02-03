@@ -8,9 +8,10 @@ import { ErrorLevel, ErrorType, NoctuaFormConfigService } from '@geneontology/no
 
 
 @Component({
-  selector: 'app-activity-errors',
-  templateUrl: './activity-errors.component.html',
-  styleUrls: ['./activity-errors.component.scss']
+    selector: 'app-activity-errors',
+    templateUrl: './activity-errors.component.html',
+    styleUrls: ['./activity-errors.component.scss'],
+    standalone: false
 })
 export class ActivityErrorsDialogComponent implements OnInit, OnDestroy {
   ErrorType = ErrorType;

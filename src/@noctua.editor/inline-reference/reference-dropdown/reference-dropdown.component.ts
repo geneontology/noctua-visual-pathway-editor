@@ -19,9 +19,10 @@ import { ReferenceDropdownOverlayRef } from './reference-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 
 @Component({
-  selector: 'noc-reference-dropdown',
-  templateUrl: './reference-dropdown.component.html',
-  styleUrls: ['./reference-dropdown.component.scss']
+    selector: 'noc-reference-dropdown',
+    templateUrl: './reference-dropdown.component.html',
+    styleUrls: ['./reference-dropdown.component.scss'],
+    standalone: false
 })
 
 export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {

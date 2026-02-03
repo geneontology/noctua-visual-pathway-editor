@@ -10,7 +10,8 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
     selector: 'layout-noctua',
     templateUrl: './layout-noctua.component.html',
     styleUrls: ['./layout-noctua.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 }
 
 ) export class LayoutNoctuaComponent implements OnInit, OnDestroy {

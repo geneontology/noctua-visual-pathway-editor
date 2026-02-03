@@ -11,9 +11,10 @@ import { noctuaStencil } from '@noctua.graph/data/cam-stencil';
 import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-service';
 
 @Component({
-  selector: 'noc-cam-graph',
-  templateUrl: './cam-graph.component.html',
-  styleUrls: ['./cam-graph.component.scss']
+    selector: 'noc-cam-graph',
+    templateUrl: './cam-graph.component.html',
+    styleUrls: ['./cam-graph.component.scss'],
+    standalone: false
 })
 export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 

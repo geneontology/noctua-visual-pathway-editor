@@ -7,9 +7,10 @@ import { Cam, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
 
 @Component({
-  selector: 'app-confirm-copy-model',
-  templateUrl: './confirm-copy-model.component.html',
-  styleUrls: ['./confirm-copy-model.component.scss']
+    selector: 'app-confirm-copy-model',
+    templateUrl: './confirm-copy-model.component.html',
+    styleUrls: ['./confirm-copy-model.component.scss'],
+    standalone: false
 })
 export class ConfirmCopyModelDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

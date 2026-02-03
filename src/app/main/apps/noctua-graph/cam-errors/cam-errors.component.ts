@@ -27,9 +27,10 @@ import { NoctuaFormDialogService } from '../../noctua-form';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 
 @Component({
-  selector: 'noc-cam-errors',
-  templateUrl: './cam-errors.component.html',
-  styleUrls: ['./cam-errors.component.scss']
+    selector: 'noc-cam-errors',
+    templateUrl: './cam-errors.component.html',
+    styleUrls: ['./cam-errors.component.scss'],
+    standalone: false
 })
 export class CamErrorsComponent implements OnInit, OnDestroy {
   ErrorType = ErrorType;

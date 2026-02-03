@@ -6,9 +6,10 @@ import { Subject } from 'rxjs';
 import { FormType, NoctuaActivityFormService, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
 @Component({
-  selector: 'app-create-activity-dialog',
-  templateUrl: './create-activity.component.html',
-  styleUrls: ['./create-activity.component.scss']
+    selector: 'app-create-activity-dialog',
+    templateUrl: './create-activity.component.html',
+    styleUrls: ['./create-activity.component.scss'],
+    standalone: false
 })
 export class CreateActivityDialogComponent implements OnInit, OnDestroy {
   FormType = FormType
