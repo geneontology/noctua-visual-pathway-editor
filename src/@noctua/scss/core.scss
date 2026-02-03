@@ -2,7 +2,8 @@
 @import "noctua";
 
 // Include Angular Material core and component styles
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 @include mat.all-component-typographies($typography);
 @include mat.all-component-themes($theme);
 @import "partials/reset";
