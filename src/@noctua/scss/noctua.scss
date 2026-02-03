@@ -1,5 +1,6 @@
 @import "theming";
 @import "mixins/breakpoints";
+@import "partials/mdc-form-field-theme";
 //$noc-primary-color: #039be5;
 $noc-secondary-color: #995014;
 $noc-highlight-model-color: #e1f5fe;
@@ -196,25 +197,7 @@ textarea {
   overflow: hidden;
 }
 
-.mat-form-field {
-  .mat-form-field-wrapper {
-    padding-bottom: 0;
-  }
-
-  .mat-form-field-underline {
-    bottom: 0;
-  }
-
-  &.noc-sm {
-    .mat-form-field-wrapper {
-      font-size: 12px;
-    }
-
-    textarea {
-      @include deep-height(26px);
-    }
-  }
-}
+// Form field styling is now handled by partials/_mdc-form-field-theme.scss
 
 .noc-dropdown-menu {
   .noc-menu-heading {

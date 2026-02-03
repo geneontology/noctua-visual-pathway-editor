@@ -92,50 +92,20 @@ A700;
 }
 
 @mixin generateMaterialElementColors($contrastColor) {
-  // If the contrast color is white...
-  $noctuaForeground: (base: white, text: white, hint-text: rgba(white, 0.5), divider: rgba(white, 0.12), ); // If the contrast color is black...
+  // Form field and select styling is now handled by CSS custom properties
+  // in partials/_mdc-form-field-theme.scss
 
+  // If the contrast color is white...
+  $noctuaForeground: (base: white, text: white, hint-text: rgba(white, 0.5), divider: rgba(white, 0.12), );
+
+  // If the contrast color is black...
   @if (rgba(black, 1)==rgba($contrastColor, 1)) {
     $noctuaForeground: (base: black, hint-text: rgba(black, 0.38), divider: rgba(black, 0.12), );
   }
 
-  // Native Input
+  // Native Input (non-Material)
   input[type="text"] {
     color: map_get($noctuaForeground, base);
-  }
-
-  // Input
-  .mat-form-field-label {
-    color: map_get($noctuaForeground, hint-text);
-  }
-
-  .mat-form-field-underline {
-    background-color: map_get($noctuaForeground, divider);
-  }
-
-  // Select
-  .mat-select-trigger,
-  .mat-select-arrow {
-    color: map_get($noctuaForeground, hint-text);
-  }
-
-  .mat-select-underline {
-    background-color: map_get($noctuaForeground, divider);
-  }
-
-  .mat-select-disabled .mat-select-value,
-  .mat-select-arrow,
-  .mat-select-trigger {
-    color: map_get($noctuaForeground, hint-text);
-  }
-
-  .mat-select-content,
-  .mat-select-panel-done-animating {
-    background: map_get($background, card);
-  }
-
-  .mat-select-value {
-    color: map_get($noctuaForeground, text);
   }
 }
 
