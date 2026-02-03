@@ -1,4 +1,12 @@
 import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ViewChildren, QueryList, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import * as joint from 'jointjs';
 import { CamGraphService } from './services/cam-graph.service';
 import { Subject } from 'rxjs';
@@ -14,7 +22,16 @@ import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-se
     selector: 'noc-cam-graph',
     templateUrl: './cam-graph.component.html',
     styleUrls: ['./cam-graph.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatTooltipModule,
+        FlexLayoutModule,
+        FontAwesomeModule
+    ]
 })
 export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 

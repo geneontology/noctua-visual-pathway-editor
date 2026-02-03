@@ -10,7 +10,8 @@ import { getEdgeColor } from '@noctua.graph/data/edge-display';
     selector: 'noc-relation-preview',
     templateUrl: './relation-preview.component.html',
     styleUrls: ['./relation-preview.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: []
 })
 export class RelationPreviewComponent implements OnInit {
 

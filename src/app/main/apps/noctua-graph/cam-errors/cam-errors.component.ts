@@ -1,4 +1,12 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subject } from 'rxjs';
 
 import {
@@ -30,7 +38,16 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
     selector: 'noc-cam-errors',
     templateUrl: './cam-errors.component.html',
     styleUrls: ['./cam-errors.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatSidenavModule,
+        FlexLayoutModule,
+        FontAwesomeModule
+    ]
 })
 export class CamErrorsComponent implements OnInit, OnDestroy {
   ErrorType = ErrorType;

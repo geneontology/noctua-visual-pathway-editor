@@ -1,5 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ElementRef, ViewChild, Input } from '@angular/core';
 import { Overlay, OverlayConfig, OriginConnectionPosition, OverlayConnectionPosition } from '@angular/cdk/overlay';
+import { MatButtonModule } from '@angular/material/button';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,7 +24,11 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
     selector: 'noctua-inline-editor',
     templateUrl: './inline-editor.component.html',
     styleUrls: ['./inline-editor.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        MatButtonModule,
+        FontAwesomeModule
+    ]
 })
 export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
     collapsed: boolean;

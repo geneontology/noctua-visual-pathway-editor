@@ -1,20 +1,27 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+
 import { NoctuaConfigService } from '@noctua/services/config.service';
-import { MatSidenav } from '@angular/material/sidenav';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 import { LeftPanel } from '@noctua.common/models/menu-panels';
+import { NoctuaToolbarComponent } from 'app/layout/components/toolbar/toolbar.component';
+import { ContentComponent } from 'app/layout/components/content/content.component';
 
 @Component({
     selector: 'layout-noctua',
     templateUrl: './layout-noctua.component.html',
     styleUrls: ['./layout-noctua.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
-}
-
-) export class LayoutNoctuaComponent implements OnInit, OnDestroy {
+    standalone: true,
+    imports: [
+        MatSidenavModule,
+        NoctuaToolbarComponent,
+        ContentComponent
+    ]
+})
+export class LayoutNoctuaComponent implements OnInit, OnDestroy {
     LeftPanel = LeftPanel;
     noctuaConfig: any;
     navigation: any;

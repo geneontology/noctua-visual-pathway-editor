@@ -1,6 +1,10 @@
 import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { MatDrawer } from '@angular/material/sidenav';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subject } from 'rxjs';
 import { noctuaAnimations } from './../../../../@noctua/animations';
 import {
@@ -24,12 +28,29 @@ import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { WorkbenchId } from '@noctua.common/models/workench-id';
 import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
 
+import { CamGraphComponent } from './cam-graph/cam-graph.component';
+import { ActivityTableComponent } from './activity-table/activity-table.component';
+import { CamErrorsComponent } from './cam-errors/cam-errors.component';
+import { ActivityConnectorTableComponent } from './activity-connector-table/activity-connector-table.component';
+import { NoctuaFormModule } from '../noctua-form/noctua-form.module';
+
 @Component({
     selector: 'noc-noctua-graph',
     templateUrl: './noctua-graph.component.html',
     styleUrls: ['./noctua-graph.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatSidenavModule,
+        FlexLayoutModule,
+        FontAwesomeModule,
+        CamGraphComponent,
+        ActivityTableComponent,
+        CamErrorsComponent,
+        ActivityConnectorTableComponent,
+        NoctuaFormModule
+    ]
 })
 export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 

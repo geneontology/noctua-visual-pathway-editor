@@ -1,5 +1,15 @@
 import { Component, Inject, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { FormControl, FormGroup, FormArray } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subscription, Subject, EMPTY } from 'rxjs';
 import {
   NoctuaFormConfigService,
@@ -31,7 +41,19 @@ import { InlineWithService } from './../../inline-with/inline-with.service';
     selector: 'noc-editor-dropdown',
     templateUrl: './editor-dropdown.component.html',
     styleUrls: ['./editor-dropdown.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatMenuModule,
+        FlexLayoutModule,
+        FontAwesomeModule
+    ]
 })
 
 export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {

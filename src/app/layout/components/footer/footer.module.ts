@@ -1,20 +1,13 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NoctuaSharedModule } from '@noctua/shared.module';
-
 import { NoctuaFooterComponent } from 'app/layout/components/footer/footer.component';
 
+/**
+ * @deprecated This module is maintained for backward compatibility.
+ * Import NoctuaFooterComponent directly in standalone components.
+ */
 @NgModule({
-    declarations: [
-        NoctuaFooterComponent
-    ],
-    imports: [
-        RouterModule,
-        NoctuaSharedModule
-    ],
-    exports: [
-        NoctuaFooterComponent
-    ]
+    imports: [NoctuaFooterComponent],
+    exports: [NoctuaFooterComponent]
 })
 export class NoctuaFooterModule {
 }

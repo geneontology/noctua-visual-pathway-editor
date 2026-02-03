@@ -1,16 +1,13 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'noctua-content',
     templateUrl: './content.component.html',
     styleUrls: ['./content.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: true,
+    imports: [RouterOutlet]
 })
 export class ContentComponent {
-    /**
-     * Constructor
-     */
-    constructor() {
-    }
 }

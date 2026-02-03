@@ -1,6 +1,14 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormArray } from '@angular/forms';
-import { MatDrawer } from '@angular/material/sidenav';
+import { CommonModule } from '@angular/common';
+import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subscription, Subject } from 'rxjs';
 
 import {
@@ -24,12 +32,25 @@ import { TableOptions } from '@noctua.common/models/table-options';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
+import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
 
 @Component({
     selector: 'noc-activity-connector-table',
     templateUrl: './activity-connector-table.component.html',
     styleUrls: ['./activity-connector-table.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSidenavModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        FlexLayoutModule,
+        FontAwesomeModule,
+        NoctuaFormModule
+    ]
 })
 export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType

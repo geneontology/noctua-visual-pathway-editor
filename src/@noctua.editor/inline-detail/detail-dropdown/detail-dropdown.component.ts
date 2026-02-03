@@ -1,5 +1,11 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subject } from 'rxjs';
 
 import {
@@ -15,7 +21,15 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
     selector: 'noc-detail-dropdown',
     templateUrl: './detail-dropdown.component.html',
     styleUrls: ['./detail-dropdown.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatListModule,
+        FlexLayoutModule,
+        FontAwesomeModule
+    ]
 })
 
 export class NoctuaDetailDropdownComponent implements OnInit, OnDestroy {

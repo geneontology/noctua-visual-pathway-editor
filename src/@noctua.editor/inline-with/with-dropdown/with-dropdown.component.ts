@@ -1,5 +1,13 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, FormBuilder, FormArray } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, Validators, FormBuilder, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subject, Observable } from 'rxjs';
 
 import {
@@ -20,7 +28,17 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
     selector: 'noc-with-dropdown',
     templateUrl: './with-dropdown.component.html',
     styleUrls: ['./with-dropdown.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        FlexLayoutModule,
+        FontAwesomeModule
+    ]
 })
 
 export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {

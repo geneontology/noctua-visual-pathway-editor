@@ -1,4 +1,12 @@
 import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { Subject } from 'rxjs';
 
 import {
@@ -19,16 +27,26 @@ import {
 
 import { EditorCategory } from '@noctua.editor/models/editor-category';
 import { takeUntil } from 'rxjs/operators';
-import { MatDrawer } from '@angular/material/sidenav';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { NoctuaFormDialogService } from '../../noctua-form';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
+import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
 
 @Component({
     selector: 'noc-graph-activity-table',
     templateUrl: './activity-table.component.html',
     styleUrls: ['./activity-table.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatSidenavModule,
+        FlexLayoutModule,
+        FontAwesomeModule,
+        NoctuaFormModule
+    ]
 })
 export class ActivityTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

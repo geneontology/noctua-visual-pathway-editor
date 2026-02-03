@@ -12,7 +12,8 @@ import {
 import { NoctuaConfigService } from '@noctua/services/config.service';
 
 @Directive({
-    selector: '[noctuaPerfectScrollbar]'
+    selector: '[noctuaPerfectScrollbar]',
+    standalone: true
 })
 export class NoctuaPerfectScrollbarDirective implements OnInit, AfterViewInit, OnDestroy {
     isInitialized: boolean;
