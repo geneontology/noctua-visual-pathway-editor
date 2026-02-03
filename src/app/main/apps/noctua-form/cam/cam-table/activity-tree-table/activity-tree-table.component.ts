@@ -1,5 +1,12 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTreeModule } from '@angular/material/tree';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { noctuaAnimations } from './../../../../../../../@noctua/animations';
 import { NoctuaFormDialogService } from './../../../services/dialog.service';
@@ -25,13 +32,23 @@ import { EditorCategory } from '@noctua.editor/models/editor-category';
 import { NoctuaUtils } from '@noctua/utils/noctua-utils';
 import { MatTableDataSource } from '@angular/material/table';
 import { FlatTreeControl } from '@angular/cdk/tree';
+import { ActivityFormTableNodeComponent } from '../activity-form-table/activity-form-table-node/activity-form-table-node.component';
 
 @Component({
     selector: 'noc-activity-tree-table',
     templateUrl: './activity-tree-table.component.html',
     styleUrls: ['./activity-tree-table.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatChipsModule,
+        MatTreeModule,
+        FontAwesomeModule,
+        ActivityFormTableNodeComponent
+    ]
 })
 export class ActivityTreeTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

@@ -1,6 +1,12 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { noctuaAnimations } from './../../../../../../../../@noctua/animations';
 
@@ -24,6 +30,7 @@ import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { InlineEditorService } from '@noctua.editor/inline-editor/inline-editor.service';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form/services/dialog.service';
+import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline-editor.component';
 
 
 @Component({
@@ -31,7 +38,15 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form/services/dial
     templateUrl: './evidence-table.component.html',
     styleUrls: ['./evidence-table.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatMenuModule,
+        FontAwesomeModule,
+        NoctuaInlineEditorComponent
+    ]
 })
 export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

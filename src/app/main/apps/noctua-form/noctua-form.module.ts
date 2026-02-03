@@ -81,6 +81,21 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     MatTooltipModule,
     MatTreeModule,
     ResizableModule,
+
+    // Standalone components (Phase 5)
+    ActivityTreeTableComponent,
+    ActivityFormTableComponent,
+    ActivityFormTableNodeComponent,
+    EvidenceFormTableComponent,
+
+    // Standalone components (Phase 6)
+    EntityFormComponent,
+    CamToolbarComponent,
+    CopyModelComponent,
+    ChemicalConnectorFormComponent,
+    ActivityConnectorFormComponent,
+    ActivityFormComponent,
+    CamFormComponent,
   ],
   exports: [
     ActivityFormComponent,
@@ -109,8 +124,6 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     NoctuaFormDialogService,
   ],
   declarations: [
-    ActivityFormComponent,
-    EntityFormComponent,
     AddEvidenceDialogComponent,
     CreateActivityDialogComponent,
     ActivityErrorsDialogComponent,
@@ -120,18 +133,9 @@ import { ChemicalConnectorFormComponent } from './cam/activity/chemical-connecto
     SearchDatabaseDialogComponent,
     SearchEvidenceDialogComponent,
     AllowedDatabasesDialogComponent,
-    CamFormComponent,
-    CopyModelComponent,
-    ActivityConnectorFormComponent,
-    ActivityTreeTableComponent,
-    ActivityFormTableComponent,
-    ActivityFormTableNodeComponent,
     SelectEvidenceComponent,
     NoctuaTermDetailComponent,
-    EvidenceFormTableComponent,
     ConfirmCopyModelDialogComponent,
-    CamToolbarComponent,
-    ChemicalConnectorFormComponent
   ],
 })
 

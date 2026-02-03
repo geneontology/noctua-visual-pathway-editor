@@ -1,7 +1,16 @@
 import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, FormArray } from '@angular/forms';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { MatMenuTrigger, MatMenuModule } from '@angular/material/menu';
 import { Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { NoctuaFormDialogService } from './../../../../services/dialog.service';
 import {
   CamService,
@@ -28,7 +37,18 @@ import { InlineDetailService } from '@noctua.editor/inline-detail/inline-detail.
     selector: 'noc-entity-form',
     templateUrl: './entity-form.component.html',
     styleUrls: ['./entity-form.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        FontAwesomeModule
+    ]
 })
 
 export class EntityFormComponent implements OnInit, OnDestroy {

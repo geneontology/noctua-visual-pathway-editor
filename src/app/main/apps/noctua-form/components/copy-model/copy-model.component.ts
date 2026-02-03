@@ -1,7 +1,16 @@
 import { Component, Input, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { MatDrawer } from '@angular/material/sidenav';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import {
   Cam,
   NoctuaUserService,
@@ -17,7 +26,17 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
     selector: 'noc-copy-model',
     templateUrl: './copy-model.component.html',
     styleUrls: ['./copy-model.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatCheckboxModule,
+        MatProgressSpinnerModule,
+        FontAwesomeModule
+    ]
 })
 
 export class CopyModelComponent implements OnInit, OnDestroy {

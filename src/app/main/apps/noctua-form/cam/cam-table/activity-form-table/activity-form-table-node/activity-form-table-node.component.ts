@@ -1,5 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { noctuaAnimations } from './../../../../../../../../@noctua/animations';
 import { NoctuaFormDialogService } from './../../../../services/dialog.service';
@@ -32,13 +38,24 @@ import { InlineEditorService } from '@noctua.editor/inline-editor/inline-editor.
 import { NoctuaUtils } from '@noctua/utils/noctua-utils';
 import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
+import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline-editor.component';
+import { EvidenceFormTableComponent } from '../evidence-table/evidence-table.component';
 
 @Component({
     selector: 'noc-activity-form-table-node',
     templateUrl: './activity-form-table-node.component.html',
     styleUrls: ['./activity-form-table-node.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatMenuModule,
+        FontAwesomeModule,
+        NoctuaInlineEditorComponent,
+        EvidenceFormTableComponent
+    ]
 })
 export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;

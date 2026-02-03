@@ -1,8 +1,17 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { MatDrawer } from '@angular/material/sidenav';
+import { CommonModule } from '@angular/common';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import {
   Cam,
@@ -17,7 +26,19 @@ import {
     selector: 'noc-cam-form',
     templateUrl: './cam-form.component.html',
     styleUrls: ['./cam-form.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatAutocompleteModule,
+        FontAwesomeModule
+    ]
 })
 
 export class CamFormComponent implements OnInit, OnDestroy {

@@ -1,7 +1,16 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormArray } from '@angular/forms';
-import { MatDrawer } from '@angular/material/sidenav';
+import { CommonModule } from '@angular/common';
+import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subscription, Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import {
   Activity,
@@ -23,7 +32,19 @@ import { takeUntil } from 'rxjs/operators';
     selector: 'noc-activity-connector',
     templateUrl: './activity-connector-form.component.html',
     styleUrls: ['./activity-connector-form.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatAutocompleteModule,
+        FontAwesomeModule
+    ]
 })
 export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType

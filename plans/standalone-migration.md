@@ -100,23 +100,25 @@ Convert all NgModule-based components in this Angular 20 application to standalo
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 5.1 | Convert ActivityFormTableNodeComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/activity-form-table/activity-form-table-node/` |
-| 5.2 | Convert EvidenceFormTableComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/evidence-form-table/` |
-| 5.3 | Convert ActivityFormTableComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/activity-form-table/` |
-| 5.4 | Convert ActivityTreeTableComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/activity-tree-table/` |
+| 5.1 | Convert EvidenceFormTableComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-table/activity-form-table/evidence-table/` |
+| 5.2 | Convert ActivityFormTableNodeComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-table/activity-form-table/activity-form-table-node/` |
+| 5.3 | Convert ActivityFormTableComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-table/activity-form-table/` |
+| 5.4 | Convert ActivityTreeTableComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-table/activity-tree-table/` |
+| 5.5 | Update NoctuaFormModule for backward compat | ✓ DONE | `src/app/main/apps/noctua-form/noctua-form.module.ts` |
 
 ### Phase 6: Form Feature Components - Core Forms (7 components)
 **Goal**: Convert form components
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 6.1 | Convert EntityFormComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/entity-form/` |
-| 6.2 | Convert CamToolbarComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/cam-toolbar/` |
-| 6.3 | Convert CopyModelComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/copy-model/` |
-| 6.4 | Convert ChemicalConnectorFormComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/chemical-connector-form/` |
-| 6.5 | Convert ActivityConnectorFormComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/activity-connector-form/` |
-| 6.6 | Convert ActivityFormComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/activity-form/` |
-| 6.7 | Convert CamFormComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/cam-form/` |
+| 6.1 | Convert EntityFormComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/activity/activity-form/entity-form/` |
+| 6.2 | Convert CamToolbarComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-toolbar/` |
+| 6.3 | Convert CopyModelComponent | ✓ DONE | `src/app/main/apps/noctua-form/components/copy-model/` |
+| 6.4 | Convert ChemicalConnectorFormComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/activity/chemical-connector-form/` |
+| 6.5 | Convert ActivityConnectorFormComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/activity/activity-connector-form/` |
+| 6.6 | Convert ActivityFormComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/activity/activity-form/` |
+| 6.7 | Convert CamFormComponent | ✓ DONE | `src/app/main/apps/noctua-form/cam/cam-form/` |
+| 6.8 | Update NoctuaFormModule for backward compat | ✓ DONE | `src/app/main/apps/noctua-form/noctua-form.module.ts` |
 
 ### Phase 7: Form Feature Components - Dialogs (10 components)
 **Goal**: Convert dialog components with service integration
@@ -180,8 +182,8 @@ Convert all NgModule-based components in this Angular 20 application to standalo
 | 2 | Layout Components | 5 | ✓ Completed |
 | 3 | Shared Components | 6 | ✓ Completed |
 | 4 | Graph Feature Components | 6 | ✓ Completed |
-| 5 | Form Tables | 4 | ☐ Not Started |
-| 6 | Form Core | 7 | ☐ Not Started |
+| 5 | Form Tables | 4 | ✓ Completed |
+| 6 | Form Core | 7 | ✓ Completed |
 | 7 | Form Dialogs | 10 | ☐ Not Started |
 | 8 | Form Other | 2 | ☐ Not Started |
 | 9 | Root Module & Routing | 1 | ☐ Not Started |

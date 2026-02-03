@@ -1,5 +1,11 @@
 import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TreeModule } from '@ali-hm/angular-tree-component';
 
 import { noctuaAnimations } from './../../../../../../../@noctua/animations';
 import { NoctuaFormDialogService } from './../../../services/dialog.service';
@@ -33,13 +39,22 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 import { SettingsOptions } from '@noctua.common/models/graph-settings';
 import { TableOptions } from '@noctua.common/models/table-options';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivityFormTableNodeComponent } from './activity-form-table-node/activity-form-table-node.component';
 
 @Component({
     selector: 'noc-activity-form-table',
     templateUrl: './activity-form-table.component.html',
     styleUrls: ['./activity-form-table.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        FontAwesomeModule,
+        TreeModule,
+        ActivityFormTableNodeComponent
+    ]
 })
 export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ActivityDisplayType = ActivityDisplayType;
