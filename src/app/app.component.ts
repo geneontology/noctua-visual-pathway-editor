@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostBinding, Inject, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, ElementRef, HostBinding, Inject, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener, DOCUMENT } from '@angular/core';
+
 import { Platform } from '@angular/cdk/platform';
 import { Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
