@@ -1,9 +1,8 @@
 @use '@angular/material' as mat;
-@import '@angular/material/theming';
 
 // Custom color maps
 $mat-white: (500: white,
-contrast: (500: $black-87-opacity));
+contrast: (500: rgba(black, 0.87)));
 
 $mat-black: (500: black,
 contrast: (500: white,
