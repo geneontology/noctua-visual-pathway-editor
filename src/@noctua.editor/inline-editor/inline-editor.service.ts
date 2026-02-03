@@ -7,7 +7,7 @@ import {
     OverlayConnectionPosition,
     PositionStrategy
 } from '@angular/cdk/overlay';
-import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { EditorDropdownOverlayRef } from './editor-dropdown/editor-dropdown-ref';
 import { editorDropdownData } from './editor-dropdown/editor-dropdown.tokens';
 
@@ -87,13 +87,14 @@ export class InlineEditorService {
         //  this.overlayRef.dispose();
     }
 
-    private createInjector(config: EditorDropdownDialogConfig, dialogRef: EditorDropdownOverlayRef): PortalInjector {
-        const injectionTokens = new WeakMap();
-
-        injectionTokens.set(EditorDropdownOverlayRef, dialogRef);
-        injectionTokens.set(editorDropdownData, config.data);
-
-        return new PortalInjector(this.injector, injectionTokens);
+    private createInjector(config: EditorDropdownDialogConfig, dialogRef: EditorDropdownOverlayRef): Injector {
+        return Injector.create({
+            providers: [
+                { provide: EditorDropdownOverlayRef, useValue: dialogRef },
+                { provide: editorDropdownData, useValue: config.data }
+            ],
+            parent: this.injector
+        });
     }
 
     private attachDialogContainer(overlayRef: OverlayRef, config: EditorDropdownDialogConfig, dialogRef: EditorDropdownOverlayRef) {

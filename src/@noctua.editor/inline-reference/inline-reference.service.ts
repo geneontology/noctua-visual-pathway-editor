@@ -7,7 +7,7 @@ import {
     OverlayConnectionPosition,
     PositionStrategy
 } from '@angular/cdk/overlay';
-import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { ReferenceDropdownOverlayRef } from './reference-dropdown/reference-dropdown-ref';
 import { referenceDropdownData } from './reference-dropdown/reference-dropdown.tokens';
 
@@ -64,13 +64,14 @@ export class InlineReferenceService {
         //  this.overlayRef.dispose();
     }
 
-    private createInjector(config: ReferenceDropdownDialogConfig, dialogRef: ReferenceDropdownOverlayRef): PortalInjector {
-        const injectionTokens = new WeakMap();
-
-        injectionTokens.set(ReferenceDropdownOverlayRef, dialogRef);
-        injectionTokens.set(referenceDropdownData, config.data);
-
-        return new PortalInjector(this.injector, injectionTokens);
+    private createInjector(config: ReferenceDropdownDialogConfig, dialogRef: ReferenceDropdownOverlayRef): Injector {
+        return Injector.create({
+            providers: [
+                { provide: ReferenceDropdownOverlayRef, useValue: dialogRef },
+                { provide: referenceDropdownData, useValue: config.data }
+            ],
+            parent: this.injector
+        });
     }
 
     private attachDialogContainer(overlayRef: OverlayRef, config: ReferenceDropdownDialogConfig, dialogRef: ReferenceDropdownOverlayRef) {

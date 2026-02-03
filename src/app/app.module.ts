@@ -72,7 +72,6 @@ import {
 import { faBell, faCheckCircle, faTimesCircle, faTrashAlt, } from '@fortawesome/free-regular-svg-icons';
 import { faGithub, faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { NoctuaDataService } from '@noctua.common/services/noctua-data.service';
 import { StartupService } from './startup.service';
 import { TreeModule } from '@ali-hm/angular-tree-component';
 
@@ -109,7 +108,7 @@ const appRoutes: Routes = [
         AppsModule], providers: [
             StartupService,
             provideAppInitializer(() => {
-        const initializerFn = (startup)(inject(StartupService), inject(NoctuaDataService));
+        const initializerFn = (startup)(inject(StartupService));
         return initializerFn();
       }),
             provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())

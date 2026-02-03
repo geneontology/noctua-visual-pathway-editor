@@ -7,7 +7,7 @@ import {
     OverlayConnectionPosition,
     PositionStrategy
 } from '@angular/cdk/overlay';
-import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { WithDropdownOverlayRef } from './with-dropdown/with-dropdown-ref';
 import { withDropdownData } from './with-dropdown/with-dropdown.tokens';
 import { NoctuaWithDropdownComponent } from './with-dropdown/with-dropdown.component';
@@ -59,13 +59,14 @@ export class InlineWithService {
         //  this.overlayRef.dispose();
     }
 
-    private createInjector(config: WithDropdownDialogConfig, dialogRef: WithDropdownOverlayRef): PortalInjector {
-        const injectionTokens = new WeakMap();
-
-        injectionTokens.set(WithDropdownOverlayRef, dialogRef);
-        injectionTokens.set(withDropdownData, config.data);
-
-        return new PortalInjector(this.injector, injectionTokens);
+    private createInjector(config: WithDropdownDialogConfig, dialogRef: WithDropdownOverlayRef): Injector {
+        return Injector.create({
+            providers: [
+                { provide: WithDropdownOverlayRef, useValue: dialogRef },
+                { provide: withDropdownData, useValue: config.data }
+            ],
+            parent: this.injector
+        });
     }
 
     private attachDialogContainer(overlayRef: OverlayRef, config: WithDropdownDialogConfig, dialogRef: WithDropdownOverlayRef) {

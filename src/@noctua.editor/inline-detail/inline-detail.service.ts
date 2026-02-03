@@ -5,7 +5,7 @@ import {
     OverlayConfig,
     PositionStrategy
 } from '@angular/cdk/overlay';
-import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { DetailDropdownOverlayRef } from './detail-dropdown/detail-dropdown-ref';
 import { detailDropdownData } from './detail-dropdown/detail-dropdown.tokens';
 
@@ -68,13 +68,14 @@ export class InlineDetailService {
         //  this.overlayRef.dispose();
     }
 
-    private createInjector(config: DetailDropdownDialogConfig, dialogRef: DetailDropdownOverlayRef): PortalInjector {
-        const injectionTokens = new WeakMap();
-
-        injectionTokens.set(DetailDropdownOverlayRef, dialogRef);
-        injectionTokens.set(detailDropdownData, config.data);
-
-        return new PortalInjector(this.injector, injectionTokens);
+    private createInjector(config: DetailDropdownDialogConfig, dialogRef: DetailDropdownOverlayRef): Injector {
+        return Injector.create({
+            providers: [
+                { provide: DetailDropdownOverlayRef, useValue: dialogRef },
+                { provide: detailDropdownData, useValue: config.data }
+            ],
+            parent: this.injector
+        });
     }
 
     private attachDialogContainer(overlayRef: OverlayRef, config: DetailDropdownDialogConfig, dialogRef: DetailDropdownOverlayRef) {
