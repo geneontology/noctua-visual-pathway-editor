@@ -100,8 +100,9 @@ $accent: map-get($theme, accent);
       background-color: rgba(#000000, 0.1);
     }
   }
-
-  mat-chip {
+  // MDC chip styling with proper icon alignment
+  mat-chip,
+  .mat-mdc-chip {
     &.default {
       border: #cdf1d2 solid 2px;
     }
@@ -117,10 +118,17 @@ $accent: map-get($theme, accent);
     &.noc-error-chip {
       font-size: 10px;
       font-weight: normal;
-      // @include deep-height(20px);
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 0;
+
+      // MDC chip content wrapper
+      .mat-mdc-chip-action-label {
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 !important;
+      }
 
       .noc-chip-label {
         padding: 0 8px 0 8px;
@@ -150,6 +158,7 @@ $accent: map-get($theme, accent);
         border-radius: 50%;
         color: #777;
         font-size: 10px;
+        flex-shrink: 0;
       }
 
       .noc-icon-action {

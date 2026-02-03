@@ -10,7 +10,10 @@
   height: var(--mdc-icon-button-state-layer-size);
   padding: 8px;
 
-  .mat-button-ripple {
+  // MDC button ripple - legacy class for backward compatibility
+  .mat-button-ripple,
+  .mat-mdc-button-ripple,
+  .mat-ripple {
     border-radius: 50%;
   }
 
@@ -156,26 +159,29 @@ button[fxLayout="row wrap"] {
   }
 }
 
-.mat-tab-body-wrapper {
+// MDC tabs layout - ensure proper flex behavior for tab content
+.mat-tab-body-wrapper,
+.mat-mdc-tab-body-wrapper {
   flex-grow: 1;
 }
 
-.mat-tab-body {
+.mat-mdc-tab-body {
   display: flex !important;
   flex-direction: column;
 }
 
-.mat-tab-body-content {
+.mat-tab-body-content,
+.mat-mdc-tab-body-content {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
-.mat-dialog-container {
+.mat-mdc-dialog-container {
   padding: 0 !important;
 }
 
-.mat-dialog-content {
+.mat-mdc-dialog-content {
   margin: 0 !important;
 }
 
@@ -184,11 +190,11 @@ button[fxLayout="row wrap"] {
   font-size: 16px;
 }
 
-.mat-checkbox {
+.mat-mdc-checkbox {
   font-size: 16px;
 }
 
-.mat-radio-button {
+.mat-mdc-radio-button {
   font-size: 16px;
 }
 
@@ -243,17 +249,20 @@ mat-vertical-stepper {
   padding: 16px 0;
 }
 
-mat-chip {
-  mat-icon {
+// MDC chip icon sizing - ensure icons don't have minimum dimensions
+mat-chip,
+.mat-mdc-chip {
+  mat-icon,
+  .mat-mdc-chip-action-label mat-icon {
     min-width: 0 !important;
     min-height: 0 !important;
   }
 }
 
-.mat-card-image {
+.mat-mdc-card-image {
   max-width: none !important;
 }
 
-.mat-tooltip {
+.mat-mdc-tooltip {
   white-space: pre-line;
 }

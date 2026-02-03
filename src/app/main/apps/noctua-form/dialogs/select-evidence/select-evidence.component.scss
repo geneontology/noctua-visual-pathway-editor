@@ -13,19 +13,19 @@ $accent: map-get($theme, accent);
   }
 
   .noc-evidence-table {
-    .mat-cell {
+    .mat-mdc-cell {
       padding: 0 10px;
       font-size: 12px !important;
       color: #000;
     }
 
-    .mat-header-cell,
-    .mat-header-row {
+    .mat-mdc-header-cell,
+    .mat-mdc-header-row {
       // display: none;
       @include deep-height(30px);
     }
 
-    .mat-header-cell {
+    .mat-mdc-header-cell {
       padding: 0 10px;
       font-size: 10px !important;
       //color: #0F0; // map-get($primary, default);
@@ -50,7 +50,7 @@ $accent: map-get($theme, accent);
       font-size: 12px;
     }
 
-    .mat-cell {
+    .mat-mdc-cell {
       min-width: 0;
       display: flex;
       align-items: center;
@@ -122,11 +122,11 @@ $accent: map-get($theme, accent);
     overflow: auto;
   }
 
-  .mat-dialog-container {
+  .mat-mdc-dialog-container {
     padding: 0;
   }
 
-  .mat-dialog-content {
+  .mat-mdc-dialog-content {
   }
 
   .dialog-content-wrapper {

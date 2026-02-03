@@ -59,15 +59,19 @@ i {
   @include deep-width(initial!important);
 }
 
-mat-chip {
+// MDC chip custom sizing classes
+mat-chip,
+.mat-mdc-chip {
   &.noc-chip-sm {
     @include deep-height(25px);
     font-size: 10px;
+    line-height: 25px;
   }
 
   &.noc-chip-xs {
     @include deep-height(20px);
     font-size: 10px;
+    line-height: 20px;
   }
 }
 
@@ -234,15 +238,17 @@ textarea {
   justify-content: left;
   align-items: center;
 
-  .mat-paginator-page-size {
+  .mat-mdc-paginator-page-size {
     align-items: center;
   }
 
-  .mat-paginator-page-size-select {
+  // MDC paginator - adjust page size select alignment
+  .mat-paginator-page-size-select,
+  .mat-mdc-paginator-page-size-select {
     margin-top: -15px;
   }
 
-  .mat-paginator-container {
+  .mat-mdc-paginator-container {
     @include deep-height(50px !important);
   }
 }

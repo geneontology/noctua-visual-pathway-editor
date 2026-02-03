@@ -1,7 +1,9 @@
 $primary: map-get($theme, primary);
 $accent: map-get($theme, accent);
 
-mat-radio-button {
+// MDC radio button - custom rounded style with internal class compatibility
+mat-radio-button,
+.mat-mdc-radio-button {
   &.noc-radio-button-rounded {
     padding: 0 10px;
     @include deep-height(30px);
@@ -11,14 +13,20 @@ mat-radio-button {
     border: rgba(map-get($accent, default), 0.7) solid 1px;
     border-radius: 15px;
 
-    &.mat-radio-checked {
+    // MDC checked state
+    &.mat-radio-checked,
+    &.mat-mdc-radio-checked {
       background-color: rgba(map-get($accent, default), 0.2);
       border-color: rgba(map-get($accent, default), 0.9);
     }
 
+    // Legacy internal classes (if still present)
     .mat-radio-container,
     .mat-radio-outer-circle,
-    .mat-radio-inner-circle {
+    .mat-radio-inner-circle,
+    // MDC internal classes
+    .mat-mdc-radio-touch-target,
+    .mdc-radio__background {
       height: 15px;
       width: 15px;
     }
@@ -50,12 +58,12 @@ mat-radio-button {
   }
 }
 
-.mat-menu-panel {
+.mat-mdc-menu-panel {
   &.noc-menu-panel {
     background-color: #d2e8f8;
     max-width: none !important;
 
-    .mat-menu-item {
+    .mat-mdc-menu-item {
       //@include deep-height(25px !important);
       //max-width: 300px !important;
       font-size: 10px;
@@ -76,7 +84,7 @@ mat-radio-button {
     background-color: #d2e8f8;
     max-width: none !important;
 
-    .mat-menu-item {
+    .mat-mdc-menu-item {
       padding: 4px 12px;
       //@include deep-height(25px !important);
       //max-width: 300px !important;
@@ -137,7 +145,7 @@ mat-radio-button {
   }
 }
 
-.mat-menu-panel {
+.mat-mdc-menu-panel {
   &.noc-evidence-db-menu {
     background-color: #fbf9de;
     @include deep-width(400px !important);

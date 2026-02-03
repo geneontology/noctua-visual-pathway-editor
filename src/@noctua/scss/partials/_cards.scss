@@ -16,15 +16,20 @@
     min-width: 0 !important;
     padding: 0 8px !important;
   }
-  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+  // MDC button toggle - remove default shadow
   .mat-button-toggle-group,
   .mat-button-toggle-standalone {
     box-shadow: none !important;
   }
-  .mat-tab-labels {
+
+  // MDC tabs - center alignment and minimum width
+  .mat-tab-labels,
+  .mat-mdc-tab-labels {
     justify-content: center;
   }
-  .mat-tab-label {
+
+  .mat-tab-label,
+  .mat-mdc-tab-label {
     min-width: 0 !important;
   }
   .card-divider {

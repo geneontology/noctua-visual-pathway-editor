@@ -8,8 +8,9 @@ $accent: map-get($theme, accent);
 :host {
   padding: 0px;
   width: 100%;
-
-  mat-chip {
+  // MDC chip styling with proper icon alignment
+  mat-chip,
+  .mat-mdc-chip {
     &.default {
       border: #cdf1d2 solid 2px;
     }
@@ -29,6 +30,14 @@ $accent: map-get($theme, accent);
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 0;
+
+      // MDC chip content wrapper
+      .mat-mdc-chip-action-label {
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 !important;
+      }
 
       .noc-chip-label {
         padding: 0 12px 0 12px;
@@ -58,6 +67,7 @@ $accent: map-get($theme, accent);
         border-radius: 50%;
         color: #777;
         font-size: 14px;
+        flex-shrink: 0;
       }
 
       .noc-icon-action {
@@ -240,16 +250,16 @@ $accent: map-get($theme, accent);
       // width: 800px;
       @include deep-width(100%);
       overflow: auto;
-      .mat-footer-row,
-      .mat-header-row,
-      .mat-row {
+      .mat-mdc-footer-row,
+      .mat-mdc-header-row,
+      .mat-mdc-row {
         display: inline-flex;
         min-width: 100%;
       }
     }
 
-    tr.mat-footer-row,
-    tr.mat-row {
+    tr.mat-mdc-footer-row,
+    tr.mat-mdc-row {
       height: auto;
 
       &.noc-row-term {
@@ -267,8 +277,8 @@ $accent: map-get($theme, accent);
       }
     }
 
-    tr.mat-header-row,
-    tr.mat-row {
+    tr.mat-mdc-header-row,
+    tr.mat-mdc-row {
       padding-left: 15px;
     }
 
@@ -276,7 +286,7 @@ $accent: map-get($theme, accent);
       min-width: 150px !important;
     }
 
-    .mat-header-cell {
+    .mat-mdc-header-cell {
       padding: 0 10px;
       font-size: 10px !important;
       //color: #0F0; // map-get($primary, default);
@@ -286,7 +296,7 @@ $accent: map-get($theme, accent);
       font-weight: bold;
     }
 
-    .mat-header-row {
+    .mat-mdc-header-row {
       @include deep-height(30px);
       border-bottom: $noc-primary-color-light solid 1px;
     }
@@ -302,7 +312,7 @@ $accent: map-get($theme, accent);
       font-size: 12px;
     }
 
-    .mat-cell {
+    .mat-mdc-cell {
       display: flex;
       align-items: center;
 

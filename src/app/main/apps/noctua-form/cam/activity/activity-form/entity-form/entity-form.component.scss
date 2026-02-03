@@ -33,14 +33,23 @@
   .noc-form-chip-row {
     padding: 8px 5px;
   }
-
-  mat-chip {
+  // MDC chip styling with proper icon alignment
+  mat-chip,
+  .mat-mdc-chip {
     font-size: 12px;
     font-weight: normal;
     @include deep-height(25px);
     max-width: 200px;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    // MDC chip content wrapper
+    .mat-mdc-chip-action-label {
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 !important;
+    }
 
     .noc-chip-label {
       padding: 0 8px 0 4px;
@@ -65,6 +74,12 @@
       @include deep-height(25px);
       font-size: 10px;
 
+      .mat-mdc-chip-action-label {
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
       .noc-icon,
       .noc-icon-action {
         display: flex;
@@ -75,6 +90,7 @@
         border-radius: 50%;
         color: #777;
         font-size: 14px;
+        flex-shrink: 0;
       }
 
       .noc-icon-action {
@@ -93,17 +109,14 @@
       &.noc-node-chip {
         &.noc-mf {
           @include noc-chip-color(#b6f1cc);
-          // border: #d59f80 solid 1px;/
         }
 
         &.noc-bp {
           @include noc-chip-color(#f4c89c);
-          // border: #d59f80 solid 1px;/
         }
 
         &.noc-cc {
           @include noc-chip-color(rgba(#d3b5f5, 0.8));
-          // border: #d59f80 solid 1px;/
         }
       }
     }

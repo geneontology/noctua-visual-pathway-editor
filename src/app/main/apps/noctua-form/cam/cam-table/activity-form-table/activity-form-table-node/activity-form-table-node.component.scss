@@ -110,25 +110,32 @@ $accent: map-get($theme, accent);
       }
 
       &.noc-aspect-cell {
-        mat-chip {
+        // MDC chip styling for biological aspect indicators (F=Molecular Function, P=Biological Process, C=Cellular Component)
+        mat-chip,
+        .mat-mdc-chip {
           text-align: center;
           @include deep-height(20px);
           font-size: 10px;
           font-weight: bold;
           padding: 2px;
+          line-height: 20px;
+
           &.F {
             border: $noc-mf solid 1px;
             color: darken($noc-mf, 10%);
+            background-color: rgba($noc-mf, 0.1);
           }
 
           &.P {
             border: $noc-bp solid 1px;
             color: darken($noc-bp, 10%);
+            background-color: rgba($noc-bp, 0.1);
           }
 
           &.C {
             border: $noc-cc solid 1px;
             color: darken($noc-cc, 10%);
+            background-color: rgba($noc-cc, 0.1);
           }
         }
       }

@@ -3,9 +3,9 @@
     <mat-form-field appearance="outline" fxFlex="100px" class="noc-sm  mr-12">
       <mat-select placeholder="" formControlName="db">
         @for (evidenceDB of noctuaFormConfigService.evidenceDBs.options; track evidenceDB) {
-          <mat-option [value]="evidenceDB">
-            {{evidenceDB.label}}
-          </mat-option>
+        <mat-option [value]="evidenceDB">
+          {{evidenceDB.label}}
+        </mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -16,24 +16,24 @@
       <fa-icon [icon]="['far', 'times-circle']"></fa-icon>
     </button>
     <button mat-icon-button (click)="save()">
-      <fa-icon [icon]="['fas', 'check-circle']"></fa-icon>
+      <fa-icon [icon]="['far', 'check-circle']"></fa-icon>
     </button>
   </div>
   <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
     @if (article) {
-      <div class="noc-article-info" fxLayout="column" fxLayoutAlign="start stretch">
-        <div class="noc-article-title w-100-p">
-          <a (click)="$event.stopPropagation()" href="{{article.link}}" target="_blank">
-            {{article.title}}
-          </a>
-        </div>
-        <div class="noc-article-author w-100-p">
-          <fa-icon [icon]="['fas', 'user']" class="s-16 mr-4"></fa-icon> <span>{{article.author}}</span>
-        </div>
-        <div class="noc-article-date w-100-p">
-          <fa-icon [icon]="['fas', 'calendar-alt']" class="s-16 mr-4"></fa-icon> <span>{{article.date}}</span>
-        </div>
+    <div class="noc-article-info" fxLayout="column" fxLayoutAlign="start stretch">
+      <div class="noc-article-title w-100-p">
+        <a (click)="$event.stopPropagation()" href="{{article.link}}" target="_blank">
+          {{article.title}}
+        </a>
       </div>
+      <div class="noc-article-author w-100-p">
+        <fa-icon [icon]="['fas', 'user']" class="s-16 mr-4"></fa-icon> <span>{{article.author}}</span>
+      </div>
+      <div class="noc-article-date w-100-p">
+        <fa-icon [icon]="['fas', 'calendar-alt']" class="s-16 mr-4"></fa-icon> <span>{{article.date}}</span>
+      </div>
+    </div>
     }
   </div>
 </form>
