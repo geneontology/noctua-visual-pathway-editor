@@ -13,9 +13,9 @@ $noc-primary-rgb: 59, 89, 152;
 
 :root {
   // Primary focus color
-  --mdc-outlined-text-field-focus-outline-color: #{$noc-primary};
-  --mdc-outlined-text-field-focus-label-text-color: #{$noc-primary};
-  --mdc-outlined-text-field-caret-color: #{$noc-primary};
+  --mat-form-field-outlined-focus-outline-color: #{$noc-primary};
+  --mat-form-field-outlined-focus-label-text-color: #{$noc-primary};
+  --mat-form-field-outlined-caret-color: #{$noc-primary};
 
   // Select focus color
   --mat-select-focused-arrow-color: #{$noc-primary};
@@ -90,8 +90,8 @@ $noc-primary-rgb: 59, 89, 152;
 .mat-mdc-form-field {
   .mat-mdc-form-field-icon-suffix {
     .mat-mdc-icon-button.noc-evidence-db-trigger {
-      --mdc-icon-button-state-layer-size: 24px;
-      --mdc-icon-button-icon-size: 16px;
+      --mat-icon-button-state-layer-size: 24px;
+      --mat-icon-button-icon-size: 16px;
       width: 24px;
       height: 24px;
       padding: 4px;
