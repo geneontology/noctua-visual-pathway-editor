@@ -97,10 +97,10 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "noctua:build:production"
+              "buildTarget": "noctua:build:production"
             },
             "development": {
-              "browserTarget": "noctua:build:development"
+              "buildTarget": "noctua:build:development"
             }
           },
           "defaultConfiguration": "development"
