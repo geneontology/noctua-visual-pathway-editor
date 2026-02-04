@@ -1,19 +1,18 @@
-<form name="connectorFormGroup" [formGroup]="connectorFormGroup" fxLayout="column" fxLayoutAlign="start stretch"
-  class="noc-drawer w-full h-full">
-  <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
+<form name="connectorFormGroup" [formGroup]="connectorFormGroup" class="flex flex-col justify-start items-stretch noc-drawer w-full h-full">
+  <div class="noc-drawer-header flex flex-row justify-start items-center">
     <span class="noc-drawer-header-title">
       Causal Relation Form</span>
-    <span fxFlex></span>
+    <span class="grow"></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
       aria-label="Close dialog">
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="noc-drawer-body overflow-y-auto" fxLayout="column" fxLayoutAlign="start start">
+  <div class="noc-drawer-body overflow-y-auto flex flex-col justify-start items-start">
     @if (connectorFormGroup) {
     <div class="noc-connector-form">
-      <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-full">
-        <!--   <div class="noc-section-body w-full p-0" fxLayout="column" fxLayoutAlign="start center">
+      <div class="flex flex-col justify-start items-stretch noc-form-section w-full">
+        <!--   <div class="noc-section-body w-full p-0 flex flex-col justify-start items-center">
           <noc-graph-preview [nodes]="connectorActivity?.graphPreview.nodes"
           [edges]="connectorActivity?.graphPreview.edges" class="noc-graph-preview"></noc-graph-preview>
         </div> -->
@@ -24,42 +23,46 @@
         </div>
         }
         <div class="noc-form-section p-0 w-full">
-          <div class="px-8 noc-group-row" fxLayout="row" fxLayoutAlign="start center">
+          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Relationship</p>
             </div>
-            <mat-radio-group fxFlex="" formControlName="relationship" fxLayout="column" fxLayoutAlign="start start">
-              @for (relationship of relationshipOptions; track relationship) {
-              <div class="noc-radio-row" fxLayout="row" fxLayoutAlign="start center">
-                <mat-radio-button class="noc-radio-button-rounded noc-label"
-                  [checked]="relationship.id === connectorActivity?.rule.relationship?.id" [value]="relationship">
-                  {{relationship.label}}
-                </mat-radio-button>
-                @if (relationship.description) {
-                <div fxFlex="" class="noc-hint">
-                  {{relationship.description}}
+            <mat-radio-group class="grow" formControlName="relationship">
+              <div class="flex flex-col justify-start items-start">
+                @for (relationship of relationshipOptions; track relationship) {
+                <div class="noc-radio-row flex flex-row justify-start items-center">
+                  <mat-radio-button class="noc-radio-button-rounded noc-label"
+                    [checked]="relationship.id === connectorActivity?.rule.relationship?.id" [value]="relationship">
+                    {{relationship.label}}
+                  </mat-radio-button>
+                  @if (relationship.description) {
+                  <div class="grow noc-hint">
+                    {{relationship.description}}
+                  </div>
+                  }
                 </div>
                 }
               </div>
-              }
             </mat-radio-group>
           </div>
           @if (connectorActivity?.rule.displaySection.effectDirection) {
-          <div class="px-8 noc-group-row" fxLayout="row" fxLayoutAlign="start center">
+          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Effect Direction</p>
             </div>
-            <mat-radio-group formControlName="effectDirection" fxLayout="column" fxLayoutAlign="start start">
-              @for (effectDirection of noctuaFormConfigService.effectDirection.options; track effectDirection) {
-              <div class="noc-radio-row" fxLayout="row" fxLayoutAlign="start center">
-                <mat-radio-button class="noc-radio-button-rounded noc-label" [value]="effectDirection"
-                  [checked]="effectDirection.id === connectorActivity?.rule.effectDirection?.id">
-                  {{effectDirection.label}}
-                </mat-radio-button>
+            <mat-radio-group formControlName="effectDirection">
+              <div class="flex flex-col justify-start items-start">
+                @for (effectDirection of noctuaFormConfigService.effectDirection.options; track effectDirection) {
+                <div class="noc-radio-row flex flex-row justify-start items-center">
+                  <mat-radio-button class="noc-radio-button-rounded noc-label" [value]="effectDirection"
+                    [checked]="effectDirection.id === connectorActivity?.rule.effectDirection?.id">
+                    {{effectDirection.label}}
+                  </mat-radio-button>
+                </div>
+                }
               </div>
-              }
             </mat-radio-group>
-            <div fxFlex="" fxLayout="column" fxLayoutAlign="center start">
+            <div class="grow flex flex-col justify-center items-start">
               <div class="noc-hint noc-sm">
                 The mechanism regulation should be known, so it should be possible to pick the direction of the
                 regulation.
@@ -68,39 +71,41 @@
           </div>
           }
           @if (connectorActivity?.rule.displaySection.directness) {
-          <div class="px-8 noc-group-row" fxLayout="row" fxLayoutAlign="start center">
+          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Directness </p>
             </div>
-            <mat-radio-group fxFlex="" formControlName="directness" fxLayout="column" fxLayoutAlign="start start">
-              @for (directness of noctuaFormConfigService.directness.options; track directness) {
-              <div class="noc-radio-row" fxLayout="row" fxLayoutAlign="start center">
-                <mat-radio-button class="noc-radio-button-rounded noc-label" [value]="directness"
-                  [checked]="directness.id === connectorActivity?.rule.directness?.id">
-                  {{directness.label}}
-                </mat-radio-button>
-                @if (directness.description) {
-                <div fxFlex="" class="noc-hint">
-                  {{directness.description}}
+            <mat-radio-group class="grow" formControlName="directness">
+              <div class="flex flex-col justify-start items-start">
+                @for (directness of noctuaFormConfigService.directness.options; track directness) {
+                <div class="noc-radio-row flex flex-row justify-start items-center">
+                  <mat-radio-button class="noc-radio-button-rounded noc-label" [value]="directness"
+                    [checked]="directness.id === connectorActivity?.rule.directness?.id">
+                    {{directness.label}}
+                  </mat-radio-button>
+                  @if (directness.description) {
+                  <div class="grow noc-hint">
+                    {{directness.description}}
+                  </div>
+                  }
                 </div>
                 }
               </div>
-              }
             </mat-radio-group>
           </div>
           }
         </div>
-        <div class="noc-section-header noc-bt" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-header noc-bt flex flex-row justify-start items-center">
           <div class="noc-section-heading">
             Suggested Causal Relation
           </div>
         </div>
-        <div class="noc-note mb-4" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-note mb-4 flex flex-row justify-start items-center">
           <span class="noc-description">
             {{connectorActivity?.predicate.edge?.label}}
           </span>
         </div>
-        <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-header flex flex-row justify-start items-center">
           <div class="noc-section-heading">
             Evidence
           </div>
@@ -116,8 +121,8 @@
     </div>
     }
   </div>
-  <div fxLayout="row" fxLayoutAlign="start center" class="noc-drawer-footer noc-submit-row">
-    <span fxFlex></span>
+  <div class="flex flex-row justify-start items-center noc-drawer-footer noc-submit-row">
+    <span class="grow"></span>
     <button (click)='deleteConnectorEdge()' type="button" mat-raised-button color="warn" class="mr-8">Delete</button>
   </div>
 </form>

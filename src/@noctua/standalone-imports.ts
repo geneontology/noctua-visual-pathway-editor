@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
@@ -30,10 +29,10 @@ export const ROUTER_IMPORTS = [
 ] as const;
 
 /**
- * Layout-related imports (flex layout, drag-drop)
+ * Layout-related imports (drag-drop)
+ * Note: FlexLayoutModule removed - using Tailwind CSS for layouts
  */
 export const LAYOUT_IMPORTS = [
-  FlexLayoutModule,
   DragDropModule,
 ] as const;
 

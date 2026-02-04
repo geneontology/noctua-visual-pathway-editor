@@ -19,7 +19,6 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
 import { each } from 'lodash';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -50,7 +49,6 @@ export class EvidenceItemFlatNode {
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatCheckboxModule,
         MatTreeModule,

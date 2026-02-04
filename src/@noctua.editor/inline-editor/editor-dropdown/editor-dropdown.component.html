@@ -1,6 +1,6 @@
-<div [formGroup]="entityFormGroup" fxLayout="row" fxLayoutAlign="start center" class="w-full">
+<div [formGroup]="entityFormGroup" class="flex flex-row justify-start items-center w-full">
   @if (displaySection.relationship) {
-  <div class="noc-edit-field p-4" fxFlex="300px" fxLayout="row" fxLayoutAlign="start stretch">
+  <div class="noc-edit-field p-4 w-[300px] flex flex-row justify-start items-stretch">
     <div class="p-4 w-full">
       <mat-form-field appearance="outline" class="noc-sm w-full">
         <mat-label>Choose Causal Relation</mat-label>
@@ -16,7 +16,7 @@
   </div>
   }
   @if (displaySection.term) {
-  <div class="noc-edit-field p-4" fxFlex="250px" fxLayout="row" fxLayoutAlign="start stretch">
+  <div class="noc-edit-field p-4 w-[250px] flex flex-row justify-start items-stretch">
     <mat-form-field class="noc-sm w-full" appearance="outline">
       <mat-label>{{entity.label}}</mat-label>
       <textarea type="text" matInput formControlName="term" [matAutocomplete]="termAuto" row="2"
@@ -25,11 +25,11 @@
       <mat-autocomplete #termAuto="matAutocomplete" [displayWith]="termDisplayFn" class="noc-term-autocomplete">
         @for (item of entity?.termLookup.results; track item) {
         <mat-option [value]="item" [disabled]="item.notAnnotatable===false">
-          <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+          <div class="w-full flex flex-row justify-start items-center">
             <div class="noc-term-label">
               {{ item.label }}
             </div>
-            <span fxFlex></span>
+            <span class="grow"></span>
             <div class="noc-term-id">
               @if (item.link) {
               <a (click)="$event.stopPropagation()" href="{{item.link}}" target="_blank">
@@ -52,7 +52,7 @@
   @if (evidenceFormGroup) {
   <ng-container [formGroup]="evidenceFormGroup">
     @if (displaySection.evidence) {
-    <div class="noc-edit-field p-4" fxFlex="250px">
+    <div class="noc-edit-field p-4 w-[250px]">
       <mat-form-field appearance="outline" class="noc-sm w-full">
         <mat-label>Evidence</mat-label>
         <textarea type="text" matInput formControlName="evidence" [matAutocomplete]="evidenceAuto" rows="2"
@@ -61,11 +61,11 @@
           class="noc-term-autocomplete">
           @for (item of entity?.predicate?.evidenceLookup.results; track item) {
           <mat-option [value]="item">
-            <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+            <div class="w-full flex flex-row justify-start items-center">
               <div class="noc-term-label">
                 {{ item.label }}
               </div>
-              <span fxFlex></span>
+              <span class="grow"></span>
               <div class="noc-term-id mr-8">
                 <strong>
                   {{ item.xref }}
@@ -91,7 +91,7 @@
     </div>
     }
     @if (displaySection.reference) {
-    <div class="noc-edit-field p-4" fxFlex="150px">
+    <div class="noc-edit-field p-4 w-[150px]">
       <mat-form-field appearance="outline" class="noc-sm w-full">
         <mat-label>Reference</mat-label>
         <textarea matInput formControlName="reference" [matAutocomplete]="referenceAuto" rows="2" autocomplete="off"
@@ -103,7 +103,7 @@
         <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
           @for (item of entity?.predicate?.referenceLookup.results; track item) {
           <mat-option [value]="item">
-            <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+            <div class="w-full flex flex-row justify-start items-center">
               <div class="noc-term-label">
                 {{ item }}
               </div>
@@ -115,7 +115,7 @@
     </div>
     }
     @if (displaySection.with) {
-    <div class="noc-edit-field p-4" fxFlex fxFlex="150px">
+    <div class="noc-edit-field p-4 w-[150px]">
       <mat-form-field appearance="outline" class="noc-sm w-full">
         <mat-label>With</mat-label>
         <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
@@ -126,7 +126,7 @@
         <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
           @for (item of entity?.predicate?.withLookup.results; track item) {
           <mat-option [value]="item">
-            <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+            <div class="w-full flex flex-row justify-start items-center">
               <div class="noc-term-label">
                 {{ item }}
               </div>
@@ -140,7 +140,7 @@
   </ng-container>
   }
   @if (category === EditorCategory.all || category === EditorCategory.evidenceAll) {
-  <button mat-icon-button class="noc-action-button" fxFlex="40px" [matMenuTriggerFor]="entityMenu">
+  <button mat-icon-button class="noc-action-button w-10" [matMenuTriggerFor]="entityMenu">
     <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
   </button>
   }

@@ -8,9 +8,14 @@ $primary: map-get($theme, primary);
 $accent: map-get($theme, accent);
 
 :host {
+  display: block;
   width: 100%;
+  height: 100%;
+  position: relative;
 
   #noc-canvas {
+    display: flex;
+    flex-direction: row;
     position: absolute;
     top: 0;
     right: 0;

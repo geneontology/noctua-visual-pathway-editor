@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
@@ -27,7 +26,6 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
         ReactiveFormsModule,
         MatButtonModule,
         MatListModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

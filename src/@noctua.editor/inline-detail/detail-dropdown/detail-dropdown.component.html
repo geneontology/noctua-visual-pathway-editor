@@ -1,11 +1,11 @@
 <div (click)="$event.stopPropagation()" class="noc-item-details noc-drawer w-full">
-  <div class="noc-header w-full" fxLayout="row" fxLayoutAlign="start center">
+  <div class="noc-header w-full flex flex-row justify-start items-center">
     <div class="noc-header-title">
       <div class="text-truncate">
         {{termDetail.label}}
       </div>
     </div>
-    <span fxFlex></span>
+    <span class="grow"></span>
     <button mat-stroked-button (click)="$event.stopPropagation(); close()" class="noc-rounded-button noc-sm"
       color="primary" aria-label="Close Selected Item">
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
@@ -45,7 +45,7 @@
     </div>
   </div>
   <div class="noc-footer w-full">
-    <span fxFlex></span>
+    <span class="grow"></span>
     <!-- <button class="noc-rounded-button" mat-raised-button color="primary">Use</button> -->
   </div>
 </div>

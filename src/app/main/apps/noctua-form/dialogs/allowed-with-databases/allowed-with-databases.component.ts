@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -18,7 +17,6 @@ export interface AllowedDatabasesDialogData {
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatDialogModule,
         FontAwesomeModule,

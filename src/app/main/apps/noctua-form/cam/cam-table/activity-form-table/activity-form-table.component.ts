@@ -2,7 +2,6 @@ import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleCh
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TreeModule } from '@ali-hm/angular-tree-component';
@@ -49,7 +48,6 @@ import { ActivityFormTableNodeComponent } from './activity-form-table-node/activ
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         MatButtonModule,
         FontAwesomeModule,
         TreeModule,

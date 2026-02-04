@@ -1,9 +1,9 @@
-<div fxLayout="column" fxLayoutAlign="start stretch" class="noc-drawer w-full h-full">
-  <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
+<div class="flex flex-col justify-start items-stretch noc-drawer w-full h-full">
+  <div class="noc-drawer-header flex flex-row justify-start items-center">
     <span class="noc-drawer-header-title">
     </span>
-    <span fxFlex></span>
-    <button mat-icon-button class="" fxFlex="40px" color="primary" [matMenuTriggerFor]="activityOptionMenu">
+    <span class="grow"></span>
+    <button mat-icon-button class="w-10" color="primary" [matMenuTriggerFor]="activityOptionMenu">
       <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
     </button>
     <mat-menu #activityOptionMenu="matMenu" class="noc-dropdown-menu">
@@ -16,10 +16,9 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="noc-drawer-body overflow-y-auto" fxLayout="column" fxLayoutAlign="start start">
+  <div class="noc-drawer-body overflow-y-auto flex flex-col justify-start items-start">
     @if (activity) {
-    <noc-activity-form-table [options]="options" [cam]="cam" [activity]="activity" class="noc-activities-table-body"
-      fxLayout="row" fxLayoutAlign="start center">
+    <noc-activity-form-table [options]="options" [cam]="cam" [activity]="activity" class="noc-activities-table-body flex flex-row justify-start items-center">
     </noc-activity-form-table>
     }
   </div>

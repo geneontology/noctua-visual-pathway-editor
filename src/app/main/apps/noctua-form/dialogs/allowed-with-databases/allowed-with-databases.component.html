@@ -1,14 +1,14 @@
-<div class="dialog-content-wrapper noc-dialog" fxLayout="column" fxLayoutAlign="start stretch">
-  <div class="m-0 noc-dialog-header" fxLayout="row" fxLayoutAlign="start center">
+<div class="dialog-content-wrapper noc-dialog flex flex-col justify-start items-stretch">
+  <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">{{ dialogTitle }}</span>
-    <span fxFlex></span>
+    <span class="grow"></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div fxLayout="column" fxLayoutAlign="start start" class="noc-dialog-body">
+  <div class="flex flex-col justify-start items-start noc-dialog-body">
     <p class="p-8">The following database prefixes are allowed:</p>
-    <ul class="allowed-databases-list" fxLayout="column" fxLayoutAlign="start start">
+    <ul class="allowed-databases-list flex flex-col justify-start items-start">
       @for (db of allowedDatabases; track db) {
       <li class="database-item p-8">
         <span class="database-name">{{ db }}</span>
@@ -16,7 +16,7 @@
       }
     </ul>
   </div>
-  <div mat-dialog-actions class="m-0 p-16 noc-dialog-footer" fxLayout="row" fxLayoutAlign="end center">
+  <div mat-dialog-actions class="m-0 p-16 noc-dialog-footer flex flex-row justify-end items-center">
     <button (click)='close()' type="button" mat-raised-button color="primary">Close</button>
   </div>
 </div>

@@ -5,7 +5,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject, Observable } from 'rxjs';
@@ -36,7 +35,6 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
         MatInputModule,
         MatSelectModule,
         MatButtonModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

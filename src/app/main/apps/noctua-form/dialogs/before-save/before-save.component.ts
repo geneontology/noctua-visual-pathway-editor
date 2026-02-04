@@ -7,7 +7,6 @@ import { Subject } from 'rxjs';
 
 import { NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -20,7 +19,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatDialogModule,
         MatToolbarModule,

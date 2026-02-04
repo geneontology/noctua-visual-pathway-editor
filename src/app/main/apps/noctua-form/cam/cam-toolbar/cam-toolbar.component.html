@@ -1,7 +1,7 @@
 @if (cam) {
-<div class="noc-cam-heading" fxFlex="1 1 auto" fxLayout="row" fxLayoutAlign="start center">
+<div class="noc-cam-heading flex-auto flex flex-row justify-start items-center">
   @if (cam.title) {
-  <div class="noc-title" fxLayout="row" fxLayoutAlign="start center">
+  <div class="noc-title flex flex-row justify-start items-center">
     <div class="text-truncate pr-8" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'"
       [matTooltipShowDelay]="2000">
       <strong>Title: </strong>{{cam.title }}
@@ -11,13 +11,13 @@
     </div>
   </div>
   }
-  <!--   <div class="noc-error" fxLayout="row" fxLayoutAlign="start center">
-    <mat-chip class="noc-error-chip noc-chip-xs ml-8" fxLayout="row" fxLayoutAlign="start center"
+  <!--   <div class="noc-error flex flex-row justify-start items-center">
+    <mat-chip class="noc-error-chip noc-chip-xs ml-8 flex flex-row justify-start items-center"
       (click)="openCamErrors()">
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
       </div>
-      <div fxFlex="" class="noc-chip-label">
+      <div class="grow noc-chip-label">
         {{cam.totalErrors}} Error(s) Found
       </div>
     </mat-chip>
@@ -38,14 +38,14 @@
     </button>
   </div>
   @if (cam.state) {
-  <div class="noc-model-state" fxLayout="row" fxLayoutAlign="start center">
-    <mat-chip class="noc-table-chip noc-state-chip" [ngClass]="{'noc-development': cam.state.name === 'development',
+  <div class="noc-model-state flex flex-row justify-start items-center">
+    <mat-chip class="noc-table-chip noc-state-chip flex flex-row justify-start items-center" [ngClass]="{'noc-development': cam.state.name === 'development',
         'noc-production': cam.state.name === 'production',
-        'noc-review': cam.state.name === 'review'}" fxLayout="row" fxLayoutAlign="start center">
+        'noc-review': cam.state.name === 'review'}">
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'tasks']"></fa-icon>
       </div>
-      <div fxFlex="" class="noc-chip-label">
+      <div class="grow noc-chip-label">
         {{cam.state.label}}
       </div>
       <div class="noc-icon-action" (click)="openCamForm()">
@@ -55,33 +55,33 @@
   </div>
   }
   @if (cam.date) {
-  <div class="noc-date noc-br mr-8" fxFlex="100px" fxLayout="row" fxLayoutAlign="start center">
-    <mat-chip class="noc-table-chip noc-date-chip" fxLayout="row" fxLayoutAlign="start center" (click)="openCamForm()">
+  <div class="noc-date noc-br mr-8 w-[100px] flex flex-row justify-start items-center">
+    <mat-chip class="noc-table-chip noc-date-chip flex flex-row justify-start items-center" (click)="openCamForm()">
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'calendar-day']"></fa-icon>
       </div>
-      <div fxFlex="" class="noc-chip-label">
+      <div class="grow noc-chip-label">
         {{cam.date}}
       </div>
     </mat-chip>
   </div>
   }
-  <div fxFlex="" fxLayout="row" fxLayoutAlign="start center">
+  <div class="grow flex flex-row justify-start items-center">
     <mat-chip-list>
       @for (contributor of cam.contributors; track contributor) {
-      <mat-chip class="noc-table-chip noc-user-chip" fxLayout="row" fxLayoutAlign="start center"
+      <mat-chip class="noc-table-chip noc-user-chip flex flex-row justify-start items-center"
         (click)="openCamForm()">
         <div class="noc-icon">
           <fa-icon [icon]="['fas', 'user']"></fa-icon>
         </div>
-        <div fxFlex="" class="noc-chip-label">
+        <div class="grow noc-chip-label">
           {{contributor.name}}
         </div>
       </mat-chip>
       }
     </mat-chip-list>
   </div>
-  <div fxFlex="180px" fxLayout="row" fxLayoutAlign="end center">
+  <div class="w-[180px] flex flex-row justify-end items-center">
     <button mat-stroked-button [matMenuTriggerFor]="viewMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"
       color="primary">
       VIEW IN

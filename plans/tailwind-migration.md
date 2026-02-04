@@ -401,11 +401,78 @@ All HTML files with fxLayout directives need conversion.
 
 ## Current Status
 
-**Phase**: Planning Complete
-**Next Step**: Phase 1.1 - Configure tailwind.config.js
+**Phase**: Phase 2 COMPLETE - @angular/flex-layout fully removed
+**Next Step**: Start Phase 3 (SCSS cleanup)
 
 ## Progress Log
 
 | Date | Phase | Notes |
 |------|-------|-------|
 | 2026-02-03 | Planning | Initial analysis complete, plan created |
+| 2026-02-03 | Phase 1 | ✓ Tailwind config expanded with project colors, spacing, breakpoints |
+| 2026-02-03 | Phase 1 | ✓ Build verified working |
+| 2026-02-03 | Phase 2 | ✓ Converted 22 of 35 files (378 of 513 occurrences - 74%) |
+| 2026-02-04 | Phase 2 | ✓ Converted remaining 13 files (135 occurrences) - 100% COMPLETE |
+| 2026-02-04 | Phase 2 | ✓ Build verified - no fxLayout directives remaining |
+| 2026-02-04 | Phase 2 | ✓ Removed @angular/flex-layout from package.json |
+| 2026-02-04 | Phase 2 | ✓ Removed FlexLayoutModule from all 34 component imports |
+| 2026-02-04 | Phase 2 | ✓ Replaced NoctuaMatchMediaService with vanilla JS implementation |
+| 2026-02-04 | Phase 2 | ✓ Updated standalone-imports.ts to remove FlexLayoutModule |
+| 2026-02-04 | Phase 2 | ✓ Final build verified - PHASE 2 COMPLETE |
+
+### Files Converted (Phase 2) - ALL 35 FILES COMPLETE:
+
+**Batch 1 (22 files):**
+- entity-form.component.html
+- activity-form.component.html
+- activity-connector-form.component.html
+- cam-form.component.html
+- search-database.component.html
+- select-evidence.component.html (dialog)
+- toolbar.component.html
+- copy-model.component.html (both locations)
+- cam-toolbar.component.html
+- chemical-connector-form.component.html
+- confirm-dialog.component.html
+- footer.component.html
+- noctua-graph.component.html
+- cam-graph.component.html
+- activity-table.component.html
+- cam-errors.component.html (panel)
+- editor-dropdown.component.html
+- with-dropdown.component.html
+- reference-dropdown.component.html
+- detail-dropdown.component.html
+- activity-connector-table.component.html
+
+**Batch 2 (13 files):**
+- activity-tree-table.component.html ✓
+- search-evidence.component.html ✓
+- activity-errors.component.html ✓
+- cam-errors.component.html (dialog) ✓
+- activity-form-table.component.html ✓
+- add-evidence.component.html ✓
+- activity-form-table-node.component.html ✓
+- select-evidence.component.html (component) ✓
+- evidence-table.component.html ✓
+- allowed-with-databases.component.html ✓
+- confirm-copy-model.component.html ✓
+- before-save.component.html ✓
+- term-detail.component.html ✓
+
+### Completed Steps
+- [x] Remove @angular/flex-layout from package.json
+- [x] Remove FlexLayoutModule from all 34 component imports
+- [x] Replace NoctuaMatchMediaService with vanilla window.matchMedia
+- [x] Update standalone-imports.ts
+- [x] Verify build still works
+
+### Bug Fixes Post-Migration
+- [x] Fixed graph page not displaying - added `height: 100%` and `position: relative` to cam-graph and noctua-graph component SCSS (JointJS requires explicit dimensions)
+
+### Next Steps (Phase 3)
+- [ ] Remove redundant SCSS files (_helpers.scss, _reset.scss, etc.)
+- [ ] Simplify _angular-material-fix.scss
+- [ ] Simplify _typography.scss
+- [ ] Simplify _colors.scss
+- [ ] Clean up noctua.scss

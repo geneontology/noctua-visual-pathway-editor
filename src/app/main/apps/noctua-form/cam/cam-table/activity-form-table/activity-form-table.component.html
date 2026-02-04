@@ -1,16 +1,16 @@
-<div *ngIf="activity" [attr.id]="activity.displayId" fxLayout="column" fxLayoutAlign="start stretch" class="w-full">
+<div *ngIf="activity" [attr.id]="activity.displayId" class="flex flex-col justify-start items-stretch w-full">
 
-  <div class="noc-form-section" fxLayout="column" fxLayoutAlign="start stretch">
-    <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+  <div class="noc-form-section flex flex-col justify-start items-stretch">
+    <div class="noc-section-header flex flex-row justify-start items-center">
       <div class="noc-section-heading">
         {{annotatedSectionTitle}}
       </div>
-      <span fxFlex></span>
+      <span class="grow"></span>
     </div>
     <div class="noc-form-section noc-tree-container">
       <tree-root #gpTree (initialized)="onGPTreeLoad()" [nodes]="gpTreeNodes" [options]="treeOptions">
         <ng-template #treeNodeWrapperTemplate let-node let-index="index">
-          <div class="node-wrapper noc-tree-node" fxLayout="row" fxLayoutAlign="start center"
+          <div class="node-wrapper noc-tree-node flex flex-row justify-start items-center"
             [style.padding-left]="node.getNodePadding()">
             <button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
               *ngIf="node.hasChildren">
@@ -19,13 +19,13 @@
             </button>
             <div class="noc-expander-placeholder" *ngIf="!node.hasChildren">
             </div>
-            <div class="node-content-wrapper" fxFlex="" fxLayout="row" fxLayoutAlign="start center"
+            <div class="node-content-wrapper grow flex flex-row justify-start items-center"
               [class.node-content-wrapper-active]="node.isActive" [class.node-content-wrapper-focused]="node.isFocused"
               (click)="node.mouseAction('click', $event)" (dblclick)="node.mouseAction('dblClick', $event)"
               (contextmenu)="node.mouseAction('contextMenu', $event)" (treeDrop)="node.onDrop($event)"
               [treeAllowDrop]="node.allowDrop" [treeDrag]="node" [treeDragEnabled]="node.allowDrag()">
 
-              <div class="noc-annotation-row" fxFlex="" fxLayout="column" fxLayoutAlign="start stretch">
+              <div class="noc-annotation-row grow flex flex-col justify-start items-stretch">
                 <noc-activity-form-table-node *ngIf="node.data.node?.uuid ===activity.gpNode?.uuid"
                   [settings]="gpSettings" [options]="gpOptions" [cam]="cam" [activity]="activity"
                   [entity]="node.data.node" class="w-full">
@@ -41,17 +41,17 @@
       </tree-root>
     </div>
   </div>
-  <div class="noc-form-section" fxLayout="column" fxLayoutAlign="start stretch">
-    <div class="noc-section-header" fxLayout="row" fxLayoutAlign="start center">
+  <div class="noc-form-section flex flex-col justify-start items-stretch">
+    <div class="noc-section-header flex flex-row justify-start items-center">
       <div class="noc-section-heading">
         {{descriptionSectionTitle}}
       </div>
-      <span fxFlex></span>
+      <span class="grow"></span>
     </div>
     <div class="noc-form-section noc-tree-container">
       <tree-root #tree (initialized)="onTreeLoad()" [nodes]="treeNodes" [options]="treeOptions">
         <ng-template #treeNodeWrapperTemplate let-node let-index="index">
-          <div class="node-wrapper noc-tree-node" fxLayout="row" fxLayoutAlign="start center"
+          <div class="node-wrapper noc-tree-node flex flex-row justify-start items-center"
             [style.padding-left]="node.getNodePadding()">
             <button mat-button class="noc-node-expander-button" color="primary" (click)="node.toggleExpanded()"
               *ngIf="node.hasChildren">
@@ -60,13 +60,13 @@
             </button>
             <div class="noc-expander-placeholder" *ngIf="!node.hasChildren">
             </div>
-            <div class="node-content-wrapper" fxFlex="" fxLayout="row" fxLayoutAlign="start center"
+            <div class="node-content-wrapper grow flex flex-row justify-start items-center"
               [class.node-content-wrapper-active]="node.isActive" [class.node-content-wrapper-focused]="node.isFocused"
               (click)="node.mouseAction('click', $event)" (dblclick)="node.mouseAction('dblClick', $event)"
               (contextmenu)="node.mouseAction('contextMenu', $event)" (treeDrop)="node.onDrop($event)"
               [treeAllowDrop]="node.allowDrop" [treeDrag]="node" [treeDragEnabled]="node.allowDrag()">
 
-              <div class="noc-annotation-row" fxFlex="" fxLayout="column" fxLayoutAlign="start stretch">
+              <div class="noc-annotation-row grow flex flex-col justify-start items-stretch">
 
                 <noc-activity-form-table-node [settings]="settings" [options]="options" [cam]="cam"
                   [activity]="activity" [entity]="node.data.node" class="w-full">

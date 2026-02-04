@@ -1,17 +1,17 @@
 <div class="dialog-content-wrapper  noc-dialog">
-  <div class="m-0 noc-dialog-header" fxLayout="row" fxLayoutAlign="start center">
+  <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">
       Add Evidence
     </span>
-    <span fxFlex></span>
+    <span class="grow"></span>
     <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" aria-label="Close dialog">
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
   <div class="noc-dialog-body pt-20">
-    <div fxLayout="row" fxLayoutAlign="start center" class="w-full">
+    <div class="flex flex-row justify-start items-center w-full">
       <ng-container [formGroup]="evidenceFormGroup">
-        <div class="noc-edit-field p-4" fxFlex="250px">
+        <div class="noc-edit-field p-4 w-[250px]">
           <mat-form-field appearance="outline" class="noc-sm w-full">
             <mat-label>Evidence</mat-label>
             <textarea type="text" matInput formControlName="evidence" [matAutocomplete]="evidenceAuto" rows="2"
@@ -20,11 +20,11 @@
               class="noc-term-autocomplete">
               @for (item of entity?.predicate?.evidenceLookup.results; track item) {
               <mat-option [value]="item">
-                <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+                <div class="w-full flex flex-row justify-start items-center">
                   <div class="noc-term-label">
                     {{ item.label }}
                   </div>
-                  <span fxFlex></span>
+                  <span class="grow"></span>
                   <div class="noc-term-id mr-8">
                     <strong>
                       {{ item.xref }}
@@ -48,7 +48,7 @@
             </mat-autocomplete>
           </mat-form-field>
         </div>
-        <div class="noc-edit-field p-4" fxFlex="150px">
+        <div class="noc-edit-field p-4 w-[150px]">
           <mat-form-field appearance="outline" class="noc-sm w-full">
             <mat-label>Reference</mat-label>
             <textarea matInput formControlName="reference" [matAutocomplete]="referenceAuto" rows="2" autocomplete="off"
@@ -60,7 +60,7 @@
             <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
               @for (item of entity?.predicate?.referenceLookup.results; track item) {
               <mat-option [value]="item">
-                <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+                <div class="w-full flex flex-row justify-start items-center">
                   <div class="noc-term-label">
                     {{ item }}
                   </div>
@@ -70,7 +70,7 @@
             </mat-autocomplete>
           </mat-form-field>
         </div>
-        <div class="noc-edit-field p-4" fxFlex fxFlex="150px">
+        <div class="noc-edit-field p-4 grow w-[150px]">
           <mat-form-field appearance="outline" class="noc-sm w-full">
             <mat-label>With</mat-label>
             <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
@@ -78,7 +78,7 @@
             <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
               @for (item of entity?.predicate?.withLookup.results; track item) {
               <mat-option [value]="item">
-                <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+                <div class="w-full flex flex-row justify-start items-center">
                   <div class="noc-term-label">
                     {{ item }}
                   </div>
@@ -91,8 +91,8 @@
       </ng-container>
     </div>
   </div>
-  <div class="m-0 p-8 noc-dialog-footer" fxLayout="row" fxLayoutAlign="space-between center">
-    <span fxFlex></span>
+  <div class="m-0 p-8 noc-dialog-footer flex flex-row justify-between items-center">
+    <span class="grow"></span>
     <button (click)='close()' type="button" mat-raised-button color="" class="mr-8">Cancel</button>
     <button (click)='save()' type="button" mat-raised-button color="primary">Save</button>
   </div>

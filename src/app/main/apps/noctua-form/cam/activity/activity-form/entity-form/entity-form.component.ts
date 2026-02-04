@@ -4,7 +4,6 @@ import { FormControl, FormGroup, FormArray, ReactiveFormsModule } from '@angular
 import { MatMenuTrigger, MatMenuModule } from '@angular/material/menu';
 import { Subject } from 'rxjs';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -41,7 +40,6 @@ import { InlineDetailService } from '@noctua.editor/inline-detail/inline-detail.
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatMenuModule,
         MatFormFieldModule,

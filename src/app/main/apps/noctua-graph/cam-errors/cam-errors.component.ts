@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
@@ -45,7 +44,6 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
         MatIconModule,
         MatMenuModule,
         MatSidenavModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import * as joint from 'jointjs';
@@ -29,7 +28,6 @@ import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-se
         MatIconModule,
         MatMenuModule,
         MatTooltipModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

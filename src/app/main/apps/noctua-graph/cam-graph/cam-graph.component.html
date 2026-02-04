@@ -1,7 +1,7 @@
 <div id="noc-canvas" class="">
   <div id="noc-palette" class="">
-    <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-cam-form noc-drawer h-full">
-      <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
+    <div class="flex flex-col justify-start items-stretch noc-cam-form noc-drawer h-full">
+      <div class="noc-drawer-header flex flex-row justify-start items-center">
         <span class="noc-drawer-header-title">
           TOOLBOX
         </span>
@@ -18,8 +18,8 @@
       </div>
     </div>
   </div>
-  <div fxFlex="" class="noc-middle-panel" fxLayout="column" fxLayoutAlign="start ">
-    <div class="noc-workflow-toolbar w-full" fxLayout="row" fxLayoutAlign="start center">
+  <div class="grow noc-middle-panel flex flex-col justify-start">
+    <div class="noc-workflow-toolbar w-full flex flex-row justify-start items-center">
       <button mat-stroked-button (click)="automaticLayout()" color="primary" class="noc-rounded-button noc-xs mr-8"
         matTooltip="Automatic Tree Layout" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1500">
         Automatic Layout

@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 export interface ConfirmDialogData {
@@ -21,7 +20,6 @@ export interface ConfirmDialogData {
         CommonModule,
         MatDialogModule,
         MatButtonModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

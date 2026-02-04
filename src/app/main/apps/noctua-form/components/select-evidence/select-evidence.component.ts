@@ -13,7 +13,6 @@ import {
 
 import { noctuaAnimations } from '@noctua/animations';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSortModule } from '@angular/material/sort';
 
@@ -25,7 +24,6 @@ import { MatSortModule } from '@angular/material/sort';
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         CdkTableModule,
         MatCheckboxModule,
         MatSortModule,

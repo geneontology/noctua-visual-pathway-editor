@@ -1,11 +1,10 @@
-<form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-full" fxLayout="column" fxLayoutAlign="start stretch">
-  <div formArrayName="databaseGroups" class="noc-form-section w-full overflow-y-auto" fxLayout="column"
-    fxLayoutAlign="start stretch">
+<form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-full flex flex-col justify-start items-stretch">
+  <div formArrayName="databaseGroups" class="noc-form-section w-full overflow-y-auto flex flex-col justify-start items-stretch">
 
     @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
     <div class="noc-with-group mb-16 px-12">
       <div [formGroupName]="i">
-        <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
+        <div class="mb-8 flex flex-row justify-start items-center">
           <strong class="mr-8">With/From</strong>
           <button mat-icon-button (click)="deleteGroup(i)" matTooltip="Delete Group">
             <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
@@ -13,9 +12,9 @@
         </div>
         <div formArrayName="entities">
           @for (entity of group.get('entities').controls; track entity; let j = $index) {
-          <div class="mb-8" fxLayout="row" fxLayoutAlign="start center">
-            <div [formGroupName]="j" fxLayout="row" fxLayoutAlign="start center" fxFlex="">
-              <mat-form-field appearance="outline" fxFlex="120px" class="noc-sm mr-12">
+          <div class="mb-8 flex flex-row justify-start items-center">
+            <div [formGroupName]="j" class="flex flex-row justify-start items-center grow">
+              <mat-form-field appearance="outline" class="w-[120px] noc-sm mr-12">
                 <mat-select formControlName="db" placeholder="Database">
                   @for (db of dbOptions; track db) {
                   <mat-option [value]="db">
@@ -24,7 +23,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field appearance="outline" fxFlex="" class="noc-sm">
+              <mat-form-field appearance="outline" class="grow noc-sm">
                 <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
               </mat-form-field>
             </div>
@@ -51,7 +50,7 @@
 
     <!--   <pre>{{myForm.value | json}}</pre> -->
   </div>
-  <div class="w-full" fxLayout="row" fxLayoutAlign="end center">
+  <div class="w-full flex flex-row justify-end items-center">
     <button mat-button (click)="close()">
       Cancel
     </button>

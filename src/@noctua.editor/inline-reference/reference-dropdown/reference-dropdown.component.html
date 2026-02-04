@@ -1,6 +1,6 @@
-<form [formGroup]="evidenceDBForm" novalidate class="pl-8 pr-8 w-full" fxLayout="column" fxLayoutAlign="start stretch">
-  <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
-    <mat-form-field appearance="outline" fxFlex="100px" class="noc-sm  mr-12">
+<form [formGroup]="evidenceDBForm" novalidate class="pl-8 pr-8 w-full flex flex-col justify-start items-stretch">
+  <div class="w-full flex flex-row justify-start items-center">
+    <mat-form-field appearance="outline" class="w-[100px] noc-sm mr-12">
       <mat-select placeholder="" formControlName="db">
         @for (evidenceDB of noctuaFormConfigService.evidenceDBs.options; track evidenceDB) {
         <mat-option [value]="evidenceDB">
@@ -9,7 +9,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-full">
+    <mat-form-field appearance="outline" class="grow noc-sm w-full">
       <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
     </mat-form-field>
     <button mat-icon-button (click)="close()">
@@ -19,9 +19,9 @@
       <fa-icon [icon]="['far', 'check-circle']"></fa-icon>
     </button>
   </div>
-  <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
+  <div class="w-full flex flex-row justify-start items-center">
     @if (article) {
-    <div class="noc-article-info" fxLayout="column" fxLayoutAlign="start stretch">
+    <div class="noc-article-info flex flex-col justify-start items-stretch">
       <div class="noc-article-title w-full">
         <a (click)="$event.stopPropagation()" href="{{article.link}}" target="_blank">
           {{article.title}}

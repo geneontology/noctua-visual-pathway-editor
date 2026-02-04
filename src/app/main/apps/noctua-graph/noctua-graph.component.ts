@@ -2,7 +2,6 @@ import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
@@ -43,7 +42,6 @@ import { NoctuaFormModule } from '../noctua-form/noctua-form.module';
     imports: [
         CommonModule,
         MatSidenavModule,
-        FlexLayoutModule,
         FontAwesomeModule,
         CamGraphComponent,
         ActivityTableComponent,

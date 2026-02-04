@@ -2,7 +2,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -49,7 +48,6 @@ import { EvidenceFormTableComponent } from '../evidence-table/evidence-table.com
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatMenuModule,
         FontAwesomeModule,

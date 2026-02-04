@@ -5,7 +5,6 @@ import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -30,7 +29,6 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
     imports: [
         CommonModule,
         FormsModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatSidenavModule,
         MatCheckboxModule,

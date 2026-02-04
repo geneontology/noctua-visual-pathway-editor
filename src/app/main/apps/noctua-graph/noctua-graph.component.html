@@ -1,13 +1,13 @@
-<div class="w-full h-full" fxLayout="row" fxLayoutAlign="start start">
+<div class="w-full h-full flex flex-row justify-start items-start">
 
-  <div class="w-full h-full" fxLayout="column" fxLayoutAlign="start stretch">
+  <div class="w-full h-full flex flex-col justify-start items-stretch">
     @if (!noctuaUserService.user) {
-    <div class="noc-not-loggedin" fxLayout="row" fxLayoutAlign="center center">
+    <div class="noc-not-loggedin flex flex-row justify-center items-center">
       Not Logged In: You can only view existing annotations
     </div>
     }
     <noc-cam-toolbar [cam]="cam" [options]="camToolbarOptions"></noc-cam-toolbar>
-    <mat-drawer-container class="h-full" fxFlex="" fxLayout="row" fxLayoutAlign="start start" [hasBackdrop]="false"
+    <mat-drawer-container class="h-full grow flex flex-row justify-start items-start" [hasBackdrop]="false"
       autosize>
       <mat-drawer #leftDrawer class="noc-left-drawer" mode="side" position="start" opened>
         <div class="h-full">
@@ -23,7 +23,7 @@
           }
         </div>
       </mat-drawer>
-      <mat-drawer-content class="w-full h-full" fxLayout="column" fxLayoutAlign="start stretch">
+      <mat-drawer-content class="w-full h-full flex flex-col justify-start items-stretch">
         <div class="w-full h-full overflow-y-auto">
           <noc-cam-graph [cam]="cam"></noc-cam-graph>
         </div>

@@ -8,7 +8,6 @@ import {
   Entity,
 } from '@geneontology/noctua-form-base';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -20,7 +19,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        FlexLayoutModule,
         MatButtonModule,
         FontAwesomeModule,
     ],

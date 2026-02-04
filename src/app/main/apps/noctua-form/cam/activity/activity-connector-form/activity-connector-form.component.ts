@@ -4,7 +4,6 @@ import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subscription, Subject } from 'rxjs';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -36,7 +35,6 @@ import { takeUntil } from 'rxjs/operators';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatSidenavModule,
         MatFormFieldModule,

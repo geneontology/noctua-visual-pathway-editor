@@ -17,7 +17,6 @@ import {
 
 import { noctuaAnimations } from './../../../../../../@noctua/animations';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSortModule } from '@angular/material/sort';
@@ -31,7 +30,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         CdkTableModule,
         MatButtonModule,
         MatCheckboxModule,

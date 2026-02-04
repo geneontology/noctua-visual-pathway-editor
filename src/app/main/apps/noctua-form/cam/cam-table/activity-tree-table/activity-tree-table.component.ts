@@ -2,7 +2,6 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTreeModule } from '@angular/material/tree';
@@ -42,7 +41,6 @@ import { ActivityFormTableNodeComponent } from '../activity-form-table/activity-
     standalone: true,
     imports: [
         CommonModule,
-        FlexLayoutModule,
         MatButtonModule,
         MatChipsModule,
         MatTreeModule,

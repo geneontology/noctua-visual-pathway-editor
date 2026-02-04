@@ -7,7 +7,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subscription, Subject, EMPTY } from 'rxjs';
@@ -51,7 +50,6 @@ import { InlineWithService } from './../../inline-with/inline-with.service';
         MatAutocompleteModule,
         MatButtonModule,
         MatMenuModule,
-        FlexLayoutModule,
         FontAwesomeModule
     ]
 })

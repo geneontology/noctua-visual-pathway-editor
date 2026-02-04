@@ -1,9 +1,9 @@
 <div class="dialog-content-wrapper">
   <mat-toolbar class="mat-primary m-0">
-    <mat-toolbar-row fxFlex fxLayout="row" fxLayoutAlign="start center">
+    <mat-toolbar-row class="grow flex flex-row justify-start items-center">
       <span class="title dialog-title">
         Violations</span>
-      <span fxFlex></span>
+      <span class="grow"></span>
       <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
         aria-label="Close dialog">
         <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
@@ -11,37 +11,37 @@
     </mat-toolbar-row>
   </mat-toolbar>
   <div mat-dialog-content class="noc-dialog-body overflow-y-auto">
-    <div class="" fxLayout="column" fxLayoutAlign="start stretch">
+    <div class="flex flex-col justify-start items-stretch">
       @for (error of errors; track error; let i = $index) {
-      <div class="noc-error-row" fxLayout="row">
+      <div class="noc-error-row flex flex-row">
         <div class="noc-number">
           {{i+1}}
         </div>
-        <div fxFlex class="noc-error-row-body">
+        <div class="grow noc-error-row-body">
           <div class="noc-heading">
             <strong>{{error.meta?.aspect}}</strong>: {{error.message}}
           </div>
           @if (error.type===ErrorType.relation) {
-          <div class="pb-10" fxLayout="row">
-            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+          <div class="pb-10 flex flex-row">
+            <div class="noc-node-card flex flex-col justify-center items-center">
               <div> {{error.meta?.subjectNode?.label}}</div>
             </div>
-            <div class="noc-edge-card" fxLayout="column" fxLayoutAlign="center stretch" fxFlex>
+            <div class="noc-edge-card grow flex flex-col justify-center items-stretch">
               <div class="noc-line">
                 {{error.meta?.edge?.label}}
               </div>
             </div>
-            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+            <div class="noc-node-card flex flex-col justify-center items-center">
               <div>{{error.meta?.objectNode?.label}}</div>
             </div>
           </div>
           }
           @if (error.type===ErrorType.cardinality) {
-          <div class="pb-10" fxLayout="row" fxLayoutAlign="center center">
-            <div class="noc-node-card" fxLayout="column" fxLayoutAlign="center center">
+          <div class="pb-10 flex flex-row justify-center items-center">
+            <div class="noc-node-card flex flex-col justify-center items-center">
               {{error.meta?.subjectNode?.label}}
             </div>
-            <div class="noc-edge-card" fxFlex fxLayout="column" fxLayoutAlign="center stretch">
+            <div class="noc-edge-card grow flex flex-col justify-center items-stretch">
               <div class="noc-line">
                 {{error.meta?.edge?.label}}
               </div>
@@ -53,8 +53,8 @@
       }
     </div>
   </div>
-  <div mat-dialog-actions class="m-0 p-16" fxLayout="row" fxLayoutAlign="space-between center">
-    <span fxFlex></span>
+  <div mat-dialog-actions class="m-0 p-16 flex flex-row justify-between items-center">
+    <span class="grow"></span>
     <button (click)='close()' mat-raised-button color="" class="mr-8">Close</button>
   </div>
 </div>
