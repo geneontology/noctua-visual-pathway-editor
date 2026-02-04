@@ -1,5 +1,5 @@
 <form name="connectorFormGroup" [formGroup]="connectorFormGroup" fxLayout="column" fxLayoutAlign="start stretch"
-  class="noc-drawer w-100-p h-100-p">
+  class="noc-drawer w-full h-full">
   <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
     <span class="noc-drawer-header-title">
       Causal Relation Form</span>
@@ -12,18 +12,18 @@
   <div class="noc-drawer-body overflow-y-auto" fxLayout="column" fxLayoutAlign="start start">
     @if (connectorFormGroup) {
     <div class="noc-connector-form">
-      <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-100-p">
-        <!--   <div class="noc-section-body w-100-p p-0" fxLayout="column" fxLayoutAlign="start center">
+      <div fxLayout="column" fxLayoutAlign="start stretch" class="noc-form-section w-full">
+        <!--   <div class="noc-section-body w-full p-0" fxLayout="column" fxLayoutAlign="start center">
           <noc-graph-preview [nodes]="connectorActivity?.graphPreview.nodes"
           [edges]="connectorActivity?.graphPreview.edges" class="noc-graph-preview"></noc-graph-preview>
         </div> -->
         @if (!connectorActivity?.rule.relationship?.id) {
-        <div class="alert alert-warning w-100-p">
+        <div class="alert alert-warning w-full">
           This relation is not supported, please choose a new relation below <br>
           (<strong>{{currentConnectorActivity?.predicate?.edge.label}}</strong>)
         </div>
         }
-        <div class="noc-form-section p-0 w-100-p">
+        <div class="noc-form-section p-0 w-full">
           <div class="px-8 noc-group-row" fxLayout="row" fxLayoutAlign="start center">
             <div class="noc-title">
               <p>Relationship</p>
@@ -105,12 +105,12 @@
             Evidence
           </div>
         </div>
-        <noc-evidence-form-table class="w-100-p" [settings]="settings" [options]="evidenceOptions" [cam]="cam"
+        <noc-evidence-form-table class="w-full" [settings]="settings" [options]="evidenceOptions" [cam]="cam"
           [activity]="connectorActivity" [entity]="connectorActivity.subjectNode">
         </noc-evidence-form-table>
         <!--
         <noc-activity-form-table-node [settings]="settings" [options]="evidenceOptions" [cam]="cam"
-          [activity]="connectorActivity" [entity]="connectorActivity.subjectNode" class="w-100-p">
+          [activity]="connectorActivity" [entity]="connectorActivity.subjectNode" class="w-full">
         </noc-activity-form-table-node>-->
       </div>
     </div>

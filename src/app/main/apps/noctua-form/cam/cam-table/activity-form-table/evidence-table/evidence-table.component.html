@@ -1,7 +1,7 @@
 @if (entity.predicate?.evidence.length>0) {
-<div class="noc-evidence-table noctua-form-table w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
+<div class="noc-evidence-table noctua-form-table w-full" fxLayout="column" fxLayoutAlign="start stretch">
   @for (evidence of entity.predicate?.evidence; track evidence; let i = $index) {
-  <div class="h-100-p mb-8" fxLayout="row" fxLayoutAlign="start stretch">
+  <div class="h-full mb-8" fxLayout="row" fxLayoutAlign="start stretch">
     @if (settings.showEvidenceCode) {
     <div class="noc-evidence-code-cell noc-box-cell" fxFlex="" fxLayout="column" fxLayoutAlign="start stretch"
       [ngClass]="{'noc-highlight-modified': evidence.evidence?.modified}">

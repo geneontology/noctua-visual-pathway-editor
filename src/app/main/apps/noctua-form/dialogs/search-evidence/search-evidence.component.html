@@ -8,19 +8,19 @@
     </button>
   </div>
   <div fxLayout="row" fxLayoutAlign="start start" class="noc-dialog-body">
-    <div class="h-100-p noc-form-section" fxFlex="100%" fxLayout="column" fxLayoutAlign="start stretch">
-      <div class="noc-section-header  w-100-p" fxLayout="row" fxLayoutAlign="start center">
+    <div class="h-full noc-form-section" fxFlex="100%" fxLayout="column" fxLayoutAlign="start stretch">
+      <div class="noc-section-header  w-full" fxLayout="row" fxLayoutAlign="start center">
         <div class="noc-section-heading">
           Selected Evidence : {{checklistSelection.selected.length}}
           <small></small>
         </div>
       </div>
       @if (dataSource.data) {
-      <div class="noc-section-body w-100-p overflow-y-auto">
+      <div class="noc-section-body w-full overflow-y-auto">
         <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl">
           <mat-tree-node class="ann-tree-node" *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding
             matTreeNodePaddingIndent="10" [ngClass]="{ 'background-highlight': activeAnnotation === node.short_name }">
-            <div class="w-100-p" fxLayout="row" fxLayoutAlign="start start">
+            <div class="w-full" fxLayout="row" fxLayoutAlign="start start">
               <button mat-icon-button disabled class="ann-icon-button"></button>
               <mat-checkbox class="checklist-leaf-node mr-8" [checked]="checklistSelection.isSelected(node)"
                 (change)="evidenceLeafItemSelectionToggle(node)"></mat-checkbox>

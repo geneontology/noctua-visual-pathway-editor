@@ -1,5 +1,5 @@
-<div (click)="$event.stopPropagation()" class="noc-item-details noc-drawer w-100-p">
-  <div class="noc-header w-100-p" fxLayout="row" fxLayoutAlign="start center">
+<div (click)="$event.stopPropagation()" class="noc-item-details noc-drawer w-full">
+  <div class="noc-header w-full" fxLayout="row" fxLayoutAlign="start center">
     <div class="noc-header-title">
       <div class="text-truncate">
         {{termDetail.label}}
@@ -11,7 +11,7 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="noc-body w-100-p overflow-y-auto">
+  <div class="noc-body w-full overflow-y-auto">
     <div class="noc-section-row">
       <div class="noc-title">
         Term
@@ -44,7 +44,7 @@
       </div>
     </div>
   </div>
-  <div class="noc-footer w-100-p">
+  <div class="noc-footer w-full">
     <span fxFlex></span>
     <!-- <button class="noc-rounded-button" mat-raised-button color="primary">Use</button> -->
   </div>

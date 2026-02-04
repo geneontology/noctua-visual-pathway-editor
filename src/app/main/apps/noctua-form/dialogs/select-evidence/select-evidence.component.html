@@ -10,13 +10,13 @@
     </mat-toolbar-row>
   </mat-toolbar>
   <div class="noc-dialog-body noc-right-panel noc-form-section">
-    <div class="noc-section-header  w-100-p" fxLayout="row" fxLayoutAlign="start center">
+    <div class="noc-section-header  w-full" fxLayout="row" fxLayoutAlign="start center">
       <div class="noc-section-heading">
         Select Evidence
       </div>
     </div>
-    <div class="noc-section-body w-100-p overflow-y-auto">
-      <mat-table class="noc-evidence-table w-100-p overflow-y-auto" #table [dataSource]="dataSource" matSort
+    <div class="noc-section-body w-full overflow-y-auto">
+      <mat-table class="noc-evidence-table w-full overflow-y-auto" #table [dataSource]="dataSource" matSort
         [@animateStagger]="{value:'50'}">
         <ng-container matColumnDef="select" class="">
           <mat-header-cell *matHeaderCellDef fxFlex="30px">

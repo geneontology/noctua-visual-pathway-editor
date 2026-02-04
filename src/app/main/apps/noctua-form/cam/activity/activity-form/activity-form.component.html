@@ -1,6 +1,6 @@
-<div class="h-100-p">
+<div class="h-full">
   <form name="activityFormGroup" [formGroup]="activityFormGroup" fxLayout="column" fxLayoutAlign="start stretch"
-    class="noc-drawer w-100-p h-100-p">
+    class="noc-drawer w-full h-full">
     <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
     <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
       <div class="noc-drawer-header-title">
@@ -47,7 +47,7 @@
       <div class="noc-form-section" fxLayout="column" fxLayoutAlign="start stretch">
 
         @if (noctuaActivityFormService.activity.activityType===ActivityType.proteinComplex) {
-        <div class="alert alert-warning w-100-p mb-0">
+        <div class="alert alert-warning w-full mb-0">
           Note that this should be used rarely, and only in the case where the activity cannot be ascribed to a single
           subunit of a complex
         </div>
@@ -69,7 +69,7 @@
             @for (entityForm of nodeGroup.get('entityGroup')?.controls; track entityForm) {
             <div [formGroupName]="i" class="">
               <noc-entity-form [entityFormGroup]="entityForm" [displayAddButton]="true" [displayMenuButton]="false"
-                fxLayout="row" fxLayoutAlign="start center" class="w-100-p">
+                fxLayout="row" fxLayoutAlign="start center" class="w-full">
               </noc-entity-form>
             </div>
             }
@@ -103,13 +103,13 @@
           @if (noctuaActivityFormService.activity.activityType===ActivityType.bpOnly) {
           <div class="mat-elevation-z1 noc-term-group mb-4 px-8 mf" fxLayout="row" fxLayoutAlign="start center">
             <div class="p-4" fxFlex fxLayout="row" fxLayoutAlign="start stretch">
-              <mat-form-field class="noc-sm w-100-p" appearance="outline">
+              <mat-form-field class="noc-sm w-full" appearance="outline">
                 <mat-label><strong>(readonly)</strong> Molecular Function </mat-label>
                 <input [readonly]="true" type="text" matInput value="molecular_function (GO:0003674)" />
               </mat-form-field>
             </div>
             <div class="p-4" fxFlex="600px" fxLayout="row" fxLayoutAlign="start stretch">
-              <mat-form-field appearance="outline" class="noc-sm w-100-p">
+              <mat-form-field appearance="outline" class="noc-sm w-full">
                 <mat-label>Choose Causal Relation</mat-label>
                 <mat-select placeholder="" formControlName="bpOnlyEdge">
                   @for (bpOnlyEdge of noctuaFormConfigService.bpOnlyEdges.options; track bpOnlyEdge) {
@@ -130,7 +130,7 @@
               <div>IS NOT</div>
             </div>
             }
-            <div class="w-100-p">
+            <div class="w-full">
               @for (entityForm of nodeGroup.get('entityGroup')?.controls; track entityForm) {
               <ng-container [formGroupName]="i">
                 <noc-entity-form [entityFormGroup]="entityForm" class="">

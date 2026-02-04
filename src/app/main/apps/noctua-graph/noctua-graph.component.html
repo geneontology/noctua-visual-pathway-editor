@@ -1,16 +1,16 @@
-<div class="w-100-p h-100-p" fxLayout="row" fxLayoutAlign="start start">
+<div class="w-full h-full" fxLayout="row" fxLayoutAlign="start start">
 
-  <div class="w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start stretch">
+  <div class="w-full h-full" fxLayout="column" fxLayoutAlign="start stretch">
     @if (!noctuaUserService.user) {
     <div class="noc-not-loggedin" fxLayout="row" fxLayoutAlign="center center">
       Not Logged In: You can only view existing annotations
     </div>
     }
     <noc-cam-toolbar [cam]="cam" [options]="camToolbarOptions"></noc-cam-toolbar>
-    <mat-drawer-container class="h-100-p" fxFlex="" fxLayout="row" fxLayoutAlign="start start" [hasBackdrop]="false"
+    <mat-drawer-container class="h-full" fxFlex="" fxLayout="row" fxLayoutAlign="start start" [hasBackdrop]="false"
       autosize>
       <mat-drawer #leftDrawer class="noc-left-drawer" mode="side" position="start" opened>
-        <div class="h-100-p">
+        <div class="h-full">
           @switch (noctuaCommonMenuService.selectedLeftPanel) {
           @case (LeftPanel.camForm) {
           <noc-cam-form [panelDrawer]="leftDrawer">
@@ -23,13 +23,13 @@
           }
         </div>
       </mat-drawer>
-      <mat-drawer-content class="w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-        <div class="w-100-p h-100-p overflow-y-auto">
+      <mat-drawer-content class="w-full h-full" fxLayout="column" fxLayoutAlign="start stretch">
+        <div class="w-full h-full overflow-y-auto">
           <noc-cam-graph [cam]="cam"></noc-cam-graph>
         </div>
       </mat-drawer-content>
       <mat-drawer #rightDrawer class="noc-right-drawer" mode="over" position="end">
-        <div class="h-100-p" #scrollbarRef>
+        <div class="h-full" #scrollbarRef>
           @switch (noctuaCommonMenuService.selectedRightPanel) {
 
           @case (RightPanel.activityTable) {

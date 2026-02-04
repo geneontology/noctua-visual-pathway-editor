@@ -1,5 +1,5 @@
-<form [formGroup]="evidenceDBForm" novalidate class="pl-8 pr-8 w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
+<form [formGroup]="evidenceDBForm" novalidate class="pl-8 pr-8 w-full" fxLayout="column" fxLayoutAlign="start stretch">
+  <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
     <mat-form-field appearance="outline" fxFlex="100px" class="noc-sm  mr-12">
       <mat-select placeholder="" formControlName="db">
         @for (evidenceDB of noctuaFormConfigService.evidenceDBs.options; track evidenceDB) {
@@ -9,7 +9,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-100-p">
+    <mat-form-field appearance="outline" fxFlex="" class="noc-sm w-full">
       <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
     </mat-form-field>
     <button mat-icon-button (click)="close()">
@@ -19,18 +19,18 @@
       <fa-icon [icon]="['far', 'check-circle']"></fa-icon>
     </button>
   </div>
-  <div class="w-100-p" fxLayout="row" fxLayoutAlign="start center">
+  <div class="w-full" fxLayout="row" fxLayoutAlign="start center">
     @if (article) {
     <div class="noc-article-info" fxLayout="column" fxLayoutAlign="start stretch">
-      <div class="noc-article-title w-100-p">
+      <div class="noc-article-title w-full">
         <a (click)="$event.stopPropagation()" href="{{article.link}}" target="_blank">
           {{article.title}}
         </a>
       </div>
-      <div class="noc-article-author w-100-p">
+      <div class="noc-article-author w-full">
         <fa-icon [icon]="['fas', 'user']" class="s-16 mr-4"></fa-icon> <span>{{article.author}}</span>
       </div>
-      <div class="noc-article-date w-100-p">
+      <div class="noc-article-date w-full">
         <fa-icon [icon]="['fas', 'calendar-alt']" class="s-16 mr-4"></fa-icon> <span>{{article.date}}</span>
       </div>
     </div>

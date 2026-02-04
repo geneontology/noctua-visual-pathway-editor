@@ -8,16 +8,16 @@
     </button>
   </div>
   <div fxLayout="row" fxLayoutAlign="start start" class="noc-dialog-body">
-    <div class="h-100-p noc-left-panel noc-form-section" fxFlex="200px" fxLayout="column" fxLayoutAlign="start stretch">
-      <div class="noc-section-header w-100-p" fxLayout="row" fxLayoutAlign="start center">
-        <div class="noc-section-heading w-100-p">
+    <div class="h-full noc-left-panel noc-form-section" fxFlex="200px" fxLayout="column" fxLayoutAlign="start stretch">
+      <div class="noc-section-header w-full" fxLayout="row" fxLayoutAlign="start center">
+        <div class="noc-section-heading w-full">
           Select Term
           <div class="text-truncate">
             <small>Please select below</small>
           </div>
         </div>
       </div>
-      <div class="noc-section-body w-100-p overflow-y-auto">
+      <div class="noc-section-body w-full overflow-y-auto">
         @for (activityNode of activityNodes; track activityNode) {
         <div class="noc-term-box" (click)="selectActivityNode(activityNode)"
           [ngClass]="{'noc-term-selected': activityNode.getTerm().id===selectedActivityNode?.getTerm().id}"
@@ -28,8 +28,8 @@
         }
       </div>
     </div>
-    <div class="h-100-p noc-right-panel noc-form-section" fxFlex="100%" fxLayout="column" fxLayoutAlign="start stretch">
-      <div class="noc-section-header  w-100-p" fxLayout="row" fxLayoutAlign="start center">
+    <div class="h-full noc-right-panel noc-form-section" fxFlex="100%" fxLayout="column" fxLayoutAlign="start stretch">
+      <div class="noc-section-header  w-full" fxLayout="row" fxLayoutAlign="start center">
         <div class="noc-section-heading">
           Select Evidence <small>(optional)</small>
           <div class="text-truncate">
@@ -37,8 +37,8 @@
           </div>
         </div>
       </div>
-      <div class="noc-section-body w-100-p overflow-y-auto">
-        <mat-table class="noc-evidence-table w-100-p overflow-y-auto" #table [dataSource]="dataSource" matSort
+      <div class="noc-section-body w-full overflow-y-auto">
+        <mat-table class="noc-evidence-table w-full overflow-y-auto" #table [dataSource]="dataSource" matSort
           [@animateStagger]="{value:'50'}">
           <ng-container matColumnDef="select" class="">
             <mat-header-cell *matHeaderCellDef fxFlex="30px">

@@ -1,5 +1,5 @@
-<div class="w-100-p">
-  <div class="noc-activity-node noctua-form-table w-100-p" fxLayout="row" fxLayoutAlign="start stretch">
+<div class="w-full">
+  <div class="noc-activity-node noctua-form-table w-full" fxLayout="row" fxLayoutAlign="start stretch">
     <div class="noc-term-cell noc-entity-cell" fxLayout="column" fxLayoutAlign="start stretch"
       fxFlex="{{relationWidth}}" [attr.id]="entity.term?.displayId"
       [ngClass]="{'noc-highlight-match': entity.term?.highlight,
@@ -28,7 +28,7 @@
     @if (settings.showEvidence) {
     <div fxFlex="" class="noc-evidence-cell p-0" fxLayout="row" fxLayoutAlign="start stretch">
       @if (entity.showEvidence) {
-      <noc-evidence-form-table class="w-100-p" [settings]="settings" [options]="optionsDisplay" [cam]="cam"
+      <noc-evidence-form-table class="w-full" [settings]="settings" [options]="optionsDisplay" [cam]="cam"
         [entity]="entity">
       </noc-evidence-form-table>
       }
@@ -37,7 +37,7 @@
     @if (!settings.showEvidence && settings.showEvidenceSummary) {
     <div class="evidence-summary-cell p-0" fxLayout="column" fxLayoutAlign="center center">
       @if (!entity.skipEvidenceCheck) {
-      <div class="w-100-p ">
+      <div class="w-full ">
         @if (entity.predicate?.evidence.length>0) {
         <div class="">
           {{entity.predicate?.evidence.length}} evidence
@@ -83,7 +83,7 @@
       }
       <mat-menu #addMenu="matMenu" class="noc-extensions-menu-panel">
         @for (insertMenuItem of entity.insertMenuNodes; track insertMenuItem) {
-        <button mat-menu-item fxLayout="column" fxLayoutAlign="start start" class="w-100-p"
+        <button mat-menu-item fxLayout="column" fxLayoutAlign="start start" class="w-full"
           (click)="insertEntity(entity, insertMenuItem)">
           {{insertMenuItem?.label}}
           <div class="noc-terms-description">

@@ -1,5 +1,5 @@
-<form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-100-p" fxLayout="column" fxLayoutAlign="start stretch">
-  <div formArrayName="databaseGroups" class="noc-form-section w-100-p overflow-y-auto" fxLayout="column"
+<form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-full" fxLayout="column" fxLayoutAlign="start stretch">
+  <div formArrayName="databaseGroups" class="noc-form-section w-full overflow-y-auto" fxLayout="column"
     fxLayoutAlign="start stretch">
 
     @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
@@ -51,7 +51,7 @@
 
     <!--   <pre>{{myForm.value | json}}</pre> -->
   </div>
-  <div class="w-100-p" fxLayout="row" fxLayoutAlign="end center">
+  <div class="w-full" fxLayout="row" fxLayoutAlign="end center">
     <button mat-button (click)="close()">
       Cancel
     </button>

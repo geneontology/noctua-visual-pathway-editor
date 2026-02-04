@@ -1,4 +1,4 @@
-<div fxLayout="column" fxLayoutAlign="start stretch" class="noc-cam-form noc-drawer h-100-p">
+<div fxLayout="column" fxLayoutAlign="start stretch" class="noc-cam-form noc-drawer h-full">
   <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
     <span class="noc-drawer-header-title">
       Copy Model</span>
@@ -8,7 +8,7 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="noc-drawer-body w-100-p overflow-y-auto">
+  <div class="noc-drawer-body w-full overflow-y-auto">
     @if (!noctuaUserService.user) {
     <div class="noc-draw-body-disabled" fxLayoutAlign="center center">
       Log in to Continue
@@ -24,8 +24,8 @@
     </div>
     <div class="noc-form-section mb-20" fxLayout="column" fxLayoutAlign="start stretch">
       <div class="noc-section-body p-8" fxLayout="column" fxLayoutAlign="start stretch">
-        <div class="noc-item-body w-100-p" fxLayout="row" fxLayoutAlign="start center">
-          <div class="w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start start">
+        <div class="noc-item-body w-full" fxLayout="row" fxLayoutAlign="start center">
+          <div class="w-full h-full" fxLayout="column" fxLayoutAlign="start start">
             <div class="noc-item" fxLayout="row wrap" fxLayoutAlign="start center">
               <div class="noc-title">ID:</div> {{cam.id}}
             </div>
@@ -35,7 +35,7 @@
             <div class="noc-item" fxLayout="row" fxLayoutAlign="start center">
               <div class="noc-title">State:</div> {{cam.state?.label}}
             </div>
-            <div class="w-100-p">
+            <div class="w-full">
               <div class="noc-item" fxLayout="row wrap" fxLayoutAlign="start center">
                 <div class="noc-title">Contributors:</div>
                 @for (contributor of cam.contributors; track contributor) {
@@ -82,8 +82,8 @@
         </div>
         }
         @if (duplicatedCam) {
-        <div class="noc-item-body w-100-p" fxLayout="row" fxLayoutAlign="start center">
-          <div class="w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start start">
+        <div class="noc-item-body w-full" fxLayout="row" fxLayoutAlign="start center">
+          <div class="w-full h-full" fxLayout="column" fxLayoutAlign="start start">
             <div class="noc-item" fxLayout="row wrap" fxLayoutAlign="start center">
               <div class="noc-title">ID:</div> {{duplicatedCam.id}}
             </div>
@@ -93,7 +93,7 @@
             <div class="noc-item" fxLayout="row" fxLayoutAlign="start center">
               <div class="noc-title">State:</div> {{duplicatedCam.state?.label}}
             </div>
-            <div class="w-100-p">
+            <div class="w-full">
               <div class="noc-item" fxLayout="row wrap" fxLayoutAlign="start center">
                 <div class="noc-title">Contributors:</div>
                 @for (contributor of duplicatedCam.contributors; track contributor) {
