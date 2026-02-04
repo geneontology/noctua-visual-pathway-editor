@@ -8,7 +8,7 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="noc-dialog-body pt-20">
+  <div class="noc-dialog-body pt-5">
     <div class="flex flex-row justify-start items-center w-full">
       <ng-container [formGroup]="evidenceFormGroup">
         <div class="noc-edit-field p-4 w-[250px]">
@@ -25,7 +25,7 @@
                     {{ item.label }}
                   </div>
                   <span class="grow"></span>
-                  <div class="noc-term-id mr-8">
+                  <div class="noc-term-id mr-2">
                     <strong>
                       {{ item.xref }}
                     </strong>
@@ -91,9 +91,9 @@
       </ng-container>
     </div>
   </div>
-  <div class="m-0 p-8 noc-dialog-footer flex flex-row justify-between items-center">
+  <div class="m-0 p-2 noc-dialog-footer flex flex-row justify-between items-center">
     <span class="grow"></span>
-    <button (click)='close()' type="button" mat-raised-button color="" class="mr-8">Cancel</button>
+    <button (click)='close()' type="button" mat-raised-button color="" class="mr-2">Cancel</button>
     <button (click)='save()' type="button" mat-raised-button color="primary">Save</button>
   </div>
 </div>

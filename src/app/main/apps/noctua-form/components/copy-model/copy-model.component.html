@@ -22,8 +22,8 @@
         <span class="grow"></span>
       </div>
     </div>
-    <div class="noc-form-section mb-20 flex flex-col justify-start items-stretch">
-      <div class="noc-section-body p-8 flex flex-col justify-start items-stretch">
+    <div class="noc-form-section mb-5 flex flex-col justify-start items-stretch">
+      <div class="noc-section-body p-2 flex flex-col justify-start items-stretch">
         <div class="noc-item-body w-full flex flex-row justify-start items-center">
           <div class="w-full h-full flex flex-col justify-start items-start">
             <div class="noc-item flex flex-row flex-wrap justify-start items-center">
@@ -39,7 +39,7 @@
               <div class="noc-item flex flex-row flex-wrap justify-start items-center">
                 <div class="noc-title">Contributors:</div>
                 @for (contributor of cam.contributors; track contributor) {
-                <div class="mr-8" matTooltip="{{contributor.name}}" [matTooltipPosition]="'below'"
+                <div class="mr-2" matTooltip="{{contributor.name}}" [matTooltipPosition]="'below'"
                   [matTooltipShowDelay]="1000">
                   {{contributor.name ? contributor.name :contributor.orcid}};
                 </div>
@@ -85,7 +85,7 @@
         </div>
         <span class="grow"></span>
       </div>
-      <div class="noc-section-body p-8 flex flex-col justify-start items-stretch">
+      <div class="noc-section-body p-2 flex flex-col justify-start items-stretch">
         @if (!duplicatedCam) {
         <div class="noc-item noc-no-info flex flex-row justify-start items-center">
           No info yet
@@ -112,7 +112,7 @@
               <div class="noc-item flex flex-row flex-wrap justify-start items-center">
                 <div class="noc-title">Contributors:</div>
                 @for (contributor of duplicatedCam.contributors; track contributor) {
-                <div class="mr-8" matTooltip="{{contributor.name}}" [matTooltipPosition]="'below'"
+                <div class="mr-2" matTooltip="{{contributor.name}}" [matTooltipPosition]="'below'"
                   [matTooltipShowDelay]="1000">
                   {{contributor.name ? contributor.name :contributor.orcid}};
                 </div>

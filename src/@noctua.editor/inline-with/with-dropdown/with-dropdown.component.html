@@ -1,20 +1,20 @@
-<form [formGroup]="myForm" novalidate class="pl-8 pr-8 w-full flex flex-col justify-start items-stretch">
+<form [formGroup]="myForm" novalidate class="pl-2 pr-2 w-full flex flex-col justify-start items-stretch">
   <div formArrayName="databaseGroups" class="noc-form-section w-full overflow-y-auto flex flex-col justify-start items-stretch">
 
     @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
-    <div class="noc-with-group mb-16 px-12">
+    <div class="noc-with-group mb-4 px-3">
       <div [formGroupName]="i">
-        <div class="mb-8 flex flex-row justify-start items-center">
-          <strong class="mr-8">With/From</strong>
+        <div class="mb-2 flex flex-row justify-start items-center">
+          <strong class="mr-2">With/From</strong>
           <button mat-icon-button (click)="deleteGroup(i)" matTooltip="Delete Group">
             <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
           </button>
         </div>
         <div formArrayName="entities">
           @for (entity of group.get('entities').controls; track entity; let j = $index) {
-          <div class="mb-8 flex flex-row justify-start items-center">
+          <div class="mb-2 flex flex-row justify-start items-center">
             <div [formGroupName]="j" class="flex flex-row justify-start items-center grow">
-              <mat-form-field appearance="outline" class="w-[120px] noc-sm mr-12">
+              <mat-form-field appearance="outline" class="w-[120px] noc-sm mr-3">
                 <mat-select formControlName="db" placeholder="Database">
                   @for (db of dbOptions; track db) {
                   <mat-option [value]="db">
@@ -36,7 +36,7 @@
           </div>
           }
           @if (group.get('entities').controls.length === 0) {
-          <div class="p-16">
+          <div class="p-4">
             <a (click)="addNewEntity(group.get('entities'), null, null)">
               Add With/From
             </a>

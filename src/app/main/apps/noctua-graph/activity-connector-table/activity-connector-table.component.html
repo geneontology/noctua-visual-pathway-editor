@@ -23,7 +23,7 @@
         </div>
         }
         <div class="noc-form-section p-0 w-full">
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Relationship</p>
             </div>
@@ -46,7 +46,7 @@
             </mat-radio-group>
           </div>
           @if (connectorActivity?.rule.displaySection.effectDirection) {
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Effect Direction</p>
             </div>
@@ -71,7 +71,7 @@
           </div>
           }
           @if (connectorActivity?.rule.displaySection.directness) {
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Directness </p>
             </div>
@@ -95,7 +95,7 @@
           </div>
           }
         </div>
-        <div class="noc-section-header noc-bt flex flex-row justify-start items-center">
+        <div class="noc-section-header border-t border-[#BBB] flex flex-row justify-start items-center">
           <div class="noc-section-heading">
             Suggested Causal Relation
           </div>
@@ -123,6 +123,6 @@
   </div>
   <div class="flex flex-row justify-start items-center noc-drawer-footer noc-submit-row">
     <span class="grow"></span>
-    <button (click)='deleteConnectorEdge()' type="button" mat-raised-button color="warn" class="mr-8">Delete</button>
+    <button (click)='deleteConnectorEdge()' type="button" mat-raised-button color="warn" class="mr-2">Delete</button>
   </div>
 </form>

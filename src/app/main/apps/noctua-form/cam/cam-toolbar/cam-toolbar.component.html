@@ -2,7 +2,7 @@
 <div class="noc-cam-heading flex-auto flex flex-row justify-start items-center">
   @if (cam.title) {
   <div class="noc-title flex flex-row justify-start items-center">
-    <div class="text-truncate pr-8" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'"
+    <div class="text-truncate pr-2" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'"
       [matTooltipShowDelay]="2000">
       <strong>Title: </strong>{{cam.title }}
     </div>
@@ -12,7 +12,7 @@
   </div>
   }
   <!--   <div class="noc-error flex flex-row justify-start items-center">
-    <mat-chip class="noc-error-chip noc-chip-xs ml-8 flex flex-row justify-start items-center"
+    <mat-chip class="noc-error-chip noc-chip-xs ml-2 flex flex-row justify-start items-center"
       (click)="openCamErrors()">
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
@@ -22,7 +22,7 @@
       </div>
     </mat-chip>
   </div> -->
-  <div class="noc-br noc-bl px-4">
+  <div class="border-r border-[#BBB] border-l border-[#BBB] px-4">
     <button mat-icon-button class="noc-toolbar-button noc-rounded-button" (click)="openCamForm()"
       matTooltip="{{cam?.comments}}" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1000">
       <fa-icon [icon]="['fas', 'comment']"></fa-icon>
@@ -31,7 +31,7 @@
       </div>
     </button>
   </div>
-  <div class="noc-br px-4">
+  <div class="border-r border-[#BBB] px-4">
     <button mat-icon-button color="" class="noc-toolbar-button noc-rounded-button" (click)="openCopyModel()"
       matTooltip="Make a copy of this model" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1500">
       <fa-icon [icon]="['fas', 'clone']"></fa-icon>
@@ -55,7 +55,7 @@
   </div>
   }
   @if (cam.date) {
-  <div class="noc-date noc-br mr-8 w-[100px] flex flex-row justify-start items-center">
+  <div class="noc-date border-r border-[#BBB] mr-2 w-[100px] flex flex-row justify-start items-center">
     <mat-chip class="noc-table-chip noc-date-chip flex flex-row justify-start items-center" (click)="openCamForm()">
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'calendar-day']"></fa-icon>

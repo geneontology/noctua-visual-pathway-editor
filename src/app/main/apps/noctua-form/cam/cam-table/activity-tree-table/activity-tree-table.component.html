@@ -13,7 +13,7 @@
     <div class="noc-display-number noc-sm" (click)="$event.stopPropagation()">
       {{activity.displayNumber}}
     </div>
-    <div class="noc-title mr-12 flex flex-row justify-start items-center">
+    <div class="noc-title mr-3 flex flex-row justify-start items-center">
       @if (gpNode) {
       <div class="noc-gp flex flex-row justify-start items-center">
         <span class="text-truncate">
@@ -30,7 +30,7 @@
     </mat-chip>
     @if (activity.hasViolations) {
     <div class="noc-error flex flex-row justify-start items-center">
-      <mat-chip class="noc-error-chip noc-chip-xs ml-8 flex flex-row justify-start items-center"
+      <mat-chip class="noc-error-chip noc-chip-xs ml-2 flex flex-row justify-start items-center"
         (click)="displayActivityErrors(activity)">
         <div class="noc-icon">
           <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>

@@ -64,7 +64,7 @@
         <div class="noc-section-body p-0 flex flex-col justify-start items-stretch">
           @for (nodeGroup of activityFormGroup.get('gp')?.controls; track nodeGroup; let i = $index) {
           <div [formArrayName]="'gp'"
-            class="mat-elevation-z1 noc-term-group mb-4 px-8 pt-4  {{nodeGroup.get('name').value}}">
+            class="mat-elevation-z1 noc-term-group mb-4 px-2 pt-4  {{nodeGroup.get('name').value}}">
             @for (entityForm of nodeGroup.get('entityGroup')?.controls; track entityForm) {
             <div [formGroupName]="i" class="">
               <noc-entity-form [entityFormGroup]="entityForm" [displayAddButton]="true" [displayMenuButton]="false"
@@ -100,7 +100,7 @@
         </div>
         <div class="noc-section-body p-0 flex flex-col justify-start items-stretch">
           @if (noctuaActivityFormService.activity.activityType===ActivityType.bpOnly) {
-          <div class="mat-elevation-z1 noc-term-group mb-4 px-8 mf flex flex-row justify-start items-center">
+          <div class="mat-elevation-z1 noc-term-group mb-4 px-2 mf flex flex-row justify-start items-center">
             <div class="p-4 flex-1 flex flex-row justify-start items-stretch">
               <mat-form-field class="noc-sm w-full" appearance="outline">
                 <mat-label><strong>(readonly)</strong> Molecular Function </mat-label>
@@ -122,7 +122,7 @@
           </div>
           }
           @for (nodeGroup of activityFormGroup.get('fd')?.controls; track nodeGroup; let i = $index) {
-          <div [formArrayName]="'fd'" class="mat-elevation-z1 noc-term-group mb-4 px-8 {{nodeGroup.get('name').value}} flex flex-row justify-start items-stretch">
+          <div [formArrayName]="'fd'" class="mat-elevation-z1 noc-term-group mb-4 px-2 {{nodeGroup.get('name').value}} flex flex-row justify-start items-stretch">
             @if (nodeGroup.get('isComplement')?.value) {
             <div class="noc-group-side-heading flex flex-col justify-center items-center">
               <div>IS NOT</div>
@@ -148,7 +148,7 @@
       </button>
       }
       <span class="grow"></span>
-      <button (click)='clear()' type="button" mat-raised-button color="" class="mr-8">Clear</button>
+      <button (click)='clear()' type="button" mat-raised-button color="" class="mr-2">Clear</button>
       <button [disabled]="noctuaActivityFormService.activity.submitErrors.length>0" (click)="save()" type="submit"
         class="" mat-raised-button color="primary">Save</button>
     </div>

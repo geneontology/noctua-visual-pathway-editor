@@ -11,9 +11,9 @@
     {{message}}
   </div>
   @if (!readonlyDialog) {
-    <div mat-dialog-actions class="m-0 p-16 noc-dialog-footer flex flex-row justify-between items-center">
+    <div mat-dialog-actions class="m-0 p-4 noc-dialog-footer flex flex-row justify-between items-center">
       <span class="grow"></span>
-      <button (click)='cancel()' type="button" mat-raised-button color="{{highlightCancel ? 'primary': ''}}" class="mr-8">
+      <button (click)='cancel()' type="button" mat-raised-button color="{{highlightCancel ? 'primary': ''}}" class="mr-2">
       {{cancelLabel}}</button>
       <button (click)="confirm()" type="button" mat-raised-button color="{{highlightConfirm ? 'primary' : ''}}">
         {{confirmLabel}}
@@ -21,7 +21,7 @@
     </div>
   }
   @if (readonlyDialog) {
-    <div mat-dialog-actions class="m-0 p-16 noc-dialog-footer flex flex-row justify-between items-center">
+    <div mat-dialog-actions class="m-0 p-4 noc-dialog-footer flex flex-row justify-between items-center">
       <span class="grow"></span>
       <button (click)='cancel()' type="button" mat-raised-button color="" class="">Close</button>
     </div>

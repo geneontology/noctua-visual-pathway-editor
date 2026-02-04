@@ -14,7 +14,7 @@
     <div class="noc-connector-form">
       <div class="flex flex-col justify-start items-stretch noc-form-section w-full">
         <div class="noc-form-section p-0 w-full">
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Relationship</p>
             </div>
@@ -37,7 +37,7 @@
             </mat-radio-group>
           </div>
           @if (connectorActivity?.rule.displaySection.effectDirection) {
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Effect Direction</p>
             </div>
@@ -62,7 +62,7 @@
           </div>
           }
           @if (connectorActivity?.rule.displaySection.directness) {
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Directness </p>
             </div>
@@ -86,11 +86,11 @@
           </div>
           }
           @if (displayChemicalConnector && connectorActivity?.rule.displaySection.chemicalIntermediate) {
-          <div class="px-8 noc-group-row flex flex-row justify-start items-center">
+          <div class="px-2 noc-group-row flex flex-row justify-start items-center">
             <div class="noc-title">
               <p>Chemical Intermediate </p>
             </div>
-            <div class="flex flex-row justify-start items-center w-full p-16">
+            <div class="flex flex-row justify-start items-center w-full p-4">
               <button mat-raised-button (click)="openChemicalConnectorForm()"
                 class="noc-rounded-button noc-connect-button">
                 Connect via Chemical Intermediate
@@ -99,7 +99,7 @@
           </div>
           }
         </div>
-        <div class="noc-section-header noc-bt flex flex-row justify-start items-center">
+        <div class="noc-section-header border-t border-[#BBB] flex flex-row justify-start items-center">
           <div class="noc-section-heading">
             Suggested Causal Relation
           </div>
@@ -115,7 +115,7 @@
           </div>
         </div>
         <div class="noc-section-body p-0 flex flex-col justify-start items-stretch">
-          <div class="px-12 noc-group-row flex flex-col">
+          <div class="px-3 noc-group-row flex flex-col">
             @for (evidence of connectorFormGroup.get('evidenceFormArray')?.controls; track evidence; let i = $index) {
             <div formArrayName="evidenceFormArray">
               <div [formGroupName]="i" class="flex flex-row justify-start items-center w-full">

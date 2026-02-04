@@ -22,7 +22,7 @@
             matTreeNodePaddingIndent="10" [ngClass]="{ 'background-highlight': activeAnnotation === node.short_name }">
             <div class="w-full flex flex-row justify-start items-start">
               <button mat-icon-button disabled class="ann-icon-button"></button>
-              <mat-checkbox class="checklist-leaf-node mr-8" [checked]="checklistSelection.isSelected(node)"
+              <mat-checkbox class="checklist-leaf-node mr-2" [checked]="checklistSelection.isSelected(node)"
                 (change)="evidenceLeafItemSelectionToggle(node)"></mat-checkbox>
               <div class="w-[30%]">
                 {{node.evidence?.evidence?.label}}
@@ -49,7 +49,7 @@
               <fa-icon [icon]="['fas', 'chevron-down']"></fa-icon>
               }
             </button>
-            <!--  <mat-checkbox class="mr-8" [checked]="descendantsAllSelected(node)"
+            <!--  <mat-checkbox class="mr-2" [checked]="descendantsAllSelected(node)"
               [indeterminate]="descendantsPartiallySelected(node)" (change)="evidenceItemSelectionToggle(node)">
             </mat-checkbox> -->
             {{node.activityNode?.term?.label}}
@@ -64,9 +64,9 @@
       }
     </div>
   </div>
-  <div class="m-0 p-16 noc-dialog-footer flex flex-row justify-between items-center">
+  <div class="m-0 p-4 noc-dialog-footer flex flex-row justify-between items-center">
     <span class="grow"></span>
-    <button (click)='close()' type="button" mat-raised-button color="" class="mr-8">Cancel</button>
+    <button (click)='close()' type="button" mat-raised-button color="" class="mr-2">Cancel</button>
     <button (click)="save()" type="button" mat-raised-button color="primary">Done</button>
   </div>
 </div>
