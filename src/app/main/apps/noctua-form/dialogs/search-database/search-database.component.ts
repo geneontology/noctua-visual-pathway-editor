@@ -1,10 +1,11 @@
-
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { takeUntil } from 'rxjs/operators';
 
 import { SelectionModel } from '@angular/cdk/collections';
+import { CdkTableModule } from '@angular/cdk/table';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
 
 import {
@@ -16,12 +17,28 @@ import {
 
 import { noctuaAnimations } from './../../../../../../@noctua/animations';
 
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSortModule } from '@angular/material/sort';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 @Component({
     selector: 'app-search-database',
     templateUrl: './search-database.component.html',
     styleUrls: ['./search-database.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        CdkTableModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatSortModule,
+        MatTableModule,
+        FontAwesomeModule,
+    ],
 })
 export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

@@ -7,6 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { NoctuaConfigService } from '@noctua/services/config.service';
 import { NoctuaSplashScreenService } from '@noctua/services/splash-screen.service';
 import { NoctuaUserService } from '@geneontology/noctua-form-base';
+import { LayoutNoctuaComponent } from './layout/layout-noctua/layout-noctua.component';
 
 
 @Component({
@@ -14,7 +15,8 @@ import { NoctuaUserService } from '@geneontology/noctua-form-base';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: true,
+    imports: [LayoutNoctuaComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
     noctuaConfig: any;

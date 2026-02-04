@@ -1,5 +1,10 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 export interface AllowedDatabasesDialogData {
   databases: string[];
@@ -10,7 +15,14 @@ export interface AllowedDatabasesDialogData {
     selector: 'noc-allowed-databases-dialog',
     templateUrl: './allowed-with-databases.component.html',
     styleUrls: ['./allowed-with-databases.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatDialogModule,
+        FontAwesomeModule,
+    ],
 })
 export class AllowedDatabasesDialogComponent {
   allowedDatabases: string[];

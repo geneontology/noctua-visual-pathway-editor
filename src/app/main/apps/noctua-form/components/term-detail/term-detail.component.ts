@@ -1,5 +1,6 @@
-import { Component, Inject, OnInit, OnDestroy, Input } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 
 import {
@@ -7,12 +8,22 @@ import {
   Entity,
 } from '@geneontology/noctua-form-base';
 
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'noc-term-details',
     templateUrl: './term-detail.component.html',
     styleUrls: ['./term-detail.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        FontAwesomeModule,
+    ],
 })
 
 export class NoctuaTermDetailComponent implements OnInit, OnDestroy {

@@ -1,9 +1,9 @@
-
-import { Component, OnInit, OnDestroy, Inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { SelectionModel } from '@angular/cdk/collections';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
+import { CdkTableModule } from '@angular/cdk/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
 
 import {
@@ -13,12 +13,24 @@ import {
 
 import { noctuaAnimations } from '@noctua/animations';
 
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSortModule } from '@angular/material/sort';
+
 @Component({
     selector: 'noc-select-evidence',
     templateUrl: './select-evidence.component.html',
     styleUrls: ['./select-evidence.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        CdkTableModule,
+        MatCheckboxModule,
+        MatSortModule,
+        MatTableModule,
+    ],
 })
 export class SelectEvidenceComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

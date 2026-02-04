@@ -1,6 +1,5 @@
-
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
@@ -8,12 +7,29 @@ import { Subject } from 'rxjs';
 import { ActivityNode, CamService, EntityDefinition, EntityForm, NoctuaActivityEntityService, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 import { InlineReferenceService } from '@noctua.editor/inline-reference/inline-reference.service';
 
+import { CommonModule } from '@angular/common';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'app-add-evidence',
     templateUrl: './add-evidence.component.html',
     styleUrls: ['./add-evidence.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        FontAwesomeModule,
+    ],
 })
 export class AddEvidenceDialogComponent implements OnInit, OnDestroy {
   private _fb = new FormBuilder();

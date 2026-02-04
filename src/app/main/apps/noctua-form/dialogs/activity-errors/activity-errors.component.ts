@@ -1,17 +1,29 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 
 import { ErrorLevel, ErrorType, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
-
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'app-activity-errors',
     templateUrl: './activity-errors.component.html',
     styleUrls: ['./activity-errors.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatToolbarModule,
+        FontAwesomeModule,
+    ],
 })
 export class ActivityErrorsDialogComponent implements OnInit, OnDestroy {
   ErrorType = ErrorType;

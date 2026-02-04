@@ -125,49 +125,51 @@ Convert all NgModule-based components in this Angular 20 application to standalo
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 7.1 | Convert AddEvidenceDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/add-evidence/` |
-| 7.2 | Convert ActivityErrorsDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/activity-errors/` |
-| 7.3 | Convert BeforeSaveDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/before-save/` |
-| 7.4 | Convert SelectEvidenceDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/select-evidence/` |
-| 7.5 | Convert SearchDatabaseDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/search-database/` |
-| 7.6 | Convert SearchEvidenceDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/search-evidence/` |
-| 7.7 | Convert AllowedDatabasesDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/allowed-databases/` |
-| 7.8 | Convert CamErrorsDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/cam-errors/` |
-| 7.9 | Convert CreateActivityDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/create-activity/` |
-| 7.10 | Convert ConfirmCopyModelDialogComponent | ☐ Pending | `src/app/main/apps/noctua-form/dialogs/confirm-copy-model/` |
+| 7.1 | Convert AddEvidenceDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/add-evidence/` |
+| 7.2 | Convert ActivityErrorsDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/activity-errors/` |
+| 7.3 | Convert BeforeSaveDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/before-save/` |
+| 7.4 | Convert SelectEvidenceDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/select-evidence/` |
+| 7.5 | Convert SearchDatabaseDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/search-database/` |
+| 7.6 | Convert SearchEvidenceDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/search-evidence/` |
+| 7.7 | Convert AllowedDatabasesDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/allowed-with-databases/` |
+| 7.8 | Convert CamErrorsDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/cam-errors/` |
+| 7.9 | Convert CreateActivityDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/create-activity/` |
+| 7.10 | Convert ConfirmCopyModelDialogComponent | ✓ DONE | `src/app/main/apps/noctua-form/dialogs/confirm-copy-model/` |
+| 7.11 | Update NoctuaFormModule for backward compat | ✓ DONE | `src/app/main/apps/noctua-form/noctua-form.module.ts` |
 
 ### Phase 8: Form Feature Components - Other (2 components)
 **Goal**: Convert remaining form components
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 8.1 | Convert SelectEvidenceComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/select-evidence/` |
-| 8.2 | Convert NoctuaTermDetailComponent | ☐ Pending | `src/app/main/apps/noctua-form/components/noctua-term-detail/` |
-| 8.3 | Remove NoctuaFormModule (Feature) | ☐ Pending | `src/app/main/apps/noctua-form/noctua-form.module.ts` |
+| 8.1 | Convert SelectEvidenceComponent | ✓ DONE | `src/app/main/apps/noctua-form/components/select-evidence/` |
+| 8.2 | Convert NoctuaTermDetailComponent | ✓ DONE | `src/app/main/apps/noctua-form/components/term-detail/` |
+| 8.3 | Update NoctuaFormModule for backward compat | ✓ DONE | `src/app/main/apps/noctua-form/noctua-form.module.ts` |
 
 ### Phase 9: Root Module & Routing
 **Goal**: Convert AppModule to standalone bootstrap
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 9.1 | Convert AppComponent to standalone | ☐ Pending | `src/app/app.component.ts` |
-| 9.2 | Create standalone route configuration | ☐ Pending | `src/app/app.routes.ts` |
-| 9.3 | Update main.ts to use bootstrapApplication | ☐ Pending | `src/main.ts` |
-| 9.4 | Create application configuration (providers) | ☐ Pending | `src/app/app.config.ts` |
-| 9.5 | Remove AppModule | ☐ Pending | `src/app/app.module.ts` |
-| 9.6 | Remove AppsModule | ☐ Pending | `src/app/main/apps/apps.module.ts` |
-| 9.7 | Remove NoctuaModule | ☐ Pending | `src/@noctua/noctua.module.ts` |
-| 9.8 | Remove NoctuaSharedModule | ☐ Pending | `src/@noctua/shared.module.ts` |
-| 9.9 | Remove LayoutModule | ☐ Pending | `src/app/layout/layout.module.ts` |
+| 9.1 | Convert AppComponent to standalone | ✓ DONE | `src/app/app.component.ts` |
+| 9.2 | Create standalone route configuration | ✓ DONE | `src/app/app.routes.ts` |
+| 9.3 | Update main.ts to use bootstrapApplication | ✓ DONE | `src/main.ts` |
+| 9.4 | Create application configuration (providers) | ✓ DONE | `src/app/app.config.ts` |
+| 9.5 | Remove AppModule | ✓ DONE | `src/app/app.module.ts` (deleted) |
+| 9.6 | Remove AppsModule | ✓ DONE | `src/app/main/apps/apps.module.ts` (deleted) |
+| 9.7 | Remove NoctuaModule | ✓ DONE | `src/@noctua/noctua.module.ts` (deleted) |
+| 9.8 | Remove NoctuaSharedModule | ✓ DONE | `src/@noctua/shared.module.ts` (deleted) |
+| 9.9 | Remove LayoutModule | ✓ DONE | `src/app/layout/layout.module.ts` (deleted) |
+| 9.10 | Remove other obsolete modules | ✓ DONE | Various (LayoutNoctuaModule, FooterModule, etc.) |
 
 ### Phase 10: Cleanup & Testing
 **Goal**: Final cleanup and verification
 
 | Step | Task | Status | Files |
 |------|------|--------|-------|
-| 10.1 | Remove all remaining empty module files | ☐ Pending | Various |
+| 10.1 | Remove all remaining empty module files | ✓ DONE | Completed in Phase 9 |
 | 10.2 | Update all index.ts exports | ☐ Pending | Various |
-| 10.3 | Run npm build and fix errors | ☐ Pending | - |
+| 10.3 | Run npm build and fix errors | ✓ DONE | Fixed circular deps with dynamic imports in dialog.service.ts |
 | 10.4 | Run npm test and fix errors | ☐ Pending | - |
 | 10.5 | Manual UI testing | ☐ Pending | - |
 | 10.6 | Document migration in README | ☐ Pending | README.md |
@@ -184,9 +186,9 @@ Convert all NgModule-based components in this Angular 20 application to standalo
 | 4 | Graph Feature Components | 6 | ✓ Completed |
 | 5 | Form Tables | 4 | ✓ Completed |
 | 6 | Form Core | 7 | ✓ Completed |
-| 7 | Form Dialogs | 10 | ☐ Not Started |
-| 8 | Form Other | 2 | ☐ Not Started |
-| 9 | Root Module & Routing | 1 | ☐ Not Started |
+| 7 | Form Dialogs | 10 | ✓ Completed |
+| 8 | Form Other | 2 | ✓ Completed |
+| 9 | Root Module & Routing | 1 | ✓ Completed |
 | 10 | Cleanup & Testing | - | ☐ Not Started |
 
 **Total Components to Convert: 41**
@@ -303,36 +305,38 @@ export const MATERIAL_IMPORTS = [
 
 ## Next Steps
 
-1. Start with Phase 1 - Create foundation files
-2. Convert layout components (easiest, fewest dependencies)
-3. Work bottom-up from leaf components to containers
-4. Test incrementally after each phase
+1. **Phase 10: Cleanup & Testing** - Run tests, verify UI, update documentation
+
+### Current Progress
+
+- **Phases 1-9: COMPLETE** (41 components converted, 11 modules deleted)
+- **Next: Phase 10** - Final cleanup and testing
 
 ---
 
-## Files to Create
+## Files Created
 
-- `src/@noctua/standalone-imports.ts` - Common imports for standalone components
-- `src/@noctua/material-imports.ts` - Material module imports array
-- `src/app/app.routes.ts` - Standalone route configuration
-- `src/app/app.config.ts` - Application providers configuration
+- `src/@noctua/standalone-imports.ts` ✓ Created (Phase 1)
+- `src/@noctua/material-imports.ts` ✓ Created (Phase 1)
+- `src/app/app.routes.ts` ✓ Created (Phase 9)
+- `src/app/app.config.ts` ✓ Created (Phase 9)
 
-## Files to Delete (After Migration)
+## Files Deleted (Phase 9)
 
-- `src/app/app.module.ts`
-- `src/app/main/apps/apps.module.ts`
-- `src/app/main/apps/noctua-form/noctua-form.module.ts`
-- `src/app/main/apps/noctua-graph/noctua-graph.module.ts`
-- `src/app/layout/layout.module.ts`
-- `src/app/layout/layout-noctua/layout-noctua.module.ts`
-- `src/app/layout/components/content/content.module.ts`
-- `src/app/layout/components/toolbar/toolbar.module.ts`
-- `src/app/layout/components/footer/footer.module.ts`
-- `src/@noctua/noctua.module.ts`
-- `src/@noctua/shared.module.ts`
-- `src/@noctua/components/confirm-dialog/confirm-dialog.module.ts`
-- `src/@noctua.editor/noctua-editor.module.ts`
-- `src/@noctua.form/noctua.form.module.ts`
+- ~~`src/app/app.module.ts`~~ ✓ Deleted
+- ~~`src/app/main/apps/apps.module.ts`~~ ✓ Deleted
+- `src/app/main/apps/noctua-form/noctua-form.module.ts` - Kept (used as barrel import)
+- `src/app/main/apps/noctua-graph/noctua-graph.module.ts` - Kept (used for lazy loading)
+- ~~`src/app/layout/layout.module.ts`~~ ✓ Deleted
+- ~~`src/app/layout/layout-noctua/layout-noctua.module.ts`~~ ✓ Deleted
+- ~~`src/app/layout/components/content/content.module.ts`~~ ✓ Deleted
+- ~~`src/app/layout/components/toolbar/toolbar.module.ts`~~ ✓ Deleted
+- ~~`src/app/layout/components/footer/footer.module.ts`~~ ✓ Deleted
+- ~~`src/@noctua/noctua.module.ts`~~ ✓ Deleted
+- ~~`src/@noctua/shared.module.ts`~~ ✓ Deleted
+- ~~`src/@noctua/components/confirm-dialog/confirm-dialog.module.ts`~~ ✓ Deleted
+- ~~`src/@noctua.editor/noctua-editor.module.ts`~~ ✓ Deleted
+- `src/@noctua.form/noctua.form.module.ts` - Kept (library public API)
 
 ---
 

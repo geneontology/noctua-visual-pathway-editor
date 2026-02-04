@@ -1,15 +1,26 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 
 import { FormType, NoctuaActivityFormService, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
+import { ActivityFormComponent } from '../../cam/activity/activity-form/activity-form.component';
+import { ActivityConnectorFormComponent } from '../../cam/activity/activity-connector-form/activity-connector-form.component';
+import { ChemicalConnectorFormComponent } from '../../cam/activity/chemical-connector-form/chemical-connector-form.component';
+
 @Component({
     selector: 'app-create-activity-dialog',
     templateUrl: './create-activity.component.html',
     styleUrls: ['./create-activity.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ActivityFormComponent,
+        ActivityConnectorFormComponent,
+        ChemicalConnectorFormComponent,
+    ],
 })
 export class CreateActivityDialogComponent implements OnInit, OnDestroy {
   FormType = FormType

@@ -1,5 +1,5 @@
-
 import { Component, OnInit, OnDestroy, Inject, Injectable } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { takeUntil } from 'rxjs/operators';
 
 import { SelectionModel } from '@angular/cdk/collections';
@@ -16,8 +16,13 @@ import {
 
 import { noctuaAnimations } from './../../../../../../@noctua/animations';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
+import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
 import { each } from 'lodash';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 export class EvidenceItemNode {
   activityNode: ActivityNode;
@@ -42,7 +47,15 @@ export class EvidenceItemFlatNode {
     templateUrl: './search-evidence.component.html',
     styleUrls: ['./search-evidence.component.scss'],
     animations: noctuaAnimations,
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatTreeModule,
+        FontAwesomeModule,
+    ],
 })
 export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;

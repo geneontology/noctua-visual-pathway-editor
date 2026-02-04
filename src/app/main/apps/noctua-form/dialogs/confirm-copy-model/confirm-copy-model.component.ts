@@ -1,16 +1,30 @@
-
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { Cam, NoctuaFormConfigService } from '@geneontology/noctua-form-base';
 
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'app-confirm-copy-model',
     templateUrl: './confirm-copy-model.component.html',
     styleUrls: ['./confirm-copy-model.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FontAwesomeModule,
+    ],
 })
 export class ConfirmCopyModelDialogComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;
