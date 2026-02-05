@@ -38,7 +38,7 @@
               </div>
             </div>
           </mat-tree-node>
-          <mat-tree-node class="ann-tree-node text-truncate flex flex-row" *matTreeNodeDef="let node;when: hasChild"
+          <mat-tree-node class="ann-tree-node truncate flex flex-row" *matTreeNodeDef="let node;when: hasChild"
             matTreeNodePadding matTreeNodePaddingIndent="10"
             [ngClass]="{ 'background-highlight': activeAnnotation === node.short_name }">
             <button mat-icon-button matTreeNodeToggle class="">

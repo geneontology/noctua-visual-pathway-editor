@@ -117,14 +117,6 @@ $noc-primary-rgb: 59, 89, 152;
     .mdc-list-item__primary-text {
       width: 100%;
       display: block;
-
-      // The inner div uses fxLayout="row"
-      > div[fxLayout="row"],
-      > div.w-100-p {
-        display: flex !important;
-        width: 100%;
-        align-items: center;
-      }
     }
   }
 

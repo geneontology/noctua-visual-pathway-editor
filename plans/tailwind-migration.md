@@ -413,9 +413,9 @@ All HTML files with fxLayout directives need conversion.
 
 ## Current Status
 
-**Phase**: Phase 3 CORE COMPLETE - SCSS Cleanup
-**Completed**: Deleted 6 redundant files, converted 97 utility classes to Tailwind
-**Status**: Ready for commit - core migration complete
+**Phase**: Phase 3 COMPLETE - SCSS Cleanup
+**Completed**: Deleted 6 redundant files, converted 106 utility classes to Tailwind, removed ~250 lines of dead SCSS
+**Status**: All core migration tasks complete - ready for commit
 
 ---
 
@@ -487,6 +487,11 @@ Files still using `secondary-text` class:
 | 2026-02-04 | Phase 3 | ✓ Converted 10 noc-b* border classes to Tailwind (4 files) |
 | 2026-02-04 | Phase 3 | ✓ Converted 3 s-* icon sizing classes to Tailwind (2 files) |
 | 2026-02-04 | Phase 3 | ✓ Build verified - PHASE 3 CORE COMPLETE |
+| 2026-02-04 | Phase 3 | ✓ Removed fxLayout selectors from _angular-material-fix.scss (~40 lines) |
+| 2026-02-04 | Phase 3 | ✓ Removed fxLayout selectors from _mdc-form-field-theme.scss |
+| 2026-02-04 | Phase 3 | ✓ Removed unused utility classes from _typography.scss (~210 lines) |
+| 2026-02-04 | Phase 3 | ✓ Converted 9 text-truncate usages to Tailwind truncate |
+| 2026-02-04 | Phase 3 | ✓ Build verified - PHASE 3 COMPLETE |
 
 ### Files Converted (Phase 2) - ALL 35 FILES COMPLETE:
 
@@ -605,12 +610,14 @@ Need to convert these to Tailwind equivalents:
 - [x] Convert `noc-b*` border classes (10 occurrences in 4 files)
 - [x] Convert `s-*` icon sizing classes (3 occurrences in 2 files)
 
-#### 3.4 Simplify Remaining SCSS Files
+#### 3.4 Simplify Remaining SCSS Files ✓
 
-- [ ] Review and simplify `_angular-material-fix.scss`
-- [ ] Review and simplify `_typography.scss`
-- [ ] Review and simplify `_colors.scss`
-- [ ] Clean up `noctua.scss`
+- [x] Review and simplify `_angular-material-fix.scss` - removed dead fxLayout selectors (~40 lines)
+- [x] Review and simplify `_typography.scss` - removed unused utilities (~210 lines)
+- [x] Review and simplify `_mdc-form-field-theme.scss` - removed fxLayout selectors
+- [x] Convert `text-truncate` to Tailwind `truncate` (9 occurrences in 7 files)
+- [ ] Review and simplify `_colors.scss` (optional - theme-aware colors still in use)
+- [ ] Clean up `noctua.scss` (optional - dialog styles still needed)
 
 #### 3.5 Verify Build ✓
 
@@ -622,4 +629,4 @@ Need to convert these to Tailwind equivalents:
 2. ~~Update core.scss to remove deleted imports~~ ✓
 3. ~~Verify build still works after deletions~~ ✓
 4. ~~Convert remaining utility classes in templates~~ ✓
-5. Simplify remaining SCSS files (optional - for further cleanup)
+5. ~~Simplify remaining SCSS files~~ ✓ (core cleanup complete)

@@ -78,20 +78,6 @@
       margin-right: 4px;
     }
   }
-
-  // When button uses flex layout with row direction
-  &[fxLayout="row"],
-  &[fxLayout="row wrap"] {
-    display: flex !important;
-    align-items: center;
-
-    fa-icon {
-      display: flex;
-      flex-shrink: 0;
-      align-items: center;
-      justify-content: center;
-    }
-  }
 }
 
 // Node expander button icons
@@ -125,37 +111,6 @@
     display: inline-flex !important;
     margin-left: 6px;
     vertical-align: middle;
-  }
-}
-
-// Buttons with fxLayout directive - must override custom button classes
-button[fxLayout="row"],
-button[fxLayout="row wrap"] {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start;
-
-  // Override fixed line-height from custom button classes
-  line-height: normal !important;
-
-  fa-icon {
-    display: flex !important;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    margin-left: 4px;
-    font-size: 14px;
-    line-height: 1;
-
-    &:first-child {
-      margin-left: 0;
-      margin-right: 4px;
-    }
-  }
-
-  // For small buttons (noc-xs)
-  &.noc-xs fa-icon {
-    font-size: 12px;
   }
 }
 
