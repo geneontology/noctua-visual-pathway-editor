@@ -1,4 +1,4 @@
-<form name="camFormGroup" [formGroup]="camFormGroup" class="flex flex-col justify-start items-stretch noc-cam-form noc-drawer h-full">
+<form name="camFormGroup" [formGroup]="camFormGroup" class="flex flex-col justify-start items-stretch deep-w-[350px] bg-white shadow-md noc-drawer h-full">
   <div class="noc-drawer-header flex flex-row justify-start items-center">
     <span class="noc-drawer-header-title">
       Model Details</span>
@@ -68,7 +68,7 @@
       </div>
       <div class="noc-section-body p-2 flex flex-col justify-start items-stretch">
         @if (cam?.comments.length===0) {
-        <div class="noc-no-info">
+        <div class="text-base italic text-gray-400 text-center py-8 px-2">
           No comments yet
         </div>
         }
@@ -76,12 +76,13 @@
           @for (comment of commentFormArray?.controls; track comment; let i = $index) {
           <div formArrayName="commentFormArray">
             <div class="flex flex-row justify-start items-center w-full">
-              <div class="noc-form-field-container grow">
+              <div class="relative group grow">
                 <mat-form-field appearance="outline" class="noc-sm w-full">
                   <mat-label>Comment</mat-label>
                   <textarea type="text" matInput [formControlName]="i" rows="2"></textarea>
                 </mat-form-field>
-                <button mat-icon-button (click)="deleteComment(i)" class="noc-delete-float-button">
+                <button mat-icon-button (click)="deleteComment(i)"
+                  class="invisible group-hover:visible mt-1 absolute top-0 right-0 deep-h-5 deep-w-5 leading-4 text-red-400 hover:bg-red-400 hover:text-white rounded-none">
                   <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
                 </button>
               </div>

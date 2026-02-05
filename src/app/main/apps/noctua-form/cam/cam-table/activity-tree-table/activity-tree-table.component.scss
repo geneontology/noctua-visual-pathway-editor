@@ -3,42 +3,14 @@
 @import "@noctua.common/scss/noctua-form.common";
 
 $primary: map-get($theme, primary);
-$accent: map-get($theme, accent);
 
 :host {
-  padding: 0px;
   width: 100%;
-
-  .noc-tree-input {
-    $border-color: rgba(#000, 0.2);
-    @include deep-width(20px);
-
-    &.noc-level-1 {
-      border-left: $border-color dotted 2px;
-    }
-
-    .noc-tree-line {
-      width: 100%;
-      border-left: $border-color dotted 2px;
-
-      &.line-t {
-        @include deep-height(2px);
-        border-left: $border-color dotted 2px;
-        border-bottom: $border-color dotted 2px;
-      }
-
-      &.line-m {
-        @include deep-height(2px);
-        border-bottom: $border-color dotted 2px;
-      }
-    }
-  }
 
   .noc-gp {
     width: 500px;
     line-height: 12px;
     @include deep-height(30px);
-    // display: inline-block !important;
     padding: 4px 8px;
     font-size: 12px !important;
     color: #000;
@@ -56,21 +28,10 @@ $accent: map-get($theme, accent);
       font-size: 10px !important;
     }
   }
+
   .noc-tree-node {
     font-size: 12px;
     color: #000;
-
-    .noc-node-expander-button {
-      @include deep-width(20px);
-      @include deep-height(20px);
-      line-height: 14px;
-      background-color: #ffffff;
-    }
-
-    .noc-expander-placeholder {
-      @include deep-width(20px);
-      @include deep-height(20px);
-    }
 
     .noc-icon-button {
       @include deep-height(25px);
@@ -79,19 +40,11 @@ $accent: map-get($theme, accent);
       color: #aaa;
     }
 
-    .noc-tree-icon {
-      color: #000;
-      font-size: 14px;
-    }
-
     .noc-annotation-row {
       padding: 0;
       background-color: #ffffff;
 
       .noc-title {
-        // font-weight: bold;
-        //font-size: 20px;
-        //margin-bottom: 5px;
         word-break: break-all;
       }
     }
@@ -100,7 +53,8 @@ $accent: map-get($theme, accent);
       background-color: rgba(#000000, 0.1);
     }
   }
-  // MDC chip styling with proper icon alignment
+
+  // MDC chip styling for activity type indicators
   mat-chip,
   .mat-mdc-chip {
     &.default {
@@ -122,7 +76,6 @@ $accent: map-get($theme, accent);
       white-space: nowrap;
       padding: 0;
 
-      // MDC chip content wrapper
       .mat-mdc-chip-action-label {
         display: flex !important;
         align-items: center;
@@ -131,7 +84,7 @@ $accent: map-get($theme, accent);
       }
 
       .noc-chip-label {
-        padding: 0 8px 0 8px;
+        padding: 0 8px;
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -176,17 +129,11 @@ $accent: map-get($theme, accent);
     }
   }
 
-  .noc-form-container {
-    background-color: #eee;
-    padding: 20px 10px;
-  }
-
   .noc-activity-header {
     @include deep-width(100%);
     @include deep-height(30px);
     border-bottom: $noc-primary-color-light solid 1px;
     padding-left: 5px;
-    // padding-right: 10px;
     position: relative;
     margin-bottom: 1px;
 
@@ -196,33 +143,21 @@ $accent: map-get($theme, accent);
       color: map-get($primary, default);
       text-transform: uppercase;
       font-weight: bold;
+
       &.noc-relation-cell {
         padding: 0 2px 0 16px;
       }
     }
   }
 
-  .noc-group-side-heading {
-    @include deep-width(25px);
-    @include deep-height(100%);
-    background-color: #ddd;
-    font-size: 8px;
-    font-weight: bold;
-    text-align: center;
-    word-break: normal;
-    overflow-wrap: anywhere;
-  }
-
   .noc-activity-heading {
     position: relative;
     margin-bottom: 1px;
     @include deep-height(30px);
-    //min-height: 35px;
     background-color: #fff;
     font-size: 14px;
     border-bottom: $noc-primary-color-light solid 1px;
 
-    //border-bottom: rgba(#000, 0.4) solid 1px;
     .noc-toggle-expand-button {
       width: 30px;
       height: 30px;
@@ -236,10 +171,6 @@ $accent: map-get($theme, accent);
         font-size: 12px;
         font-style: italic;
       }
-    }
-
-    .noc-title-truncate {
-      max-width: 200px;
     }
 
     .noc-display-number {
@@ -260,21 +191,6 @@ $accent: map-get($theme, accent);
     }
   }
 
-  .noc-toolbar {
-    padding: 0px 20px;
-    height: 40px;
-    width: 100%;
-    background-color: #f2f2f2;
-    border-bottom: #bbb solid 1px;
-
-    .noc-title {
-      line-height: 38px;
-      color: #555;
-      font-size: 14px;
-      font-weight: bold;
-    }
-  }
-
   .noc-tree-container {
     position: relative;
     padding-left: 45px;
@@ -290,6 +206,7 @@ $accent: map-get($theme, accent);
       );
       background-color: transparent;
     }
+
     .noc-cell-label {
       position: relative;
       @include deep-width(100%);

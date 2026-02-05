@@ -1,4 +1,4 @@
-<div class="dialog-content-wrapper noc-dialog flex flex-col justify-start items-stretch">
+<div class="w-full min-h-[90%] flex flex-col justify-start items-stretch noc-dialog">
   <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">
       Search Annotations</span>
@@ -7,36 +7,36 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="flex flex-row justify-start items-start noc-dialog-body">
-    <div class="h-full noc-left-panel noc-form-section w-[200px] flex flex-col justify-start items-stretch">
-      <div class="noc-section-header w-full flex flex-row justify-start items-center">
-        <div class="noc-section-heading w-full">
+  <div class="m-0 p-0 w-full flex flex-row justify-start items-start">
+    <div class="h-full noc-left-panel w-[200px] flex flex-col justify-start items-stretch bg-[#eee]">
+      <div class="deep-h-[40px] pl-2 w-full flex flex-row justify-start items-center">
+        <div class="p-0 text-xs leading-[15px] w-full">
           Select Term
           <div class="truncate">
             <small>Please select below</small>
           </div>
         </div>
       </div>
-      <div class="noc-section-body w-full overflow-y-auto">
+      <div class="w-full overflow-y-auto">
         @for (activityNode of activityNodes; track activityNode) {
-        <div class="noc-term-box flex flex-row justify-start items-center" (click)="selectActivityNode(activityNode)"
+        <div class="noc-term-box py-2.5 text-[#555] flex flex-row justify-start items-center cursor-pointer" (click)="selectActivityNode(activityNode)"
           [ngClass]="{'noc-term-selected': activityNode.getTerm().id===selectedActivityNode?.getTerm().id}">
-          <fa-icon [icon]="['far', 'check-circle']" class="w-[25px] green-300-fg mr-4"></fa-icon>
+          <fa-icon [icon]="['far', 'check-circle']" class="noc-check-icon w-[25px] text-green-500 mr-4"></fa-icon>
           {{activityNode.getTerm().label}}
         </div>
         }
       </div>
     </div>
-    <div class="h-full noc-right-panel noc-form-section grow flex flex-col justify-start items-stretch">
-      <div class="noc-section-header w-full flex flex-row justify-start items-center">
-        <div class="noc-section-heading">
+    <div class="h-full grow flex flex-col justify-start items-stretch">
+      <div class="deep-h-[40px] pl-2 w-full flex flex-row justify-start items-center">
+        <div class="p-0 text-xs leading-[15px]">
           Select Evidence <small>(optional)</small>
           <div class="truncate">
             <small>{{selectedActivityNode?.getTerm().label}}</small>
           </div>
         </div>
       </div>
-      <div class="noc-section-body w-full overflow-y-auto">
+      <div class="w-full overflow-y-auto">
         <mat-table class="noc-evidence-table w-full overflow-y-auto" #table [dataSource]="dataSource" matSort
           [@animateStagger]="{value:'50'}">
           <ng-container matColumnDef="select" class="">

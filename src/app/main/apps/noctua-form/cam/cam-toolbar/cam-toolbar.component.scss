@@ -3,24 +3,28 @@
 @import "@noctua.common/scss/noctua.common";
 
 $primary: map-get($theme, primary);
-$accent: map-get($theme, accent);
 
 :host {
-  padding: 0px;
+  padding: 0;
   width: 100%;
 
+  // Child component widths
   noc-cam-table {
     display: block;
   }
 
   noc-activity-connector {
     display: block;
-    @include deep-width(600px);
+    width: 600px;
+    min-width: 600px;
+    max-width: 600px;
   }
 
   noc-graph-settings {
     display: block;
-    @include deep-width(500px);
+    width: 500px;
+    min-width: 500px;
+    max-width: 500px;
   }
 
   noc-graph-activity-table {
@@ -36,48 +40,22 @@ $accent: map-get($theme, accent);
     background-color: #e2e2e2;
   }
 
-  .noc-not-loggedin {
-    margin-bottom: 4px;
-    padding: 0 10px;
-    @include deep-height(40px);
-    width: 100%;
-    //min-height: 35px;
-    background-color: rgb(229, 194, 194);
-    font-size: 12px;
-  }
-
+  // CAM heading bar
   .noc-cam-heading {
     margin-bottom: 4px;
     padding: 0 10px;
-    @include deep-height(40px);
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
     width: 100%;
-    //min-height: 35px;
     background-color: #fff;
     font-size: 12px;
-
     @include mat.elevation(2);
-
-    .noc-cam-title {
-      max-width: 400px !important;
-    }
-
-    .noc-cam-heading-section {
-      height: 100%;
-
-      .noc-section-label {
-        font-size: 12px;
-        color: #555;
-      }
-    }
 
     .noc-title {
       padding-left: 8px;
       padding-right: 8px;
       max-width: 250px;
-
-      strong {
-        font-size: 12px;
-      }
     }
 
     .noc-toolbar-button {
@@ -100,17 +78,19 @@ $accent: map-get($theme, accent);
       border-radius: 0 !important;
     }
   }
-  // MDC chip styling with proper icon alignment
+
+  // MDC chip styling
   mat-chip,
   .mat-mdc-chip {
     font-size: 12px;
     font-weight: normal;
-    @include deep-height(25px);
+    height: 25px;
+    min-height: 25px;
+    max-height: 25px;
     max-width: 200px;
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    // MDC chip content wrapper
     .mat-mdc-chip-action-label {
       display: flex !important;
       align-items: center;
@@ -124,28 +104,11 @@ $accent: map-get($theme, accent);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-
-      .noc-icon-action {
-        font-size: 10px;
-        background-color: transparent;
-
-        &:hover {
-          font-size: 14px;
-          color: #222;
-        }
-      }
     }
 
     &.noc-table-chip {
       padding: 0;
-      @include deep-height(25px);
       font-size: 10px;
-
-      .mat-mdc-chip-action-label {
-        display: flex !important;
-        align-items: center;
-        justify-content: flex-start;
-      }
 
       .noc-icon,
       .noc-icon-action {
@@ -175,7 +138,6 @@ $accent: map-get($theme, accent);
 
       &.noc-user-chip {
         @include noc-chip-color(#bbc9cc);
-
         .noc-icon {
           color: #59939e;
         }
@@ -189,11 +151,9 @@ $accent: map-get($theme, accent);
         &.noc-development {
           @include noc-chip-color(#f4c89c);
         }
-
         &.noc-production {
           @include noc-chip-color(#b6f1cc);
         }
-
         &.noc-review {
           @include noc-chip-color(#d8f6a3);
         }
@@ -201,60 +161,42 @@ $accent: map-get($theme, accent);
     }
   }
 
+  // Side menu
   .noc-sidemenu {
     padding: 0;
     margin-right: 5px;
-    @include deep-height(100%);
-    @include deep-width(60px);
+    height: 100%;
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
     @include mat.elevation(2);
     border-right: #999 solid 1px;
 
     button {
-      @include deep-width(60px);
-      @include deep-height(60px);
+      width: 60px;
+      height: 60px;
 
       mat-icon {
         @include noc-icon-size(28px);
         color: $noc-primary-color-light;
       }
 
-      &.noc-active {
-        mat-icon {
-          color: #555;
-        }
+      &.noc-active mat-icon {
+        color: #555;
       }
     }
   }
 
-  .noc-form-container {
-    background-color: #eee;
-    padding: 20px 10px;
-  }
-
-  .noc-toolbar {
-    padding: 0px 20px;
-    height: 40px;
-    width: 100%;
-    background-color: #f2f2f2;
-    border-bottom: #bbb solid 1px;
-
-    .noc-title {
-      line-height: 38px;
-      color: #555;
-      font-size: 14px;
-      font-weight: bold;
-    }
-  }
-
+  // Drawers
   .noc-left-drawer {
-    @include deep-height(100%);
+    height: 100%;
     background-color: #fff;
     border-right: #bbb solid 1px;
     @include mat.elevation(4);
   }
 
   .noc-right-drawer {
-    @include deep-height(100%);
+    height: 100%;
     background-color: #fff;
     border-left: #bbb solid 1px;
   }

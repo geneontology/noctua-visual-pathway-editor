@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   content: [
     "./src/**/*.{html,scss,ts}",
@@ -50,5 +52,51 @@ module.exports = {
   corePlugins: {
     container: false,
   },
-  plugins: [],
+  plugins: [
+    // Deep width/height utilities: sets width/height + min + max together
+    // Usage: deep-w-10, deep-w-[350px], deep-h-10, deep-h-[40px]
+    plugin(function({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          'deep-w': (value) => ({
+            width: value,
+            minWidth: value,
+            maxWidth: value,
+          }),
+          'deep-h': (value) => ({
+            height: value,
+            minHeight: value,
+            maxHeight: value,
+          }),
+        },
+        { values: theme('spacing') }
+      );
+    }),
+    // Aspect border utilities for MF/BP/CC indicators
+    // Usage: aspect-border-mf, aspect-border-bp, aspect-border-cc
+    plugin(function({ addUtilities, theme }) {
+      addUtilities({
+        '.aspect-border-mf': {
+          'border-left-width': '5px',
+          'border-left-style': 'solid',
+          'border-left-color': `rgba(124, 212, 136, 0.8)`, // noc-mf with opacity
+        },
+        '.aspect-border-bp': {
+          'border-left-width': '5px',
+          'border-left-style': 'solid',
+          'border-left-color': `rgba(244, 200, 156, 0.8)`, // noc-bp with opacity
+        },
+        '.aspect-border-cc': {
+          'border-left-width': '5px',
+          'border-left-style': 'solid',
+          'border-left-color': `rgba(211, 181, 245, 0.8)`, // noc-cc with opacity
+        },
+        '.aspect-border-none': {
+          'border-left-width': '5px',
+          'border-left-style': 'solid',
+          'border-left-color': '#fff',
+        },
+      });
+    }),
+  ],
 };

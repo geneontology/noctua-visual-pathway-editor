@@ -10,30 +10,15 @@
     width: 600px;
   }
 
+  // Activity form height constraint
   .noc-activity-form {
     position: relative;
-    @include deep-height(400px!important);
-  }
-
-  .noc-dialog-body {
-    position: relative;
-    margin: 0;
-    padding: 0;
-    @include deep-width(100%);
-    @include deep-height(100%!important);
+    height: 400px !important;
+    min-height: 400px !important;
+    max-height: 400px !important;
   }
 
   .mat-mdc-dialog-container {
     padding: 0;
-  }
-
-  .mat-mdc-dialog-content {
-  }
-
-  .dialog-content-wrapper {
-    width: 900px;
-    min-height: 80%;
-    display: flex;
-    flex-direction: column;
   }
 }

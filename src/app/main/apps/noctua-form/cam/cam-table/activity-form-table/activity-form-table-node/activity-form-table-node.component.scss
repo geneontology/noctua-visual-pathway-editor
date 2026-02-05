@@ -4,32 +4,21 @@
 @import "@noctua.common/scss/noctua-form.common";
 
 $primary: map-get($theme, primary);
-$accent: map-get($theme, accent);
 
 :host {
-  padding: 0px;
   width: 100%;
 
   .noctua-form-table {
-    &.noc-tree-header-row {
-      padding-left: 40px;
-    }
     .noc-cell {
       padding: 0 10px;
       font-size: 10px !important;
       font-weight: bold;
       color: map-get($primary, default);
       text-transform: uppercase;
-      font-weight: bold;
     }
 
-    .noc-relation-cell {
-      @include deep-width(initial);
-    }
     .noc-term-cell {
       position: relative;
-      @include deep-width(initial);
-      // @include deep-width(150px);
       width: 250px;
       margin-bottom: 8px;
     }
@@ -38,6 +27,7 @@ $accent: map-get($theme, accent);
       @include deep-width(80px);
       text-align: center;
       font-size: 10px;
+
       .noc-no-info {
         padding: 3px 8px;
         font-size: 10px;
@@ -58,40 +48,19 @@ $accent: map-get($theme, accent);
       @include deep-width(50px);
 
       .noc-action-button {
-        // background-color: map-get($primary, 400);
-        //color: #fff;
         @include mat.elevation(2);
       }
     }
   }
 
-  .noc-group-side-heading {
-    @include deep-width(25px);
-    @include deep-height(100%);
-    background-color: #ddd;
-    font-size: 8px;
-    font-weight: bold;
-    text-align: center;
-    word-break: normal;
-    overflow-wrap: anywhere;
-  }
-
   .noc-activity-node {
-    // position: relative;
-    //  flex: 1 1 auto;
-    //border-bottom: 1px solid #ccc;
-
     .noc-entity-cell {
       display: flex;
       align-items: center;
-
-      //display: inline-block !important;
       padding: 8px 5px;
       font-size: 12px;
       color: #000;
-
       border-radius: 5px;
-
       border: #aaa solid 1px;
       position: relative;
       overflow-wrap: break-word;
@@ -109,48 +78,6 @@ $accent: map-get($theme, accent);
         }
       }
 
-      &.noc-aspect-cell {
-        // MDC chip styling for biological aspect indicators (F=Molecular Function, P=Biological Process, C=Cellular Component)
-        mat-chip,
-        .mat-mdc-chip {
-          text-align: center;
-          @include deep-height(20px);
-          font-size: 10px;
-          font-weight: bold;
-          padding: 2px;
-          line-height: 20px;
-
-          &.F {
-            border: $noc-mf solid 1px;
-            color: darken($noc-mf, 10%);
-            background-color: rgba($noc-mf, 0.1);
-          }
-
-          &.P {
-            border: $noc-bp solid 1px;
-            color: darken($noc-bp, 10%);
-            background-color: rgba($noc-bp, 0.1);
-          }
-
-          &.C {
-            border: $noc-cc solid 1px;
-            color: darken($noc-cc, 10%);
-            background-color: rgba($noc-cc, 0.1);
-          }
-        }
-      }
-
-      &.noc-relation-cell {
-        font-size: 10px;
-      }
-
-      &.noc-extension-cell {
-        font-size: 10px;
-        .noc-extension {
-          //border
-        }
-      }
-
       .noc-edit-button {
         visibility: hidden;
         position: absolute;
@@ -165,7 +92,6 @@ $accent: map-get($theme, accent);
         position: absolute;
         top: 0;
         right: 0;
-
         line-height: 15px;
         color: #ee7979;
         border-radius: 0;
@@ -184,29 +110,8 @@ $accent: map-get($theme, accent);
         background-color: #fdd661;
       }
 
-      &.noc-highlight-modified-user {
-        background-color: #f3ccbb;
-      }
-
       &.noc-highlight-match-current {
         border: #ac6219 solid 5px;
-      }
-
-      .noc-old-term {
-        color: #777;
-        font-size: 10px;
-        text-decoration: line-through rgba(#ec6868, 0.5);
-      }
-    }
-
-    /* .mat-header-cell {
-      display:flex;
-      justify-content:flex-end;
-     } */
-
-    &.noc-selected {
-      table {
-        background-color: rgba($noc-highlight-model-color, 0.3);
       }
     }
   }

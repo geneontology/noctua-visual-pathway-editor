@@ -8,10 +8,10 @@
   </div>
   <div class="flex flex-col justify-start items-start noc-dialog-body">
     <p class="p-2">The following database prefixes are allowed:</p>
-    <ul class="allowed-databases-list flex flex-col justify-start items-start">
+    <ul class="w-full max-h-[400px] overflow-y-auto flex flex-col justify-start items-start">
       @for (db of allowedDatabases; track db) {
-      <li class="database-item p-2">
-        <span class="database-name">{{ db }}</span>
+      <li class="w-full rounded p-2">
+        <span class="font-medium text-sm">{{ db }}</span>
       </li>
       }
     </ul>

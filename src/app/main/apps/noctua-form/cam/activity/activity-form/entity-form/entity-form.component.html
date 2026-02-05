@@ -126,7 +126,7 @@
           <textarea matInput formControlName="reference" [matAutocomplete]="referenceAuto" rows="2" autocomplete="off"
             (focus)="updateReferenceList()"></textarea>
           <button mat-icon-button matSuffix (click)="openAddReference($event, evidence, 'reference')"
-            class="noc-evidence-db-trigger">
+            class="noc-evidence-db-trigger deep-h-[20px] deep-w-[20px]">
             <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>
           <mat-autocomplete #referenceAuto="matAutocomplete" class="noc-term-autocomplete">
@@ -148,7 +148,7 @@
           <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
             autocomplete="off"></textarea>
           <button mat-icon-button matSuffix (click)="openAddWith($event, evidence, 'with')"
-            class="noc-evidence-db-trigger">
+            class="noc-evidence-db-trigger deep-h-[20px] deep-w-[20px]">
             <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>
           <mat-autocomplete #withAuto="matAutocomplete" class="noc-term-autocomplete">
@@ -166,7 +166,7 @@
       </div>
       <span class="grow"></span>
       @if (displayMenuButton) {
-      <button mat-icon-button class="noc-action-button w-10" [matMenuTriggerFor]="entityMenu">
+      <button mat-icon-button class="noc-action-button w-10 mt-2 shadow" [matMenuTriggerFor]="entityMenu">
         <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
       </button>
       }
@@ -232,7 +232,7 @@
 </div>
 
 @if (displayAddButton) {
-<button mat-icon-button class="noc-action-button w-10" [matMenuTriggerFor]="ccOnlyAddMenu">
+<button mat-icon-button class="noc-action-button w-10 mt-2 shadow" [matMenuTriggerFor]="ccOnlyAddMenu">
   <fa-icon [icon]="['fas', 'plus']"></fa-icon>
 </button>
 }

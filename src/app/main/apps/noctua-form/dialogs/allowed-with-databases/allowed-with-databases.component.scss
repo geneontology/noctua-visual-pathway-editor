@@ -1,20 +1,4 @@
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
-$primary: map-get($theme, primary);
-$accent: map-get($theme, accent);
 
-.allowed-databases-list {
-  width: 100%;
-  max-height: 400px;
-  overflow-y: auto;
-
-  .database-item {
-    border-radius: 4px;
-    width: 100%;
-
-    .database-name {
-      font-weight: 500;
-      font-size: 14px;
-    }
-  }
-}
+// Styles moved to Tailwind in template

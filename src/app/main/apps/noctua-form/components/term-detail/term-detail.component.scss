@@ -6,7 +6,6 @@
   width: 100%;
   @include deep-width(400px);
   @include mat.elevation(4);
-
   background-color: #fbf9de;
 
   .noc-item-details {
@@ -55,28 +54,6 @@
       .noc-description {
         font-size: 12px;
       }
-    }
-  }
-
-  .noc-edit-field {
-    @include deep-width(300px);
-  }
-
-  .noc-article-info {
-    padding: 12px 5px;
-
-    .noc-article-title {
-      font-size: 12px;
-      max-height: 60px;
-      overflow: hidden;
-    }
-
-    .noc-article-author {
-      max-height: 60px;
-      overflow: hidden;
-    }
-
-    .noc-article-date {
     }
   }
 }

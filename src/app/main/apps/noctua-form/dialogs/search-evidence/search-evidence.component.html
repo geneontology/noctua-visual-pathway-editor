@@ -1,4 +1,4 @@
-<div class="dialog-content-wrapper noc-dialog flex flex-col justify-start items-stretch">
+<div class="w-full min-h-[90%] flex flex-col justify-start items-stretch noc-dialog">
   <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">
       Search Evidence</span>
@@ -7,16 +7,16 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="flex flex-row justify-start items-start noc-dialog-body">
-    <div class="h-full noc-form-section w-full flex flex-col justify-start items-stretch">
-      <div class="noc-section-header  w-full flex flex-row justify-start items-center">
-        <div class="noc-section-heading">
+  <div class="m-0 p-0 w-full flex flex-row justify-start items-start">
+    <div class="h-full w-full flex flex-col justify-start items-stretch">
+      <div class="deep-h-[40px] pl-2 w-full flex flex-row justify-start items-center">
+        <div class="p-0 text-xs leading-[15px]">
           Selected Evidence : {{checklistSelection.selected.length}}
           <small></small>
         </div>
       </div>
       @if (dataSource.data) {
-      <div class="noc-section-body w-full overflow-y-auto">
+      <div class="noc-section-body w-full overflow-y-auto bg-[#eee]">
         <mat-tree #tree [dataSource]="dataSource" [treeControl]="treeControl">
           <mat-tree-node class="ann-tree-node" *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding
             matTreeNodePaddingIndent="10" [ngClass]="{ 'background-highlight': activeAnnotation === node.short_name }">
@@ -49,9 +49,6 @@
               <fa-icon [icon]="['fas', 'chevron-down']"></fa-icon>
               }
             </button>
-            <!--  <mat-checkbox class="mr-2" [checked]="descendantsAllSelected(node)"
-              [indeterminate]="descendantsPartiallySelected(node)" (change)="evidenceItemSelectionToggle(node)">
-            </mat-checkbox> -->
             {{node.activityNode?.term?.label}}
             (<small>{{node.activityNode?.term?.id}}</small>)
             <span class="grow"></span>
