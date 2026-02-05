@@ -140,7 +140,6 @@
   margin: 0 !important;
 }
 
-
 // Form field styling is now handled by partials/_mdc-form-field-theme.scss
 
 .mat-mdc-checkbox {
@@ -154,23 +153,6 @@
 .mat-pseudo-checkbox-checked:after {
   width: 14px !important;
   height: 7px !important;
-}
-
-mat-horizontal-stepper,
-mat-vertical-stepper {
-  mat-step-header {
-    mat-icon {
-      height: 16px !important;
-      width: 16px !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-      color: inherit !important;
-    }
-  }
-}
-
-mat-vertical-stepper {
-  padding: 16px 0;
 }
 
 // MDC chip icon sizing - ensure icons don't have minimum dimensions

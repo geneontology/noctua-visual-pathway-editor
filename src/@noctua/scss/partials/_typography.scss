@@ -1,7 +1,7 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 html {
   font-size: 62.5%;
-  font-family: 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: "Roboto", "Helvetica Neue", "Arial", sans-serif;
   line-height: 1.4 !important;
   letter-spacing: -0.1px !important;
 }
@@ -88,7 +88,7 @@ blockquote {
   footer {
     font-style: normal;
     &:before {
-      content: '\2014 \00A0';
+      content: "\2014 \00A0";
     }
   }
   &.reverse {
@@ -99,10 +99,10 @@ blockquote {
     padding-right: 16px;
     footer {
       &:before {
-        content: '';
+        content: "";
       }
       &:after {
-        content: '\2014 \00A0';
+        content: "\2014 \00A0";
       }
     }
   }
@@ -110,11 +110,10 @@ blockquote {
 
 // Code
 code {
-  font-family: 'Monaco', 'Menlo', 'Consolas', 'Ubuntu Mono', monospace;
-  ;
+  font-family: "Monaco", "Menlo", "Consolas", "Ubuntu Mono", monospace;
   &:not(.highlight) {
     background: rgba(0, 0, 0, 0.065);
-    color: #106CC8;
+    color: #106cc8;
     margin: 0 1px;
     padding: 2px 3px;
     border-radius: 2px;
@@ -133,7 +132,7 @@ dl {
 
 // Mark
 mark {
-  background: #F7F49A;
+  background: #f7f49a;
 }
 
 // Pre
@@ -158,18 +157,3 @@ table {
     }
   }
 }
-
-// Text utilities replaced by Tailwind:
-// - text-italic → italic
-// - text-semibold → font-semibold
-// - text-bold → font-bold
-// - text-strike → line-through
-// - text-capitalize → capitalize
-// - text-lowercase → lowercase
-// - text-uppercase → uppercase
-// - text-left/center/right → text-left/center/right
-// - font-weight-* → font-thin through font-black
-// - font-size-* → text-xs through text-9xl
-// - line-height-* → leading-*
-// - text-truncate → truncate
-// - text-nowrap → whitespace-nowrap
