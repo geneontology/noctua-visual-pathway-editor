@@ -1,22 +1,22 @@
 <div class="w-full flex flex-col justify-start items-stretch">
-  <mat-toolbar class="flex flex-row justify-start items-center" [ngClass]="{'noc-dev': isDev, 'noc-beta': isBeta }">
+  <mat-toolbar class="pl-[5px] pr-[10px] py-0 bg-white relative flex flex-row justify-start items-center" [ngClass]="{'noc-dev': isDev, 'noc-beta': isBeta }">
     @if (showLoadingBar) {
     <mat-progress-bar class="loading-bar" color="accent" mode="indeterminate"></mat-progress-bar>
     }
 
-    <div class="noc-logo pl-0 h-full flex flex-row justify-start items-center w-[180px]">
+    <div class="noc-logo py-[5px] px-0 h-full flex flex-row justify-start items-center w-[180px]">
 
       @if (!isBeta && !isDev) {
-      <a class="noc-main-logo" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
+      <a class="noc-main-logo text-xl text-left mr-1" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
         Noctua
       </a>
-      <a class="noc-sub-logo" href="{{noctuaConfigService.homeUrl}}" target=" _blank">
+      <a class="noc-sub-logo text-xl text-left" href="{{noctuaConfigService.homeUrl}}" target=" _blank">
         Visual Pathway Editor
       </a>
       }
       @if (isDev || isBeta) {
-      <div class="noc-beta-logo flex flex-col justify-center items-start">
-        <div class="noc-title">
+      <div class="noc-beta-logo deep-h-full flex flex-col justify-center items-start">
+        <div class="noc-title text-xl font-bold">
           <a class="" href="{{noctuaConfigService.noctuaUrl}}" target="_blank">
             Noctua
           </a>
@@ -25,7 +25,7 @@
           </a>
           ({{betaText}})
         </div>
-        <div class="noc-description">
+        <div class="noc-description text-[10px]">
           Testing Version. Visit <a class="" href="http://noctua.geneontology.org/" target="_blank">
             Noctua
           </a> for production version
@@ -53,13 +53,13 @@
       </div>
       <div class="border-r border-[#BBB] pr-3 flex flex-row justify-start items-center">
         @if (noctuaUserService.user) {
-        <button mat-button class="noc-name-button" [matMenuTriggerFor]="userMenu">
+        <button mat-button class="noc-name-button text-left normal-case text-xs" [matMenuTriggerFor]="userMenu">
           <div class="flex flex-row justify-start items-center">
-            <div class="noc-info flex flex-col justify-start items-start">
+            <div class="noc-info mr-[5px] max-w-[150px] overflow-hidden flex flex-col justify-start items-start">
               <div class="noc-name truncate">
                 {{noctuaUserService.user.name}}
               </div>
-              <div class="noc-group-name truncate">
+              <div class="noc-group-name text-[10px] truncate">
                 {{noctuaUserService.user?.group?.label}}
               </div>
             </div>
@@ -82,13 +82,13 @@
       </div>
     </div>
     <div class="border-r border-[#BBB] h-full flex flex-row justify-start items-center w-[200px]">
-      <div class="noc-logo pl-2 flex flex-row justify-start">
+      <div class="noc-logo py-[5px] pl-2 flex flex-row justify-start">
         <a href="http://geneontology.org/" target="_blank">
           <img src="assets/images/logos/go-logo.large.png">
         </a>
       </div>
     </div>
-    <div class="border-l border-[#BBB] noc-logo flex flex-row justify-start">
+    <div class="border-l border-[#BBB] noc-logo py-[5px] flex flex-row justify-start">
       <a href="https://www.alliancegenome.org" target="_blank">
         <img src="assets/images/logos/alliance-logo.png">
       </a>

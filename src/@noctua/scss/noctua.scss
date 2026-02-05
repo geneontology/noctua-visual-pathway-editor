@@ -76,11 +76,6 @@ mat-chip,
   }
 }
 
-.navbar {
-  display: none !important;
-  visibility: hidden;
-}
-
 .noc-activity-create-dialog {
   @include deep-height(90%);
   @include deep-width(900px);
@@ -210,103 +205,6 @@ textarea {
     @include deep-height(30px);
     margin: 0;
     padding: 10px 14px;
-  }
-}
-
-.noc-paginator {
-  overflow: hidden;
-  @include deep-height(50px);
-
-  display: flex;
-  justify-content: left;
-  align-items: center;
-
-  .mat-mdc-paginator-page-size {
-    align-items: center;
-  }
-
-  // MDC paginator - adjust page size select alignment
-  .mat-paginator-page-size-select,
-  .mat-mdc-paginator-page-size-select {
-    margin-top: -15px;
-  }
-
-  .mat-mdc-paginator-container {
-    @include deep-height(50px !important);
-  }
-}
-
-input[type="text"] {
-  &.noc-textbox-legacy {
-    padding-left: 10px;
-    height: 36px;
-    line-height: 36px;
-    outline: none;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    background: #fff;
-    border: 1px solid #bbb;
-    -webkit-transition: all 0.3s ease-in-out;
-    -moz-transition: all 0.3s ease-in-out;
-    -ms-transition: all 0.3s ease-in-out;
-    -o-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-  }
-}
-
-.noc-button-border {
-  border: 1px solid #bbb;
-  height: 36px;
-  line-height: 36px;
-  @include deep-width(36px);
-  border-radius: 0;
-  background-color: #f2f2f2;
-}
-
-.noc-truncate {
-  display: block;
-  margin: 0;
-  white-space: nowrap;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.noc-page-container {
-  width: 100%;
-  padding: 20px;
-}
-
-.noc-container {
-  position: relative;
-  width: 1100px;
-
-  .noc-full-w {
-    width: 100% !important;
-  }
-}
-
-.noc-breadcrumbs {
-  .noc-breadcrumb {
-    font-size: 20px;
-    color: #777;
-
-    button {
-      font-size: 20px;
-      color: #999;
-      padding-left: 8px;
-      padding-right: 8px;
-    }
-
-    &.noc-active {
-      color: #000;
-    }
-  }
-
-  mat-icon {
-    margin-left: 10px;
-    margin-right: 10px;
   }
 }
 

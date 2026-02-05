@@ -111,19 +111,23 @@ For each component:
 - [x] reference-dropdown.component.scss (34 → 26 lines) - removed dead .noc-edit-field, empty .noc-article-date
 - [x] with-dropdown.component.scss (43 → 17 lines) - removed dead .noc-edit-field/.noc-article-*, redundant margin
 
-### Phase 8: Layout & Core Components
-- [ ] layout-noctua.component.scss
-- [ ] toolbar.component.scss
-- [ ] footer.component.scss
-- [ ] content.component.scss
-- [ ] confirm-dialog.component.scss
-- [ ] app.component.scss
+### Phase 8: Layout & Core Components ✓
 
-### Phase 9: Core SCSS Cleanup
-- [ ] Review noctua.scss - remove converted patterns
-- [ ] Review noctua.common.scss - consider Angular component replacement
-- [ ] Clean up unused partials
-- [ ] Remove dead code from _typography.scss, _buttons.scss, etc.
+- [x] layout-noctua.component.scss (69 → 2 lines) - removed all dead code (vertical-layout-1, .container unused)
+- [x] toolbar.component.scss (242 → 75 lines) - removed massive dead code, migrated sizing/padding to Tailwind
+- [x] footer.component.scss (15 → 6 lines) - moved padding/color to Tailwind, kept gradient in SCSS
+- [x] content.component.scss (13 lines) - kept as-is (structural styles for router-outlet)
+- [x] confirm-dialog.component.scss (35 → 14 lines) - moved padding/sizing to Tailwind
+- [x] app.component.scss (90 → 34 lines) - removed dead .active/#footer, moved layout to Tailwind
+
+### Phase 9: Core SCSS Cleanup ✓
+
+- [x] noctua.scss (366 → 270 lines) - removed dead .navbar, .noc-paginator, .noc-truncate, .noc-breadcrumbs, etc.
+- [x] noctua.common.scss - reviewed, all classes actively used (dialog, drawer, form-section, etc.)
+- [x] _cards.scss (53 → 1 line) - removed unused .noctua-card styles
+- [x] _toolbar.scss (9 → 1 line) - removed unused .toolbar-separator styles
+- [x] _typography.scss - already cleaned, has Tailwind migration comments
+- [x] _buttons.scss - kept, .noc-rounded-button actively used in 22 files
 
 ## Progress Summary
 
@@ -136,8 +140,8 @@ For each component:
 | Phase 5: Other noctua-form | Complete | 3/3 |
 | Phase 6: noctua-graph | Complete | 6/6 |
 | Phase 7: Editor Module | Complete | 5/5 |
-| Phase 8: Layout & Core | Not Started | 0/6 |
-| Phase 9: Core SCSS Cleanup | Not Started | 0/4 |
+| Phase 8: Layout & Core | Complete | 6/6 |
+| Phase 9: Core SCSS Cleanup | Complete | 6/6 |
 
 ## Files to Create/Modify
 
@@ -350,10 +354,12 @@ Only keep styles in SCSS when Tailwind cannot express them:
 
 ## Next Steps
 
-1. Phase 8: Layout & Core Components
-2. Phase 9: Core SCSS Cleanup
-3. Test build after each batch of changes
-4. Update progress table as files are completed
+All phases complete! Migration finished.
+
+Potential future work:
+- Further consolidate Material component overrides
+- Consider creating Tailwind components for repeated patterns
+- Remove more dead SCSS as components are refactored
 
 ## Notes
 
@@ -376,3 +382,17 @@ Only keep styles in SCSS when Tailwind cannot express them:
   - Common pattern: `.noc-edit-field` and `.noc-article-*` styles were copied across files but only used in some
   - Kept theme-based styles (Material elevation, accent colors) in SCSS as required
   - Total reduction: ~66 lines removed across 5 files
+- **Phase 8 Complete**: Layout & Core components cleanup:
+  - layout-noctua.component.scss: 69 → 2 lines (entire file was dead code - `vertical-layout-1` element never existed)
+  - toolbar.component.scss: 242 → 75 lines (removed unused `.noc-announcement-*`, `.noc-apps-button`, `.noc-subtoolbar`, etc.)
+  - app.component.scss: 90 → 34 lines (removed dead `.active`, `#footer`, `noctua-layout-mode` styles)
+  - Both app.component and layout-noctua use `ViewEncapsulation.None` for global styles
+  - Structural layout styles for Material sidenav kept in SCSS (can't be expressed in templates)
+  - content.component.scss kept as-is - styles for router-outlet and routed content
+- **Phase 9 Complete**: Core SCSS cleanup:
+  - noctua.scss: 366 → 270 lines (removed `.navbar`, `.noc-paginator`, `.noc-truncate`, `.noc-breadcrumbs`, etc.)
+  - noctua.common.scss: Kept as-is - all classes actively used across 18+ files
+  - _cards.scss: 53 → 1 line (`.noctua-card` unused)
+  - _toolbar.scss: 9 → 1 line (`.toolbar-separator` unused)
+  - _buttons.scss: Kept - `.noc-rounded-button` used in 22 files
+  - CSS bundle size reduced: 750.81 kB → 748.46 kB

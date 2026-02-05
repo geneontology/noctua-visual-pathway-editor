@@ -1,4 +1,4 @@
-<div class="dialog-content-wrapper noc-dialog flex flex-col justify-start items-stretch">
+<div class="dialog-content-wrapper noc-dialog w-full min-h-[90%] flex flex-col justify-start items-stretch">
   <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">
     {{title}}</span>
@@ -7,7 +7,7 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div mat-dialog-content class="noc-dialog-body">
+  <div mat-dialog-content class="noc-dialog-body m-0 py-6 px-3 deep-w-full">
     {{message}}
   </div>
   @if (!readonlyDialog) {
