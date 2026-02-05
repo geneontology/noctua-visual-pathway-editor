@@ -1,5 +1,4 @@
 import { v4 as uuid } from 'uuid';
-import { Edge as NgxEdge, Node as NgxNode } from '@swimlane/ngx-graph';
 import { noctuaFormConfig } from './../../noctua-form-config';
 import { SaeGraph } from './sae-graph';
 import { Activity, ActivityType } from './activity';
@@ -325,18 +324,4 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
     // this.createGraph(evidence);
   }
 
-  private _getPreviewEdges(): NgxEdge[] {
-    const self = this;
-
-    let edges: NgxEdge[] = [];
-
-    edges = <NgxEdge[]>[
-      {
-        source: self.subject.id,
-        target: self.object.id,
-        label: self.predicate.edge ? self.predicate.edge.label : ''
-      }];
-
-    return edges;
-  }
 }

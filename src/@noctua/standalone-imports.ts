@@ -9,7 +9,6 @@ import { RouterModule } from '@angular/router';
 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 /**
@@ -41,7 +40,6 @@ export const LAYOUT_IMPORTS = [
  */
 export const THIRD_PARTY_IMPORTS = [
   NgScrollbarModule,
-  NgxGraphModule,
   FontAwesomeModule,
 ] as const;
 

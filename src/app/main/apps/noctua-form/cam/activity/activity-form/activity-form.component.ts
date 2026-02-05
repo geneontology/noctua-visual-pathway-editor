@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ResizableModule, ResizeEvent } from 'angular-resizable-element';
 
 import { NoctuaFormDialogService } from './../../../services/dialog.service';
 import {
@@ -26,23 +25,22 @@ import {
 import { EntityFormComponent } from './entity-form/entity-form.component';
 
 @Component({
-    selector: 'noc-activity-form',
-    templateUrl: './activity-form.component.html',
-    styleUrls: ['./activity-form.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatSidenavModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatTooltipModule,
-        FontAwesomeModule,
-        ResizableModule,
-        EntityFormComponent
-    ]
+  selector: 'noc-activity-form',
+  templateUrl: './activity-form.component.html',
+  styleUrls: ['./activity-form.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+    FontAwesomeModule,
+    EntityFormComponent
+  ]
 })
 
 export class ActivityFormComponent implements OnInit, OnDestroy {
@@ -105,30 +103,6 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
           this.descriptionSectionTitle = 'Function Description';
         }
       });
-  }
-
-  resizeValidate(event: ResizeEvent): boolean {
-    const MIN_DIMENSIONS_PX: number = 50;
-    if (
-      event.rectangle.width &&
-      event.rectangle.height &&
-      (event.rectangle.width < MIN_DIMENSIONS_PX ||
-        event.rectangle.height < MIN_DIMENSIONS_PX)
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  onResizeEnd(event: ResizeEvent): void {
-    this.resizeStyle = {
-      // enable/disable these per your needs
-      //position: 'fixed',
-      //left: `${event.rectangle.left}px`,
-      //top: `${event.rectangle.top}px`,
-      //height: `${event.rectangle.height}px`,
-      width: `${event.rectangle.width}px`,
-    };
   }
 
   checkErrors() {

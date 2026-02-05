@@ -1,6 +1,7 @@
 <div class="h-full">
-  <form name="activityFormGroup" [formGroup]="activityFormGroup" class="flex flex-col justify-start items-stretch noc-drawer w-full h-full">
-    <div class="resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+  <form name="activityFormGroup" [formGroup]="activityFormGroup"
+    class="flex flex-col justify-start items-stretch noc-drawer w-full h-full">
+    <div class="resize-handle-right"></div>
     <div class="noc-drawer-header flex flex-row justify-start items-center">
       <div class="noc-drawer-header-title">
         @switch (noctuaActivityFormService.activity.activityType) {
@@ -122,7 +123,8 @@
           </div>
           }
           @for (nodeGroup of activityFormGroup.get('fd')?.controls; track nodeGroup; let i = $index) {
-          <div [formArrayName]="'fd'" class="shadow bg-white aspect-border-none mb-4 px-2 {{nodeGroup.get('name').value}} flex flex-row justify-start items-stretch">
+          <div [formArrayName]="'fd'"
+            class="shadow bg-white aspect-border-none mb-4 px-2 {{nodeGroup.get('name').value}} flex flex-row justify-start items-stretch">
             @if (nodeGroup.get('isComplement')?.value) {
             <div class="deep-w-[50px] bg-gray-300 text-[10px] text-center flex flex-col justify-center items-center">
               <div>IS NOT</div>
