@@ -110,20 +110,6 @@ export class NoctuaFormDialogService {
             });
     }
 
-    async openBeforeSaveDialog(cam): Promise<void> {
-        const { BeforeSaveDialogComponent } = await import('../dialogs/before-save/before-save.component');
-        this.dialogRef = this._matDialog.open(BeforeSaveDialogComponent, {
-            panelClass: 'before-save-dialog',
-            data: {
-                cam: cam
-            }
-        });
-        this.dialogRef.afterClosed()
-            .subscribe(response => {
-
-            });
-    }
-
     async openConfirmCopyModelDialog(cam: Cam, success): Promise<void> {
         const { ConfirmCopyModelDialogComponent } = await import('../dialogs/confirm-copy-model/confirm-copy-model.component');
         this.dialogRef = this._matDialog.open(ConfirmCopyModelDialogComponent, {
