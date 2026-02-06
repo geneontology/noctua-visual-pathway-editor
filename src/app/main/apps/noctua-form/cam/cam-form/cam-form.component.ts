@@ -41,7 +41,7 @@ import {
 
 export class CamFormComponent implements OnInit, OnDestroy {
 
-  @Input('panelDrawer')
+  @Input()
   panelDrawer: MatDrawer;
   cam: Cam;
   camFormGroup: FormGroup;

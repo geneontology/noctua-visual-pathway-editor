@@ -40,7 +40,7 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
   MiddlePanel = MiddlePanel;
   RightPanel = RightPanel;
 
-  @Input('cam') public cam: Cam;
+  @Input() public cam: Cam;
   @Input('options') public camToolbarOptions: CamToolbarOptions;
 
 

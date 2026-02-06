@@ -51,9 +51,9 @@ export class ActivityTableComponent implements OnInit, OnDestroy {
   ActivityType = ActivityType;
   activityTypeOptions = noctuaFormConfig.activityType.options;
 
-  @Input('options') options: any = {};
-  @Input('panelDrawer') panelDrawer: MatDrawer;
-  @Input('cam') cam: Cam;
+  @Input() options: any = {};
+  @Input() panelDrawer: MatDrawer;
+  @Input() cam: Cam;
 
   activity: Activity
 

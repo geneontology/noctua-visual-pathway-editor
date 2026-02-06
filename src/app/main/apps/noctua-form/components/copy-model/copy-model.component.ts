@@ -41,8 +41,8 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
 
 export class CopyModelComponent implements OnInit, OnDestroy {
 
-  @Input('panelDrawer') panelDrawer: MatDrawer;
-  @Input('panelSide') panelSide: string
+  @Input() panelDrawer: MatDrawer;
+  @Input() panelSide: string
   cam: Cam;
   loading = false;
   includeEvidence = false;

@@ -60,19 +60,19 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   ActivityType = ActivityType;
   activityTypeOptions = noctuaFormConfig.activityType.options;
 
-  @Input('settings')
+  @Input()
   settings: SettingsOptions
 
-  @Input('cam')
+  @Input()
   cam: Cam;
 
-  @Input('activity')
+  @Input()
   activity: Activity;
 
-  @Input('entity')
+  @Input()
   entity: ActivityNode;
 
-  @Input('options')
+  @Input()
   options: any = {};
 
   relationWidth = '0px';

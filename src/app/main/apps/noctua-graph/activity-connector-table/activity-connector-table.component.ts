@@ -53,11 +53,11 @@ import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
 export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType
 
-  @Input('panelDrawer')
+  @Input()
   panelDrawer: MatDrawer;
 
-  @Input('cam') cam: Cam
-  @Input('activity') activity: Activity
+  @Input() cam: Cam
+  @Input() activity: Activity
 
   evidenceOptions: TableOptions = {
     editableEvidence: true,

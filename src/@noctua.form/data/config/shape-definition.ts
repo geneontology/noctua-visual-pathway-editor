@@ -36,7 +36,7 @@ const addCausalEdges = (edges: Entity[]): ShapeDescription[] => {
     each(edges, (edge: Entity) => {
         causalShapeDescriptions.push({
             id: ActivityNodeType.GoBiologicalProcess,
-            node: <ActivityNodeDisplay>{
+            node: {
                 type: ActivityNodeType.GoBiologicalProcess,
                 category: [EntityDefinition.GoBiologicalProcess],
                 label: `MF ${edge.label} BP`,
@@ -46,7 +46,7 @@ const addCausalEdges = (edges: Entity[]): ShapeDescription[] => {
                 isKey: true,
                 relationEditable: true,
                 weight: 10,
-            },
+            } as ActivityNodeDisplay,
             predicate: edge,
             cardinality: CardinalityType.oneToOne
         } as ShapeDescription);
@@ -83,11 +83,11 @@ export const getShexJson = (subjectIds: string[]) => {
 // What can you insert
 export const canInsertEntity = {
     [ActivityNodeType.GoMolecularEntity]: [
-        <ShapeDescription>{
+        ({
             label: 'part of',
             rangeLabel: 'Protein Complex',
             id: ActivityNodeType.GoProteinContainingComplex,
-            node: <ActivityNodeDisplay>{
+            node: {
                 type: ActivityNodeType.GoProteinContainingComplex,
                 category: [EntityDefinition.GoProteinContainingComplex],
                 label: '(GP) part of (Protein Complex)',
@@ -96,18 +96,18 @@ export const canInsertEntity = {
                 weight: 3,
                 isKey: false,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToMany
-        }
+        } as ShapeDescription)
     ],
 
     [ActivityNodeType.GoProteinContainingComplex]: [
-        <ShapeDescription>{
+        ({
             label: 'has part',
             rangeLabel: 'Gene Product',
             id: ActivityNodeType.GoMolecularEntity,
-            node: <ActivityNodeDisplay>{
+            node: {
                 type: ActivityNodeType.GoMolecularEntity,
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 label: '(Protein Complex) has part (GP)',
@@ -116,16 +116,16 @@ export const canInsertEntity = {
                 weight: 3,
                 isKey: false,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.hasPart,
             cardinality: CardinalityType.oneToMany
-        },
+        } as ShapeDescription),
     ],
     [ActivityNodeType.GoMolecularFunction]: [
-        <ShapeDescription>{
+        ({
             label: 'enabled by Protein Complex',
             id: ActivityNodeType.GoProteinContainingComplex,
-            node: <ActivityNodeDisplay>{
+            node: {
                 id: EntityDefinition.GoProteinContainingComplex.id,
                 type: ActivityNodeType.GoProteinContainingComplex,
                 category: [EntityDefinition.GoProteinContainingComplex],
@@ -135,14 +135,14 @@ export const canInsertEntity = {
                 termRequired: true,
                 weight: 2,
                 isKey: true
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.enabledBy,
             cardinality: CardinalityType.oneToOne
-        },
-        <ShapeDescription>{
+        } as ShapeDescription),
+        ({
             label: 'enabled by GP',
             id: ActivityNodeType.GoMolecularEntity,
-            node: <ActivityNodeDisplay>{
+            node: {
                 id: EntityDefinition.GoMolecularEntity.id,
                 type: ActivityNodeType.GoMolecularEntity,
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
@@ -152,15 +152,15 @@ export const canInsertEntity = {
                 termRequired: true,
                 weight: 2,
                 isKey: true
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.enabledBy,
             cardinality: CardinalityType.oneToOne
-        },
-        <ShapeDescription>{
+        } as ShapeDescription),
+        ({
             label: 'part of',
             rangeLabel: 'Biological Process',
             id: ActivityNodeType.GoBiologicalProcess,
-            node: <ActivityNodeDisplay>{
+            node: {
                 type: ActivityNodeType.GoBiologicalProcess,
                 category: [EntityDefinition.GoBiologicalProcess],
                 label: '(MF) part of (BP)',
@@ -169,15 +169,15 @@ export const canInsertEntity = {
                 displayGroup: noctuaFormConfig.displayGroup.bp,
                 weight: 10,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToOne
-        },
-        <ShapeDescription>{
+        } as ShapeDescription),
+        ({
             label: 'occurs in',
             rangeLabel: 'Cellular Component',
             id: ActivityNodeType.GoCellularComponent,
-            node: <ActivityNodeDisplay>{
+            node: {
                 type: ActivityNodeType.GoCellularComponent,
                 category: [EntityDefinition.GoCellularComponent],
                 label: '(MF) occurs in (CC)',
@@ -186,15 +186,15 @@ export const canInsertEntity = {
                 displayGroup: noctuaFormConfig.displayGroup.cc,
                 weight: 20,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.occursIn,
             cardinality: CardinalityType.oneToOne
-        },
-        <ShapeDescription>{
+        } as ShapeDescription),
+        ({
             label: 'has input',
             rangeLabel: 'Gene Product/Protein Complex',
             id: ActivityNodeType.GoChemicalEntityHasInput,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
                 type: ActivityNodeType.GoChemicalEntityHasInput,
                 label: 'has input (Gene Product/Protein Complex)',
@@ -203,15 +203,15 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 4,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.hasInput,
             cardinality: CardinalityType.oneToMany
-        },
-        <ShapeDescription>{
+        } as ShapeDescription),
+        ({
             label: 'happens during',
             rangeLabel: 'Biological Phase/Stage/Plant Stage',
             id: ActivityNodeType.GoBiologicalPhase,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoBiologicalPhase, EntityDefinition.UberonStage],
                 type: ActivityNodeType.GoBiologicalPhase,
                 label: 'happens during (Biological Phase/Stage/Plant Stage)',
@@ -220,10 +220,10 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 3,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.happensDuring,
             cardinality: CardinalityType.oneToOne
-        },
+        } as ShapeDescription),
 
         // Causal Edges
         ...addCausalEdges([
@@ -236,11 +236,11 @@ export const canInsertEntity = {
         ])
     ],
     [ActivityNodeType.GoBiologicalProcess]: [
-        <ShapeDescription>{
+        ({
             label: 'part of',
             rangeLabel: 'Biological Process',
             id: ActivityNodeType.GoBiologicalProcess,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoBiologicalProcess],
                 type: ActivityNodeType.GoBiologicalProcess,
                 label: 'part of (BP)',
@@ -250,18 +250,18 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 10,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToOne
-        },
+        } as ShapeDescription),
     ],
     [ActivityNodeType.GoCellularComponent]: [
 
-        <ShapeDescription>{
+        ({
             label: 'part of',
             rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
                 label: 'part of (CC/Cell/Anatomy/Organism)',
@@ -270,17 +270,17 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 40,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToOne
-        },
+        } as ShapeDescription),
     ],
     [ActivityNodeType.GoCellTypeEntity]: [
-        <ShapeDescription>{
+        ({
             label: 'part of',
             rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
                 label: 'part of (CC/Cell/Anatomy/Organism)',
@@ -289,17 +289,17 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 40,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToOne
-        }
+        } as ShapeDescription)
     ],
     [ActivityNodeType.GoAnatomicalEntity]: [
-        <ShapeDescription>{
+        ({
             label: 'part of',
             rangeLabel: 'CC/Cell/Anatomy/Organism',
             id: ActivityNodeType.GoAnatomicalEntity,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoAnatomicalEntity, EntityDefinition.GoCellTypeEntity, EntityDefinition.GoOrganism],
                 type: ActivityNodeType.GoAnatomicalEntity,
                 label: 'part of (CC/Cell/Anatomy/Organism)',
@@ -308,17 +308,17 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 40,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.partOf,
             cardinality: CardinalityType.oneToOne
-        },
+        } as ShapeDescription),
     ],
     [ActivityNodeType.GoChemicalEntity]: [
-        <ShapeDescription>{
+        ({
             label: 'located in',
             rangeLabel: 'Cellular Component',
             id: ActivityNodeType.GoCellularComponent,
-            node: <ActivityNodeDisplay>{
+            node: {
                 category: [EntityDefinition.GoCellularComponent],
                 type: ActivityNodeType.GoCellularComponent,
                 aspect: 'C',
@@ -328,10 +328,10 @@ export const canInsertEntity = {
                 isExtension: true,
                 weight: 20,
                 showInMenu: true,
-            },
+            } as ActivityNodeDisplay,
             predicate: noctuaFormConfig.edge.locatedIn,
             cardinality: CardinalityType.oneToOne
-        },
+        } as ShapeDescription),
     ]
 };
 

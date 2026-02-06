@@ -98,7 +98,7 @@ export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   save() {
     this._matDialogRef.close({
       term: this.selectedActivityNode,
-      evidences: <Evidence[]>this.selection.selected
+      evidences: this.selection.selected as Evidence[]
     });
   }
 

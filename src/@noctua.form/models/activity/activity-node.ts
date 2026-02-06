@@ -109,11 +109,11 @@ export class ActivityNode implements ActivityNodeDisplay {
   linkedNode = false;
   familyNodes = [];
   displayId: string;
-  expandable: boolean = true;
-  expanded: boolean = false;
-  causalNode: boolean = false;
+  expandable = true;
+  expanded = false;
+  causalNode = false;
   frequency: number;
-  canDelete: boolean = true;
+  canDelete = true;
 
   private _id: string;
 
@@ -324,7 +324,7 @@ export class ActivityNode implements ActivityNodeDisplay {
 
 export function categoryToClosure(categories: GoCategory[]) {
 
-  let results = categories.map((category) => {
+  const results = categories.map((category) => {
     let result
     if (category.categoryType === 'is_obsolete') {
       result = `${category.categoryType}:${category.category}`;

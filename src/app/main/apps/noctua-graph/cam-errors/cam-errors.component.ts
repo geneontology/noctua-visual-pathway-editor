@@ -52,8 +52,8 @@ export class CamErrorsComponent implements OnInit, OnDestroy {
   ErrorLevel = ErrorLevel;
   EditorCategory = EditorCategory;
 
-  @Input('panelDrawer') panelDrawer: MatDrawer;
-  @Input('cam') cam: Cam;
+  @Input() panelDrawer: MatDrawer;
+  @Input() cam: Cam;
 
   activity: Activity
 

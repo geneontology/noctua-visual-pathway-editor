@@ -1,10 +1,10 @@
 import { find, each, omit, pickBy, mapKeys, mapValues, remove, difference, differenceWith } from 'lodash';
 import { ActivityNode } from './activity-node';
 
-export type Edge<EdgeMetadata> = { subjectId: string, objectId: string, metadata: EdgeMetadata };
+export interface Edge<EdgeMetadata> { subjectId: string, objectId: string, metadata: EdgeMetadata }
 export interface Graph<Node, EdgeMetadata> {
-    _nodes: { [key: string]: Node };
-    _edges: { [key: string]: Edge<EdgeMetadata>[] };
+    _nodes: Record<string, Node>;
+    _edges: Record<string, Edge<EdgeMetadata>[]>;
 }
 
 export const empty = () => ({ _nodes: {}, _edges: {} });
@@ -143,7 +143,7 @@ export function subtractGraph<Node, EdgeMetadata>(
     graph1: Graph<Node, EdgeMetadata>,
     graph2: Graph<Node, EdgeMetadata>
 ): Graph<Node, EdgeMetadata> {
-    const result: Graph<Node, EdgeMetadata> = <Graph<Node, EdgeMetadata>>{ _nodes: {}, _edges: {} };
+    const result: Graph<Node, EdgeMetadata> = { _nodes: {}, _edges: {} } as Graph<Node, EdgeMetadata>;
     const keys1 = Object.keys(getNodes(graph1));
     const keys2 = Object.keys(getNodes(graph2));
     const edges1 = getEdges(graph1);

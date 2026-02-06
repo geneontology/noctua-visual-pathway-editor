@@ -107,7 +107,7 @@ export class NoctuaUserService {
   getContributorsFromAnnotations(annotations): Contributor[] {
     const self = this;
 
-    const contributors = <Contributor[]>annotations.map((annotation) => {
+    const contributors = annotations.map((annotation) => {
       const orcid = annotation.value();
       const contributor = self.getContributorDetails(annotation.value())
 
@@ -119,7 +119,7 @@ export class NoctuaUserService {
 
         return result;
       }
-    });
+    }) as Contributor[];
 
     return contributors
   }
@@ -158,11 +158,11 @@ export class NoctuaUserService {
   }
 
   getGroupsFromAnnotations(annotations): Group[] {
-    const groups = <Group[]>annotations.map((annotation) => {
+    const groups = annotations.map((annotation) => {
       const url = annotation.value();
       const group = this.getGroupDetails(annotation.value())
       return group ? group : new Group(url, null);
-    });
+    }) as Group[];
 
     return groups
   }
@@ -170,10 +170,10 @@ export class NoctuaUserService {
   getGroupsFromUrls(urls: string[]): Group[] {
     const self = this;
 
-    const groups = <Group[]>urls.map((url) => {
+    const groups = urls.map((url) => {
       const group = self.getGroupDetails(url)
       return group ? group : new Group(url, null);
-    });
+    }) as Group[];
 
     return groups
   }
@@ -181,10 +181,10 @@ export class NoctuaUserService {
   getGroupsFromNames(names: string[]): Group[] {
     const self = this;
 
-    const groups = <Group[]>names.map((name) => {
+    const groups = names.map((name) => {
       const group = self.getGroupDetailsByName(name)
       return group ? group : new Group(null, name);
-    });
+    }) as Group[];
 
     return groups
   }

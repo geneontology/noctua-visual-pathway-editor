@@ -49,19 +49,19 @@ import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline
 export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   EditorCategory = EditorCategory;
 
-  @Input('settings')
+  @Input()
   settings: SettingsOptions = new SettingsOptions();
 
-  @Input('options')
+  @Input()
   options: any = {};
 
-  @Input('cam')
+  @Input()
   public cam: Cam;
 
-  @Input('activity')
+  @Input()
   public activity: Activity;
 
-  @Input('entity')
+  @Input()
   public entity: ActivityNode;
 
   private unsubscribeAll: Subject<any>;
@@ -137,7 +137,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
       });
     };
 
-    let message = `You are about to delete ${evidence.evidence.label} \n 
+    const message = `You are about to delete ${evidence.evidence.label} \n 
       ${evidence.reference} \n 
       ${evidence.with}`;
 
@@ -155,7 +155,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
       });
     };
 
-    let message = `You are about to delete Reference:  ${evidence.reference}`
+    const message = `You are about to delete Reference:  ${evidence.reference}`
 
     this.confirmDialogService.openConfirmDialog('Confirm Delete?',
       `${message}`, success);
@@ -171,7 +171,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
       });
     };
 
-    let message = `You are about to delete With/From:  ${evidence.with}`
+    const message = `You are about to delete With/From:  ${evidence.with}`
 
     this.confirmDialogService.openConfirmDialog('Confirm Delete?',
       `${message}`, success);

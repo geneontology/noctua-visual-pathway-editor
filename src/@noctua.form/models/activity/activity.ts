@@ -47,8 +47,8 @@ export enum ActivityType {
 }
 
 export class ActivitySize {
-  width: number = 150;
-  height: number = 150;
+  width = 150;
+  height = 150;
 
   constructor() {
 
@@ -56,8 +56,8 @@ export class ActivitySize {
 }
 
 export class ActivityPosition {
-  x: number = 0;
-  y: number = 0;
+  x = 0;
+  y = 0;
 
   constructor() {
 
@@ -254,7 +254,7 @@ export class Activity extends SaeGraph<ActivityNode> {
 
   updateSummary() {
     const self = this;
-    let summary = new TermsSummary()
+    const summary = new TermsSummary()
     let coverage = 0;
     const filteredNodes = self.nodes.filter(node => node.term.hasValue())
 

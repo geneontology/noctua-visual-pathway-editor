@@ -50,12 +50,12 @@ import { InlineDetailService } from '@noctua.editor/inline-detail/inline-detail.
 })
 
 export class EntityFormComponent implements OnInit, OnDestroy {
-  @Input('entityFormGroup')
+  @Input()
   public entityFormGroup: FormGroup;
 
-  @Input('displayAddButton') public displayAddButton = false;
+  @Input() public displayAddButton = false;
 
-  @Input('displayMenuButton') public displayMenuButton = true;
+  @Input() public displayMenuButton = true;
 
   @ViewChild('evidenceDBreferenceMenuTrigger', { static: true, read: MatMenuTrigger })
   evidenceDBreferenceMenuTrigger: MatMenuTrigger;

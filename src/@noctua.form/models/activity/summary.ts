@@ -8,7 +8,7 @@ import { Evidence } from "./evidence";
 export class CamSummary<T extends Entity | Evidence | ActivityNode | Article | Contributor> {
   label: string
   shorthand: string
-  count: number = 0;
+  count = 0;
   frequency = 0
   tooltip = ''
   nodes: T[] = [];

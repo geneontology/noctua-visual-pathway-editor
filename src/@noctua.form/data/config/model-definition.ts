@@ -17,9 +17,9 @@ import { ShexShapeAssociation } from '../shape';
 export interface ActivityDescription {
     type: ActivityType;
     isComplex?: boolean;
-    nodes: { [key: string]: ActivityNodeDisplay };
+    nodes: Record<string, ActivityNodeDisplay>;
     triples: { subject: string, object: string, predicate: any }[];
-    overrides?: { [key: string]: ActivityNodeDisplay };
+    overrides?: Record<string, ActivityNodeDisplay>;
 }
 
 export interface InsertNodeDescription {
@@ -44,7 +44,7 @@ const getNodeDefaults = (subjectNode: ActivityNode, predExpr: ShapeDescription.P
 export const activityUnitBaseDescription: ActivityDescription = {
     type: ActivityType.default,
     nodes: {
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -56,7 +56,7 @@ export const activityUnitBaseDescription: ActivityDescription = {
             canDelete: false,
             termRequired: true,
             weight: 1
-        },
+        } as ActivityNodeDisplay,
     },
     triples: [],
 };
@@ -65,7 +65,7 @@ export const bpOnlyAnnotationBaseDescription: ActivityDescription = {
     type: ActivityType.bpOnly,
     isComplex: true,
     nodes: {
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -77,7 +77,7 @@ export const bpOnlyAnnotationBaseDescription: ActivityDescription = {
             visible: false,
             canDelete: false,
             weight: 1
-        }
+        } as ActivityNodeDisplay
     },
     triples: []
 };
@@ -85,7 +85,7 @@ export const bpOnlyAnnotationBaseDescription: ActivityDescription = {
 export const ccOnlyAnnotationBaseDescription: ActivityDescription = {
     type: ActivityType.ccOnly,
     nodes: {
-        [ActivityNodeType.GoMolecularEntity]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularEntity]: {
             id: EntityDefinition.GoMolecularEntity.id,
             type: ActivityNodeType.GoMolecularEntity,
             category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
@@ -96,7 +96,7 @@ export const ccOnlyAnnotationBaseDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,
             weight: 1
-        }
+        } as ActivityNodeDisplay
     },
     triples: [],
 };
@@ -104,7 +104,7 @@ export const ccOnlyAnnotationBaseDescription: ActivityDescription = {
 export const proteinComplexBaseDescription: ActivityDescription = {
     type: ActivityType.proteinComplex,
     nodes: {
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -116,7 +116,7 @@ export const proteinComplexBaseDescription: ActivityDescription = {
             visible: false,
             canDelete: false,
             weight: 1
-        }
+        } as ActivityNodeDisplay
     },
     triples: [],
 };
@@ -124,7 +124,7 @@ export const proteinComplexBaseDescription: ActivityDescription = {
 export const moleculeBaseDescription: ActivityDescription = {
     type: ActivityType.molecule,
     nodes: {
-        [ActivityNodeType.GoChemicalEntity]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoChemicalEntity]: {
             id: EntityDefinition.GoChemicalEntity.id,
             type: ActivityNodeType.GoChemicalEntity,
             category: [EntityDefinition.GoChemicalEntity],
@@ -136,7 +136,7 @@ export const moleculeBaseDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,
             weight: 1
-        }
+        } as ActivityNodeDisplay
     },
     triples: [],
 };
@@ -145,7 +145,7 @@ export const moleculeBaseDescription: ActivityDescription = {
 export const activityUnitDescription: ActivityDescription = {
     type: ActivityType.default,
     nodes: {
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -156,8 +156,8 @@ export const activityUnitDescription: ActivityDescription = {
             termRequired: true,
             canDelete: false,
             weight: 1
-        },
-        [ActivityNodeType.GoMolecularEntity]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoMolecularEntity]: {
             id: EntityDefinition.GoMolecularEntity.id,
             type: ActivityNodeType.GoMolecularEntity,
             category: [EntityDefinition.GoMolecularEntity],
@@ -168,8 +168,8 @@ export const activityUnitDescription: ActivityDescription = {
             skipEvidenceCheck: true,
             canDelete: false,
             weight: 2
-        },
-        [ActivityNodeType.GoBiologicalProcess]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoBiologicalProcess]: {
             id: EntityDefinition.GoBiologicalProcess.id,
             type: ActivityNodeType.GoBiologicalProcess,
             category: [EntityDefinition.GoBiologicalProcess],
@@ -178,8 +178,8 @@ export const activityUnitDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.bp,
             weight: 10
-        },
-        [ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoCellularComponent]: {
             id: EntityDefinition.GoCellularComponent.id,
             type: ActivityNodeType.GoCellularComponent,
             category: [EntityDefinition.GoCellularComponent],
@@ -188,7 +188,7 @@ export const activityUnitDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.cc,
             weight: 20
-        }
+        } as ActivityNodeDisplay
     },
     triples: [{
         subject: ActivityNodeType.GoMolecularFunction,
@@ -208,7 +208,7 @@ export const activityUnitDescription: ActivityDescription = {
 export const bpOnlyAnnotationDescription: ActivityDescription = {
     type: ActivityType.bpOnly,
     nodes: {
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -219,8 +219,8 @@ export const bpOnlyAnnotationDescription: ActivityDescription = {
             visible: false,
             canDelete: false,
             weight: 1
-        },
-        [ActivityNodeType.GoMolecularEntity]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoMolecularEntity]: {
             id: EntityDefinition.GoMolecularEntity.id,
             type: ActivityNodeType.GoMolecularEntity,
             category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
@@ -231,9 +231,9 @@ export const bpOnlyAnnotationDescription: ActivityDescription = {
             skipEvidenceCheck: true,
             canDelete: false,
             weight: 2
-        },
+        } as ActivityNodeDisplay,
 
-        [ActivityNodeType.GoBiologicalProcess]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoBiologicalProcess]: {
             id: EntityDefinition.GoBiologicalProcess.id,
             type: ActivityNodeType.GoBiologicalProcess,
             category: [EntityDefinition.GoBiologicalProcess],
@@ -243,8 +243,8 @@ export const bpOnlyAnnotationDescription: ActivityDescription = {
             displayGroup: noctuaFormConfig.displayGroup.bp,
             termRequired: true,
             weight: 10
-        },
-        [ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoCellularComponent]: {
             id: EntityDefinition.GoCellularComponent.id,
             type: ActivityNodeType.GoCellularComponent,
             category: [EntityDefinition.GoCellularComponent],
@@ -253,7 +253,7 @@ export const bpOnlyAnnotationDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.cc,
             weight: 20
-        }
+        } as ActivityNodeDisplay
     },
     triples: [{
         subject: ActivityNodeType.GoMolecularFunction,
@@ -269,20 +269,20 @@ export const bpOnlyAnnotationDescription: ActivityDescription = {
         predicate: noctuaFormConfig.edge.occursIn
     }],
     overrides: {
-        [ActivityNodeType.GoBiologicalProcess]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoBiologicalProcess]: {
             label: 'Biological Process',
 
-        },
-        [ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoCellularComponent]: {
 
-        }
+        } as ActivityNodeDisplay
     }
 };
 
 export const ccOnlyAnnotationDescription: ActivityDescription = {
     type: ActivityType.ccOnly,
     nodes: {
-        [ActivityNodeType.GoMolecularEntity]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoMolecularEntity]: {
             id: EntityDefinition.GoMolecularEntity.id,
             type: ActivityNodeType.GoMolecularEntity,
             category: [EntityDefinition.GoMolecularEntity, EntityDefinition.GoProteinContainingComplex],
@@ -293,7 +293,7 @@ export const ccOnlyAnnotationDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,
             weight: 1
-        },
+        } as ActivityNodeDisplay,
         /*[ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
             id: EntityDefinition.GoCellularComponent.id,
             type: ActivityNodeType.GoCellularComponent,
@@ -319,7 +319,7 @@ export const proteinComplexDescription: ActivityDescription = {
     type: ActivityType.proteinComplex,
     isComplex: true,
     nodes: {
-        [ActivityNodeType.GoProteinContainingComplex]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoProteinContainingComplex]: {
             id: EntityDefinition.GoProteinContainingComplex.id,
             type: ActivityNodeType.GoProteinContainingComplex,
             category: [EntityDefinition.GoProteinContainingComplex],
@@ -330,8 +330,8 @@ export const proteinComplexDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,
             weight: 2
-        },
-        [ActivityNodeType.GoMolecularFunction]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoMolecularFunction]: {
             id: EntityDefinition.GoMolecularFunction.id,
             type: ActivityNodeType.GoMolecularFunction,
             category: [EntityDefinition.GoMolecularFunction],
@@ -342,8 +342,8 @@ export const proteinComplexDescription: ActivityDescription = {
             termRequired: true,
             canDelete: false,
             weight: 1
-        },
-        [ActivityNodeType.GoBiologicalProcess]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoBiologicalProcess]: {
             id: EntityDefinition.GoBiologicalProcess.id,
             type: ActivityNodeType.GoBiologicalProcess,
             category: [EntityDefinition.GoBiologicalProcess],
@@ -352,8 +352,8 @@ export const proteinComplexDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.bp,
             weight: 10
-        },
-        [ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoCellularComponent]: {
             id: EntityDefinition.GoCellularComponent.id,
             type: ActivityNodeType.GoCellularComponent,
             category: [EntityDefinition.GoCellularComponent],
@@ -362,7 +362,7 @@ export const proteinComplexDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.cc,
             weight: 20
-        }
+        } as ActivityNodeDisplay
     },
     triples: [{
         subject: ActivityNodeType.GoMolecularFunction,
@@ -382,7 +382,7 @@ export const proteinComplexDescription: ActivityDescription = {
 export const moleculeDescription: ActivityDescription = {
     type: ActivityType.molecule,
     nodes: {
-        [ActivityNodeType.GoChemicalEntity]: <ActivityNodeDisplay>{
+        [ActivityNodeType.GoChemicalEntity]: {
             id: EntityDefinition.GoChemicalEntity.id,
             type: ActivityNodeType.GoChemicalEntity,
             category: [EntityDefinition.GoChemicalEntity],
@@ -393,8 +393,8 @@ export const moleculeDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.gp,
             displayGroup: noctuaFormConfig.displayGroup.gp,
             weight: 1
-        },
-        [ActivityNodeType.GoCellularComponent]: <ActivityNodeDisplay>{
+        } as ActivityNodeDisplay,
+        [ActivityNodeType.GoCellularComponent]: {
             id: EntityDefinition.GoCellularComponent.id,
             type: ActivityNodeType.GoCellularComponent,
             category: [EntityDefinition.GoCellularComponent],
@@ -403,7 +403,7 @@ export const moleculeDescription: ActivityDescription = {
             displaySection: noctuaFormConfig.displaySection.fd,
             displayGroup: noctuaFormConfig.displayGroup.cc,
             weight: 20
-        }
+        } as ActivityNodeDisplay
     },
     triples: [{
         subject: ActivityNodeType.GoChemicalEntity,

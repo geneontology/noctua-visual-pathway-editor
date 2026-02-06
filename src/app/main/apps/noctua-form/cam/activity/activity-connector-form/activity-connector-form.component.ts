@@ -49,7 +49,7 @@ import { takeUntil } from 'rxjs/operators';
 export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType
 
-  @Input('panelDrawer')
+  @Input()
   panelDrawer: MatDrawer;
 
   @Input() public closeDialog: () => void;
@@ -63,7 +63,7 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   searchCriteria: any = {};
   evidenceFormArray: FormArray;
   relationshipOptions;
-  displayChemicalConnector: boolean = false;
+  displayChemicalConnector = false;
 
   private _unsubscribeAll: Subject<any>;
 

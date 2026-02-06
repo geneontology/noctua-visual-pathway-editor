@@ -74,7 +74,7 @@ export class SelectEvidenceDialogComponent implements OnInit, OnDestroy {
 
   save() {
     this._matDialogRef.close({
-      evidences: <Evidence[]>this.selection.selected
+      evidences: this.selection.selected as Evidence[]
     });
   }
 

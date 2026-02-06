@@ -35,7 +35,7 @@ export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChildren('stencils') stencilContainers: QueryList<any>;
 
-  @Input('cam')
+  @Input()
   public cam: Cam;
 
   private _unsubscribeAll: Subject<any>;

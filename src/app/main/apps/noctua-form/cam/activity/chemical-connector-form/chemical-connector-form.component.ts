@@ -50,7 +50,7 @@ import { DataUtils } from '@noctua.form/data/config/data-utils';
 export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType
 
-  @Input('panelDrawer')
+  @Input()
   panelDrawer: MatDrawer;
 
   @Input() public closeDialog: () => void;
@@ -65,7 +65,7 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
   evidenceFormArray: FormArray;
   relationshipOptions;
 
-  allSelected: boolean = false;
+  allSelected = false;
 
   items = []
   commonItems = []

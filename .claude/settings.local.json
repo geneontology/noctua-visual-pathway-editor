@@ -10,7 +10,10 @@
       "Bash(npx ng build:*)",
       "Bash(timeout 25 npx ng serve:*)",
       "Bash(ls:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tslint:*)",
+      "Bash(npx ng lint:*)"
     ]
   }
 }

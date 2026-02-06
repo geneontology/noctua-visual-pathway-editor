@@ -47,7 +47,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
   ActivityState = ActivityState;
   ActivityType = ActivityType;
 
-  @Input('panelDrawer')
+  @Input()
   panelDrawer: MatDrawer;
 
   @Input() public closeDialog: () => void;
@@ -92,7 +92,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
         this.currentActivity = this.noctuaActivityFormService.currentActivity;
         this.activity = this.noctuaActivityFormService.activity;
         this.state = this.noctuaActivityFormService.state;
-        this.molecularEntity = <FormGroup>this.activityFormGroup.get('molecularEntity');
+        this.molecularEntity = this.activityFormGroup.get('molecularEntity') as FormGroup;
 
         if (this.activity.activityType === ActivityType.ccOnly) {
           this.descriptionSectionTitle = 'Localization Description';

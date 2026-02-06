@@ -192,7 +192,7 @@ export class NoctuaPerfectScrollbarDirective implements OnInit, AfterViewInit, O
         this.ngOnDestroy();
     }
 
-    geometry(prefix: string = 'scroll'): NoctuaPerfectScrollbarGeometry {
+    geometry(prefix = 'scroll'): NoctuaPerfectScrollbarGeometry {
         return new NoctuaPerfectScrollbarGeometry(
             this.elementRef.nativeElement[prefix + 'Left'],
             this.elementRef.nativeElement[prefix + 'Top'],
@@ -201,7 +201,7 @@ export class NoctuaPerfectScrollbarDirective implements OnInit, AfterViewInit, O
         );
     }
 
-    position(absolute: boolean = false): NoctuaPerfectScrollbarPosition {
+    position(absolute = false): NoctuaPerfectScrollbarPosition {
         if (!absolute && this.ps) {
             return new NoctuaPerfectScrollbarPosition(
                 this.ps.reach.x || 0,

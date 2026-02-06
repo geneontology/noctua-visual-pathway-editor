@@ -97,12 +97,12 @@ export class NoctuaUtils {
         const minimalQueryLength = 3;
 
         if (query && query.length > 0) {
-            let hasCursor = query.slice(-1) !== ' ';
+            const hasCursor = query.slice(-1) !== ' ';
             query = query.trim();
 
             if (query.length > 0 && alphanumericRegex.test(query) && hasCursor) {
-                let tokens = query.split(/\s+/);
-                let lastToken = tokens[tokens.length - 1];
+                const tokens = query.split(/\s+/);
+                const lastToken = tokens[tokens.length - 1];
 
                 if (tokens.length === 1 && lastToken.length >= minimalQueryLength) {
                     tokens[tokens.length - 1] = lastToken + '*';
@@ -129,7 +129,7 @@ export class NoctuaUtils {
         if (new_query && new_query.length && new_query.length > 0) {
 
             // Check if the last real input has a space after it.
-            var has_cursor_p = true;
+            let has_cursor_p = true;
             if (new_query.slice(-1) === ' ') {
                 has_cursor_p = false;
             }
@@ -145,8 +145,8 @@ export class NoctuaUtils {
                 if (alphanum.test(new_query) && has_cursor_p) {
 
                     // Break it into tokens and get the last.
-                    var tokens = new_query.split(new RegExp('\\s+'));
-                    var last_token = tokens[tokens.length - 1];
+                    const tokens = new_query.split(new RegExp('\\s+'));
+                    const last_token = tokens[tokens.length - 1];
                     //ll('last: ' + last_token);
 
                     if (tokens.length === 1) {

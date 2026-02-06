@@ -67,9 +67,9 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
 
   @ViewChild('tree') tree;
   @ViewChild('gpTree') gpTree;
-  @Input('cam') cam: Cam
-  @Input('activity') activity: Activity
-  @Input('options') options: TableOptions = {};
+  @Input() cam: Cam
+  @Input() activity: Activity
+  @Input() options: TableOptions = {};
 
   gpOptions: TableOptions = {};
 

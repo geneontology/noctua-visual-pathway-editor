@@ -56,13 +56,13 @@ export class ActivityTreeTableComponent implements OnInit, OnDestroy {
 
   @ViewChild('tree') tree;
 
-  @Input('cam')
+  @Input()
   cam: Cam
 
-  @Input('activity')
+  @Input()
   activity: Activity
 
-  @Input('options')
+  @Input()
   options: any = {};
 
   gpNode: ActivityNode;

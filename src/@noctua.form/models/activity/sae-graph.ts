@@ -27,7 +27,7 @@ export class SaeGraph<T extends ActivityNode> {
   protected graphlib: Graphlib;
 
   constructor() {
-    this.graph = <Graph<T, Triple<T>>>{ _nodes: {}, _edges: {} };
+    this.graph = { _nodes: {}, _edges: {} } as Graph<T, Triple<T>>;
     this.graphlib = new Graphlib();
   }
 
@@ -148,7 +148,7 @@ export class SaeGraph<T extends ActivityNode> {
 
   getTrimmedGraph(startNodeId: string): Graph<T, Triple<T>> {
     const self = this;
-    const graph = <Graph<T, Triple<T>>>{ _nodes: {}, _edges: {} };
+    const graph = { _nodes: {}, _edges: {} } as Graph<T, Triple<T>>;
     const startingEdges = self.getEdges(startNodeId);
     const startingNode = self.getNode(startNodeId);
 

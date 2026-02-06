@@ -96,7 +96,7 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
     this.evidenceDBForm = this._createEvidenceDBForm();
   }
 
-  addNewGroup(addEntity: boolean = true) {
+  addNewGroup(addEntity = true) {
     const control = this.myForm.get('databaseGroups') as FormArray;
     const group = this.fb.group({
       entities: this.fb.array([])
