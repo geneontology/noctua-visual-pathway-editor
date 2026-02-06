@@ -2,6 +2,11 @@
   "name": "@geneontology/noctua-visual-pathway-editor",
   "version": "2.6.0",
   "license": "MIT",
+  "browser": {
+    "http": false,
+    "https": false,
+    "ringo/httpclient": false
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --port 4202",
@@ -76,6 +81,7 @@
     "ngx-scrollbar": "13.0.3",
     "node-bourbon": "^4.2.8",
     "perfect-scrollbar": "1.5.5",
+    "querystring": "^0.2.1",
     "querystring-es3": "^0.2.1",
     "request": "^2.88.0",
     "reveal.js": "^4.3.1",
@@ -88,7 +94,6 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-builders/custom-webpack": "17.0.2",
     "@angular-devkit/build-angular": "^20.3.15",
     "@angular/build": "^20.3.15",
     "@angular/cli": "20.3.15",

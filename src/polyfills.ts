@@ -54,3 +54,14 @@ import 'zone.js';  // Included with Angular CLI.
 
 // Add global to window, assigning the value of window itself.
 (window as any).global = window;
+
+/***************************************************************************************************
+ * NODE MODULE POLYFILLS
+ * Required by legacy BBOP libraries that expect Node.js modules
+ */
+import * as url from 'url';
+import * as querystring from 'querystring-es3';
+
+// Expose to global scope for legacy libraries
+(window as any).url = url;
+(window as any).querystring = querystring;

@@ -18,19 +18,28 @@ import { Entity } from './../models/activity/entity';
 import { Evidence } from './../models/activity/evidence';
 import { Predicate } from './../models/activity/predicate';
 import { Triple } from './../models/activity/triple';
-import * as moment from 'moment';
+import moment from 'moment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { graph as bbopGraph } from 'bbop-graph-noctua';
 import { CardinalityViolation, RelationViolation } from '@noctua.form/models/activity/error/violation-error';
 
-declare const require: any;
+// CommonJS imports - use default export pattern for esbuild compatibility
+import amigo_module from 'amigo2';
+import barista_response_module from 'bbop-response-barista';
+import minerva_requests_module from 'minerva-requests';
+import bbop_rest_manager_module from 'bbop-rest-manager';
+import class_expression_module from 'class-expression';
+import minerva_manager_module from 'bbop-manager-minerva';
 
-const amigo = require('amigo2');
-const barista_response = require('bbop-response-barista');
-const minerva_requests = require('minerva-requests');
-const jquery_engine = require('bbop-rest-manager').jquery;
-const class_expression = require('class-expression');
-const minerva_manager = require('bbop-manager-minerva');
+// Access the actual module content (CommonJS exports)
+const amigo: any = amigo_module;
+const barista_response: any = barista_response_module;
+const minerva_requests: any = minerva_requests_module;
+const bbop_rest_manager: any = bbop_rest_manager_module;
+const class_expression: any = class_expression_module;
+const minerva_manager: any = minerva_manager_module;
+
+const jquery_engine = bbop_rest_manager.jquery;
 
 @Injectable({
   providedIn: 'root'

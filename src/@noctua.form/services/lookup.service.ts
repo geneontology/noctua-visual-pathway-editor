@@ -15,14 +15,21 @@ import { NoctuaUserService } from './user.service';
 import { BehaviorSubject } from 'rxjs';
 import { NoctuaUtils } from '@noctua/utils/noctua-utils';
 
-declare const require: any;
+// CommonJS imports - use default export pattern for esbuild compatibility
+import amigo_module from 'amigo2';
+import golr_conf_module from 'golr-conf';
+import bbop_rest_manager_module from 'bbop-rest-manager';
+import golr_response_module from 'bbop-response-golr';
 
-const amigo = require('amigo2');
-const golr_conf = require('golr-conf');
+// Access the actual module content (CommonJS exports)
+const amigo: any = amigo_module;
+const golr_conf: any = golr_conf_module;
+const bbop_rest_manager: any = bbop_rest_manager_module;
+const golr_response: any = golr_response_module;
+
 const gconf = new golr_conf.conf(amigo.data.golr);
 const gserv = environment.globalGolrServer; // "http://golr.berkeleybop.org/";
-const impl_engine = require('bbop-rest-manager').jquery;
-const golr_response = require('bbop-response-golr');
+const impl_engine = bbop_rest_manager.jquery;
 const engine = new impl_engine(golr_response);
 engine.use_jsonp(true)
 
