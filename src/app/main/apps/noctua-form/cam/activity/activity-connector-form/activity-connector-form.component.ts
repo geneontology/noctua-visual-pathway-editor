@@ -7,6 +7,7 @@ import { Subscription, Subject } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -28,21 +29,22 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-    selector: 'noc-activity-connector',
-    templateUrl: './activity-connector-form.component.html',
-    styleUrls: ['./activity-connector-form.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatSidenavModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatAutocompleteModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-activity-connector',
+  templateUrl: './activity-connector-form.component.html',
+  styleUrls: ['./activity-connector-form.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatAutocompleteModule,
+    FontAwesomeModule
+  ]
 })
 export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   ConnectorType = ConnectorType
@@ -66,7 +68,6 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;
 
   constructor(
-    private confirmDialogService: NoctuaConfirmDialogService,
     public noctuaActivityConnectorService: NoctuaActivityConnectorService,
     public noctuaUserService: NoctuaUserService,
     private noctuaFormDialogService: NoctuaFormDialogService,

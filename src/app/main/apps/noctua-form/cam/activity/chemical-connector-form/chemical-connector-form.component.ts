@@ -1,12 +1,14 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { Subscription, Subject } from 'rxjs';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -33,12 +35,15 @@ import { DataUtils } from '@noctua.form/data/config/data-utils';
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         ReactiveFormsModule,
+        MatAutocompleteModule,
         MatButtonModule,
-        MatSidenavModule,
         MatCheckboxModule,
         MatFormFieldModule,
+        MatInputModule,
         MatSelectModule,
+        MatSidenavModule,
         FontAwesomeModule
     ]
 })
@@ -121,6 +126,10 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
 
   getSelectedItems(): any[] {
     return this.items.filter(item => item.selected);
+  }
+
+  get evidenceControls(): FormArray {
+    return this.connectorFormGroup?.get('evidenceFormArray') as FormArray;
   }
 
   onItemChangeOld() {

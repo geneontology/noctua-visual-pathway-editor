@@ -90,7 +90,7 @@
         </div>
         <div class="noc-section-body p-0 flex flex-col justify-start items-stretch">
           <div class="px-3 noc-group-row flex flex-col">
-            @for (evidence of connectorFormGroup.get('evidenceFormArray')?.controls; track evidence; let i = $index) {
+            @for (evidence of evidenceControls?.controls; track evidence; let i = $index) {
             <div formArrayName="evidenceFormArray">
               <div [formGroupName]="i" class="flex flex-row justify-start items-center w-full">
                 <div class="p-4 w-[55%]">

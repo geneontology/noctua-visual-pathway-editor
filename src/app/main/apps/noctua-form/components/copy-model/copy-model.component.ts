@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import {
@@ -30,9 +31,10 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
         CommonModule,
         FormsModule,
         MatButtonModule,
-        MatSidenavModule,
         MatCheckboxModule,
         MatProgressSpinnerModule,
+        MatSidenavModule,
+        MatTooltipModule,
         FontAwesomeModule
     ]
 })
