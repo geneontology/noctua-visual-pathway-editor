@@ -8,7 +8,9 @@
       "Bash(git add:*)",
       "Bash(npm run build:*)",
       "Bash(npx ng build:*)",
-      "Bash(timeout 25 npx ng serve:*)"
+      "Bash(timeout 25 npx ng serve:*)",
+      "Bash(ls:*)",
+      "Bash(head:*)"
     ]
   }
 }

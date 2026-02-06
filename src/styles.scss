@@ -3,5 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+// Fix Tailwind Preflight breaking MDC form field outlines
+// Tailwind sets `border-style: solid` on *, which breaks the MDC notched outline
+*, ::before, ::after {
+  border-style: revert;
+}
+
 @import "@ali-hm/angular-tree-component/css/angular-tree-component.css";
 @import "@noctua/scss/core";

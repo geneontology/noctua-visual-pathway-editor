@@ -485,16 +485,413 @@ mat-radio-button {
 - Backend: Minerva, GOLr, Barista
 - Browser testing: Chrome, Firefox, Safari recommended
 
+---
+
+# Phase 11: Form Field Outline & Icon Button Fixes (NEW)
+
+## Current Environment (Updated)
+
+The project has been upgraded since the initial migration:
+- **Angular**: 20.3.16 (was 18.2.13)
+- **Angular Material**: 20.2.14 (was 16.2.0)
+- **Angular CDK**: 20.2.14
+- **Tailwind CSS**: 3.4.4 with `important: true`
+
+## Reported Issues
+
+1. **Text input outlines not displaying correctly** - Border/outline missing or not visible
+2. **Icon buttons not aligned well in form field suffixes** - Vertical misalignment
+3. **Potential style conflicts** - Multiple style sources may be competing
+
+## Root Cause Analysis
+
+### Issue 1: Text Input Outlines Not Displaying
+
+**Root Causes Identified:**
+
+1. **`_forms.scss` Global Reset** ([src/@noctua/scss/partials/_forms.scss](src/@noctua/scss/partials/_forms.scss)):
+   ```scss
+   input[type=text], textarea {
+     appearance: none;      // May interfere with MDC
+     outline: none;         // Removes focus outline
+   }
+   ```
+   - While MDC uses `.mdc-notched-outline` for borders (not native outline), these resets can still cause issues
+
+2. **Tailwind CSS Conflicts**:
+   - `@tailwind base` in [styles.scss](src/styles.scss) includes Preflight resets
+   - Preflight sets `outline: 2px solid transparent` on focused elements
+   - `important: true` in [tailwind.config.js](tailwind.config.js) makes all utilities use `!important`
+
+3. **Incomplete CSS Custom Properties** ([_mdc-form-field-theme.scss](src/@noctua/scss/partials/_mdc-form-field-theme.scss)):
+   - Only 3 focus-related properties defined:
+     ```scss
+     --mat-form-field-outlined-focus-outline-color
+     --mat-form-field-outlined-focus-label-text-color
+     --mat-form-field-outlined-caret-color
+     ```
+   - **Missing critical outline properties for Angular Material 20:**
+     - `--mdc-outlined-text-field-outline-width`
+     - `--mdc-outlined-text-field-outline-color`
+     - `--mdc-outlined-text-field-hover-outline-color`
+     - `--mdc-outlined-text-field-container-shape`
+     - `--mat-form-field-container-height`
+     - `--mat-form-field-container-vertical-padding`
+
+4. **Angular Material Version Jump** (16 → 20):
+   - CSS custom property names may have changed
+   - Some M2 properties deprecated in favor of M3 equivalents
+
+### Issue 2: Icon Buttons Not Aligned in Form Field Suffixes
+
+**Root Causes Identified:**
+
+1. **Form field suffix alignment** - MDC suffix container may need explicit flex alignment
+2. **Button margin/padding conflicts** - Multiple size definitions may conflict
+3. **Missing alignment styles** for `.mat-mdc-form-field-icon-suffix`
+
+**Current icon button suffix styling** ([_mdc-form-field-theme.scss:90-100](src/@noctua/scss/partials/_mdc-form-field-theme.scss#L90)):
+```scss
+.mat-mdc-form-field {
+  .mat-mdc-form-field-icon-suffix {
+    .mat-mdc-icon-button.noc-evidence-db-trigger {
+      --mat-icon-button-state-layer-size: 24px;
+      // Missing: vertical alignment
+    }
+  }
+}
+```
+
+## Implementation Plan
+
+### Step 11.1: Browser DevTools Audit
+
+**Goal:** Identify exactly which styles are being applied/overridden
+
+- [ ] Start dev server: `npm start`
+- [ ] Navigate to entity form with autocomplete inputs
+- [ ] Open DevTools → Elements panel
+- [ ] Inspect `mat-form-field` with `appearance="outline"`
+- [ ] Check:
+  - [ ] `.mdc-notched-outline__leading` border styles
+  - [ ] `.mdc-notched-outline__trailing` border styles
+  - [ ] Which CSS source is winning for border-color
+  - [ ] Any "crossed out" (overridden) styles
+- [ ] Document findings below
+
+**Findings:** (to be filled after audit)
+```
+TBD
+```
+
+### Step 11.2: Fix Tailwind Preflight Conflicts
+
+**File:** `src/styles.scss`
+
+**Current:**
+```scss
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+**Add Preflight override layer:**
+```scss
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Override Tailwind Preflight for Material form fields
+@layer base {
+  // Restore outline behavior for Material form elements
+  .mat-mdc-form-field input,
+  .mat-mdc-form-field textarea,
+  .mat-mdc-select {
+    outline: revert;
+  }
+}
+```
+
+**Status:** [x] DONE - Added `@layer base` override to restore outline behavior for Material form elements
+
+### Step 11.3: Update `_forms.scss` to Exclude Material Inputs
+
+**File:** `src/@noctua/scss/partials/_forms.scss`
+
+**Current:**
+```scss
+input[type=text], textarea {
+  appearance: none;
+  outline: none;
+  resize: none;
+}
+```
+
+**Updated:**
+```scss
+// Only apply to non-Material inputs
+// Material form fields manage their own styling
+button:not([class*="mat-"]),
+input[type=text]:not(.mat-mdc-input-element),
+textarea:not(.mat-mdc-input-element) {
+  appearance: none;
+  outline: none;
+}
+
+// Keep resize disabled for all textareas
+textarea {
+  resize: none !important;
+}
+```
+
+**Status:** [x] DONE - Excluded `.mat-mdc-input-element` from global resets
+
+### Step 11.4: Complete MDC Form Field CSS Custom Properties
+
+**File:** `src/@noctua/scss/partials/_mdc-form-field-theme.scss`
+
+**Add these properties to `:root`:**
+
+```scss
+$noc-primary: #3b5998;
+$noc-primary-rgb: 59, 89, 152;
+
+:root {
+  // =========================================================================
+  // Outlined Text Field - Container Shape
+  // =========================================================================
+  --mdc-outlined-text-field-container-shape: 4px;
+
+  // =========================================================================
+  // Outlined Text Field - Outline (CRITICAL FOR VISIBLE BORDERS)
+  // =========================================================================
+  --mdc-outlined-text-field-outline-width: 1px;
+  --mdc-outlined-text-field-focus-outline-width: 2px;
+  --mdc-outlined-text-field-outline-color: rgba(0, 0, 0, 0.38);
+  --mdc-outlined-text-field-hover-outline-color: rgba(0, 0, 0, 0.87);
+  --mdc-outlined-text-field-focus-outline-color: #{$noc-primary};
+  --mdc-outlined-text-field-error-outline-color: #f44336;
+  --mdc-outlined-text-field-disabled-outline-color: rgba(0, 0, 0, 0.12);
+
+  // =========================================================================
+  // Outlined Text Field - Label
+  // =========================================================================
+  --mdc-outlined-text-field-label-text-color: rgba(0, 0, 0, 0.6);
+  --mdc-outlined-text-field-hover-label-text-color: rgba(0, 0, 0, 0.87);
+  --mdc-outlined-text-field-focus-label-text-color: #{$noc-primary};
+  --mdc-outlined-text-field-error-label-text-color: #f44336;
+  --mdc-outlined-text-field-disabled-label-text-color: rgba(0, 0, 0, 0.38);
+
+  // =========================================================================
+  // Outlined Text Field - Input
+  // =========================================================================
+  --mdc-outlined-text-field-input-text-color: rgba(0, 0, 0, 0.87);
+  --mdc-outlined-text-field-disabled-input-text-color: rgba(0, 0, 0, 0.38);
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(0, 0, 0, 0.6);
+
+  // =========================================================================
+  // Outlined Text Field - Caret
+  // =========================================================================
+  --mdc-outlined-text-field-caret-color: #{$noc-primary};
+  --mdc-outlined-text-field-error-caret-color: #f44336;
+
+  // =========================================================================
+  // Form Field Container (Angular Material specific)
+  // =========================================================================
+  --mat-form-field-container-height: 56px;
+  --mat-form-field-container-vertical-padding: 16px;
+  --mat-form-field-container-text-size: 16px;
+  --mat-form-field-container-text-line-height: 24px;
+
+  // Focus colors (kept from original)
+  --mat-form-field-outlined-focus-outline-color: #{$noc-primary};
+  --mat-form-field-outlined-focus-label-text-color: #{$noc-primary};
+  --mat-form-field-outlined-caret-color: #{$noc-primary};
+
+  // Select
+  --mat-select-focused-arrow-color: #{$noc-primary};
+
+  // Option
+  --mat-option-selected-state-layer-color: rgba(#{$noc-primary-rgb}, 0.12);
+  --mat-option-selected-state-label-text-color: #{$noc-primary};
+}
+```
+
+**Status:** [x] DONE - Added complete MDC outline CSS custom properties
+
+### Step 11.5: Fix Icon Button Alignment in Form Field Suffix
+
+**File:** `src/@noctua/scss/partials/_mdc-form-field-theme.scss`
+
+**Update/add the suffix section:**
+
+```scss
+// =============================================================================
+// Icon Button in Form Field Suffix - Vertical Alignment Fix
+// =============================================================================
+
+.mat-mdc-form-field {
+  // Ensure suffix is vertically centered
+  .mat-mdc-form-field-icon-suffix {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    padding: 0 4px;
+    height: 100%;
+
+    .mat-mdc-icon-button {
+      --mat-icon-button-state-layer-size: 24px;
+      --mat-icon-button-icon-size: 16px;
+      width: 24px;
+      height: 24px;
+      padding: 4px;
+      margin: 0; // Reset any conflicting margins
+
+      fa-icon {
+        font-size: 14px;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  // For .noc-sm form fields
+  &.noc-sm {
+    .mat-mdc-form-field-icon-suffix {
+      padding: 0 2px;
+
+      .mat-mdc-icon-button {
+        --mat-icon-button-state-layer-size: 20px;
+        --mat-icon-button-icon-size: 14px;
+        width: 20px;
+        height: 20px;
+        padding: 2px;
+
+        fa-icon {
+          font-size: 12px;
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+  }
+}
+```
+
+**Status:** [x] DONE - Added flex alignment for suffix containers, size variants for .noc-sm and .noc-xs
+
+### Step 11.6: Audit for Conflicting Overrides
+
+**Files to check:**
+
+1. **`_angular-material-fix.scss`** - [x] No form field conflicts found
+2. **`noctua.scss`** - [x] No legacy form field overrides
+3. **Component SCSS files** - [x] No local overrides found
+4. **`_colors.scss`** - [x] No conflicting form field color rules
+
+**Status:** [x] DONE - Audit complete, no conflicting styles found
+
+### Step 11.7: Test and Verify
+
+**Test Checklist:**
+
+| Test | Status | Notes |
+|------|--------|-------|
+| Outlined form field border visible | [ ] | |
+| Border shows on hover (darker) | [ ] | |
+| Focus state shows primary color | [ ] | |
+| Label floats on focus | [ ] | |
+| Label floats when filled | [ ] | |
+| Small form fields (.noc-sm) work | [ ] | |
+| Suffix icon buttons centered | [ ] | |
+| Autocomplete panels display correctly | [ ] | |
+| Select dropdowns work | [ ] | |
+| No console errors | [ ] | |
+
+**Test Locations:**
+- [ ] Entity form (term, evidence, reference, with)
+- [ ] Search dialogs
+- [ ] Any other forms
+
+**Status:** [ ] Not started
+
+## Progress Tracking (Phase 11)
+
+| Step | Status | Notes |
+|------|--------|-------|
+| 11.1 Browser DevTools Audit | SKIPPED | |
+| 11.2 Fix Tailwind Conflicts | REVERTED | Removed @layer base - was unnecessary hack |
+| 11.3 Update _forms.scss | DONE | Excluded .mat-mdc-input-element from resets |
+| 11.4 Complete CSS Properties | REVERTED | Removed all - was causing double-notch issues |
+| 11.5 Fix Icon Button Alignment | REVERTED | Removed - was targeting internal MDC classes |
+| 11.6 Audit for Conflicts | DONE | _angular-material-fix.scss has no form field conflicts |
+| 11.7 Test and Verify | PENDING | Manual testing needed |
+
+**New Approach:** Instead of adding hacks, we stripped `_mdc-form-field-theme.scss` to bare minimum:
+
+- Focus color customization only (via CSS custom properties)
+- Hide subscript wrapper
+- Autocomplete panel styling
+- NO internal MDC class targeting
+- NO container size overrides
+- Let Angular Material defaults work
+
+## Files to Modify (Phase 11)
+
+| File | Action | Priority |
+|------|--------|----------|
+| `src/styles.scss` | Add Tailwind override layer | HIGH |
+| `src/@noctua/scss/partials/_forms.scss` | Exclude Material inputs | HIGH |
+| `src/@noctua/scss/partials/_mdc-form-field-theme.scss` | Complete CSS vars, fix suffix | HIGH |
+| `src/@noctua/scss/partials/_angular-material-fix.scss` | Audit for conflicts | MEDIUM |
+| `src/@noctua/scss/noctua.scss` | Verify no legacy overrides | LOW |
+
+## MDC Form Field Structure Reference
+
+```html
+<mat-form-field appearance="outline">
+  .mat-mdc-form-field
+  └── .mat-mdc-text-field-wrapper
+      └── .mat-mdc-form-field-flex
+          ├── .mdc-notched-outline
+          │   ├── .mdc-notched-outline__leading   ← left border
+          │   ├── .mdc-notched-outline__notch     ← label notch
+          │   │   └── .mdc-floating-label
+          │   └── .mdc-notched-outline__trailing  ← right border
+          ├── .mat-mdc-form-field-infix
+          │   └── input.mat-mdc-input-element / textarea
+          └── .mat-mdc-form-field-icon-suffix (if matSuffix)
+              └── button.mat-mdc-icon-button
+</mat-form-field>
+```
+
+## CSS Custom Property Naming (Angular Material 20)
+
+- `--mdc-*` → MDC Web component base properties
+- `--mat-*` → Angular Material wrapper properties
+
+---
+
 ## Next Steps
 
-1. Start with Phase 1: Run the dev server and do initial verification
-2. Focus on Chips (Phase 2) as highest priority
-3. Work through TODO comments systematically
-4. Test each component type thoroughly
-5. Document findings and update this plan
+1. ~~Start with Step 11.1: Browser DevTools audit to confirm root causes~~ SKIPPED
+2. ~~Apply fixes in order (11.2 → 11.5)~~ DONE
+3. **Run `npm start` and test the form field styling visually**
+4. Test the following:
+   - Outlined form field borders visible
+   - Hover states showing darker borders
+   - Focus states showing primary color (#3b5998)
+   - Icon buttons properly centered in form field suffixes
+   - Small (.noc-sm) and extra small (.noc-xs) form fields working
+5. Document any remaining issues
 
 ## References
 
 - Angular Material MDC Migration Guide: https://material.angular.io/guide/mdc-migration
+- Angular Material Theming: https://material.angular.io/guide/theming
+- MDC Web Text Field: https://github.com/material-components/material-components-web/tree/master/packages/mdc-textfield
 - Project CLAUDE.md: [CLAUDE.md](CLAUDE.md)
 - Angular Material Theming: [src/@noctua/scss/theming.scss](src/@noctua/scss/theming.scss)
