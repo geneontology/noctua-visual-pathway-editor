@@ -1,4 +1,4 @@
-<div [formGroup]="entityFormGroup" class="flex flex-row justify-start items-stretch w-full">
+<div [formGroup]="entityFormGroup" class="flex flex-row justify-start items-stretch w-full overflow-hidden">
   @if (entity.treeLevel>1) {
   <div class="noc-tree-input noc-level-1 flex flex-col justify-center items-center">
     @if (entity.treeLevel===2) {
@@ -36,7 +36,7 @@
 }
 </div>
 }
-<div class="p-4 flex-1 flex flex-row justify-start items-stretch">
+<div class="p-4 flex-1 min-w-0 flex flex-row justify-start items-stretch">
   <mat-form-field class="noc-sm w-full" appearance="outline">
     <mat-label>{{entity.label}}</mat-label>
     <textarea type="text" matInput formControlName="term" (focus)="updateTermList()" [matAutocomplete]="termAuto"
@@ -79,7 +79,7 @@
     </mat-autocomplete>
   </mat-form-field>
 </div>
-<div class="basis-[65%] flex flex-col justify-start items-stretch">
+<div class="basis-[65%] min-w-0 flex flex-col justify-start items-stretch">
   @for (evidence of evidenceFormArrayControls.controls; track evidence; let i = $index) {
   <div formArrayName="evidenceFormArray">
     <div [formGroupName]="i" class="flex flex-row justify-start items-stretch w-full">
