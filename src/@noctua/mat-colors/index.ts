@@ -1,9 +1,9 @@
 const black87 = 'rgba(black, 0.87)';
 const white87 = 'rgba(white, 0.87)';
-const black12 = 'rgba(black, 0.12)';
-const white12 = 'rgba(white, 0.12)';
-const black6 = 'rgba(black, 0.06)';
-const white6 = 'rgba(white, 0.06)';
+const _black12 = 'rgba(black, 0.12)';
+const _white12 = 'rgba(white, 0.12)';
+const _black6 = 'rgba(black, 0.06)';
+const _white6 = 'rgba(white, 0.06)';
 const matColors = {
     'red': {
         50: '#ffebee',

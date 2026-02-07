@@ -1,4 +1,4 @@
-import { Injectable, Injector, ElementRef, ComponentRef, ViewChild, inject } from '@angular/core';
+import { Injectable, Injector, ElementRef, ComponentRef, inject } from '@angular/core';
 import {
     Overlay,
     OverlayRef,
@@ -52,10 +52,9 @@ export class InlineDetailService {
         }
         dialogConfig['positionStrategy'] = this._getPosition(elementToConnectTo);
         // dialogConfig['width'] = '420px';
-        const originRect = elementToConnectTo.nativeElement;
         const overlayRef = this.createOverlay(dialogConfig);
         const dialogRef = new DetailDropdownOverlayRef(overlayRef);
-        const overlayComponent = this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
+        this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
 
         overlayRef.backdropClick().subscribe(_ => dialogRef.close());
 
@@ -63,7 +62,7 @@ export class InlineDetailService {
         return dialogRef;
     }
 
-    close(data): void {
+    close(_data): void {
         //  this.overlayRef.dispose();
     }
 

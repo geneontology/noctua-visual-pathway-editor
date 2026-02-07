@@ -63,7 +63,6 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
   }
 
   selectMiddlePanel(panel: MiddlePanel) {
-    const self = this;
     this.noctuaCommonMenuService.selectMiddlePanel(panel);
   }
 

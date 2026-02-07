@@ -1,4 +1,4 @@
-import { FormGroup, AbstractControl, ValidatorFn } from '@angular/forms';
+import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { ActivityNode } from './../../..//models/activity';
 
 export function termValidator(termNode: ActivityNode): ValidatorFn {

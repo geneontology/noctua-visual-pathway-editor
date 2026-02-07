@@ -133,7 +133,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const self = this;
     const errors = [];
     let canSave = true;
 
@@ -159,51 +158,50 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     }
 
     if (!canSave) {
-      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      this.noctuaFormDialogService.openActivityErrorsDialog(errors);
       return;
     }
 
-    switch (self.category) {
+    switch (this.category) {
       case EditorCategory.term:
       case EditorCategory.evidence:
       case EditorCategory.reference:
       case EditorCategory.with:
       case EditorCategory.relationship:
         this.close();
-        self.noctuaActivityEntityService.saveActivityReplace(self.cam).pipe(
+        this.noctuaActivityEntityService.saveActivityReplace(this.cam).pipe(
           take(1),
-          concatMap((result) => {
+          concatMap((_result) => {
             return EMPTY;
           }),
           finalize(() => {
-            self.zone.run(() => {
-              self.cam.loading.status = false;
-              self.cam.reviewCamChanges()
+            this.zone.run(() => {
+              this.cam.loading.status = false;
+              this.cam.reviewCamChanges()
             })
           }))
           .subscribe(() => {
-            self.zone.run(() => {
+            this.zone.run(() => {
             })
 
           });
         break;
       case EditorCategory.evidenceAll:
-        self.noctuaActivityEntityService.addEvidence().then(() => {
+        this.noctuaActivityEntityService.addEvidence().then(() => {
           this.close();
-          self.noctuaFormDialogService.openInfoToast('Evidence successfully updated.', 'OK');
+          this.noctuaFormDialogService.openInfoToast('Evidence successfully updated.', 'OK');
         });
         break;
       case EditorCategory.all:
-        self.noctuaActivityEntityService.addIndividual().then(() => {
+        this.noctuaActivityEntityService.addIndividual().then(() => {
           this.close();
-          self.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
+          this.noctuaFormDialogService.openInfoToast('Successfully updated.', 'OK');
         });
         break;
     }
   }
 
   openSearchDatabaseDialog(entity: ActivityNode) {
-    const self = this;
     const gpNode = this.activity.getGPNode();
 
     if (gpNode && gpNode.hasValue()) {
@@ -223,25 +221,23 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
           const term = new Entity(selected.term.term.id, selected.term.term.label);
 
           if (selected.evidences && selected.evidences.length > 0) {
-            self.noctuaActivityEntityService.reinitializeForm(term, selected.evidences);
+            this.noctuaActivityEntityService.reinitializeForm(term, selected.evidences);
           }
         }
       };
-      self.noctuaFormDialogService.openSearchDatabaseDialog(data, success);
+      this.noctuaFormDialogService.openSearchDatabaseDialog(data, success);
     } else {
       const meta = {
         aspect: 'Gene Product'
       };
       const error = new ActivityError(ErrorLevel.error, ErrorType.general, 'Please enter a gene product', meta)
-      self.noctuaFormDialogService.openActivityErrorsDialog([error])
+      this.noctuaFormDialogService.openActivityErrorsDialog([error])
     }
   }
 
   addRootTerm() {
-    const self = this;
-
     const term = find(noctuaFormConfig.rootNode, (rootNode) => {
-      return rootNode.aspect === self.entity.aspect;
+      return rootNode.aspect === this.entity.aspect;
     });
 
     if (term) {
@@ -250,48 +246,40 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
         noctuaFormConfig.evidenceAutoPopulate.nd.evidence.id,
         noctuaFormConfig.evidenceAutoPopulate.nd.evidence.label));
       evidence.reference = noctuaFormConfig.evidenceAutoPopulate.nd.reference;
-      self.noctuaActivityEntityService.reinitializeForm(new Entity(term.id, term.label), [evidence]);
+      this.noctuaActivityEntityService.reinitializeForm(new Entity(term.id, term.label), [evidence]);
     }
   }
 
   addEvidenceISS() {
-    const self = this;
-
     const evidence = new Evidence();
     evidence.setEvidence(new Entity(
       noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
       noctuaFormConfig.evidenceAutoPopulate.iss.evidence.label));
     evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
 
-    self.entity.predicate.setEvidence([evidence]);
-    self.noctuaActivityFormService.initializeForm();
+    this.entity.predicate.setEvidence([evidence]);
+    this.noctuaActivityFormService.initializeForm();
   }
 
   clearValues() {
-    const self = this;
-
-    self.entity.clearValues();
-    self.noctuaActivityFormService.initializeForm();
+    this.entity.clearValues();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   updateTermList() {
-    const self = this;
-    this.camService.updateTermList(self.noctuaActivityFormService.activity, this.entity);
+    this.camService.updateTermList(this.noctuaActivityFormService.activity, this.entity);
   }
 
   updateEvidenceList() {
-    const self = this;
-    this.camService.updateEvidenceList(self.noctuaActivityFormService.activity, this.entity);
+    this.camService.updateEvidenceList(this.noctuaActivityFormService.activity, this.entity);
   }
 
   updateReferenceList() {
-    const self = this;
-    this.camService.updateReferenceList(self.noctuaActivityFormService.activity, this.entity);
+    this.camService.updateReferenceList(this.noctuaActivityFormService.activity, this.entity);
   }
 
   updateWithList() {
-    const self = this;
-    this.camService.updateWithList(self.noctuaActivityFormService.activity, this.entity);
+    this.camService.updateWithList(this.noctuaActivityFormService.activity, this.entity);
   }
 
 

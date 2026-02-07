@@ -140,7 +140,7 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     this.noctuaUserService.onUserChanged.pipe(
       distinctUntilChanged(this.noctuaUserService.distinctUser),
       takeUntil(this._unsubscribeAll))
-      .subscribe((user: Contributor) => {
+      .subscribe((_user: Contributor) => {
         this.noctuaFormConfigService.setupUrls();
         this.noctuaFormConfigService.setUniversalUrls();
         this.loadCam(this.modelId);
@@ -176,7 +176,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectMiddlePanel(panel: MiddlePanel) {
-    const self = this;
     this.noctuaCommonMenuService.selectMiddlePanel(panel);
   }
 

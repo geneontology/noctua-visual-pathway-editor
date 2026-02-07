@@ -50,8 +50,7 @@ export class NoctuaTripleFormService {
   }
 
   createTripleForm(triple: Triple<ActivityNode>) {
-    const self = this;
-    const formMetadata = new ActivityFormMetadata(self.noctuaLookupService.lookupFunc.bind(self.noctuaLookupService));
+    const formMetadata = new ActivityFormMetadata(this.noctuaLookupService.lookupFunc.bind(this.noctuaLookupService));
 
     const tripleForm = new TripleForm(formMetadata);
 
@@ -61,13 +60,11 @@ export class NoctuaTripleFormService {
   }
 
   tripleFormToActivity() {
-    const self = this;
-
     // self.tripleForm.populateActivityEntityForm(this.termNode);
   }
 
   private _onActivityFormChanges(): void {
-    this.tripleFormGroup.getValue().valueChanges.subscribe(value => {
+    this.tripleFormGroup.getValue().valueChanges.subscribe(_value => {
       // this.errors = this.getActivityFormErrors();
       this.tripleFormToActivity();
     });

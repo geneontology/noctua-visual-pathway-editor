@@ -25,25 +25,21 @@ export class TripleForm {
   }
 
   createTripleForm(triple: Triple<ActivityNode>) {
-    const self = this;
-
     this.subject.setValue(triple.subject.getTerm());
     this.object.setValue(triple.object.getTerm());
     this.onValueChanges(triple.subject.termLookup);
     triple.predicate.evidence.forEach((evidence: Evidence) => {
-      const evidenceForm = new EvidenceForm(self._metadata, triple.subject, evidence);
+      const evidenceForm = new EvidenceForm(this._metadata, triple.subject, evidence);
 
-      self.evidenceForms.push(evidenceForm);
+      this.evidenceForms.push(evidenceForm);
       evidenceForm.onValueChanges(triple.predicate);
-      self.evidenceFormArray.push(self._fb.group(evidenceForm));
+      this.evidenceFormArray.push(this._fb.group(evidenceForm));
     });
   }
 
   populateActivityEntityForm(activityNode: ActivityNode) {
-    const self = this;
-
     activityNode.term = new Entity(this.subject.value.id, this.subject.value.label);
-    self.evidenceForms.forEach(() => {
+    this.evidenceForms.forEach(() => {
       // const evidenceFound = activityNode.getEvidenceById(evidenceForm.uuid);
       // const evidence = evidenceFound ? evidenceFound : new Evidence();
 
@@ -55,13 +51,11 @@ export class TripleForm {
   }
 
   onValueChanges(lookup: EntityLookup) {
-    const self = this;
-
-    self.subject.valueChanges.pipe(
+    this.subject.valueChanges.pipe(
       distinctUntilChanged(),
       debounceTime(400)
-    ).subscribe(data => {
-      self._metadata.lookupFunc.termLookup(data, lookup.requestParams).subscribe(response => {
+    ).subscribe((data) => {
+      this._metadata.lookupFunc.termLookup(data, lookup.requestParams).subscribe((response) => {
         lookup.results = response;
       });
     });

@@ -21,21 +21,17 @@ export class ActivityForm {
   }
 
   createMolecularEntityForm(gpData) {
-    const self = this;
-
     each(gpData, (nodeGroup, nodeKey) => {
       const entityGroupForm = new EntityGroupForm(this._metadata);
 
       this.entityGroupForms.push(entityGroupForm);
       entityGroupForm.name = nodeKey;
       entityGroupForm.createEntityForms(nodeGroup.nodes);
-      self.gp.push(self._fb.group(entityGroupForm));
+      this.gp.push(this._fb.group(entityGroupForm));
     });
   }
 
   createFunctionDescriptionForm(fdData) {
-    const self = this;
-
     each(fdData, (nodeGroup, nodeKey) => {
       const entityGroupForm = new EntityGroupForm(this._metadata);
 
@@ -43,7 +39,7 @@ export class ActivityForm {
       entityGroupForm.name = nodeKey;
       entityGroupForm.isComplement = nodeGroup.isComplement;
       entityGroupForm.createEntityForms(nodeGroup.nodes);
-      self.fd.push(self._fb.group(entityGroupForm));
+      this.fd.push(this._fb.group(entityGroupForm));
     });
   }
 

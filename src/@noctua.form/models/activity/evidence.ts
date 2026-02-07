@@ -1,7 +1,7 @@
 import { ActivityError, ErrorLevel, ErrorType } from "./parser/activity-error";
 import { Entity, EntityType } from './entity';
 import { ActivityNode } from './activity-node';
-import { find, includes, isEqual } from 'lodash';
+import { find, isEqual } from 'lodash';
 
 import { noctuaFormConfig } from './../../noctua-form-config';
 import { CamStats } from "./cam";
@@ -46,9 +46,7 @@ export class Evidence {
   }
 
   hasValue() {
-    const self = this;
-
-    return self.evidence.id && self.reference;
+    return this.evidence.id && this.reference;
   }
 
   setEvidenceOntologyClass(value) {
@@ -64,41 +62,37 @@ export class Evidence {
   }
 
   clearValues() {
-    const self = this;
-
-    self.setEvidence(new Entity('', ''));
-    self.reference = '';
-    self.with = '';
+    this.setEvidence(new Entity('', ''));
+    this.reference = '';
+    this.with = '';
   }
 
   isEvidenceEqual(evidence) {
-    const self = this;
     let result = true;
 
-    result = result && isEqual(self.evidence, evidence.evidence);
-    result = result && isEqual(self.reference, evidence.reference);
-    result = result && isEqual(self.with, evidence.with);
+    result = result && isEqual(this.evidence, evidence.evidence);
+    result = result && isEqual(this.reference, evidence.reference);
+    result = result && isEqual(this.with, evidence.with);
 
     return result;
   }
 
   reviewEvidenceChanges(stat: CamStats, modifiedStats: CamStats): boolean {
-    const self = this;
     let modified = false;
 
-    if (self.evidence.modified) {
+    if (this.evidence.modified) {
       modifiedStats.evidenceCount++;
       stat.evidenceCount++;
       modified = true;
     }
 
-    if (self.referenceEntity.modified) {
+    if (this.referenceEntity.modified) {
       modifiedStats.referencesCount++;
       stat.referencesCount++;
       modified = true;
     }
 
-    if (self.withEntity.modified) {
+    if (this.withEntity.modified) {
       modifiedStats.withsCount++;
       stat.withsCount++;
       modified = true;
@@ -109,60 +103,55 @@ export class Evidence {
   }
 
   checkStored(oldEvidence: Evidence) {
-    const self = this;
-
-    if (oldEvidence && self.evidence.id !== oldEvidence.evidence.id) {
-      self.evidence.termHistory.unshift(new Entity(oldEvidence.evidence.id, oldEvidence.evidence.label));
-      self.evidence.modified = true;
+    if (oldEvidence && this.evidence.id !== oldEvidence.evidence.id) {
+      this.evidence.termHistory.unshift(new Entity(oldEvidence.evidence.id, oldEvidence.evidence.label));
+      this.evidence.modified = true;
     }
 
-    if (oldEvidence && self.reference !== oldEvidence.reference) {
-      self.referenceEntity.termHistory.unshift(new Entity(oldEvidence.referenceEntity.id, oldEvidence.referenceEntity.label));
-      self.referenceEntity.modified = true;
+    if (oldEvidence && this.reference !== oldEvidence.reference) {
+      this.referenceEntity.termHistory.unshift(new Entity(oldEvidence.referenceEntity.id, oldEvidence.referenceEntity.label));
+      this.referenceEntity.modified = true;
 
     }
 
-    if (oldEvidence && self.with !== oldEvidence.with) {
-      self.withEntity.termHistory.unshift(new Entity(oldEvidence.withEntity.id, oldEvidence.withEntity.label));
-      self.withEntity.modified = true;
+    if (oldEvidence && this.with !== oldEvidence.with) {
+      this.withEntity.termHistory.unshift(new Entity(oldEvidence.withEntity.id, oldEvidence.withEntity.label));
+      this.withEntity.modified = true;
     }
 
   }
 
   addPendingChanges(oldEvidence: Evidence) {
-    const self = this;
-
-    if (self.evidence.id !== oldEvidence.evidence.id) {
-      self.pendingEvidenceChanges = new PendingChange(self.uuid, oldEvidence.evidence, self.evidence);
-      self.pendingEvidenceChanges.uuid = self.uuid;
+    if (this.evidence.id !== oldEvidence.evidence.id) {
+      this.pendingEvidenceChanges = new PendingChange(this.uuid, oldEvidence.evidence, this.evidence);
+      this.pendingEvidenceChanges.uuid = this.uuid;
     }
 
-    if (self.reference !== oldEvidence.reference) {
+    if (this.reference !== oldEvidence.reference) {
       const oldReference = new Entity(oldEvidence.reference, oldEvidence.reference);
-      const newReference = new Entity(self.reference, self.reference);
+      const newReference = new Entity(this.reference, this.reference);
 
-      self.pendingReferenceChanges = new PendingChange(self.uuid, oldReference, newReference);
+      this.pendingReferenceChanges = new PendingChange(this.uuid, oldReference, newReference);
     }
 
-    if (self.with !== oldEvidence.with) {
+    if (this.with !== oldEvidence.with) {
       const oldWith = new Entity(oldEvidence.with, oldEvidence.with);
-      const newWith = new Entity(self.with, self.with);
+      const newWith = new Entity(this.with, this.with);
 
-      self.pendingWithChanges = new PendingChange(self.uuid, oldWith, newWith);
+      this.pendingWithChanges = new PendingChange(this.uuid, oldWith, newWith);
     }
   }
 
   enableSubmit(errors, node: ActivityNode, position) {
-    const self = this;
     let result = true;
     const meta = {
       aspect: node.label
     };
 
-    if (self.evidence.id) {
-      self.evidenceRequired = false;
+    if (this.evidence.id) {
+      this.evidenceRequired = false;
     } else {
-      self.evidenceRequired = true;
+      this.evidenceRequired = true;
 
       // const error = new ActivityError(ErrorLevel.error, ErrorType.general, `No evidence for "${node.label}": on evidence(${position})`, meta);
 
@@ -170,24 +159,24 @@ export class Evidence {
       // result = false;
     }
 
-    if (self.evidence.id && !self.reference) {
+    if (this.evidence.id && !this.reference) {
       const error = new ActivityError(ErrorLevel.error, ErrorType.general,
         `You provided an evidence for "${node.label}" but no reference: on evidence(${position})`,
         meta);
       errors.push(error);
 
-      self.referenceRequired = true;
+      this.referenceRequired = true;
       result = false;
     } else {
-      self.referenceRequired = false;
+      this.referenceRequired = false;
     }
 
-    if (self.reference) {
-      result = self.enableReferenceSubmit(errors, self.reference, node, position);
+    if (this.reference) {
+      result = this.enableReferenceSubmit(errors, this.reference, node, position);
     }
 
-    if (self.with) {
-      result = self.enableWithFromSubmit(errors, self.with, node, position) && result;
+    if (this.with) {
+      result = this.enableWithFromSubmit(errors, this.with, node, position) && result;
     }
 
     return result;

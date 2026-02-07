@@ -1,4 +1,4 @@
-import { find, each, omit, pickBy, mapKeys, mapValues, remove, difference, differenceWith } from 'lodash';
+import { find, each, remove, difference, differenceWith } from 'lodash';
 import { ActivityNode } from './activity-node';
 
 export interface Edge<EdgeMetadata> { subjectId: string, objectId: string, metadata: EdgeMetadata }
@@ -97,11 +97,9 @@ export function addGraph<Node, EdgeMetadata>(
     graph1: Graph<Node, EdgeMetadata>,
     graph2: Graph<Node, EdgeMetadata>,
     toNodeId: string,
-    fromNodeId: string
+    _fromNodeId: string
 ) {
-    const keys1 = Object.keys(getNodes(graph1));
     const nodes2 = getNodes(graph2);
-    const edges1 = getEdges(graph1);
     const edges2 = getEdges(graph2);
 
     each(nodes2, (node: Node, key: string) => {
@@ -156,7 +154,7 @@ export function subtractGraph<Node, EdgeMetadata>(
         addNode(result, node, nodeId);
     });
 
-    each(edgeIds, (edge: Edge<EdgeMetadata>) => {
+    each(edgeIds, (_edge: Edge<EdgeMetadata>) => {
         // addEdge(result, edge);
     });
 

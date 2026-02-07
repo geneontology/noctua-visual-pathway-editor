@@ -13,7 +13,12 @@
       "Bash(head:*)",
       "Bash(npm run lint:*)",
       "Bash(npx tslint:*)",
-      "Bash(npx ng lint:*)"
+      "Bash(npx ng lint:*)",
+      "Bash(npx ng generate:*)",
+      "Bash(git checkout:*)",
+      "Bash(findstr:*)",
+      "Read(//c/**)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }

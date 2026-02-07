@@ -1,10 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { NodeCellType } from '@noctua.graph/models/shapes';
-import { NodeCellList, NodeCellMolecule, NodeLink, StencilNode } from '@noctua.graph/services/shapes.service';
 import * as joint from 'jointjs';
-import { each, cloneDeep } from 'lodash';
-import { StencilItemNode } from '@noctua.graph/data/cam-stencil';
-import { getEdgeColor } from '@noctua.graph/data/edge-display';
 
 @Component({
     selector: 'noc-relation-preview',
@@ -39,11 +34,11 @@ export class RelationPreviewComponent implements OnInit {
       restrictTranslate: true,
       multiLinks: false,
       markAvailable: true,
-      validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
+      validateConnection: function (cellViewS, magnetS, cellViewT, _magnetT, _end, _linkView) {
         if (cellViewS === cellViewT) return false;
         return true;
       },
-      validateMagnet: function (cellView, magnet) {
+      validateMagnet: function (_cellView, _magnet) {
         return true;
       },
 

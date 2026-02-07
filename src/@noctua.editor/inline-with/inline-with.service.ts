@@ -1,10 +1,8 @@
-import { Injectable, Injector, ElementRef, ComponentRef, ViewChild, inject } from '@angular/core';
+import { Injectable, Injector, ElementRef, ComponentRef, inject } from '@angular/core';
 import {
     Overlay,
     OverlayRef,
     OverlayConfig,
-    OriginConnectionPosition,
-    OverlayConnectionPosition,
     PositionStrategy
 } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -44,17 +42,16 @@ export class InlineWithService {
 
         dialogConfig['positionStrategy'] = this._getPosition(elementToConnectTo);
         // dialogConfig['width'] = '420px';
-        const originRect = elementToConnectTo.nativeElement;
         const overlayRef = this.createOverlay(dialogConfig);
         const dialogRef = new WithDropdownOverlayRef(overlayRef);
-        const overlayComponent = this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
+        this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
 
         overlayRef.backdropClick().subscribe(_ => dialogRef.close());
 
         return dialogRef;
     }
 
-    close(data): void {
+    close(_data): void {
         //  this.overlayRef.dispose();
     }
 
@@ -97,24 +94,6 @@ export class InlineWithService {
     }
 
     private _getPosition(elementToConnectTo: ElementRef) {
-        const origin = {
-            topLeft: { originX: 'start', originY: 'top' } as OriginConnectionPosition,
-            topRight: { originX: 'end', originY: 'top' } as OriginConnectionPosition,
-            bottomLeft: { originX: 'start', originY: 'bottom' } as OriginConnectionPosition,
-            bottomRight: { originX: 'end', originY: 'bottom' } as OriginConnectionPosition,
-            topCenter: { originX: 'center', originY: 'top' } as OriginConnectionPosition,
-            bottomCenter: { originX: 'center', originY: 'bottom' } as OriginConnectionPosition
-        };
-
-        const overlay = {
-            topLeft: { overlayX: 'start', overlayY: 'top' } as OverlayConnectionPosition,
-            topRight: { overlayX: 'end', overlayY: 'top' } as OverlayConnectionPosition,
-            bottomLeft: { overlayX: 'start', overlayY: 'bottom' } as OverlayConnectionPosition,
-            bottomRight: { overlayX: 'end', overlayY: 'bottom' } as OverlayConnectionPosition,
-            topCenter: { overlayX: 'center', overlayY: 'top' } as OverlayConnectionPosition,
-            bottomCenter: { overlayX: 'center', overlayY: 'bottom' } as OverlayConnectionPosition
-        };
-
         return this.overlay.position()
             .flexibleConnectedTo(elementToConnectTo)
             .withFlexibleDimensions(true)

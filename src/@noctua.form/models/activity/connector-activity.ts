@@ -57,20 +57,19 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   }
 
   setRule() {
-    const self = this;
-    const question = self.edgeToConnectorQuestion(self.predicate.edge);
+    const question = this.edgeToConnectorQuestion(this.predicate.edge);
 
     if (question) {
 
-      Object.entries(question).forEach(entry => {
+      Object.entries(question).forEach((entry) => {
         const [key, value] = entry;
         const id = (value as string).split(':');
-        self.rule[key] = noctuaFormConfig[id[0]][id[1]]
+        this.rule[key] = noctuaFormConfig[id[0]][id[1]]
       });
     } else {
-      self.rule.relationship = null;
-      self.rule.directness = null;
-      self.rule.effectDirection = null;
+      this.rule.relationship = null;
+      this.rule.directness = null;
+      this.rule.effectDirection = null;
     }
 
   }
@@ -224,7 +223,6 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
 
 
   createSave() {
-    const self = this;
     const saveData = {
       title: '',
       nodes: [],
@@ -234,13 +232,13 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
 
     let triples: Triple<ActivityNode>[]
 
-    if (self.predicate.isReverseLink) {
+    if (this.predicate.isReverseLink) {
       triples = [new Triple<ActivityNode>(
-        self.objectNode, self.subjectNode, self.predicate)
+        this.objectNode, this.subjectNode, this.predicate)
       ]
     } else {
       triples = [new Triple<ActivityNode>(
-        self.subjectNode, self.objectNode, self.predicate)
+        this.subjectNode, this.objectNode, this.predicate)
       ]
     }
 
@@ -250,14 +248,12 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   }
 
   createEdit(srcActivity: ConnectorActivity, predicate?: Predicate) {
-    const self = this;
-
     if (predicate) {
       this.predicate = predicate;
     }
 
     const srcSaveData = srcActivity.createSave();
-    const destSaveData = self.createSave();
+    const destSaveData = this.createSave();
     const saveData = {
       removeTriples: srcSaveData.triples,
       addTriples: destSaveData.triples
@@ -267,11 +263,10 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   }
 
   createEditEvidence(srcActivity: ConnectorActivity, predicate: Predicate) {
-    const self = this;
-    self.predicate.evidence = predicate.evidence;
+    this.predicate.evidence = predicate.evidence;
 
-    const removeTriples = new Triple(self.subjectNode, self.objectNode, srcActivity.predicate);
-    const addTriples = new Triple(self.subjectNode, self.objectNode, self.predicate);
+    const removeTriples = new Triple(this.subjectNode, this.objectNode, srcActivity.predicate);
+    const addTriples = new Triple(this.subjectNode, this.objectNode, this.predicate);
 
     const saveData = {
       addTriples: addTriples,
@@ -282,32 +277,27 @@ export class ConnectorActivity extends SaeGraph<ActivityNode> {
   }
 
   createDelete() {
-    const self = this;
-
     const deleteData = {
       triples: []
     };
 
-    if (self.predicate.isReverseLink) {
-      deleteData.triples.push(new Triple(self.objectNode, self.subjectNode, self.predicate));
+    if (this.predicate.isReverseLink) {
+      deleteData.triples.push(new Triple(this.objectNode, this.subjectNode, this.predicate));
     } else {
-      deleteData.triples.push(new Triple(self.subjectNode, self.objectNode, self.predicate));
+      deleteData.triples.push(new Triple(this.subjectNode, this.objectNode, this.predicate));
     }
 
     return deleteData;
   }
 
   createGraph(srcEvidence?: Evidence[]) {
-    const self = this;
-    const evidence = srcEvidence ? srcEvidence : self.predicate.evidence;
+    const evidence = srcEvidence ? srcEvidence : this.predicate.evidence;
 
-    self.addNodes(self.subjectNode, self.objectNode);
-    self.addEdge(self.subjectNode, self.objectNode, new Predicate(self.predicate.edge, evidence));
+    this.addNodes(this.subjectNode, this.objectNode);
+    this.addEdge(this.subjectNode, this.objectNode, new Predicate(this.predicate.edge, evidence));
   }
 
   prepareSave(value) {
-    const self = this;
-
     const evidence: Evidence[] = value.evidenceFormArray.map((evidence: Evidence) => {
       const result = new Evidence();
 

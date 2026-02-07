@@ -36,15 +36,13 @@ export class NoctuaCommonMenuService {
   }
 
   createModel(type: WorkbenchId) {
-    const self = this;
-
     const _newModelBbopManager = this._noctuaGraphService.registerManager();
-    _newModelBbopManager.register('rebuild', function (resp) { }, 10);
+    _newModelBbopManager.register('rebuild', function (_resp) { }, 10);
     _newModelBbopManager.add_model().then((resp) => {
       const modelId = resp.data().id;
       let params = new HttpParams();
       params = params.append('model_id', modelId);
-      params = params.append('barista_token', self.noctuaUserService.baristaToken);
+      params = params.append('barista_token', this.noctuaUserService.baristaToken);
 
       const paramsString = params.toString();
       const urls =

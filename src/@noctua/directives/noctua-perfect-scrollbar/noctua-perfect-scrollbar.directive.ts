@@ -173,7 +173,7 @@ export class NoctuaPerfectScrollbarDirective implements OnInit, AfterViewInit, O
     }
 
     @HostListener('document:click', ['$event'])
-    documentClick(event: Event): void {
+    documentClick(_event: Event): void {
         if (!this.isInitialized || !this.ps) {
             return;
         }

@@ -33,18 +33,17 @@ export class CardinalityViolation extends Violation {
   }
 
   override getDisplayError() {
-    const self = this;
     const meta = {
       aspect: '',
       subjectNode: {
-        label: self.subject?.term?.label
+        label: this.subject?.term?.label
       },
       edge: {
-        label: self.predicate?.label
+        label: this.predicate?.label
       },
     };
 
-    const error = new ActivityError(ErrorLevel.error, ErrorType.cardinality, self.message, meta);
+    const error = new ActivityError(ErrorLevel.error, ErrorType.cardinality, this.message, meta);
 
     return error;
   }
@@ -66,21 +65,20 @@ export class RelationViolation extends Violation {
   }
 
   override getDisplayError() {
-    const self = this;
     const meta = {
       aspect: '',
       subjectNode: {
-        label: self.subject?.term?.label
+        label: this.subject?.term?.label
       },
       edge: {
-        label: self.predicate?.label
+        label: this.predicate?.label
       },
       objectNode: {
-        label: self.object?.term?.label ? self.object?.term?.label : self.object?.term?.id
+        label: this.object?.term?.label ? this.object?.term?.label : this.object?.term?.id
       },
     };
 
-    const error = new ActivityError(ErrorLevel.error, ErrorType.relation, self.message, meta);
+    const error = new ActivityError(ErrorLevel.error, ErrorType.relation, this.message, meta);
 
     return error;
   }

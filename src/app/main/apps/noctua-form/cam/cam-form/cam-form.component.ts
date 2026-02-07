@@ -18,7 +18,6 @@ import {
   NoctuaFormConfigService,
   NoctuaGraphService,
   CamService,
-  Entity,
 } from '@geneontology/noctua-form-base';
 
 @Component({

@@ -1,7 +1,7 @@
-import { Component, ElementRef, HostBinding, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener, DOCUMENT, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener, DOCUMENT, inject } from '@angular/core';
 
 import { Platform } from '@angular/cdk/platform';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { NoctuaConfigService } from '@noctua/services/config.service';
@@ -32,7 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     private _unsubscribeAll: Subject<any>;
     @HostListener('window:focus', ['$event'])
-    onFocus(event: FocusEvent): void {
+    onFocus(_event: FocusEvent): void {
         this.noctuaUserService.getUser();
     }
 

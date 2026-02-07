@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, Injectable, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntil } from 'rxjs/operators';
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import {
   ActivityNode,
@@ -276,7 +275,7 @@ export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
 /**
  * The Json object for to-do list data.
  */
-const TREE_DATA = {
+const _TREE_DATA = {
   Groceries: {
     'Almond Meal flour': null,
     'Organic eggs': null,

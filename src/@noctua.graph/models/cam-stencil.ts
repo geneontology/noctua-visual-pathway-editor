@@ -15,25 +15,21 @@ export class CamStencil {
     onAddElement: (element: joint.shapes.noctua.NodeCellList, x: number, y: number) => NodeCellList;
 
     constructor(camCanvas: CamCanvas, stencils: StencilItem[]) {
-        const self = this;
-
-        self.camCanvas = camCanvas;
-        self.stencils = stencils;
-        self._initializeStencils(stencils);
+        this.camCanvas = camCanvas;
+        this.stencils = stencils;
+        this._initializeStencils(stencils);
     }
 
     private _initializeStencils(stencils: StencilItem[]) {
-        const self = this;
-
-        self.stencils = [];
+        this.stencils = [];
         each(stencils, (stencil: StencilItem) => {
             const stencilGraph = new joint.dia.Graph();
-            const stencilPaper = self.generateStencilPaper(stencil, stencilGraph);
+            const stencilPaper = this.generateStencilPaper(stencil, stencilGraph);
 
-            self.addStencilGraph(stencilGraph, stencil.nodes);
-            stencilPaper.on('cell:pointerdown', self.onMouseDown(stencil.id, self.camCanvas.canvasPaper));
+            this.addStencilGraph(stencilGraph, stencil.nodes);
+            stencilPaper.on('cell:pointerdown', this.onMouseDown(stencil.id, this.camCanvas.canvasPaper));
 
-            self.stencils.push({
+            this.stencils.push({
                 id: stencil.id,
                 paper: stencilPaper,
                 graph: stencilGraph
@@ -43,7 +39,6 @@ export class CamStencil {
 
 
     addStencilGraph(graph: joint.dia.Graph, stencilNodes: StencilItemNode[]) {
-        const self = this;
         const nodes = [];
 
         each(stencilNodes, (stencilItemNode: StencilItemNode) => {
@@ -58,7 +53,7 @@ export class CamStencil {
         });
 
         graph.resetCells(nodes);
-        self._layout(graph);
+        this._layout(graph);
     }
 
     private generateStencilPaper(stencil: StencilItem, stencilGraph: joint.dia.Graph): joint.dia.Paper {
@@ -74,12 +69,10 @@ export class CamStencil {
     }
 
     private onMouseDown(name: string, canvasPaper: joint.dia.Paper) {
-        const self = this;
-
-        return function (cellView, e, x, y) {
+        return (cellView, e, x, y) => {
             $('#noc-canvas').append('<div id="noc-flypaper" style="position:fixed;z-index:100000;opacity:.7;pointer-event:none;"></div>');
             const flyGraph = new joint.dia.Graph();
-            const flyPaper = new joint.dia.Paper({
+            new joint.dia.Paper({
                 el: document.getElementById('noc-flypaper'),
                 model: flyGraph,
                 interactive: false
@@ -91,7 +84,7 @@ export class CamStencil {
                 y: y - pos.y
             };
 
-            self.selectedStencilElement = cellView.model;
+            this.selectedStencilElement = cellView.model;
             flyShape.position(0, 0);
             flyGraph.addCell(flyShape);
 
@@ -99,20 +92,20 @@ export class CamStencil {
                 left: e.pageX - offset.x,
                 top: e.pageY - offset.y
             });
-            $('#noc-canvas').on('mousemove.fly', function (e) {
+            $('#noc-canvas').on('mousemove.fly', (e) => {
                 $('#noc-flypaper').offset({
                     left: e.pageX - offset.x,
                     top: e.pageY - offset.y
                 });
             });
-            $('#noc-canvas').on('mouseup.fly', function (e) {
+            $('#noc-canvas').on('mouseup.fly', (e) => {
                 const x1 = e.pageX;
                 const y1 = e.pageY;
                 const target = canvasPaper.$el.offset();
 
                 // Dropped over paper?
                 if (x1 > target.left && x1 < target.left + canvasPaper.$el.width() && y1 > target.top && y1 < target.top + canvasPaper.$el.height()) {
-                    self.onAddElement(self.selectedStencilElement, x1 - target.left - offset.x, y1 - target.top - offset.y);
+                    this.onAddElement(this.selectedStencilElement, x1 - target.left - offset.x, y1 - target.top - offset.y);
                     //  el.position(x1 - target.left - offset.x, y1 - target.top - offset.y);
                 }
                 $('#noc-canvas').off('mousemove.fly').off('mouseup.fly');
@@ -133,7 +126,6 @@ export class CamStencil {
 
     private _layoutGraph(graph: joint.dia.Graph) {
         const autoLayoutElements = [];
-        const manualLayoutElements = [];
         graph.getElements().forEach((el) => {
             if (el.attr('./visibility') !== 'hidden') {
                 autoLayoutElements.push(el);

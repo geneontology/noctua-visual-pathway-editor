@@ -1,4 +1,4 @@
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormArray } from '@angular/forms';
 import { Activity } from './../activity/activity';
 import { ActivityFormMetadata } from './../forms/activity-form-metadata';
 import { EntityForm } from './entity-form';
@@ -19,33 +19,27 @@ export class EntityGroupForm {
     }
 
     createEntityForms(entities: ActivityNode[]) {
-        const self = this;
-
         this.entityForms = [];
         entities.forEach((entity: ActivityNode) => {
             if (entity.visible) {
-                const entityForm = new EntityForm(self._metadata, entity);
+                const entityForm = new EntityForm(this._metadata, entity);
                 if (!entity.skipEvidenceCheck) {
                     entityForm.createEvidenceForms(entity);
                 }
-                self.entityForms.push(entityForm);
-                self.entityGroup.push(self._fb.group(entityForm));
+                this.entityForms.push(entityForm);
+                this.entityGroup.push(this._fb.group(entityForm));
             }
         });
     }
 
-    populateActivityNodes(activity: Activity) {
-        const self = this;
-
-        self.entityForms.forEach((entityForm: EntityForm) => {
+    populateActivityNodes(_activity: Activity) {
+        this.entityForms.forEach((entityForm: EntityForm) => {
             entityForm.populateTerm();
         });
     }
 
     getErrors(error) {
-        const self = this;
-
-        self.entityForms.forEach((entityForm: EntityForm) => {
+        this.entityForms.forEach((entityForm: EntityForm) => {
             entityForm.getErrors(error);
         });
     }

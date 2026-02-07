@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { distinctUntilChanged, debounceTime } from 'rxjs/operators';
 
 import { Evidence } from './../activity/evidence';
@@ -41,29 +41,27 @@ export class EvidenceForm {
     }
 
     onValueChanges(predicate: Predicate) {
-        const self = this;
-
-        self.evidence.valueChanges.pipe(
+        this.evidence.valueChanges.pipe(
             distinctUntilChanged(),
             debounceTime(400)
-        ).subscribe(data => {
-            self._metadata.lookupFunc.termLookup(data, predicate.evidenceLookup.requestParams).subscribe(response => {
+        ).subscribe((data) => {
+            this._metadata.lookupFunc.termLookup(data, predicate.evidenceLookup.requestParams).subscribe((response) => {
                 predicate.evidenceLookup.results = response;
             });
         });
 
-        self.reference.valueChanges.pipe(
+        this.reference.valueChanges.pipe(
             distinctUntilChanged(),
             debounceTime(400)
-        ).subscribe(data => {
-            predicate.referenceLookup.results = self._metadata.lookupFunc.evidenceLookup(data, 'reference');
+        ).subscribe((data) => {
+            predicate.referenceLookup.results = this._metadata.lookupFunc.evidenceLookup(data, 'reference');
         });
 
-        self.with.valueChanges.pipe(
+        this.with.valueChanges.pipe(
             distinctUntilChanged(),
             debounceTime(400)
-        ).subscribe(data => {
-            predicate.withLookup.results = self._metadata.lookupFunc.evidenceLookup(data, 'with');
+        ).subscribe((data) => {
+            predicate.withLookup.results = this._metadata.lookupFunc.evidenceLookup(data, 'with');
         });
     }
 

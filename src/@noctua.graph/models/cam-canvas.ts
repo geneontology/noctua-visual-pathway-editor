@@ -1,7 +1,6 @@
 import {
     Activity,
     ActivityNode,
-    ActivityNodeType,
     ActivityTreeNode,
     ActivityType,
     Cam,
@@ -15,7 +14,6 @@ import { NodeCellType } from './shapes';
 import { NodeCellList, NodeCellMolecule, NodeLink, StencilNode } from './../services/shapes.service';
 import * as joint from 'jointjs';
 import { each, cloneDeep, find } from 'lodash';
-import { StencilItemNode } from './../data/cam-stencil';
 import { getEdgeColor } from './../data/edge-display';
 
 export class CamCanvas {
@@ -39,9 +37,8 @@ export class CamCanvas {
     }
 
     private _initializeCanvas() {
-        const self = this;
-        self.canvasGraph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
-        self.canvasPaper = new joint.dia.Paper({
+        this.canvasGraph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
+        this.canvasPaper = new joint.dia.Paper({
             cellViewNamespace: joint.shapes,
             el: document.getElementById('noc-paper'),
             height: '100%',
@@ -56,7 +53,7 @@ export class CamCanvas {
             /*     defaultLink: new joint.dia.Link({
                   attrs: { '.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' } }
                 }), */
-            validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
+            validateConnection: function (cellViewS, magnetS, cellViewT, _magnetT, _end, _linkView) {
                 // Prevent linking from input ports.
                 // if (magnetS && magnetS.getAttribute('port-group') === 'in') return false;
                 // Prevent linking from output ports to input ports within one element.
@@ -66,7 +63,7 @@ export class CamCanvas {
 
                 return true; // (magnetS !== magnetT);
             },
-            validateMagnet: function (cellView, magnet) {
+            validateMagnet: function (_cellView, _magnet) {
                 // Note that this is the default behaviour. Just showing it here for reference.
                 // Disable linking interaction for magnets marked as passive (see below `.inPorts circle`).
                 // return magnet.getAttribute('magnet') !== 'passive';
@@ -98,47 +95,47 @@ export class CamCanvas {
 
         });
 
-        self.canvasPaper.on('blank:pointerdblclick', function () {
+        this.canvasPaper.on('blank:pointerdblclick', () => {
             // Remove all Highlighters from all cells
-            self.unselectAll();
+            this.unselectAll();
         });
 
-        this.canvasPaper.on('element:pointerup', function (cellView) {
-            if (self.cam.layoutChanged) {
-                self.cam.layoutChanged = false;
-                self.updateLocation();
+        this.canvasPaper.on('element:pointerup', (_cellView) => {
+            if (this.cam.layoutChanged) {
+                this.cam.layoutChanged = false;
+                this.updateLocation();
             }
         });
 
-        this.canvasPaper.on('element:pointerdblclick', function (cellView) {
+        this.canvasPaper.on('element:pointerdblclick', (cellView) => {
             const element = cellView.model;
-            self.elementOnClick(element);
+            this.elementOnClick(element);
 
             if (element.get('type') !== NodeCellType.link) {
                 const cell = element as NodeCellList
-                self.selectNode(cell)
+                this.selectNode(cell)
             }
         });
 
-        this.canvasPaper.on('element:mouseover', function (cellView) {
+        this.canvasPaper.on('element:mouseover', (cellView) => {
             const element = cellView.model;
             if (element.get('type') !== NodeCellType.link) {
                 const cell = element as NodeCellList
                 cell.hover(true);
-                self.highlightSuccessorNodes(cell)
+                this.highlightSuccessorNodes(cell)
             }
         });
 
-        this.canvasPaper.on('element:mouseleave', function (cellView) {
+        this.canvasPaper.on('element:mouseleave', (cellView) => {
             cellView.removeTools();
             const element = cellView.model;
             if (element.get('type') !== NodeCellType.link) {
                 (element as NodeCellList).hover(false);
-                self.unhighlightAllNodes()
+                this.unhighlightAllNodes()
             }
         });
 
-        this.canvasPaper.on('link:mouseenter', function (cellView) {
+        this.canvasPaper.on('link:mouseenter', (cellView) => {
             cellView.removeTools();
             const element = cellView.model;
             if (element.get('type') === NodeCellType.link) {
@@ -147,7 +144,7 @@ export class CamCanvas {
 
         });
 
-        this.canvasPaper.on('link:mouseleave', function (cellView) {
+        this.canvasPaper.on('link:mouseleave', (cellView) => {
             cellView.removeTools();
             const element = cellView.model;
             if (element.get('type') === NodeCellType.link) {
@@ -181,58 +178,54 @@ export class CamCanvas {
         } */
 
 
-        this.canvasPaper.on('link:pointerdblclick', function (linkView) {
+        this.canvasPaper.on('link:pointerdblclick', (linkView) => {
             const link = linkView.model;
 
-            self.linkOnClick(link);
-            self.unselectAll();
+            this.linkOnClick(link);
+            this.unselectAll();
         });
 
-        this.canvasPaper.on('element:.edit:pointerdown', function (elementView: joint.dia.ElementView, evt) {
+        this.canvasPaper.on('element:.edit:pointerdown', (elementView: joint.dia.ElementView, evt) => {
             evt.stopPropagation();
 
             const element = elementView.model;
-            self.editOnClick(element);
+            this.editOnClick(element);
 
         });
 
-        this.canvasPaper.on('element:.delete:pointerdown', function (elementView: joint.dia.ElementView, evt) {
+        this.canvasPaper.on('element:.delete:pointerdown', (elementView: joint.dia.ElementView, evt) => {
             evt.stopPropagation();
 
             const element = elementView.model;
-            self.deleteOnClick(element);
+            this.deleteOnClick(element);
 
         });
 
-        this.canvasPaper.on('element:expand:pointerdown', function (elementView: joint.dia.ElementView, evt) {
+        this.canvasPaper.on('element:expand:pointerdown', (elementView: joint.dia.ElementView, evt) => {
             evt.stopPropagation();
 
             const model = elementView.model;
             const activity = model.prop('activity') as Activity;
-            self.toggleActivityVisibility(model, activity);
+            this.toggleActivityVisibility(model, activity);
         });
 
 
-        this.canvasGraph.on('change:position', function (element: joint.dia.Element, evt) {
-            self.cam.layoutChanged = true;
+        this.canvasGraph.on('change:position', (_element: joint.dia.Element, _evt) => {
+            this.cam.layoutChanged = true;
         });
 
-        this.canvasGraph.on('change:source change:target', function (link) {
-            const sourcePort = link.get('source').port;
+        this.canvasGraph.on('change:source change:target', (link) => {
             const sourceId = link.get('source').id;
-            const targetPort = link.get('target').port;
             const targetId = link.get('target').id;
 
             if (targetId && sourceId) {
 
-                self.onLinkCreated(sourceId, targetId, link)
+                this.onLinkCreated(sourceId, targetId, link)
             }
         });
     }
 
     addLink(link: NodeLink, predicate: Predicate) {
-        const self = this;
-
         link.set({
             activity: predicate,
             id: predicate.uuid
@@ -246,15 +239,13 @@ export class CamCanvas {
     }
 
     highlightSuccessorNodes(node: NodeCellList) {
-        const self = this;
+        this.unhighlightAllNodes()
 
-        self.unhighlightAllNodes()
-
-        const predecessors = self.canvasGraph.getPredecessors(node)
-        const successors = self.canvasGraph.getSuccessors(node)
+        const predecessors = this.canvasGraph.getPredecessors(node)
+        const successors = this.canvasGraph.getSuccessors(node)
 
 
-        each(self.canvasGraph.getCells(), (cell: NodeCellList) => {
+        each(this.canvasGraph.getCells(), (cell: NodeCellList) => {
             if (cell.get('type') !== NodeCellType.link) {
                 cell.setColor('grey', 200, 300);
             }
@@ -274,18 +265,14 @@ export class CamCanvas {
     }
 
     selectNode(node: NodeCellList) {
-        const self = this;
-
-        self.unselectAll()
+        this.unselectAll()
 
         node.setBorder('orange', 500,)
 
     }
 
     updateLocation() {
-        const self = this;
-
-        each(self.canvasGraph.getElements(), (element: NodeCellList) => {
+        each(this.canvasGraph.getElements(), (element: NodeCellList) => {
             if (element.get('type') !== NodeCellType.link) {
                 const activity = element.prop('activity') as Activity
                 if (activity) {
@@ -297,12 +284,11 @@ export class CamCanvas {
             }
         })
 
-        self.onUpdateCamLocations(self.cam)
+        this.onUpdateCamLocations(this.cam)
     }
 
     unhighlightAllNodes() {
-        const self = this;
-        each(self.canvasGraph.getCells(), (cell: NodeCellList) => {
+        each(this.canvasGraph.getCells(), (cell: NodeCellList) => {
             if (cell.get('type') !== NodeCellType.link) {
                 const activity = cell.prop('activity') as Activity
                 cell.setColor(activity.backgroundColor);
@@ -311,8 +297,7 @@ export class CamCanvas {
     }
 
     unselectAll() {
-        const self = this;
-        each(self.canvasGraph.getCells(), (cell: NodeCellList) => {
+        each(this.canvasGraph.getCells(), (cell: NodeCellList) => {
             if (cell.get('type') !== NodeCellType.link) {
                 cell.unsetBorder();
             }
@@ -320,26 +305,21 @@ export class CamCanvas {
     }
 
     createLinkFromElements(source: joint.shapes.noctua.NodeCellList, target: joint.shapes.noctua.NodeCellList) {
-        const self = this;
-
         const subject = source.get('activity') as Activity;
         const object = target.get('activity') as Activity;
 
-        self.createLink(subject, new Predicate(Entity.createEntity(noctuaFormConfig.edge.causallyUpstreamOf)), object)
+        this.createLink(subject, new Predicate(Entity.createEntity(noctuaFormConfig.edge.causallyUpstreamOf)), object)
     }
 
     createLink(subject: Activity, predicate: Predicate, object: Activity) {
-        const self = this;
         const triple = new Triple(subject, object, predicate);
 
-        ///self.cam.addNode(predicate);
-        //self.cam.addTriple(triple);
-        self.createLinkFromTriple(triple, true);
+        ///this.cam.addNode(predicate);
+        //this.cam.addTriple(triple);
+        this.createLinkFromTriple(triple, true);
     }
 
     createLinkFromTriple(triple: Triple<Activity>, autoLayout?: boolean) {
-        const self = this;
-
         const link = NodeLink.create();
         link.setText(triple.predicate.edge.label);
         link.set({
@@ -355,10 +335,10 @@ export class CamCanvas {
             }
         });
 
-        link.addTo(self.canvasGraph);
+        link.addTo(this.canvasGraph);
         if (autoLayout) {
-            self.autoLayoutGraph(self.canvasGraph, 'compact');
-            // self.addCanvasGraph(self.activity);
+            this.autoLayoutGraph(this.canvasGraph, 'compact');
+            // this.addCanvasGraph(this.activity);
         }
     }
 
@@ -390,12 +370,10 @@ export class CamCanvas {
     };
 
     toggleActivityVisibility(cell: joint.dia.Element, activity: Activity) {
-        const self = this;
-
-        //self.activity.subgraphVisibility(activity, !activity.expanded);
-        const elements = self.canvasGraph.getSuccessors(cell).concat(cell);
+        //this.activity.subgraphVisibility(activity, !activity.expanded);
+        const elements = this.canvasGraph.getSuccessors(cell).concat(cell);
         // find all the links between successors and the element
-        const subgraph = self.canvasGraph.getSubgraph(elements);
+        const subgraph = this.canvasGraph.getSubgraph(elements);
 
         if (activity.expanded) {
             subgraph.forEach((element) => {
@@ -410,16 +388,14 @@ export class CamCanvas {
         cell.attr('./visibility', 'visible');
         activity.expanded = !activity.expanded;
 
-        self.autoLayoutGraph(self.canvasGraph, 'compact');
+        this.autoLayoutGraph(this.canvasGraph, 'compact');
 
-        self.canvasPaper.translate(0, 0);
+        this.canvasPaper.translate(0, 0);
 
-        //  self.canvasPaper.
+        //  this.canvasPaper.
     }
 
     private _addGPEntity(treeNode: ActivityTreeNode, el: NodeCellList) {
-        const self = this;
-
         if (treeNode?.node?.displaySection.id === noctuaFormConfig.displaySection.gp.id) {
             if (treeNode.node?.term && treeNode.node.predicate.edge?.id !== noctuaFormConfig.edge.enabledBy.id) {
                 el.addEntity(NoctuaFormUtils.pad('—', treeNode.node.treeLevel - 2)
@@ -427,23 +403,21 @@ export class CamCanvas {
                     treeNode.node.predicate.hasEvidence());
             }
 
-            treeNode.children.forEach(child => {
-                self._addGPEntity(child, el)
+            treeNode.children.forEach((child) => {
+                this._addGPEntity(child, el)
             })
         }
     }
 
     private _addFDEntity(treeNode: ActivityTreeNode, el: NodeCellList) {
-        const self = this;
-
         if (treeNode.node?.displaySection.id === noctuaFormConfig.displaySection.fd.id) {
             if (treeNode.node?.term) {
                 el.addEntity(NoctuaFormUtils.pad('—', treeNode.node.treeLevel - 2)
                     + treeNode.node.predicate.edge?.label, treeNode.node.term.label, treeNode.node.predicate.hasEvidence());
             }
 
-            treeNode.children.forEach(child => {
-                self._addFDEntity(child, el)
+            treeNode.children.forEach((child) => {
+                this._addFDEntity(child, el)
             })
         }
     }
@@ -544,19 +518,18 @@ export class CamCanvas {
     }
 
     addCanvasGraph(cam: Cam, graphLayoutDetail: string) {
-        const self = this;
         const nodes = [];
 
-        self.cam = cam;
-        self.canvasGraph.resetCells(nodes);
+        this.cam = cam;
+        this.canvasGraph.resetCells(nodes);
 
         each(cam.activities, (activity: Activity) => {
             if (activity.visible) {
                 let el
                 if (activity.activityType === ActivityType.molecule) {
-                    el = self.createMolecule(activity);
+                    el = this.createMolecule(activity);
                 } else {
-                    el = self.createNode(activity, graphLayoutDetail);
+                    el = this.createNode(activity, graphLayoutDetail);
                 }
                 nodes.push(el);
             }
@@ -586,16 +559,16 @@ export class CamCanvas {
                 nodes.push(link);
             }
         });
-        self.canvasPaper.setDimensions('30000px', '30000px')
-        self.canvasPaper.scaleContentToFit({ minScaleX: 0.3, minScaleY: 0.3, maxScaleX: 1, maxScaleY: 1 });
-        self.canvasGraph.resetCells(nodes);
+        this.canvasPaper.setDimensions('30000px', '30000px')
+        this.canvasPaper.scaleContentToFit({ minScaleX: 0.3, minScaleY: 0.3, maxScaleX: 1, maxScaleY: 1 });
+        this.canvasGraph.resetCells(nodes);
 
         if (!cam.manualLayout) {
-            self.autoLayoutGraph(self.canvasGraph, 'compact');
+            this.autoLayoutGraph(this.canvasGraph, 'compact');
         }
 
-        self.canvasPaper.unfreeze();
-        self.canvasPaper.render();
+        this.canvasPaper.unfreeze();
+        this.canvasPaper.render();
 
 
         /*    each(self.canvasGraph.getCells(), (cell: any) => {
@@ -629,7 +602,6 @@ export class CamCanvas {
     }
 
     addStencilGraph(graph: joint.dia.Graph, activities: Activity[]) {
-        const self = this;
         const nodes = [];
 
         each(activities, (activity: Activity) => {
@@ -644,7 +616,7 @@ export class CamCanvas {
         });
 
         graph.resetCells(nodes);
-        self._layout(graph);
+        this._layout(graph);
     }
 
     private _layout(graph: joint.dia.Graph) {
@@ -701,11 +673,9 @@ export class CamCanvas {
     }
 
     private _offsetToLocalPoint(x, y) {
-        const self = this;
-
         const svgPoint = joint.Vectorizer.createSVGPoint(x, y);
         // Transform point into the viewport coordinate system.
-        const pointTransformed = svgPoint.matrixTransform(self.canvasPaper.viewport.getCTM().inverse());
+        const pointTransformed = svgPoint.matrixTransform(this.canvasPaper.viewport.getCTM().inverse());
         return pointTransformed;
     }
 

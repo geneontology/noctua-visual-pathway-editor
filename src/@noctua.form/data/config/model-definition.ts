@@ -9,7 +9,6 @@ import { Predicate } from '../../models/activity/predicate';
 import { ActivityType, Activity } from '../../models/activity/activity';
 import { v4 as uuid } from 'uuid';
 import shexJson from './../shapes.json'
-import shapeTerms from './../shape-terms.json'
 import { DataUtils } from './data-utils';
 import { ShexShapeAssociation } from '../shape';
 
@@ -413,7 +412,6 @@ export const moleculeDescription: ActivityDescription = {
 };
 
 export const createActivity = (activityDescription: ActivityDescription): Activity => {
-    const self = this;
     const activity = new Activity();
 
     activity.activityType = activityDescription.type;
@@ -443,7 +441,6 @@ export const createActivity = (activityDescription: ActivityDescription): Activi
 };
 
 export const createActivityShex = (activityDescription: ActivityDescription): Activity => {
-    const self = this;
     const activity = new Activity();
 
     activity.activityType = activityDescription.type;

@@ -112,7 +112,9 @@ Update ESLint config to:
 | 4 | Run lint to verify and assess current error count | ✓ DONE |
 | 5 | Fix critical errors if reasonable | IN PROGRESS |
 | 5a | Run Angular inject() migration schematic | ✓ DONE |
-| 5b | Fix unused vars/imports | PENDING |
+| 5b | Fix unused vars/imports | ✓ DONE |
+| 5c | Fix no-this-alias errors | PENDING |
+| 5d | Fix no-empty-function errors | PENDING |
 
 ### Results
 
@@ -122,15 +124,20 @@ Update ESLint config to:
 - Ran `ng generate @angular/core:inject`
 - Migrated 57 files from constructor injection to `inject()` function
 
-Top error categories:
-- `@typescript-eslint/no-explicit-any` - Many `any` types need proper typing
-- `@angular-eslint/prefer-inject` - Constructor injection should migrate to `inject()`
-- `@typescript-eslint/no-this-alias` - `const self = this` patterns need refactoring
-- `@typescript-eslint/no-unused-vars` - Unused imports/variables to remove
-- `@typescript-eslint/no-empty-function` - Empty functions need implementation or removal
+**After fixing unused vars/imports: 445 errors** (393 more fixed)
+- Removed unused imports across all modules
+- Prefixed unused callback parameters with underscore
+- Removed unused local variables
+
+**Total progress: 1125 → 445 errors (680 fixed, 60% reduction)**
+
+### Remaining error categories
+
+- `@typescript-eslint/no-explicit-any` - ~219 errors (need proper types)
+- `@typescript-eslint/no-this-alias` - `const self = this` patterns
+- `@typescript-eslint/no-empty-function` - Empty functions
 - `@angular-eslint/no-empty-lifecycle-method` - Empty lifecycle hooks
-- `@angular-eslint/template/click-events-have-key-events` - Accessibility issues
-- `@angular-eslint/template/interactive-supports-focus` - Accessibility issues
+- `@angular-eslint/template/*` - Accessibility issues
 
 ### Proposed eslint.config.js Changes
 

@@ -56,19 +56,17 @@ export class NoctuaActivityFormService {
   }
 
   initializeForm(rootTypes?) {
-    const self = this;
+    this.errors = [];
 
-    self.errors = [];
+    this.state = ActivityState.creation;
+    this.currentActivity = null;
 
-    self.state = ActivityState.creation;
-    self.currentActivity = null;
-
-    self.activity.resetPresentation();
-    self.activityForm = this.createActivityForm();
-    self.activityFormGroup.next(this._fb.group(this.activityForm));
-    self.activity.updateShapeMenuShex(rootTypes);
-    self.activity.enableSubmit();
-    self._onActivityFormChanges();
+    this.activity.resetPresentation();
+    this.activityForm = this.createActivityForm();
+    this.activityFormGroup.next(this._fb.group(this.activityForm));
+    this.activity.updateShapeMenuShex(rootTypes);
+    this.activity.enableSubmit();
+    this._onActivityFormChanges();
   }
 
   initializeFormData() {
@@ -77,13 +75,12 @@ export class NoctuaActivityFormService {
   }
 
   createActivityForm() {
-    const self = this;
-    const formMetadata = new ActivityFormMetadata(self.noctuaLookupService.lookupFunc.bind(self.noctuaLookupService));
+    const formMetadata = new ActivityFormMetadata(this.noctuaLookupService.lookupFunc.bind(this.noctuaLookupService));
 
     const activityForm = new ActivityForm(formMetadata);
 
-    activityForm.createFunctionDescriptionForm(self.activity.presentation.fd);
-    activityForm.createMolecularEntityForm(self.activity.presentation.gp);
+    activityForm.createFunctionDescriptionForm(this.activity.presentation.fd);
+    activityForm.createMolecularEntityForm(this.activity.presentation.gp);
 
     return activityForm;
   }
@@ -105,27 +102,25 @@ export class NoctuaActivityFormService {
   }
 
   saveActivity() {
-    const self = this;
-    self.activityFormToActivity();
+    this.activityFormToActivity();
 
     if (this.activity.activityType === ActivityType.ccOnly) {
       const promises = []
-      const activities = self.createCCAnnotations(self.activity);
+      const activities = this.createCCAnnotations(this.activity);
       each(activities, (activity: Activity) => {
         const saveData = activity.createSave();
-        promises.push(self.noctuaGraphService.addActivity(self.cam, saveData.nodes, saveData.triples, saveData.title))
+        promises.push(this.noctuaGraphService.addActivity(this.cam, saveData.nodes, saveData.triples, saveData.title))
       })
 
       return forkJoin(promises)
 
     } else {
-      const saveData = self.activity.createSave();
-      return forkJoin(self.noctuaGraphService.addActivity(self.cam, saveData.nodes, saveData.triples, saveData.title));
+      const saveData = this.activity.createSave();
+      return forkJoin(this.noctuaGraphService.addActivity(this.cam, saveData.nodes, saveData.triples, saveData.title));
     }
   }
 
   createCCAnnotations(srcActivity: Activity) {
-    const self = this;
     const ccEdges: Triple<ActivityNode>[] = srcActivity.getEdges(srcActivity.rootNode.id);
     const activities = []
 
@@ -140,7 +135,7 @@ export class NoctuaActivityFormService {
       activity.addNodes(object);
       activity.addEdge(subject, object, predicate);
 
-      self._createCCAnnotationsDFS(srcActivity, activity, object)
+      this._createCCAnnotationsDFS(srcActivity, activity, object)
 
       activities.push(activity)
     });
@@ -149,7 +144,6 @@ export class NoctuaActivityFormService {
   }
 
   private _createCCAnnotationsDFS(srcActivity: Activity, destActivity: Activity, subjectNode: ActivityNode) {
-    const self = this;
     const ccEdges: Triple<ActivityNode>[] = srcActivity.getEdges(subjectNode.id);
     each(ccEdges, (ccEdge: Triple<ActivityNode>) => {
       const object = cloneDeep(ccEdge.object)
@@ -158,7 +152,7 @@ export class NoctuaActivityFormService {
       destActivity.addNodes(object);
       destActivity.addEdge(subjectNode, object, predicate);
 
-      self._createCCAnnotationsDFS(srcActivity, destActivity, object)
+      this._createCCAnnotationsDFS(srcActivity, destActivity, object)
     });
   }
 
@@ -172,16 +166,14 @@ export class NoctuaActivityFormService {
 
 
   fakester(activity: Activity) {
-    const self = this;
-
     each(activity.nodes, (node: ActivityNode) => {
-      self.noctuaLookupService.termLookup('a', Object.assign({}, node.termLookup.requestParams, { rows: 100 })).subscribe(response => {
+      this.noctuaLookupService.termLookup('a', Object.assign({}, node.termLookup.requestParams, { rows: 100 })).subscribe((response) => {
         if (response && response.length > 0) {
           const termsCount = response.length;
           node.term = Entity.createEntity(response[Math.floor(Math.random() * termsCount)]);
 
           each(node.predicate.evidence, (evidence: Evidence) => {
-            self.noctuaLookupService.termLookup('a', Object.assign({}, node.predicate.evidenceLookup.requestParams, { rows: 100 })).subscribe(response => {
+            this.noctuaLookupService.termLookup('a', Object.assign({}, node.predicate.evidenceLookup.requestParams, { rows: 100 })).subscribe((response) => {
               if (response && response.length > 0) {
                 const evidenceCount = response.length;
                 evidence.evidence = Entity.createEntity(response[Math.floor(Math.random() * evidenceCount)]);

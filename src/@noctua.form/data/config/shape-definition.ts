@@ -2,10 +2,9 @@ import { noctuaFormConfig } from './../../noctua-form-config';
 import { Entity } from './../../models/activity/entity';
 import * as EntityDefinition from './entity-definition';
 import { ActivityNodeDisplay, ActivityNodeType } from './../../models/activity/activity-node';
-import { cloneDeep, each, uniqWith } from 'lodash';
+import { each, uniqWith } from 'lodash';
 
 import shexJson from './../shapes.json'
-import shapeTerms from './../shape-terms.json'
 import { ShexShapeAssociation } from '../shape';
 import { DataUtils } from './data-utils';
 
@@ -66,7 +65,6 @@ export const getShexJson = (subjectIds: string[]) => {
     subjectIds.forEach((subjectId: string) => {
         const subjectShapes = DataUtils.getSubjectShapes(shapes, subjectId);
         if (subjectShapes) {
-            const predicates = DataUtils.getPredicates(shapes);
             const entities = DataUtils.getRangeLabels(subjectShapes, lookupTable)
 
             pred.push(...entities)

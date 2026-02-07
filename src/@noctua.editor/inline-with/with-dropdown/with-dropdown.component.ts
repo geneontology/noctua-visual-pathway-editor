@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
-import { Subject, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import {
   NoctuaFormConfigService,
@@ -137,9 +137,9 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
 
     // Build the string: groups separated by ',', entities within group by '|', each entity as 'db:accession'
     const withs = this.myForm.value.databaseGroups
-      .map((group, groupIndex) => {
+      .map((group, _groupIndex) => {
         return group.entities
-          .map((entity, entityIndex) => {
+          .map((entity, _entityIndex) => {
             // Skip entities with None or empty values
             if (entity.db === 'None' && (!entity.accession || !entity.accession.trim())) {
               return null;

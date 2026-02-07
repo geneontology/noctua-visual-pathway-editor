@@ -13,9 +13,7 @@ import {
   NoctuaActivityFormService,
   NoctuaActivityEntityService,
   CamService,
-  noctuaFormConfig,
   NoctuaUserService,
-  ActivityType,
   ErrorLevel,
   ErrorType
 } from '@geneontology/noctua-form-base';
@@ -27,7 +25,6 @@ import {
 } from '@geneontology/noctua-form-base';
 
 import { EditorCategory } from '@noctua.editor/models/editor-category';
-import { takeUntil } from 'rxjs/operators';
 import { MatDrawer } from '@angular/material/sidenav';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { NoctuaFormDialogService } from '../../noctua-form';

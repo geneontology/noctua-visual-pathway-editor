@@ -13,7 +13,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import {
-  Activity,
   ConnectorActivity,
   ConnectorState,
   ActivityNode,
@@ -25,7 +24,6 @@ import {
   FormType
 } from '@geneontology/noctua-form-base';
 import { NoctuaFormDialogService } from '../../../services/dialog.service';
-import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({

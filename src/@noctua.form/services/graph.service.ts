@@ -613,7 +613,6 @@ export class NoctuaGraphService {
         const evidence = self.edgeToEvidence(cam.graph, bbopEdge);
         const objectId = bbopEdge.object_id();
         const objectInfo = self.nodeToActivityNode(cam.graph, objectId);
-        const edges = noctuaFormConfig.allEdges
         const causalEdge = this.noctuaFormConfigService.findEdge(predicateId)
 
         if (objectInfo.hasRootType(EntityDefinition.GoMolecularFunction)

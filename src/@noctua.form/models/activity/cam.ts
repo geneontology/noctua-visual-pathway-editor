@@ -278,9 +278,7 @@ export class Cam {
   }
 
   getCausalRelation(subjectId: string, objectId: string): Triple<Activity> {
-    const self = this;
-
-    return self.causalRelations.find((triple: Triple<Activity>) => {
+    return this.causalRelations.find((triple: Triple<Activity>) => {
       if (triple.predicate?.isReverseLink) {
         return triple.object?.id === subjectId && triple.object?.id === subjectId;
       }
@@ -289,7 +287,6 @@ export class Cam {
   }
 
   findNodeById(uuid, activities: Activity[]): ActivityNode {
-    const self = this;
     let found
     each(activities, (activity) => {
       found = find(activity.nodes, (node: ActivityNode) => {
@@ -305,19 +302,15 @@ export class Cam {
   }
 
   findActivityById(id) {
-    const self = this;
-
-    return find(self.activities, (activity) => {
+    return find(this.activities, (activity) => {
       return activity.id === id;
     });
   }
 
   findActivityByNodeUuid(nodeId): Activity[] {
-    const self = this;
-
     const result: Activity[] = [];
 
-    each(self._activities, (activity: Activity) => {
+    each(this._activities, (activity: Activity) => {
       each(activity.nodes, (node: ActivityNode) => {
         if (node.uuid === nodeId) {
           result.push(activity)
@@ -333,12 +326,10 @@ export class Cam {
   }
 
   checkStored() {
-    const self = this;
-
-    each(self._activities, (activity: Activity) => {
+    each(this._activities, (activity: Activity) => {
       each(activity.nodes, (node: ActivityNode) => {
         // node.term.highlight = false;
-        const oldNode: ActivityNode = self.findNodeById(node.uuid, self.storedActivities)
+        const oldNode: ActivityNode = this.findNodeById(node.uuid, this.storedActivities)
         node.checkStored(oldNode)
       });
     });
@@ -348,13 +339,11 @@ export class Cam {
 
 
   addPendingChanges(findEntities: Entity[], replaceWith: string, category) {
-    const self = this;
-
-    each(self._activities, (activity: Activity) => {
+    each(this._activities, (activity: Activity) => {
       each(activity.nodes, (node: ActivityNode) => {
         each(findEntities, (entity: Entity) => {
           if (category.name === noctuaFormConfig.findReplaceCategory.options.reference.name) {
-            each(node.predicate.evidence, (evidence: Evidence, key) => {
+            each(node.predicate.evidence, (evidence: Evidence, _key) => {
               if (evidence.uuid === entity.uuid) {
                 const oldReference = new Entity(evidence.reference, evidence.reference);
                 const newReference = new Entity(replaceWith, replaceWith);
@@ -375,27 +364,25 @@ export class Cam {
   }
 
   reviewCamChanges(stat: CamStats = new CamStats()): boolean {
-    const self = this;
     let modified = false;
 
-    self.modifiedStats = new CamStats();
+    this.modifiedStats = new CamStats();
 
-    each(self._activities, (activity: Activity) => {
+    each(this._activities, (activity: Activity) => {
       each(activity.nodes, (node: ActivityNode) => {
-        activity.modified = node.reviewTermChanges(stat, self.modifiedStats);
+        activity.modified = node.reviewTermChanges(stat, this.modifiedStats);
         modified = modified || activity.modified;
       });
     });
 
-    self.modifiedStats.updateTotal();
+    this.modifiedStats.updateTotal();
     return modified;
   }
 
   getNodesByType(type: ActivityNodeType): any[] {
-    const self = this;
     const result = [];
 
-    each(self.activities, (activity: Activity) => {
+    each(this.activities, (activity: Activity) => {
       result.push({
         activity,
         title: activity.title,
@@ -407,10 +394,9 @@ export class Cam {
   }
 
   getNodesByTypeFlat(type: ActivityNodeType): ActivityNode[] {
-    const self = this;
     const result = [];
 
-    each(self.activities, (activity: Activity) => {
+    each(this.activities, (activity: Activity) => {
       result.push(...activity.getNodesByType(type));
     });
 
@@ -418,7 +404,6 @@ export class Cam {
   }
 
   getTerms(formActivity: Activity) {
-    const self = this;
     const result = [];
 
     if (formActivity && formActivity.nodes) {
@@ -427,7 +412,7 @@ export class Cam {
       });
     }
 
-    each(self.activities, (activity: Activity) => {
+    each(this.activities, (activity: Activity) => {
       each(activity.nodes, (node: ActivityNode) => {
         result.push(node);
       });
@@ -437,7 +422,6 @@ export class Cam {
   }
 
   getEvidences(formActivity?: Activity) {
-    const self = this;
     const result = [];
 
     if (formActivity && formActivity.nodes) {
@@ -450,7 +434,7 @@ export class Cam {
       });
     }
 
-    each(self.activities, (activity: Activity) => {
+    each(this.activities, (activity: Activity) => {
       each(activity.edges, (triple: Triple<ActivityNode>) => {
         each(triple.predicate.evidence, (evidence: Evidence) => {
           if (evidence.hasValue()) {
@@ -502,17 +486,13 @@ export class Cam {
   }
 
   updateActivityDisplayNumber() {
-    const self = this;
-
-    each(self.activities, (activity: Activity, key) => {
-      activity.displayNumber = self.displayNumber + '.' + (key + 1).toString();
+    each(this.activities, (activity: Activity, key) => {
+      activity.displayNumber = this.displayNumber + '.' + (key + 1).toString();
     });
   }
 
   updateProperties() {
-    const self = this;
-
-    each(self.activities, (activity: Activity, key) => {
+    each(this.activities, (activity: Activity, _key) => {
       activity.updateProperties()
     });
 

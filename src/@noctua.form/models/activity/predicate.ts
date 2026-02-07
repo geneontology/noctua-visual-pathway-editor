@@ -50,21 +50,19 @@ export class Predicate {
   }
 
   setEvidence(evidences: Evidence[]) {
-    const self = this;
-    self.evidence = [];
+    this.evidence = [];
 
-    each(evidences, function (srcEvidence, i) {
-      self.addEvidence(srcEvidence);
+    each(evidences, (srcEvidence, _i) => {
+      this.addEvidence(srcEvidence);
       //destEvidence.copyValues(srcEvidence, except);
     });
   }
 
   addEvidence(srcEvidence?: Evidence) {
-    const self = this;
     const evidence = srcEvidence ? cloneDeep(srcEvidence) : new Evidence();
 
-    evidence.setEvidenceOntologyClass(self._evidenceMeta.ontologyClass);
-    self.evidence.push(evidence);
+    evidence.setEvidenceOntologyClass(this._evidenceMeta.ontologyClass);
+    this.evidence.push(evidence);
     return evidence;
   }
 
@@ -80,26 +78,20 @@ export class Predicate {
   }
 
   removeEvidence(index) {
-    const self = this;
-
-    if (index === 0 && self.evidence.length === 1) {
-      self.evidence[0].clearValues();
+    if (index === 0 && this.evidence.length === 1) {
+      this.evidence[0].clearValues();
     } else {
-      self.evidence.splice(index, 1);
+      this.evidence.splice(index, 1);
     }
   }
 
   resetEvidence() {
-    const self = this;
-
-    self.evidence = [self.evidence[0]];
-    self.evidence[0].clearValues();
+    this.evidence = [this.evidence[0]];
+    this.evidence[0].clearValues();
   }
 
   getEvidenceById(id) {
-    const self = this;
-
-    return find(self.evidence, (evidence: Evidence) => {
+    return find(this.evidence, (evidence: Evidence) => {
       return evidence.uuid === id;
     });
   }

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { NoctuaFormConfigService } from './../services/config/noctua-form-config.service';
-import { ActivityNode, Entity, TermsSummary, CamSummary, ActivityNodeType } from './../models/activity';
+import { ActivityNode, Entity, TermsSummary, CamSummary } from './../models/activity';
 import { orderBy } from 'lodash';
 import { Contributor } from './../models/contributor';
 

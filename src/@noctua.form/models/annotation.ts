@@ -1,6 +1,5 @@
 import { Activity } from "./activity/activity";
 import { ActivityNode } from "./activity/activity-node";
-import { Cam } from "./activity/cam";
 
 export interface Annotation {
     id: number;

@@ -1,4 +1,4 @@
-import { FormControl, FormBuilder, FormArray } from '@angular/forms';
+import { FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { ActivityFormMetadata } from './../forms/activity-form-metadata';
 import { EvidenceForm } from './evidence-form';
 import { Evidence } from './../../models/activity/evidence';
@@ -20,35 +20,30 @@ export class ActivityConnectorForm {
   }
 
   createEntityForms(predicate: Predicate) {
-    const self = this;
-
     predicate.evidence.forEach((evidence: Evidence) => {
-      const evidenceForm = new EvidenceForm(self._metadata, null, evidence);
-      self.evidenceForms.push(evidenceForm);
+      const evidenceForm = new EvidenceForm(this._metadata, null, evidence);
+      this.evidenceForms.push(evidenceForm);
       evidenceForm.onValueChanges(predicate);
-      self.evidenceFormArray.push(self._fb.group(evidenceForm));
+      this.evidenceFormArray.push(this._fb.group(evidenceForm));
     });
   }
 
   updateEvidenceForms(predicate: Predicate) {
-    const self = this;
-
-    self.evidenceForms = [];
-    self.evidenceFormArray = new FormArray([]);
+    this.evidenceForms = [];
+    this.evidenceFormArray = new FormArray([]);
 
     predicate.evidence.forEach((evidence: Evidence) => {
-      const evidenceForm = new EvidenceForm(self._metadata, null, evidence);
-      self.evidenceForms.push(evidenceForm);
+      const evidenceForm = new EvidenceForm(this._metadata, null, evidence);
+      this.evidenceForms.push(evidenceForm);
       evidenceForm.onValueChanges(predicate);
-      self.evidenceFormArray.push(self._fb.group(evidenceForm));
+      this.evidenceFormArray.push(this._fb.group(evidenceForm));
     });
   }
 
   populateConnectorForm() {
-    const self = this;
     const evidences: Evidence[] = [];
 
-    self.evidenceForms.forEach((evidenceForm: EvidenceForm) => {
+    this.evidenceForms.forEach((evidenceForm: EvidenceForm) => {
       const evidence = new Evidence();
       evidenceForm.populateEvidence(evidence);
       evidences.push(evidence);

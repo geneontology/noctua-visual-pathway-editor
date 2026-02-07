@@ -7,7 +7,6 @@ import { termValidator } from './validators/term-validator';
 import { EntityLookup } from '../activity/entity-lookup';
 import { Entity } from './../activity/entity';
 import { ActivityNode } from './../activity/activity-node';
-import { Predicate } from '../activity';
 
 export class EntityForm {
     id: string;
@@ -30,47 +29,41 @@ export class EntityForm {
     }
 
     createEvidenceForms(entity: ActivityNode) {
-        const self = this;
-
         this.setTermValidator(entity);
 
         entity.predicate.evidence.forEach((evidence: Evidence) => {
-            const evidenceForm = new EvidenceForm(self._metadata, entity, evidence);
+            const evidenceForm = new EvidenceForm(this._metadata, entity, evidence);
 
-            self.evidenceForms.push(evidenceForm);
+            this.evidenceForms.push(evidenceForm);
             evidenceForm.onValueChanges(entity.predicate);
             //  evidenceForm.setTermValidator(termValidator(this.term, entity));
-            self.evidenceFormArray.push(self._fb.group(evidenceForm));
+            this.evidenceFormArray.push(this._fb.group(evidenceForm));
         });
     }
 
     refreshEvidenceForms(evidences: Evidence[]) {
-        const self = this;
-
-        self.evidenceForms = [];
-        self.evidenceFormArray = new FormArray([]);
+        this.evidenceForms = [];
+        this.evidenceFormArray = new FormArray([]);
 
         evidences.forEach((evidence: Evidence) => {
-            const evidenceForm = new EvidenceForm(self._metadata, self.node, evidence);
+            const evidenceForm = new EvidenceForm(this._metadata, this.node, evidence);
 
-            self.evidenceForms.push(evidenceForm);
-            evidenceForm.onValueChanges(self.node.predicate);
-            self.evidenceFormArray.push(self._fb.group(evidenceForm));
+            this.evidenceForms.push(evidenceForm);
+            evidenceForm.onValueChanges(this.node.predicate);
+            this.evidenceFormArray.push(this._fb.group(evidenceForm));
         });
     }
 
     populateTerm() {
-        const self = this;
-
-        if (self.relationship.value && self.node.relationEditable) {
-            self.node.predicate.edge = self.relationship.value;
+        if (this.relationship.value && this.node.relationEditable) {
+            this.node.predicate.edge = this.relationship.value;
         }
 
-        if (self.term.value && self.term.value.id) {
-            self.node.term = new Entity(self.term.value.id, self.term.value.label);
+        if (this.term.value && this.term.value.id) {
+            this.node.term = new Entity(this.term.value.id, this.term.value.label);
 
-            self.evidenceForms.forEach((evidenceForm: EvidenceForm, index: number) => {
-                const evidence: Evidence = self.node.predicate.evidence[index];
+            this.evidenceForms.forEach((evidenceForm: EvidenceForm, index: number) => {
+                const evidence: Evidence = this.node.predicate.evidence[index];
                 if (evidence) {
                     evidenceForm.populateEvidence(evidence);
                 }
@@ -79,10 +72,8 @@ export class EntityForm {
     }
 
     populateTermEvidenceOnly() {
-        const self = this;
-
-        self.evidenceForms.forEach((evidenceForm: EvidenceForm, index: number) => {
-            const evidence: Evidence = self.node.predicate.evidence[index];
+        this.evidenceForms.forEach((evidenceForm: EvidenceForm, index: number) => {
+            const evidence: Evidence = this.node.predicate.evidence[index];
             if (evidence) {
                 evidenceForm.populateEvidence(evidence);
             }
@@ -90,13 +81,11 @@ export class EntityForm {
     }
 
     private _onValueChanges(lookup: EntityLookup) {
-        const self = this;
-
-        self.term.valueChanges.pipe(
+        this.term.valueChanges.pipe(
             distinctUntilChanged(),
             debounceTime(400)
-        ).subscribe(data => {
-            self._metadata.lookupFunc.termLookup(data, lookup.requestParams).subscribe(response => {
+        ).subscribe((data) => {
+            this._metadata.lookupFunc.termLookup(data, lookup.requestParams).subscribe((response) => {
                 lookup.results = response;
             });
         });
@@ -108,13 +97,11 @@ export class EntityForm {
     }
 
     getErrors(error) {
-        const self = this;
-
-        if (self.term.errors) {
-            error.push(self.term.errors);
+        if (this.term.errors) {
+            error.push(this.term.errors);
         }
 
-        self.evidenceForms.forEach((evidenceForm: EvidenceForm) => {
+        this.evidenceForms.forEach((evidenceForm: EvidenceForm) => {
             evidenceForm.getErrors(error)
         });
     }

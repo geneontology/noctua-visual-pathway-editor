@@ -93,9 +93,6 @@ export class CopyModelComponent implements OnInit, OnDestroy {
   }
 
   copyModel() {
-
-    const self = this;
-
     const success = (value) => {
       if (value) {
         this.loading = true;
@@ -105,7 +102,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
       };
     }
 
-    this.noctuaFormDialogService.openConfirmCopyModelDialog(self.cam, success);
+    this.noctuaFormDialogService.openConfirmCopyModelDialog(this.cam, success);
   }
 
   close() {

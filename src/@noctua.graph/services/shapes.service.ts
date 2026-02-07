@@ -1,34 +1,29 @@
 import { Injectable } from '@angular/core';
-import * as jQuery from 'jquery';
 import 'jqueryui';
 import * as _ from 'lodash';
 import * as joint from 'jointjs';
 import * as shapes from './../models/shapes';
 import * as listShape from './../models/shapes/list';
-import * as Backbone from 'backbone';
 import { getColor } from '@noctua.common/data/noc-colors';
 import { LIST_GROUP_NAME, LIST_ITEM_WIDTH } from './../models/shapes/list';
 
 export class StencilNode extends shapes.StencilNode {
 
   setColor(colorKey: string): this {
-    const self = this;
     const deep = getColor(colorKey, 800);
     const light = getColor(colorKey, 100);
 
-    self.attr('body/stroke', light);
-    self.attr('statusLine/fill', deep);
-    self.attr('statusType/fill', deep);
-    self.attr('iconBackground/fill', light);
+    this.attr('body/stroke', light);
+    this.attr('statusLine/fill', deep);
+    this.attr('statusType/fill', deep);
+    this.attr('iconBackground/fill', light);
 
     return this;
   }
 
   setIcon(iconUrl: string) {
-    const self = this;
-
     if (iconUrl) {
-      self.attr('icon/xlink:href', `${iconUrl}`);
+      this.attr('icon/xlink:href', `${iconUrl}`);
     }
 
     return this;
@@ -38,27 +33,23 @@ export class StencilNode extends shapes.StencilNode {
 export class NodeCell extends shapes.NodeCell {
 
   addNodePorts(): this {
-    const self = this;
-
     return this;
   }
 
   addColor(colorKey: string): this {
-    const self = this;
     const deep = getColor(colorKey, 800);
     const light = getColor(colorKey, 100);
 
-    self.attr('body/stroke', light);
-    self.attr('statusLine/fill', deep);
-    self.attr('statusType/fill', deep);
+    this.attr('body/stroke', light);
+    this.attr('statusLine/fill', deep);
+    this.attr('statusType/fill', deep);
 
     return this;
   }
 
 
   hover(on: boolean): this {
-    const self = this;
-    self.attr('wrapper/strokeWidth', on ? 20 : 0);
+    this.attr('wrapper/strokeWidth', on ? 20 : 0);
 
     return this;
   }
@@ -112,12 +103,10 @@ export class NodeCellList extends listShape.NodeCellList {
     })
   }
 
-  setColor(colorKey: string, low?: number, high?: number): this {
-    const self = this;
-    const deep = getColor(colorKey, low ? low : 200);
+  setColor(colorKey: string, _low?: number, high?: number): this {
     const light = getColor(colorKey, high ? high : 100);
 
-    self.attr('body/fill', light);
+    this.attr('body/fill', light);
 
     /*   this.getPorts().forEach(el => {
         this.portProp(el.id, 'attrs/body/fill', light)
@@ -128,18 +117,15 @@ export class NodeCellList extends listShape.NodeCellList {
 
 
   setBorder(colorKey: string, hue?: number): this {
-    const self = this;
     const deep = getColor(colorKey, hue ? hue : 500);
 
-    self.attr('.highlighter/stroke', deep);
+    this.attr('.highlighter/stroke', deep);
 
     return this;
   }
 
   unsetBorder(): this {
-    const self = this;
-
-    self.attr('.highlighter/stroke', 'transparent');
+    this.attr('.highlighter/stroke', 'transparent');
 
     return this;
   }
@@ -150,10 +136,9 @@ export class NodeCellList extends listShape.NodeCellList {
 
 
   hover(on: boolean): this {
-    const self = this;
-    self.attr('.wrapper/strokeWidth', on ? 40 : 0);
-    self.attr('.edit/visibility', on ? 'visible' : 'hidden');
-    self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    this.attr('.wrapper/strokeWidth', on ? 40 : 0);
+    this.attr('.edit/visibility', on ? 'visible' : 'hidden');
+    this.attr('.delete/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }
@@ -166,18 +151,15 @@ export class NodeCellMolecule extends shapes.NodeCellMolecule {
   }
 
   addNodePorts(): this {
-    const self = this;
-
     return this;
   }
 
   setColor(colorKey: string, low?: number, high?: number): this {
-    const self = this;
     const deep = getColor(colorKey, low ? low : 200);
     const light = getColor(colorKey, high ? high : 100);
 
-    self.attr('.circle/stroke', deep);
-    self.attr('.circle/fill', light);
+    this.attr('.circle/stroke', deep);
+    this.attr('.circle/fill', light);
 
     //this.attr('.icon/height', 200);
 
@@ -186,37 +168,31 @@ export class NodeCellMolecule extends shapes.NodeCellMolecule {
 
 
   setText(text: string): this {
-    const self = this;
-
-    self.attr('.label/text', text);
+    this.attr('.label/text', text);
 
     return this;
   }
 
 
   setBorder(colorKey: string, hue?: number): this {
-    const self = this;
     const deep = getColor(colorKey, hue ? hue : 500);
 
-    self.attr('.highlighter/stroke', deep);
+    this.attr('.highlighter/stroke', deep);
 
     return this;
   }
 
   unsetBorder(): this {
-    const self = this;
-
-    self.attr('.highlighter/stroke', 'transparent');
+    this.attr('.highlighter/stroke', 'transparent');
 
     return this;
   }
 
 
   hover(on: boolean): this {
-    const self = this;
-    self.attr('.wrapper/strokeWidth', on ? 40 : 0);
-    self.attr('.edit/visibility', on ? 'visible' : 'hidden');
-    self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    this.attr('.wrapper/strokeWidth', on ? 40 : 0);
+    this.attr('.edit/visibility', on ? 'visible' : 'hidden');
+    this.attr('.delete/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }
@@ -281,9 +257,7 @@ export class NodeLink extends shapes.NodeLink {
   }
 
   setText(text: string): this {
-    const self = this;
-
-    self.label(0, {
+    this.label(0, {
       attrs: {
         labelText: {
           text: text
@@ -295,8 +269,6 @@ export class NodeLink extends shapes.NodeLink {
   }
 
   setColor(colorKey: string, defaultColor = false): this {
-    const self = this;
-
     if (defaultColor) {
       this.colorKey = colorKey;
     }
@@ -306,10 +278,10 @@ export class NodeLink extends shapes.NodeLink {
     const lineColor = light ? light : colorKey;
     const textColor = deep ? deep : colorKey;
 
-    self.attr('line/stroke', lineColor);
-    self.attr('line/targetMarker/stroke', lineColor);
-    self.attr('line/targetMarker/fill', lineColor);
-    self.label(0, {
+    this.attr('line/stroke', lineColor);
+    this.attr('line/targetMarker/stroke', lineColor);
+    this.attr('line/targetMarker/fill', lineColor);
+    this.label(0, {
       attrs: {
         labelText: {
           fill: textColor
@@ -324,10 +296,8 @@ export class NodeLink extends shapes.NodeLink {
   }
 
   hover(on: boolean): this {
-    const self = this;
-
-    self.attr('line/strokeWidth', on ? 4 : 1);
-    self.label(0, {
+    this.attr('line/strokeWidth', on ? 4 : 1);
+    this.label(0, {
       attrs: {
         labelBody: {
           strokeWidth: on ? 2 : 1
@@ -347,20 +317,17 @@ export class NodeCellList2 extends shapes.NodeCellList {
   }
 
   addNodePorts(): this {
-    const self = this;
-
     return this;
   }
 
   setColor(colorKey: string, low?: number, high?: number): this {
-    const self = this;
     const deep = getColor(colorKey, low ? low : 200);
     const light = getColor(colorKey, high ? high : 100);
 
-    self.attr('.activity-gp-rect/fill', deep);
-    self.attr('.activity-mf-rect/fill', light);
-    self.attr('.activity-cc-rect/fill', light);
-    self.attr('.activity-bp-rect/fill', light);
+    this.attr('.activity-gp-rect/fill', deep);
+    this.attr('.activity-mf-rect/fill', light);
+    this.attr('.activity-cc-rect/fill', light);
+    this.attr('.activity-bp-rect/fill', light);
 
     //this.attr('.icon/height', 200);
 
@@ -369,28 +336,24 @@ export class NodeCellList2 extends shapes.NodeCellList {
 
 
   setBorder(colorKey: string, hue?: number): this {
-    const self = this;
     const deep = getColor(colorKey, hue ? hue : 500);
 
-    self.attr('.highlighter/stroke', deep);
+    this.attr('.highlighter/stroke', deep);
 
     return this;
   }
 
   unsetBorder(): this {
-    const self = this;
-
-    self.attr('.highlighter/stroke', 'transparent');
+    this.attr('.highlighter/stroke', 'transparent');
 
     return this;
   }
 
 
   hover(on: boolean): this {
-    const self = this;
-    self.attr('.wrapper/strokeWidth', on ? 40 : 0);
-    self.attr('.edit/visibility', on ? 'visible' : 'hidden');
-    self.attr('.delete/visibility', on ? 'visible' : 'hidden');
+    this.attr('.wrapper/strokeWidth', on ? 40 : 0);
+    this.attr('.edit/visibility', on ? 'visible' : 'hidden');
+    this.attr('.delete/visibility', on ? 'visible' : 'hidden');
 
     return this;
   }
@@ -405,8 +368,6 @@ export class NoctuaShapesService {
 
   private _initialize() {
 
-    const self = this;
-
     (Object as any).assign(joint.shapes, {
       noctua: {
         StencilNode: StencilNode,
@@ -417,7 +378,7 @@ export class NoctuaShapesService {
       }
     });
 
-    const NodeCellBase = joint.dia.Element.define('noctua.NodeCellBase', {
+    joint.dia.Element.define('noctua.NodeCellBase', {
       z: 3,
       attrs: {
         root: {

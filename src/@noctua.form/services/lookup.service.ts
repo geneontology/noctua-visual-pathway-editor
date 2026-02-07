@@ -7,7 +7,6 @@ import { find, filter, each, uniqWith, difference } from 'lodash';
 import { noctuaFormConfig } from './../noctua-form-config';
 import { Article } from './../models/article';
 import { compareEvidenceEvidence, compareEvidenceReference, compareEvidenceWith, Evidence, EvidenceExt } from './../models/activity/evidence';
-import { Group } from './../models/group';
 import { ActivityNode, ActivityNodeType } from './../models/activity/activity-node';
 import { Entity } from './../models/activity/entity';
 import { Predicate } from './../models/activity/predicate';
@@ -27,8 +26,7 @@ const golr_conf: any = golr_conf_module;
 const bbop_rest_manager: any = bbop_rest_manager_module;
 const golr_response: any = golr_response_module;
 
-const gconf = new golr_conf.conf(amigo.data.golr);
-const gserv = environment.globalGolrServer; // "http://golr.berkeleybop.org/";
+new golr_conf.conf(amigo.data.golr); // Initialize golr_conf
 const impl_engine = bbop_rest_manager.jquery;
 const engine = new impl_engine(golr_response);
 engine.use_jsonp(true)
@@ -93,8 +91,6 @@ export class NoctuaLookupService {
   }
 
   evidencePreLookup(): Entity[] {
-    const self = this;
-
     const filtered = uniqWith(this.evidenceList, compareEvidenceEvidence);
     return filtered.map((evidence: Evidence) => {
       return evidence.evidence;
@@ -283,8 +279,6 @@ export class NoctuaLookupService {
   }
 
   isaClosure(a: string, b: string) {
-    const self = this;
-
     const requestParams = {
       q: NoctuaUtils.formatSolrQueryString(a),
       defType: 'edismax',
@@ -497,7 +491,7 @@ export class NoctuaLookupService {
     if (!labels && !ids) {
       return []
     } else if (!labels) {
-      result = ids.map((id, key) => {
+      result = ids.map((id, _key) => {
         return new Entity(id, id);
       });
     } else if (ids.length === labels.length) {

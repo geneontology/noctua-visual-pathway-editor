@@ -63,8 +63,7 @@ export class NoctuaActivityEntityService {
   }
 
   createActivityEntityForm(entity: ActivityNode) {
-    const self = this;
-    const formMetadata = new ActivityFormMetadata(self.noctuaLookupService.lookupFunc.bind(self.noctuaLookupService));
+    const formMetadata = new ActivityFormMetadata(this.noctuaLookupService.lookupFunc.bind(this.noctuaLookupService));
     const entityForm = new EntityForm(formMetadata, entity);
 
     entityForm.createEvidenceForms(entity);
@@ -73,9 +72,7 @@ export class NoctuaActivityEntityService {
   }
 
   activityEntityFormToActivity() {
-    const self = this;
-
-    self.entityForm.populateTerm();
+    this.entityForm.populateTerm();
   }
 
   private _onActivityFormChanges(): void {
@@ -87,47 +84,41 @@ export class NoctuaActivityEntityService {
   }
 
   saveActivity() {
-    const self = this;
+    this.activityEntityFormToActivity();
 
-    self.activityEntityFormToActivity();
-
-    if (self.activity instanceof ConnectorActivity) {
-      self.activity.predicate.evidence = self.entity.predicate.evidence;
+    if (this.activity instanceof ConnectorActivity) {
+      this.activity.predicate.evidence = this.entity.predicate.evidence;
     }
 
-    const saveData = self.activity.createEdit(self.currentActivity);
+    const saveData = this.activity.createEdit(this.currentActivity);
 
-    return self.noctuaGraphService.editActivity(self.cam,
+    return this.noctuaGraphService.editActivity(this.cam,
       saveData.addNodes,
       saveData.addTriples,
       saveData.removeIds);
   }
 
   addIndividual() {
-    const self = this;
+    this.activityEntityFormToActivity();
 
-    self.activityEntityFormToActivity();
+    const saveData = this.activity.createAddIndividual(this.currentActivity, this.entity.predicate);
 
-    const saveData = self.activity.createAddIndividual(self.currentActivity, self.entity.predicate);
-
-    return self.noctuaGraphService.editActivity(self.cam,
-      [self.entity],
+    return this.noctuaGraphService.editActivity(this.cam,
+      [this.entity],
       [saveData.addTriples],
       [],
       []);
   }
 
   saveSearchDatabase() {
-    const self = this;
+    const removeTriples = this.currentActivity.getEdge(
+      this.entity.predicate.subjectId,
+      this.entity.predicate.objectId)
+    const addTriples = this.activity.getEdge(
+      this.entity.predicate.subjectId,
+      this.entity.predicate.objectId)
 
-    const removeTriples = self.currentActivity.getEdge(
-      self.entity.predicate.subjectId,
-      self.entity.predicate.objectId)
-    const addTriples = self.activity.getEdge(
-      self.entity.predicate.subjectId,
-      self.entity.predicate.objectId)
-
-    return self.noctuaGraphService.editActivity(self.cam,
+    return this.noctuaGraphService.editActivity(this.cam,
       [],
       [addTriples],
       [],
@@ -135,13 +126,11 @@ export class NoctuaActivityEntityService {
   }
 
   addEvidence() {
-    const self = this;
+    this.activityEntityFormToActivity();
 
-    self.activityEntityFormToActivity();
+    const saveData = this.activity.createEditEvidence(this.currentActivity, this.entity.predicate);
 
-    const saveData = self.activity.createEditEvidence(self.currentActivity, self.entity.predicate);
-
-    return self.noctuaGraphService.editActivity(self.cam,
+    return this.noctuaGraphService.editActivity(this.cam,
       [],
       [saveData.addTriples],
       [],
@@ -149,13 +138,11 @@ export class NoctuaActivityEntityService {
   }
 
   createEvidence(evidence: Evidence[]) {
-    const self = this;
+    this.entity.predicate.evidence = evidence
 
-    self.entity.predicate.evidence = evidence
+    const saveData = this.activity.createEditEvidence(this.currentActivity, this.entity.predicate);
 
-    const saveData = self.activity.createEditEvidence(self.currentActivity, self.entity.predicate);
-
-    return self.noctuaGraphService.editActivity(self.cam,
+    return this.noctuaGraphService.editActivity(this.cam,
       [],
       [saveData.addTriples],
       [],
@@ -164,10 +151,9 @@ export class NoctuaActivityEntityService {
 
 
   deleteActivityNode(activity: Activity, activityNode: ActivityNode) {
-    const self = this;
     const deleteData = activity.createActivityNodeDelete(activityNode);
 
-    return self.noctuaGraphService.deleteActivity(self.cam, deleteData.uuids, []);
+    return this.noctuaGraphService.deleteActivity(this.cam, deleteData.uuids, []);
   }
 
   deleteEvidence(uuid: string) {
@@ -185,17 +171,15 @@ export class NoctuaActivityEntityService {
 
 
   saveActivityReplace(cam: Cam, addLoadingStatus?: boolean): Observable<any> {
-    const self = this;
-
     if (addLoadingStatus) {
       cam.loading = new CamLoadingIndicator(true, 'Replacing  ...');
     }
 
-    const oldEntity = cloneDeep(self.entity);
-    self.activityEntityFormToActivity();
-    self.entity.addPendingChanges(oldEntity);
+    const oldEntity = cloneDeep(this.entity);
+    this.activityEntityFormToActivity();
+    this.entity.addPendingChanges(oldEntity);
 
-    return self.camService.bulkEditActivityNode(cam, self.entity);
+    return this.camService.bulkEditActivityNode(cam, this.entity);
 
   }
 }

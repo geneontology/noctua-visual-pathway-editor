@@ -1,6 +1,3 @@
-
-import { CardTriple } from 'scard-graph-ts';
-import { v4 as uuid } from 'uuid';
 import { Activity } from './activity';
 
 import { ActivityNode } from './activity-node';

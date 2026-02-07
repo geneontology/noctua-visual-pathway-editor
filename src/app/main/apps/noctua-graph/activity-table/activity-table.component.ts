@@ -81,8 +81,6 @@ export class ActivityTableComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const self = this;
-
     this.camService.onSelectedActivityChanged
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((activity: Activity) => {

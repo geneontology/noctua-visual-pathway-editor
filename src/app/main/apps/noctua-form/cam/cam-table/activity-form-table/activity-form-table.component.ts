@@ -122,7 +122,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
     this._unsubscribeAll = new Subject();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(_changes: SimpleChanges): void {
     // do your action
 
   }

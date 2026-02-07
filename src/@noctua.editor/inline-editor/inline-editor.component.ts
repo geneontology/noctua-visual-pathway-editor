@@ -1,13 +1,11 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output, ElementRef, ViewChild, Input, inject } from '@angular/core';
-import { Overlay, OverlayConfig, OriginConnectionPosition, OverlayConnectionPosition } from '@angular/cdk/overlay';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, Input, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 
-import { InlineEditorService, EditorDropdownDialogConfig } from './inline-editor.service';
+import { InlineEditorService } from './inline-editor.service';
 
 import {
     CamService,

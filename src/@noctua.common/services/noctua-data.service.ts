@@ -24,13 +24,12 @@ export class NoctuaDataService {
   }
 
   setup() {
-    const self = this;
     const setup$ = forkJoin([this.getUsers(), this.getGroups()]);
 
     setup$.subscribe((responseList) => {
       if (responseList) {
-        self.noctuaUserService.contributors = self.loadContributors(responseList[0]);
-        self.noctuaUserService.groups = self.loadGroups(responseList[1]);
+        this.noctuaUserService.contributors = this.loadContributors(responseList[0]);
+        this.noctuaUserService.groups = this.loadGroups(responseList[1]);
         return true;
       } else {
         return false;
@@ -39,43 +38,34 @@ export class NoctuaDataService {
   }
 
   getUsers(): Observable<any> {
-    const self = this;
-
-    return this.httpClient.get(`${self.baristaUrl}/users`);
+    return this.httpClient.get(`${this.baristaUrl}/users`);
   }
 
   getUserInfo(uri: string): Observable<any> {
-    const self = this;
-
     const encodedUrl = encodeURIComponent(uri);
-    return this.httpClient.get(`${self.baristaUrl}/user_info_by_id/${encodedUrl}`);
+    return this.httpClient.get(`${this.baristaUrl}/user_info_by_id/${encodedUrl}`);
   }
 
   getGroups(): Observable<any> {
-    const self = this;
-
-    return this.httpClient.get(`${self.baristaUrl}/groups`);
+    return this.httpClient.get(`${this.baristaUrl}/groups`);
   }
 
   getOrganisms(): Observable<any> {
-    const self = this;
-
-    return this.httpClient.get(`${self.searchApi}/taxa`).pipe(
+    return this.httpClient.get(`${this.searchApi}/taxa`).pipe(
       map(res => res['taxa'])
     );
   }
 
 
   loadContributors(response) {
-    const self = this;
     const contributors = response.map((item) => {
       const contributor = new Contributor();
 
       contributor.name = item.nickname;
       contributor.orcid = item.uri;
       contributor.group = item.group;
-      contributor.initials = self.getInitials(item.nickname);
-      contributor.color = self.getColor(contributor.initials);
+      contributor.initials = this.getInitials(item.nickname);
+      contributor.color = this.getColor(contributor.initials);
 
       return contributor;
     });

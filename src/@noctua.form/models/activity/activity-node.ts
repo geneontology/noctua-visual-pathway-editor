@@ -4,7 +4,7 @@ import { Activity } from './activity';
 import { Entity, EntityType } from './entity';
 import { EntityLookup } from './entity-lookup';
 import { Contributor } from './../contributor';
-import { each, find, some } from 'lodash';
+import { each, find } from 'lodash';
 import { NoctuaFormUtils } from './../../utils/noctua-form-utils';
 import { Predicate } from './predicate';
 import { PendingChange } from './pending-change';
@@ -157,19 +157,16 @@ export class ActivityNode implements ActivityNodeDisplay {
   }
 
   toggleIsComplement() {
-    const self = this;
-    self.isComplement = !self.isComplement;
-    self.nodeGroup.isComplement = self.isComplement;
+    this.isComplement = !this.isComplement;
+    this.nodeGroup.isComplement = this.isComplement;
   }
 
   setIsComplement(complement) {
-    const self = this;
-    self.isComplement = complement;
+    this.isComplement = complement;
   }
 
   hasValue() {
-    const self = this;
-    return self.term.hasValue();
+    return this.term.hasValue();
   }
 
   hasRootType(inRootType: GoCategory) {
@@ -195,19 +192,17 @@ export class ActivityNode implements ActivityNodeDisplay {
   }
 
   clearValues() {
-    const self = this;
-    self.term.id = null;
-    self.term.label = null;
-    self.predicate.resetEvidence();
+    this.term.id = null;
+    this.term.label = null;
+    this.predicate.resetEvidence();
   }
 
   copyValues(node: ActivityNode) {
-    const self = this;
-    self.uuid = node.uuid;
-    self.term = node.term;
-    self.assignedBy = node.assignedBy;
-    self.isComplement = node.isComplement;
-    self.isCatalyticActivity = node.isCatalyticActivity;
+    this.uuid = node.uuid;
+    this.term = node.term;
+    this.assignedBy = node.assignedBy;
+    this.isComplement = node.isComplement;
+    this.isCatalyticActivity = node.isCatalyticActivity;
   }
 
   setTermLookup(value) {
@@ -222,10 +217,9 @@ export class ActivityNode implements ActivityNodeDisplay {
   }
 
   enableRow() {
-    const self = this;
     let result = true;
-    if (self.nodeGroup) {
-      if (self.nodeGroup.isComplement && self.treeLevel > 0) {
+    if (this.nodeGroup) {
+      if (this.nodeGroup.isComplement && this.treeLevel > 0) {
         result = false;
       }
     }
@@ -234,11 +228,10 @@ export class ActivityNode implements ActivityNodeDisplay {
   }
 
   reviewTermChanges(stat: CamStats, modifiedStats: CamStats): boolean {
-    const self = this;
     let modified = false;
 
-    if (self.term.modified) {
-      if (self.id === ActivityNodeType.GoMolecularEntity) {
+    if (this.term.modified) {
+      if (this.id === ActivityNodeType.GoMolecularEntity) {
         modifiedStats.gpsCount++;
         stat.gpsCount++;
       } else {
@@ -249,7 +242,7 @@ export class ActivityNode implements ActivityNodeDisplay {
       modified = true;
     }
 
-    each(self.predicate.evidence, (evidence: Evidence, key) => {
+    each(this.predicate.evidence, (evidence: Evidence, _key) => {
       const evidenceModified = evidence.reviewEvidenceChanges(stat, modifiedStats);
       modified = modified || evidenceModified;
     });
@@ -259,58 +252,53 @@ export class ActivityNode implements ActivityNodeDisplay {
   }
 
   checkStored(oldNode: ActivityNode) {
-    const self = this;
-
-    if (oldNode && self.term.id !== oldNode.term.id) {
-      self.term.termHistory.unshift(new Entity(oldNode.term.id, oldNode.term.label));
-      self.term.modified = true;
+    if (oldNode && this.term.id !== oldNode.term.id) {
+      this.term.termHistory.unshift(new Entity(oldNode.term.id, oldNode.term.label));
+      this.term.modified = true;
     }
 
-    each(self.predicate.evidence, (evidence: Evidence, key) => {
+    each(this.predicate.evidence, (evidence: Evidence, _key) => {
       const oldEvidence = oldNode?.predicate.getEvidenceById(evidence.uuid)
       evidence.checkStored(oldEvidence)
     });
   }
 
   addPendingChanges(oldNode: ActivityNode) {
-    const self = this;
-
-    if (self.term.id !== oldNode.term.id) {
-      self.pendingEntityChanges = new PendingChange(self.uuid, oldNode.term, self.term);
+    if (this.term.id !== oldNode.term.id) {
+      this.pendingEntityChanges = new PendingChange(this.uuid, oldNode.term, this.term);
     }
 
-    if (self.predicate.edge.id !== oldNode.predicate.edge.id) {
-      self.pendingRelationChanges = new PendingChange(self.uuid, oldNode.predicate.edge, self.predicate.edge);
+    if (this.predicate.edge.id !== oldNode.predicate.edge.id) {
+      this.pendingRelationChanges = new PendingChange(this.uuid, oldNode.predicate.edge, this.predicate.edge);
     }
 
-    each(self.predicate.evidence, (evidence: Evidence, key) => {
+    each(this.predicate.evidence, (evidence: Evidence, _key) => {
       const oldEvidence = oldNode.predicate.getEvidenceById(evidence.uuid)
       evidence.addPendingChanges(oldEvidence);
     });
 
     //this is temporary swap back into old
-    //self.term = oldNode.term
+    //this.term = oldNode.term
   }
 
   enableSubmit(errors, validateEvidence = true) {
-    const self = this;
     let result = true;
 
-    if (self.termRequired && !self.term.id) {
-      self.required = true;
+    if (this.termRequired && !this.term.id) {
+      this.required = true;
       const meta = {
-        aspect: self.label
+        aspect: this.label
       };
-      const error = new ActivityError(ErrorLevel.error, ErrorType.general, `"${self.label}" is required`, meta);
+      const error = new ActivityError(ErrorLevel.error, ErrorType.general, `"${this.label}" is required`, meta);
       errors.push(error);
       result = false;
     } else {
-      self.required = false;
+      this.required = false;
     }
 
-    if (!self.skipEvidenceCheck && self.hasValue() && validateEvidence) {
-      each(self.predicate.evidence, (evidence: Evidence, key) => {
-        result = evidence.enableSubmit(errors, self, key + 1) && result;
+    if (!this.skipEvidenceCheck && this.hasValue() && validateEvidence) {
+      each(this.predicate.evidence, (evidence: Evidence, key) => {
+        result = evidence.enableSubmit(errors, this, key + 1) && result;
       });
     }
 
