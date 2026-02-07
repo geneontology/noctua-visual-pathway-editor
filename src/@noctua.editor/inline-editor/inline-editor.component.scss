@@ -1,5 +1,5 @@
 @use 'sass:map';
-@import "@noctua/scss/noctua";
+@use "@noctua/scss/noctua" as *;
 
 $primary: map.get($theme, primary);
 $accent: map.get($theme, accent);

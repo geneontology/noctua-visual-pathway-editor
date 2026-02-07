@@ -1,4 +1,4 @@
-@import "@noctua/scss/noctua";
+@use "@noctua/scss/noctua" as *;
 
 #noctua-main {
   > .mat-sidenav-container {

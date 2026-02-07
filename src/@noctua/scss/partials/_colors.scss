@@ -1,5 +1,15 @@
 @use '@angular/material' as mat;
 @use 'sass:map';
+@use '../theming' as theming;
+
+// Import theming variables for local use
+$primary: theming.$primary;
+$accent: theming.$accent;
+$warn: theming.$warn;
+$mat-white: theming.$mat-white;
+$mat-black: theming.$mat-black;
+$mat-noctuadark: theming.$mat-noctuadark;
+
 .secondary-text,
 .icon,
 i {
@@ -106,7 +116,7 @@ A700;
 
   // Native Input (non-Material)
   input[type="text"] {
-    color: map_get($noctuaForeground, base);
+    color: map.get($noctuaForeground, base);
   }
 }
 

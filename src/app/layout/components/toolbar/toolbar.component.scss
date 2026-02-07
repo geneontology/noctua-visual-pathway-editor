@@ -1,4 +1,4 @@
-@import "@noctua/scss/noctua";
+@use "@noctua/scss/noctua" as *;
 
 :host {
   position: relative;

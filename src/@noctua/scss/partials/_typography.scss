@@ -1,4 +1,8 @@
 @use "@angular/material" as mat;
+@use '../theming' as theming;
+
+$accent: theming.$accent;
+
 html {
   font-size: 62.5%;
   font-family: "Roboto", "Helvetica Neue", "Arial", sans-serif;

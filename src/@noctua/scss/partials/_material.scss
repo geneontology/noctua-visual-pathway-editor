@@ -1,7 +1,9 @@
 @use 'sass:map';
+@use '../theming' as theming;
+@use '../mixins/noctua-mixins' as *;
 
-$primary: map.get($theme, primary);
-$accent: map.get($theme, accent);
+$primary: map.get(theming.$theme, primary);
+$accent: map.get(theming.$theme, accent);
 
 // MDC radio button - custom rounded style with internal class compatibility
 mat-radio-button,

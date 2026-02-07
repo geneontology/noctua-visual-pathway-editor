@@ -1,4 +1,6 @@
 @use '@angular/material' as mat;
+@use '../../mixins/breakpoints' as *;
+
 .ngx-datatable {
 
     &.material {

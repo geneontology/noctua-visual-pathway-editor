@@ -1,6 +1,26 @@
-@import "theming";
-@import "mixins/breakpoints";
-@import "partials/mdc-form-field-theme";
+// =============================================================================
+// Noctua SCSS Main Entry Point
+// Uses @use and @forward for modern Sass module system
+// =============================================================================
+
+// Forward theming variables so consumers can access them via @use "noctua"
+@forward "theming";
+
+// Use theming locally (we need the variables in this file)
+@use "theming" as *;
+
+// Forward and use all mixins (breakpoints and noctua-mixins)
+@forward "mixins/breakpoints";
+@forward "mixins/noctua-mixins";
+@use "mixins/breakpoints" as *;
+@use "mixins/noctua-mixins" as *;
+
+// Use partials that generate CSS output
+@use "partials/mdc-form-field-theme";
+
+// =============================================================================
+// Noctua Color Variables
+// =============================================================================
 //$noc-primary-color: #039be5;
 $noc-secondary-color: #995014;
 $noc-highlight-model-color: #e1f5fe;
@@ -25,32 +45,7 @@ $noc-cc: #d3b5f5;
   bottom: 0 !important;
 }
 
-@mixin deep-width($number) {
-  width: $number;
-  min-width: $number;
-  max-width: $number;
-}
-
-@mixin deep-height($number) {
-  height: $number;
-  min-height: $number;
-  max-height: $number;
-}
-
-@mixin noc-icon-size($number) {
-  font-size: $number;
-  @include deep-width($number);
-  @include deep-height($number);
-}
-
-@mixin noc-chip-color($color) {
-  border: $color solid 1px;
-  background-color: rgba($color, 0.2);
-
-  .noc-icon {
-    background-color: $color;
-  }
-}
+// Mixins are now in mixins/_noctua-mixins.scss and forwarded via @forward
 
 i {
   font-size: 12px !important;

@@ -1,4 +1,7 @@
 // Import Noctua core library
+// NOTE: @use rules must come first, before any other rules including Tailwind
+@use "@noctua/scss/core";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,4 +13,3 @@
 }
 
 @import "@ali-hm/angular-tree-component/css/angular-tree-component.css";
-@import "@noctua/scss/core";

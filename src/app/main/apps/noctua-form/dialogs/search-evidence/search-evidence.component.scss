@@ -1,7 +1,8 @@
 @use "@angular/material" as mat;
 @use 'sass:map';
-@import "@noctua/scss/noctua";
-@import "@noctua.common/scss/noctua.common";
+@use "@noctua/scss/noctua" as *;
+@use "@noctua.common/scss/noctua.common";
+
 $primary: map.get($theme, primary);
 
 :host {

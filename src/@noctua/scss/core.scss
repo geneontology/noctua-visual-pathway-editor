@@ -1,18 +1,24 @@
+// =============================================================================
+// Noctua Core SCSS
+// Main entry point that includes all styles
+// =============================================================================
+
+// All @use rules must come first before any other rules
 @use "@angular/material" as mat;
-@import "noctua";
+@use "noctua" as noc;
+@use "partials/scrollbars";
+@use "partials/alert";
+@use "partials/colors";
+@use "partials/material";
+@use "partials/angular-material-fix";
+@use "partials/typography";
+@use "partials/buttons";
+@use "partials/cards";
+@use "partials/forms";
+@use "partials/plugins/plugins";
 
 // Include Angular Material core and component styles
 @include mat.elevation-classes();
 @include mat.app-background();
-@include mat.all-component-typographies($typography);
-@include mat.all-component-themes($theme);
-@import "partials/scrollbars";
-@import "partials/alert";
-@import "partials/colors";
-@import "partials/material";
-@import "partials/angular-material-fix";
-@import "partials/typography";
-@import "partials/buttons";
-@import "partials/cards";
-@import "partials/forms";
-@import "partials/plugins/plugins";
+@include mat.all-component-typographies(noc.$typography);
+@include mat.all-component-themes(noc.$theme);

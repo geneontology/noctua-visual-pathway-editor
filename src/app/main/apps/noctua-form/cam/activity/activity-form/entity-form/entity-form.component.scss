@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
-@import "@noctua/scss/noctua";
-@import "@noctua.common/scss/noctua.common";
+@use "@noctua/scss/noctua" as *;
+@use "@noctua.common/scss/noctua.common";
 
 :host {
   width: 100%; // display: block;

@@ -1,4 +1,9 @@
 @use 'sass:map';
+@use "@noctua/scss/theming" as theming;
+@use "@noctua/scss/mixins/noctua-mixins" as *;
+
+// Private variable (prefixed with _) to avoid conflicts when used with as *
+$_primary: map.get(theming.$theme, primary);
 
 $noc-breakpoints: (
   noc-lg: "screen and (max-width: 1367px)",
@@ -38,7 +43,7 @@ $noc-breakpoints: (
     padding: 0 10px;
     font-size: 10px !important;
     font-weight: bold;
-    color: map.get($primary, default);
+    color: map.get($_primary, default);
     text-transform: uppercase;
     font-weight: bold;
   }

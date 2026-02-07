@@ -1,7 +1,7 @@
 @use 'sass:map';
-@import "@noctua/scss/noctua";
-@import "@noctua.common/scss/noctua.common";
-@import "@noctua.common/scss/noctua-form.common";
+@use "@noctua/scss/noctua" as *;
+@use "@noctua.common/scss/noctua.common";
+@use "@noctua.common/scss/noctua-form.common" as *;
 
 $primary: map.get($theme, primary);
 

@@ -1,5 +1,5 @@
-@import "@noctua/scss/noctua";
-@import "@noctua.common/scss/noctua.common";
+@use "@noctua/scss/noctua" as *;
+@use "@noctua.common/scss/noctua.common";
 
 // Aspect type border color overrides (dynamic class from nodeGroup.get('name').value)
 // Base styling uses Tailwind: shadow bg-white aspect-border-none
