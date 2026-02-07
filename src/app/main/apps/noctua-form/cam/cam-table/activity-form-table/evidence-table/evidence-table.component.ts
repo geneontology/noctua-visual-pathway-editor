@@ -33,18 +33,18 @@ import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline
 
 
 @Component({
-    selector: 'noc-evidence-form-table',
-    templateUrl: './evidence-table.component.html',
-    styleUrls: ['./evidence-table.component.scss'],
-    animations: noctuaAnimations,
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatMenuModule,
-        FontAwesomeModule,
-        NoctuaInlineEditorComponent
-    ]
+  selector: 'noc-evidence-form-table',
+  templateUrl: './evidence-table.component.html',
+  styleUrls: ['./evidence-table.component.scss'],
+  animations: noctuaAnimations,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatMenuModule,
+    FontAwesomeModule,
+    NoctuaInlineEditorComponent
+  ]
 })
 export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   camService = inject(CamService);
@@ -90,8 +90,6 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   }
 
   addEvidence(entity: ActivityNode) {
-    const self = this;
-
     entity.predicate.addEvidence();
     const data = {
       cam: this.cam,
@@ -106,21 +104,19 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
 
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   createEvidence() {
-    const self = this;
-
     const success = (evidence: Evidence[]) => {
       if (evidence) {
         this.camService.onCamChanged.next(this.cam);
         this.camService.activity = this.activity;
         this.noctuaActivityEntityService.initializeForm(this.activity, this.entity);
 
-        self.noctuaActivityEntityService.createEvidence(evidence).then(() => {
-          self.noctuaFormDialogService.openInfoToast(`Evidence successfully added.`, 'OK');
-          self.noctuaActivityFormService.initializeForm();
+        this.noctuaActivityEntityService.createEvidence(evidence).then(() => {
+          this.noctuaFormDialogService.openInfoToast(`Evidence successfully added.`, 'OK');
+          this.noctuaActivityFormService.initializeForm();
         });
       };
     }
@@ -128,13 +124,11 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   }
 
   removeEvidence(evidence: Evidence) {
-    const self = this;
-
     const success = () => {
-      self.noctuaActivityEntityService.deleteEvidence(evidence.uuid).then(() => {
+      this.noctuaActivityEntityService.deleteEvidence(evidence.uuid).then(() => {
         this.camService.onSelectedActivityChanged.next(null);
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast(`${evidence.evidence.label} successfully deleted.`, 'OK');
+        this.noctuaFormDialogService.openInfoToast(`${evidence.evidence.label} successfully deleted.`, 'OK');
       });
     };
 
@@ -147,12 +141,10 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   }
 
   removeReference(evidence: Evidence) {
-    const self = this;
-
     const success = () => {
-      self.noctuaActivityEntityService.deleteEvidenceReference(evidence.uuid, evidence.reference).then(() => {
+      this.noctuaActivityEntityService.deleteEvidenceReference(evidence.uuid, evidence.reference).then(() => {
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast(`${evidence.reference} successfully deleted.`, 'OK');
+        this.noctuaFormDialogService.openInfoToast(`${evidence.reference} successfully deleted.`, 'OK');
       });
     };
 
@@ -163,12 +155,10 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   }
 
   removeWith(evidence: Evidence) {
-    const self = this;
-
     const success = () => {
-      self.noctuaActivityEntityService.deleteEvidenceWith(evidence.uuid, evidence.with).then(() => {
+      this.noctuaActivityEntityService.deleteEvidenceWith(evidence.uuid, evidence.with).then(() => {
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast(`${evidence.with} successfully deleted.`, 'OK');
+        this.noctuaFormDialogService.openInfoToast(`${evidence.with} successfully deleted.`, 'OK');
       });
     };
 

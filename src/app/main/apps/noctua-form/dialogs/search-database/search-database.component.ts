@@ -23,20 +23,20 @@ import { MatSortModule } from '@angular/material/sort';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
-    selector: 'app-search-database',
-    templateUrl: './search-database.component.html',
-    styleUrls: ['./search-database.component.scss'],
-    animations: noctuaAnimations,
-    standalone: true,
-    imports: [
-        CommonModule,
-        CdkTableModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        MatSortModule,
-        MatTableModule,
-        FontAwesomeModule,
-    ],
+  selector: 'app-search-database',
+  templateUrl: './search-database.component.html',
+  styleUrls: ['./search-database.component.scss'],
+  animations: noctuaAnimations,
+  standalone: true,
+  imports: [
+    CommonModule,
+    CdkTableModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatSortModule,
+    MatTableModule,
+    FontAwesomeModule,
+  ],
 })
 export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   private _matDialogRef = inject<MatDialogRef<SearchDatabaseDialogComponent>>(MatDialogRef);
@@ -64,9 +64,7 @@ export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   ngOnInit() { }
 
   initialize() {
-    const self = this;
-
-    self.noctuaLookupService.companionLookup(
+    this.noctuaLookupService.companionLookup(
       this.searchCriteria.gpNode.id,
       this.searchCriteria.aspect,
       this.searchCriteria.params)

@@ -79,9 +79,7 @@ export class NoctuaFormConfigService {
   }
 
   findModelState(name) {
-    const self = this;
-
-    return find(self.modelState.options, (modelState) => {
+    return find(this.modelState.options, (modelState) => {
       return modelState.name === name;
     });
   }
@@ -246,8 +244,7 @@ export class NoctuaFormConfigService {
   }
 
   setupUrls() {
-    const self = this;
-    const baristaToken = self.noctuaUserService.baristaToken;
+    const baristaToken = this.noctuaUserService.baristaToken;
 
     const url = new URL(window.location.href);
     url.searchParams.delete('barista_token');
@@ -257,50 +254,48 @@ export class NoctuaFormConfigService {
     const returnUrlParams = { 'return': returnUrl };
 
     this.loginUrl = environment.globalBaristaLocation + '/login?' +
-      self._parameterize(Object.assign({}, returnUrlParams));
+      this._parameterize(Object.assign({}, returnUrlParams));
     this.logoutUrl = environment.globalBaristaLocation + '/logout?' +
-      self._parameterize(Object.assign({}, baristaParams, returnUrlParams));
-    this.noctuaUrl = environment.noctuaUrl + '?' + (baristaToken ? self._parameterize(Object.assign({}, baristaParams)) : '');
+      this._parameterize(Object.assign({}, baristaParams, returnUrlParams));
+    this.noctuaUrl = environment.noctuaUrl + '?' + (baristaToken ? this._parameterize(Object.assign({}, baristaParams)) : '');
     this.homeUrl = window.location.href;
   }
 
   setUniversalUrls() {
-    const self = this;
-    self.globalUrl = {};
+    this.globalUrl = {};
     let params = new HttpParams();
 
-    if (self.noctuaUserService.baristaToken) {
-      params = params.append('barista_token', self.noctuaUserService.baristaToken);
+    if (this.noctuaUserService.baristaToken) {
+      params = params.append('barista_token', this.noctuaUserService.baristaToken);
     }
 
     const paramsString = params.toString();
-    self.globalUrl.goUrl = 'http://www.geneontology.org/';
-    self.globalUrl.noctuaUrl = environment.noctuaUrl + '?' + paramsString;
-    self.globalUrl.universalWorkbenches = environment.globalWorkbenchesUniversal.map(workbench => {
+    this.globalUrl.goUrl = 'http://www.geneontology.org/';
+    this.globalUrl.noctuaUrl = environment.noctuaUrl + '?' + paramsString;
+    this.globalUrl.universalWorkbenches = environment.globalWorkbenchesUniversal.map(workbench => {
       return {
         label: workbench['menu-name'],
         url: environment.workbenchUrl + workbench['workbench-id'] + '?' + paramsString,
       };
     });
 
-    self.globalUrl.universalBetaTestWorkbenches = environment.globalWorkbenchesUniversalBetaTest.map(workbench => {
+    this.globalUrl.universalBetaTestWorkbenches = environment.globalWorkbenchesUniversalBetaTest.map(workbench => {
       return {
         label: workbench['menu-name'],
         url: environment.workbenchUrl + workbench['workbench-id'] + '?' + paramsString,
       };
     });
 
-    return self.globalUrl;
+    return this.globalUrl;
   }
 
   getModelUrls(modelId: string) {
-    const self = this;
     const modelInfo: any = {};
 
     let params = new HttpParams();
 
-    if (self.noctuaUserService.baristaToken) {
-      params = params.append('barista_token', self.noctuaUserService.baristaToken);
+    if (this.noctuaUserService.baristaToken) {
+      params = params.append('barista_token', this.noctuaUserService.baristaToken);
     }
 
     modelInfo.graphEditorUrl = environment.noctuaUrl + '/editor/graph/' + modelId + '?' + params.toString();
@@ -417,8 +412,7 @@ export class NoctuaFormConfigService {
   }
 
   createActivityModelFakeData(nodes) {
-    const self = this;
-    const activity = self.createActivityModel(ActivityType.default);
+    const activity = this.createActivityModel(ActivityType.default);
 
     nodes.forEach((node) => {
       const activityNode = activity.getNode(node.id);

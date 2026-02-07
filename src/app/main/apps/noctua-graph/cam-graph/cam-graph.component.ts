@@ -16,18 +16,18 @@ import { noctuaStencil } from '@noctua.graph/data/cam-stencil';
 import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-service';
 
 @Component({
-    selector: 'noc-cam-graph',
-    templateUrl: './cam-graph.component.html',
-    styleUrls: ['./cam-graph.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatMenuModule,
-        MatTooltipModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-cam-graph',
+  templateUrl: './cam-graph.component.html',
+  styleUrls: ['./cam-graph.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+    FontAwesomeModule
+  ]
 })
 export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   noctuaDataService = inject(NoctuaDataService);
@@ -70,39 +70,35 @@ export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    const self = this;
+    this.noctuaCamGraphService.initializeGraph();
+    this.noctuaCamGraphService.initializeStencils();
 
-    self.noctuaCamGraphService.initializeGraph();
-    self.noctuaCamGraphService.initializeStencils();
-
-    self._noctuaGraphService.onCamGraphChanged
-      .pipe(takeUntil(self._unsubscribeAll))
+    this._noctuaGraphService.onCamGraphChanged
+      .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((cam: Cam) => {
-        if (!cam || cam.id !== self.cam.id) {
+        if (!cam || cam.id !== this.cam.id) {
           return;
         }
-        self.cam = cam;
-        self.noctuaCamGraphService.cam = self.cam;
+        this.cam = cam;
+        this.noctuaCamGraphService.cam = this.cam;
 
         this.camService.updateMFProperties(cam);
         if (cam.operation !== CamOperation.ADD_ACTIVITY) {
-          self.noctuaCamGraphService.addToCanvas(self.cam, this.noctuaGraphEditorService.selectedGraphLayoutDetail.id);
+          this.noctuaCamGraphService.addToCanvas(this.cam, this.noctuaGraphEditorService.selectedGraphLayoutDetail.id);
         }
 
       });
   }
 
   ngOnInit() {
-    const self = this;
-
-    self._noctuaGraphService.onActivityAdded
-      .pipe(takeUntil(self._unsubscribeAll))
+    this._noctuaGraphService.onActivityAdded
+      .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((activity: Activity) => {
         if (!activity) {
           return;
         }
-        //self.noctuaCamGraphService.cam.activities.push(activity)
-        self.noctuaCamGraphService.addActivity(activity, this.noctuaGraphEditorService.selectedGraphLayoutDetail.id);
+        //this.noctuaCamGraphService.cam.activities.push(activity)
+        this.noctuaCamGraphService.addActivity(activity, this.noctuaGraphEditorService.selectedGraphLayoutDetail.id);
 
       });
   }
@@ -141,11 +137,10 @@ export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCtrlScroll($event) {
-    const self = this;
     const delta = Math.max(-1, Math.min(1, ($event.wheelDelta || $event.detail))) / 10;
 
     if ($event.ctrlKey) {
-      self.noctuaCamGraphService.zoom(delta, $event);
+      this.noctuaCamGraphService.zoom(delta, $event);
       $event.returnValue = false;
       // for Chrome and Firefox
       if ($event.preventDefault) {

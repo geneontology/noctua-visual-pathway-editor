@@ -32,19 +32,19 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
 
 @Component({
-    selector: 'noc-graph-activity-table',
-    templateUrl: './activity-table.component.html',
-    styleUrls: ['./activity-table.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatMenuModule,
-        MatSidenavModule,
-        FontAwesomeModule,
-        NoctuaFormModule
-    ]
+  selector: 'noc-graph-activity-table',
+  templateUrl: './activity-table.component.html',
+  styleUrls: ['./activity-table.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatSidenavModule,
+    FontAwesomeModule,
+    NoctuaFormModule
+  ]
 })
 export class ActivityTableComponent implements OnInit, OnDestroy {
   private ngZone = inject(NgZone);
@@ -98,18 +98,16 @@ export class ActivityTableComponent implements OnInit, OnDestroy {
   }
 
   deleteActivity(activity: Activity) {
-    const self = this;
-
     const success = () => {
       this.camService.deleteActivity(activity).then(() => {
         this.camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
+        this.noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
       });
     };
 
-    if (!self.noctuaUserService.user) {
+    if (!this.noctuaUserService.user) {
       this.confirmDialogService.openConfirmDialog('Not Logged In',
         'Please log in to continue.',
         null);

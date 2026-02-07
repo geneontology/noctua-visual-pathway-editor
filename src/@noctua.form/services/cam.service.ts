@@ -82,20 +82,16 @@ export class CamService {
   }
 
   initializeForm(cam?: Cam) {
-    const self = this;
-
     if (cam) {
       this.cam = cam;
     }
 
-    self.camForm = this.createCamForm();
-    self.camFormGroup.next(this._fb.group(this.camForm));
+    this.camForm = this.createCamForm();
+    this.camFormGroup.next(this._fb.group(this.camForm));
   }
 
   createCamForm() {
-    const self = this;
-
-    const formMetadata = new ActivityFormMetadata(self.noctuaLookupService.lookupFunc.bind(self.noctuaLookupService));
+    const formMetadata = new ActivityFormMetadata(this.noctuaLookupService.lookupFunc.bind(this.noctuaLookupService));
     const camForm = new CamForm(formMetadata);
 
     camForm.createCamForm(this.cam, this.noctuaUserService.user);
@@ -125,19 +121,17 @@ export class CamService {
   }
 
   bulkEditCam(cam: Cam): Observable<any> {
-    const self = this;
     const promises = [];
 
-    promises.push(self._noctuaGraphService.bulkEditActivity(cam));
+    promises.push(this._noctuaGraphService.bulkEditActivity(cam));
 
     return forkJoin(promises);
   }
 
   deleteActivity(activity: Activity) {
-    const self = this;
     const deleteData = activity.createDelete();
 
-    return self._noctuaGraphService.deleteActivity(self.cam, deleteData.uuids, deleteData.triples);
+    return this._noctuaGraphService.deleteActivity(this.cam, deleteData.uuids, deleteData.triples);
   }
 
   updateTermList(formActivity: Activity, entity: ActivityNode) {
@@ -183,22 +177,18 @@ export class CamService {
   }
 
   copyModel(cam: Cam, title: string, includeEvidence = false) {
-    const self = this;
-
-    return self._noctuaGraphService.copyModel(cam, title, includeEvidence).subscribe((response) => {
-      const cam: Cam = self._noctuaGraphService.getMetadata(response['data'])
-      self.onCopyModelChanged.next(cam)
+    return this._noctuaGraphService.copyModel(cam, title, includeEvidence).subscribe((response) => {
+      const cam: Cam = this._noctuaGraphService.getMetadata(response['data'])
+      this.onCopyModelChanged.next(cam)
     });
   }
 
   updateModel(cams: Cam[], responses) {
-    const self = this;
-
     if (responses && responses.length > 0) {
       responses.forEach(response => {
         const cam: Cam = find(cams, { id: response.data().id });
         if (cam) {
-          self._noctuaGraphService.rebuild(cam, response);
+          this._noctuaGraphService.rebuild(cam, response);
           cam.checkStored()
         }
       })
@@ -206,13 +196,12 @@ export class CamService {
   }
 
   bulkEditActivityNode(cam: Cam, node: ActivityNode): Observable<any> {
-    const self = this;
     const promises = [];
 
-    promises.push(self._noctuaGraphService.bulkEditActivityNode(cam, node));
+    promises.push(this._noctuaGraphService.bulkEditActivityNode(cam, node));
 
     return forkJoin(promises).pipe(
-      map(res => self.updateModel([cam], res)),
+      map(res => this.updateModel([cam], res)),
     );
   }
 

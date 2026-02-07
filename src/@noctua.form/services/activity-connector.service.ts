@@ -62,24 +62,22 @@ export class NoctuaActivityConnectorService {
   }
 
   initializeForm(subjectId: string, objectId: string) {
-    const self = this;
+    this._allowRequestWatch = false;
 
-    self._allowRequestWatch = false;
-
-    self.subjectActivity = this.cam.findActivityById(subjectId);
-    self.objectActivity = this.cam.findActivityById(objectId);
-    self.causalConnection = self.cam.getCausalRelation(subjectId, objectId);
+    this.subjectActivity = this.cam.findActivityById(subjectId);
+    this.objectActivity = this.cam.findActivityById(objectId);
+    this.causalConnection = this.cam.getCausalRelation(subjectId, objectId);
 
     if (this.causalConnection) {
       const predicate = cloneDeep(this.causalConnection.predicate)
-      self.connectorActivity = new ConnectorActivity(self.subjectActivity, self.objectActivity, predicate);
-      self.connectorActivity.state = ConnectorState.editing
-      self.currentConnectorActivity = cloneDeep(this.connectorActivity)
+      this.connectorActivity = new ConnectorActivity(this.subjectActivity, this.objectActivity, predicate);
+      this.connectorActivity.state = ConnectorState.editing
+      this.currentConnectorActivity = cloneDeep(this.connectorActivity)
     } else {
-      const predicate = self.noctuaFormConfigService.createPredicate(Entity.createEntity(noctuaFormConfig.edge.positivelyRegulates))
-      self.connectorActivity = new ConnectorActivity(self.subjectActivity, self.objectActivity, predicate);
-      self.connectorActivity.state = ConnectorState.creation
-      self.connectorActivity.addDefaultEvidence();
+      const predicate = this.noctuaFormConfigService.createPredicate(Entity.createEntity(noctuaFormConfig.edge.positivelyRegulates))
+      this.connectorActivity = new ConnectorActivity(this.subjectActivity, this.objectActivity, predicate);
+      this.connectorActivity.state = ConnectorState.creation
+      this.connectorActivity.addDefaultEvidence();
     }
 
     this.connectorForm = this.createConnectorForm();
@@ -111,11 +109,10 @@ export class NoctuaActivityConnectorService {
   }
 
   createConnectorForm() {
-    const self = this;
-    const formMetadata = new ActivityFormMetadata(self.noctuaLookupService.lookupFunc.bind(self.noctuaLookupService));
+    const formMetadata = new ActivityFormMetadata(this.noctuaLookupService.lookupFunc.bind(this.noctuaLookupService));
     const connectorForm = new ActivityConnectorForm(formMetadata);
 
-    connectorForm.createEntityForms(self.connectorActivity.predicate);
+    connectorForm.createEntityForms(this.connectorActivity.predicate);
 
     return connectorForm;
   }
@@ -149,27 +146,24 @@ export class NoctuaActivityConnectorService {
   }
 
   saveActivity() {
-    const self = this;
-
-    if (self.connectorActivity.state === ConnectorState.editing) {
-      const saveData = self.connectorActivity.createEdit(self.currentConnectorActivity);
-      return self.noctuaGraphService.editConnection(
-        self.cam,
+    if (this.connectorActivity.state === ConnectorState.editing) {
+      const saveData = this.connectorActivity.createEdit(this.currentConnectorActivity);
+      return this.noctuaGraphService.editConnection(
+        this.cam,
         saveData.removeTriples,
         saveData.addTriples).then(() => {
-          this.initializeForm(self.subjectActivity.id, self.objectActivity.id)
+          this.initializeForm(this.subjectActivity.id, this.objectActivity.id)
         });
     } else { // creation
-      const saveData = self.connectorActivity.createSave();
-      return self.noctuaGraphService.addActivity(self.cam, [], saveData.triples, '', CamOperation.ADD_CAUSAL_RELATION);
+      const saveData = this.connectorActivity.createSave();
+      return this.noctuaGraphService.addActivity(this.cam, [], saveData.triples, '', CamOperation.ADD_CAUSAL_RELATION);
     }
   }
 
   deleteConnectorEdge(connectorActivity: ConnectorActivity) {
-    const self = this;
     const deleteData = connectorActivity.createDelete();
 
-    return self.noctuaGraphService.deleteActivity(self.cam, [], deleteData.triples);
+    return this.noctuaGraphService.deleteActivity(this.cam, [], deleteData.triples);
   }
 
 

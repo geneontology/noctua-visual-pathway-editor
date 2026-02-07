@@ -23,20 +23,20 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
 
 
 @Component({
-    selector: 'noc-copy-model',
-    templateUrl: './copy-model.component.html',
-    styleUrls: ['./copy-model.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        MatProgressSpinnerModule,
-        MatSidenavModule,
-        MatTooltipModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-copy-model',
+  templateUrl: './copy-model.component.html',
+  styleUrls: ['./copy-model.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatSidenavModule,
+    MatTooltipModule,
+    FontAwesomeModule
+  ]
 })
 
 export class CopyModelComponent implements OnInit, OnDestroy {
@@ -60,7 +60,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
 
   constructor() {
     this._unsubscribeAll = new Subject();
-    // this.activity = self.noctuaCamFormService.activity;
+    // this.activity = this.noctuaCamFormService.activity;
     //  this.camFormPresentation = this.noctuaCamFormService.activityPresentation;
   }
 

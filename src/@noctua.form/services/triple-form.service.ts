@@ -60,7 +60,7 @@ export class NoctuaTripleFormService {
   }
 
   tripleFormToActivity() {
-    // self.tripleForm.populateActivityEntityForm(this.termNode);
+    // this.tripleForm.populateActivityEntityForm(this.termNode);
   }
 
   private _onActivityFormChanges(): void {

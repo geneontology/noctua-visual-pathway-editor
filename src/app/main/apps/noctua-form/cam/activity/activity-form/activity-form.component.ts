@@ -111,11 +111,9 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const self = this;
-
-    self.noctuaActivityFormService.saveActivity().subscribe(() => {
-      self.noctuaFormDialogService.openInfoToast('Successfully created.', 'OK');
-      self.noctuaActivityFormService.clearForm();
+    this.noctuaActivityFormService.saveActivity().subscribe(() => {
+      this.noctuaFormDialogService.openInfoToast('Successfully created.', 'OK');
+      this.noctuaActivityFormService.clearForm();
       if (this.closeDialog) {
         this.closeDialog();
       }
@@ -137,9 +135,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
   }
 
   createExample() {
-    const self = this;
-
-    self.noctuaActivityFormService.initializeFormData();
+    this.noctuaActivityFormService.initializeFormData();
   }
 
   termDisplayFn(term): string | undefined {

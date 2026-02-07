@@ -41,18 +41,18 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivityFormTableNodeComponent } from './activity-form-table-node/activity-form-table-node.component';
 
 @Component({
-    selector: 'noc-activity-form-table',
-    templateUrl: './activity-form-table.component.html',
-    styleUrls: ['./activity-form-table.component.scss'],
-    animations: noctuaAnimations,
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        FontAwesomeModule,
-        TreeModule,
-        ActivityFormTableNodeComponent
-    ]
+  selector: 'noc-activity-form-table',
+  templateUrl: './activity-form-table.component.html',
+  styleUrls: ['./activity-form-table.component.scss'],
+  animations: noctuaAnimations,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    FontAwesomeModule,
+    TreeModule,
+    ActivityFormTableNodeComponent
+  ]
 })
 export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   camService = inject(CamService);
@@ -234,8 +234,6 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
 
 
   addEvidence(entity: ActivityNode) {
-    const self = this;
-
     entity.predicate.addEvidence();
     const data = {
       cam: this.cam,
@@ -250,7 +248,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
 
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
 

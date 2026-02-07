@@ -26,19 +26,19 @@ import { ReferenceDropdownOverlayRef } from './reference-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 
 @Component({
-    selector: 'noc-reference-dropdown',
-    templateUrl: './reference-dropdown.component.html',
-    styleUrls: ['./reference-dropdown.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-reference-dropdown',
+  templateUrl: './reference-dropdown.component.html',
+  styleUrls: ['./reference-dropdown.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FontAwesomeModule
+  ]
 })
 
 export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
@@ -72,7 +72,6 @@ export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const self = this;
     const db = this.evidenceDBForm.value.db;
     const accession = this.evidenceDBForm.value.accession;
     const errors = [];
@@ -81,7 +80,7 @@ export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
     if (accession.trim() === '') {
       const error = new ActivityError(ErrorLevel.error, ErrorType.general, `${db.name} accession is required`);
       errors.push(error);
-      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      this.noctuaFormDialogService.openActivityErrorsDialog(errors);
       canSave = false;
     }
 
@@ -106,15 +105,13 @@ export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
   }
 
   private _onValueChange() {
-    const self = this;
-
-    self.evidenceDBForm.valueChanges.pipe(
+    this.evidenceDBForm.valueChanges.pipe(
       takeUntil(this._unsubscribeAll),
       distinctUntilChanged(),
       debounceTime(1000)
     ).subscribe(data => {
-      self.article = null;
-      self._updateArticle(data);
+      this.article = null;
+      this._updateArticle(data);
     });
   }
 
@@ -123,8 +120,6 @@ export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
   }
 
   private _updateArticle(value) {
-    const self = this;
-
     if (value.db.name === noctuaFormConfig.evidenceDB.options.pmid.name && value.accession) {
       const pmid = value.accession.trim();
 
@@ -134,7 +129,7 @@ export class NoctuaReferenceDropdownComponent implements OnInit, OnDestroy {
       this.noctuaLookupService.getPubmedInfo(pmid).pipe(
         takeUntil(this._unsubscribeAll))
         .subscribe((article: Article) => {
-          self.article = article;
+          this.article = article;
         });
     }
   }

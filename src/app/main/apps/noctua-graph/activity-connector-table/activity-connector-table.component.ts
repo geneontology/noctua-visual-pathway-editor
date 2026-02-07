@@ -34,21 +34,21 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
 
 @Component({
-    selector: 'noc-activity-connector-table',
-    templateUrl: './activity-connector-table.component.html',
-    styleUrls: ['./activity-connector-table.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSidenavModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        FontAwesomeModule,
-        NoctuaFormModule
-    ]
+  selector: 'noc-activity-connector-table',
+  templateUrl: './activity-connector-table.component.html',
+  styleUrls: ['./activity-connector-table.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    FontAwesomeModule,
+    NoctuaFormModule
+  ]
 })
 export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   private confirmDialogService = inject(NoctuaConfirmDialogService);
@@ -147,12 +147,11 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const self = this;
     this.noctuaActivityConnectorService.saveActivity().then(() => {
-      self.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
+      this.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
 
       this.noctuaActivityConnectorService.initializeForm(
-        self.noctuaActivityConnectorService.subjectActivity.id, self.noctuaActivityConnectorService.objectActivity.id)
+        this.noctuaActivityConnectorService.subjectActivity.id, this.noctuaActivityConnectorService.objectActivity.id)
       if (this.closeDialog) {
         this.closeDialog();
       }
@@ -160,10 +159,9 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   }
 
   editActivity() {
-    const self = this;
     const success = () => {
-      self.noctuaActivityConnectorService.saveActivity().then(() => {
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully updated.', 'OK');
+      this.noctuaActivityConnectorService.saveActivity().then(() => {
+        this.noctuaFormDialogService.openInfoToast('Causal relation successfully updated.', 'OK');
       });
     };
 
@@ -173,13 +171,12 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   }
 
   deleteConnectorEdge() {
-    const self = this;
     const success = () => {
-      self.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
+      this.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
         this._camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
         this._camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
+        this.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
       });
     };
 

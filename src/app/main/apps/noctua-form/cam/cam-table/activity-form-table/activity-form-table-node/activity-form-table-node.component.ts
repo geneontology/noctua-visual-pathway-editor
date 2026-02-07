@@ -41,19 +41,19 @@ import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline
 import { EvidenceFormTableComponent } from '../evidence-table/evidence-table.component';
 
 @Component({
-    selector: 'noc-activity-form-table-node',
-    templateUrl: './activity-form-table-node.component.html',
-    styleUrls: ['./activity-form-table-node.component.scss'],
-    animations: noctuaAnimations,
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatMenuModule,
-        FontAwesomeModule,
-        NoctuaInlineEditorComponent,
-        EvidenceFormTableComponent
-    ]
+  selector: 'noc-activity-form-table-node',
+  templateUrl: './activity-form-table-node.component.html',
+  styleUrls: ['./activity-form-table-node.component.scss'],
+  animations: noctuaAnimations,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatMenuModule,
+    FontAwesomeModule,
+    NoctuaInlineEditorComponent,
+    EvidenceFormTableComponent
+  ]
 })
 export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   camService = inject(CamService);
@@ -124,8 +124,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
 
   addEvidence(entity: ActivityNode) {
-    const self = this;
-
     entity.predicate.addEvidence();
     const data = {
       cam: this.cam,
@@ -140,23 +138,19 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
 
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   removeEvidence(entity: ActivityNode, index: number) {
-    const self = this;
-
     entity.predicate.removeEvidence(index);
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   deleteEntity(entity: ActivityNode) {
-    const self = this;
-
     const success = () => {
-      this.noctuaActivityEntityService.deleteActivityNode(self.activity, entity).then(() => {
+      this.noctuaActivityEntityService.deleteActivityNode(this.activity, entity).then(() => {
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast(`${entity.term.label} successfully deleted.`, 'OK');
+        this.noctuaFormDialogService.openInfoToast(`${entity.term.label} successfully deleted.`, 'OK');
       });
     };
 
@@ -173,7 +167,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   }
 
   openSearchDatabaseDialog(entity: ActivityNode) {
-    const self = this;
     const gpNode = this.activity.getGPNode();
 
     if (gpNode && gpNode.hasValue()) {
@@ -194,21 +187,21 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
           if (selected.evidences && selected.evidences.length > 0) {
 
-            self.noctuaActivityEntityService.initializeForm(this.activity, entity);
+            this.noctuaActivityEntityService.initializeForm(this.activity, entity);
             entity.term = term;
             entity.predicate.setEvidence(selected.evidences);
-            self.noctuaActivityEntityService.saveSearchDatabase();
+            this.noctuaActivityEntityService.saveSearchDatabase();
 
           }
         }
       };
-      self.noctuaFormDialogService.openSearchDatabaseDialog(data, success);
+      this.noctuaFormDialogService.openSearchDatabaseDialog(data, success);
     } else {
       const meta = {
         aspect: 'Gene Product'
       };
       const error = new ActivityError(ErrorLevel.error, ErrorType.general, 'Please enter a gene product', meta)
-      self.noctuaFormDialogService.openActivityErrorsDialog([error])
+      this.noctuaFormDialogService.openActivityErrorsDialog([error])
     }
   }
 
@@ -250,15 +243,13 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
   }
 
   addRootTerm(entity: ActivityNode) {
-    const self = this;
-
     const term = find(noctuaFormConfig.rootNode, (rootNode) => {
       return rootNode.aspect === entity.aspect;
     });
 
     if (term) {
       entity.term = new Entity(term.id, term.label);
-      self.noctuaActivityFormService.initializeForm();
+      this.noctuaActivityFormService.initializeForm();
 
       const evidence = new Evidence();
       evidence.setEvidence(new Entity(
@@ -266,13 +257,11 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
         noctuaFormConfig.evidenceAutoPopulate.nd.evidence.label));
       evidence.reference = noctuaFormConfig.evidenceAutoPopulate.nd.reference;
       entity.predicate.setEvidence([evidence]);
-      self.noctuaActivityFormService.initializeForm();
+      this.noctuaActivityFormService.initializeForm();
     }
   }
 
   addEvidenceISS(entity: ActivityNode) {
-    const self = this;
-
     const evidence = new Evidence();
     evidence.setEvidence(new Entity(
       noctuaFormConfig.evidenceAutoPopulate.iss.evidence.id,
@@ -280,27 +269,24 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
     evidence.reference = noctuaFormConfig.evidenceAutoPopulate.iss.reference;
 
     entity.predicate.setEvidence([evidence]);
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   clearValues(entity: ActivityNode) {
-    const self = this;
-
     entity.clearValues();
-    self.noctuaActivityFormService.initializeForm();
+    this.noctuaActivityFormService.initializeForm();
   }
 
   openSelectEvidenceDialog(entity: ActivityNode) {
-    const self = this;
-    const evidences: Evidence[] = this.camService.getUniqueEvidence(self.noctuaActivityFormService.activity);
+    const evidences: Evidence[] = this.camService.getUniqueEvidence(this.noctuaActivityFormService.activity);
     const success = (selected) => {
       if (selected.evidences && selected.evidences.length > 0) {
         entity.predicate.setEvidence(selected.evidences);
-        self.noctuaActivityFormService.initializeForm();
+        this.noctuaActivityFormService.initializeForm();
       }
     };
 
-    self.noctuaFormDialogService.openSelectEvidenceDialog(evidences, success);
+    this.noctuaFormDialogService.openSelectEvidenceDialog(evidences, success);
   }
 
   updateCurrentMenuEvent(event) {

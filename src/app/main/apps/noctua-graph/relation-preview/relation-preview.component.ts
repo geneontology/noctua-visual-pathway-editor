@@ -3,11 +3,11 @@ import * as joint from 'jointjs';
 import { NodeLink } from '@noctua.graph/services/shapes.service';
 
 @Component({
-    selector: 'noc-relation-preview',
-    templateUrl: './relation-preview.component.html',
-    styleUrls: ['./relation-preview.component.scss'],
-    standalone: true,
-    imports: []
+  selector: 'noc-relation-preview',
+  templateUrl: './relation-preview.component.html',
+  styleUrls: ['./relation-preview.component.scss'],
+  standalone: true,
+  imports: []
 })
 export class RelationPreviewComponent implements OnInit {
 
@@ -24,9 +24,8 @@ export class RelationPreviewComponent implements OnInit {
   }
 
   private _initializeCanvas() {
-    const self = this;
-    self.canvasGraph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
-    self.canvasPaper = new joint.dia.Paper({
+    this.canvasGraph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
+    this.canvasPaper = new joint.dia.Paper({
       cellViewNamespace: joint.shapes,
       el: document.getElementById('noc-relation-preview-paper'),
       height: '100%',

@@ -31,18 +31,18 @@ import { NoctuaFormDialogService } from '../../noctua-form';
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
 
 @Component({
-    selector: 'noc-cam-errors',
-    templateUrl: './cam-errors.component.html',
-    styleUrls: ['./cam-errors.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatMenuModule,
-        MatSidenavModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-cam-errors',
+  templateUrl: './cam-errors.component.html',
+  styleUrls: ['./cam-errors.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatSidenavModule,
+    FontAwesomeModule
+  ]
 })
 export class CamErrorsComponent implements OnInit, OnDestroy {
   private ngZone = inject(NgZone);
@@ -77,18 +77,16 @@ export class CamErrorsComponent implements OnInit, OnDestroy {
   ngOnInit(): void { }
 
   deleteActivity(activity: Activity) {
-    const self = this;
-
     const success = () => {
       this.camService.deleteActivity(activity).then(() => {
         this.camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
         this.camService.getCam(this.cam.id);
-        self.noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
+        this.noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
       });
     };
 
-    if (!self.noctuaUserService.user) {
+    if (!this.noctuaUserService.user) {
       this.confirmDialogService.openConfirmDialog('Not Logged In',
         'Please log in to continue.',
         null);

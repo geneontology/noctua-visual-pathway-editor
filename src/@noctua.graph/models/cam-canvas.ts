@@ -160,11 +160,11 @@ export class CamCanvas {
             });
 
             // If the two elements are connected already, don't
-            if (elementBelow && self.canvasGraph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
+            if (elementBelow && this.canvasGraph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
 
                 // Move the element to the position before dragging.
                 elementAbove.position(evt.data.x, evt.data.y);
-                self.createLinkFromElements(elementAbove, elementBelow)
+                this.createLinkFromElements(elementAbove, elementBelow)
 
             }
         },
@@ -571,10 +571,10 @@ export class CamCanvas {
         this.canvasPaper.render();
 
 
-        /*    each(self.canvasGraph.getCells(), (cell: any) => {
+        /*    each(this.canvasGraph.getCells(), (cell: any) => {
    
-               self.mask.add(
-                   cell.findView(self.canvasPaper),
+               this.mask.add(
+                   cell.findView(this.canvasPaper),
                    { selector: 'body' },
                    'example-id',
                    {

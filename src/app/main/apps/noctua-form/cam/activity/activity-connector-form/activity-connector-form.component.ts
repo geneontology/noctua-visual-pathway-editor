@@ -108,12 +108,11 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const self = this;
     this.noctuaActivityConnectorService.saveActivity().then(() => {
-      self.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
+      this.noctuaFormDialogService.openInfoToast('Causal relation successfully created.', 'OK');
 
       this.noctuaActivityConnectorService.initializeForm(
-        self.noctuaActivityConnectorService.subjectActivity.id, self.noctuaActivityConnectorService.objectActivity.id)
+        this.noctuaActivityConnectorService.subjectActivity.id, this.noctuaActivityConnectorService.objectActivity.id)
       if (this.closeDialog) {
         this.closeDialog();
       }

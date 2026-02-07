@@ -41,18 +41,18 @@ export class EvidenceItemFlatNode {
 }
 
 @Component({
-    selector: 'app-search-evidence',
-    templateUrl: './search-evidence.component.html',
-    styleUrls: ['./search-evidence.component.scss'],
-    animations: noctuaAnimations,
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        MatTreeModule,
-        FontAwesomeModule,
-    ],
+  selector: 'app-search-evidence',
+  templateUrl: './search-evidence.component.html',
+  styleUrls: ['./search-evidence.component.scss'],
+  animations: noctuaAnimations,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatTreeModule,
+    FontAwesomeModule,
+  ],
 })
 export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
   private _matDialogRef = inject<MatDialogRef<SearchEvidenceDialogComponent>>(MatDialogRef);
@@ -94,9 +94,7 @@ export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
-    const self = this;
-
-    self.noctuaLookupService.companionLookup(
+    this.noctuaLookupService.companionLookup(
       this.searchCriteria.gpNode.id,
       this.searchCriteria.aspect,
       this.searchCriteria.params)
