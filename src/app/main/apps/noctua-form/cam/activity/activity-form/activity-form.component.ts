@@ -76,6 +76,18 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
+  get gpFormArray(): FormArray {
+    return this.activityFormGroup.get('gp') as FormArray;
+  }
+
+  get fdFormArray(): FormArray {
+    return this.activityFormGroup.get('fd') as FormArray;
+  }
+
+  getEntityGroup(nodeGroup: FormGroup): FormArray {
+    return nodeGroup.get('entityGroup') as FormArray;
+  }
+
   constructor() {
     this._unsubscribeAll = new Subject();
   }

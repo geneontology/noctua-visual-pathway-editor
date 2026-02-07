@@ -80,13 +80,13 @@
   </mat-form-field>
 </div>
 <div class="basis-[65%] flex flex-col justify-start items-stretch">
-  @for (evidence of entityFormGroup.get('evidenceFormArray')?.controls; track evidence; let i = $index) {
+  @for (evidence of evidenceFormArrayControls.controls; track evidence; let i = $index) {
   <div formArrayName="evidenceFormArray">
     <div [formGroupName]="i" class="flex flex-row justify-start items-stretch w-full">
       <div class="p-4 w-1/2">
         <mat-form-field appearance="outline" class="noc-sm w-full">
           <mat-label>Evidence</mat-label>
-          <textarea type="text" matInput formControlName="evidence" (focus)="updateEvidenceList(entity)"
+          <textarea type="text" matInput formControlName="evidence" (focus)="updateEvidenceList()"
             [matAutocomplete]="evidenceAuto" rows="2"></textarea>
           <mat-autocomplete #evidenceAuto="matAutocomplete" [displayWith]="evidenceDisplayFn"
             class="noc-term-autocomplete">
@@ -125,7 +125,7 @@
           <mat-label>Reference</mat-label>
           <textarea matInput formControlName="reference" [matAutocomplete]="referenceAuto" rows="2" autocomplete="off"
             (focus)="updateReferenceList()"></textarea>
-          <button mat-icon-button matSuffix (click)="openAddReference($event, evidence, 'reference')"
+          <button mat-icon-button matSuffix (click)="openAddReference($event, $any(evidence), 'reference')"
             class="noc-evidence-db-trigger deep-h-[20px] deep-w-[20px]">
             <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>
@@ -147,7 +147,7 @@
           <mat-label>With</mat-label>
           <textarea matInput formControlName="with" [matAutocomplete]="withAuto" rows="2" (focus)="updateWithList()"
             autocomplete="off"></textarea>
-          <button mat-icon-button matSuffix (click)="openAddWith($event, evidence, 'with')"
+          <button mat-icon-button matSuffix (click)="openAddWith($event, $any(evidence), 'with')"
             class="noc-evidence-db-trigger deep-h-[20px] deep-w-[20px]">
             <fa-icon [icon]="['fas', 'plus-square']"></fa-icon>
           </button>

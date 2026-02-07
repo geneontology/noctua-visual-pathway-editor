@@ -63,10 +63,10 @@
           </button>
         </div>
         <div class="noc-section-body p-0 flex flex-col justify-start items-stretch">
-          @for (nodeGroup of activityFormGroup.get('gp')?.controls; track nodeGroup; let i = $index) {
+          @for (nodeGroup of gpFormArray.controls; track nodeGroup; let i = $index) {
           <div [formArrayName]="'gp'"
-            class="shadow bg-white aspect-border-none mb-4 px-2 pt-4 {{nodeGroup.get('name').value}}">
-            @for (entityForm of nodeGroup.get('entityGroup')?.controls; track entityForm) {
+            class="shadow bg-white aspect-border-none mb-4 px-2 pt-4 {{$any(nodeGroup).get('name').value}}">
+            @for (entityForm of $any(nodeGroup).get('entityGroup')?.controls; track entityForm) {
             <div [formGroupName]="i" class="">
               <noc-entity-form [entityFormGroup]="entityForm" [displayAddButton]="true" [displayMenuButton]="false"
                 class="flex flex-row justify-start items-center w-full">
@@ -122,16 +122,16 @@
             </div>
           </div>
           }
-          @for (nodeGroup of activityFormGroup.get('fd')?.controls; track nodeGroup; let i = $index) {
+          @for (nodeGroup of fdFormArray.controls; track nodeGroup; let i = $index) {
           <div [formArrayName]="'fd'"
-            class="shadow bg-white aspect-border-none mb-4 px-2 {{nodeGroup.get('name').value}} flex flex-row justify-start items-stretch">
-            @if (nodeGroup.get('isComplement')?.value) {
+            class="shadow bg-white aspect-border-none mb-4 px-2 {{$any(nodeGroup).get('name').value}} flex flex-row justify-start items-stretch">
+            @if ($any(nodeGroup).get('isComplement')?.value) {
             <div class="deep-w-[50px] bg-gray-300 text-[10px] text-center flex flex-col justify-center items-center">
               <div>IS NOT</div>
             </div>
             }
             <div class="w-full">
-              @for (entityForm of nodeGroup.get('entityGroup')?.controls; track entityForm) {
+              @for (entityForm of $any(nodeGroup).get('entityGroup')?.controls; track entityForm) {
               <ng-container [formGroupName]="i">
                 <noc-entity-form [entityFormGroup]="entityForm" class="">
                 </noc-entity-form>

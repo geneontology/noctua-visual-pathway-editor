@@ -111,7 +111,7 @@
           </div>
         </div>
         <noc-evidence-form-table class="w-full" [settings]="settings" [options]="evidenceOptions" [cam]="cam"
-          [activity]="connectorActivity" [entity]="connectorActivity.subjectNode">
+          [activity]="$any(connectorActivity)" [entity]="connectorActivity.subjectNode">
         </noc-evidence-form-table>
         <!--
         <noc-activity-form-table-node [settings]="settings" [options]="evidenceOptions" [cam]="cam"

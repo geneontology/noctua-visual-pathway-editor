@@ -80,6 +80,10 @@ export class EntityFormComponent implements OnInit, OnDestroy {
 
   private unsubscribeAll: Subject<any>;
 
+  get evidenceFormArrayControls(): FormArray {
+    return this.entityFormGroup.get('evidenceFormArray') as FormArray;
+  }
+
   constructor() {
     this.unsubscribeAll = new Subject();
   }

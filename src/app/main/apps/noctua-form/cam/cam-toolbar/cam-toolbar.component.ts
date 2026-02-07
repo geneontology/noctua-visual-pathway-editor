@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -28,6 +29,7 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
     imports: [
         CommonModule,
         MatButtonModule,
+        MatChipsModule,
         MatMenuModule,
         MatTooltipModule,
         FontAwesomeModule

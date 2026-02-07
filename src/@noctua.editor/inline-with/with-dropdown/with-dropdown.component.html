@@ -1,7 +1,7 @@
 <form [formGroup]="myForm" novalidate class="pl-2 pr-2 w-full flex flex-col justify-start items-stretch">
   <div formArrayName="databaseGroups" class="noc-form-section w-full overflow-y-auto flex flex-col justify-start items-stretch">
 
-    @for (group of myForm.get('databaseGroups')?.controls; track group; let i = $index) {
+    @for (group of databaseGroupsArray.controls; track group; let i = $index) {
     <div class="noc-with-group mb-4 px-3">
       <div [formGroupName]="i">
         <div class="mb-2 flex flex-row justify-start items-center">
@@ -11,7 +11,7 @@
           </button>
         </div>
         <div formArrayName="entities">
-          @for (entity of group.get('entities').controls; track entity; let j = $index) {
+          @for (entity of getEntitiesArray(i).controls; track entity; let j = $index) {
           <div class="mb-2 flex flex-row justify-start items-center">
             <div [formGroupName]="j" class="flex flex-row justify-start items-center grow">
               <mat-form-field appearance="outline" class="w-[120px] noc-sm mr-3">
@@ -27,17 +27,17 @@
                 <input matInput formControlName="accession" type="text" placeholder="Accession" autocomplete="off">
               </mat-form-field>
             </div>
-            <button mat-icon-button (click)="addNewEntity(group.get('entities'), null, null)" matTooltip="Add Entity">
+            <button mat-icon-button (click)="addNewEntity(getEntitiesArray(i), null, null)" matTooltip="Add Entity">
               <fa-icon [icon]="['fas', 'plus']"></fa-icon>
             </button>
-            <button mat-icon-button (click)="deleteEntity(group.get('entities'), j)" matTooltip="Delete Entity">
+            <button mat-icon-button (click)="deleteEntity(getEntitiesArray(i), j)" matTooltip="Delete Entity">
               <fa-icon [icon]="['far', 'trash-alt']"></fa-icon>
             </button>
           </div>
           }
-          @if (group.get('entities').controls.length === 0) {
+          @if (getEntitiesArray(i).controls.length === 0) {
           <div class="p-4">
-            <a (click)="addNewEntity(group.get('entities'), null, null)">
+            <a (click)="addNewEntity(getEntitiesArray(i), null, null)">
               Add With/From
             </a>
           </div>

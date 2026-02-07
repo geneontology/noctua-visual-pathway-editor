@@ -73,6 +73,7 @@ export class ActivityTreeTableComponent implements OnInit, OnDestroy {
   options: any = {};
 
   gpNode: ActivityNode;
+  activeAnnotation: string = null;
   treeControl = new FlatTreeControl<ActivityNode>(
     node => node.treeLevel, node => node.expandable);
 

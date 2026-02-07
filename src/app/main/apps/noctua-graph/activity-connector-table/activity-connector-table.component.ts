@@ -4,6 +4,7 @@ import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -43,6 +44,7 @@ import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
+    MatRadioModule,
     MatSidenavModule,
     MatSelectModule,
     MatFormFieldModule,

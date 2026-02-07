@@ -67,6 +67,7 @@ export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
 
   /** A selected parent node to be inserted */
   selectedParent: EvidenceItemFlatNode | null = null;
+  activeAnnotation: string = null;
   treeControl: FlatTreeControl<EvidenceItemFlatNode>;
   treeFlattener: MatTreeFlattener<EvidenceItemNode, EvidenceItemFlatNode>;
   dataSource: MatTreeFlatDataSource<EvidenceItemNode, EvidenceItemFlatNode>;

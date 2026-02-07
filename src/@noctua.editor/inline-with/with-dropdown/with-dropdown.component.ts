@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { Subject } from 'rxjs';
@@ -35,6 +36,7 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
         MatInputModule,
         MatSelectModule,
         MatButtonModule,
+        MatTooltipModule,
         FontAwesomeModule
     ]
 })
@@ -55,6 +57,18 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
   myForm: FormGroup;
   allowedDBs: string[] = withFromAllowedDBs;
   dbOptions: string[] = ['None', ...withFromAllowedDBs.slice().sort()];
+
+  get databaseGroupsArray(): FormArray {
+    return this.myForm.get('databaseGroups') as FormArray;
+  }
+
+  getGroupAt(index: number): FormGroup {
+    return this.databaseGroupsArray.at(index) as FormGroup;
+  }
+
+  getEntitiesArray(index: number): FormArray {
+    return this.getGroupAt(index).get('entities') as FormArray;
+  }
 
   private _unsubscribeAll: Subject<any>;
 

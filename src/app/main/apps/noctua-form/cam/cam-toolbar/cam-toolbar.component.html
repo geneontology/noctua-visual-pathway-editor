@@ -67,7 +67,7 @@
   </div>
   }
   <div class="grow flex flex-row justify-start items-center">
-    <mat-chip-list>
+    <mat-chip-set>
       @for (contributor of cam.contributors; track contributor) {
       <mat-chip class="noc-table-chip noc-user-chip flex flex-row justify-start items-center"
         (click)="openCamForm()">
@@ -79,7 +79,7 @@
         </div>
       </mat-chip>
       }
-    </mat-chip-list>
+    </mat-chip-set>
   </div>
   <div class="w-[180px] flex flex-row justify-end items-center">
     <button mat-stroked-button [matMenuTriggerFor]="viewMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"

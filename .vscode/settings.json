@@ -5,5 +5,12 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "bbop",
+    "postrun",
+    "reqs",
+    "shex",
+    "withs"
+  ]
 }

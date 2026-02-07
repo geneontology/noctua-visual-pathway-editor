@@ -71,6 +71,10 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
+  get evidenceFormArrayControls(): FormArray {
+    return this.connectorFormGroup.get('evidenceFormArray') as FormArray;
+  }
+
   constructor() {
     this._unsubscribeAll = new Subject();
   }
