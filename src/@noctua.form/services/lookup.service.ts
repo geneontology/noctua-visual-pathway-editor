@@ -66,6 +66,7 @@ export class NoctuaLookupService {
   }
 
   termLookup(searchText, requestParams) {
+    const self = this;
     requestParams.q = NoctuaUtils.formatSolrQueryString(searchText);
     const params = new HttpParams({
       fromObject: requestParams
@@ -73,12 +74,14 @@ export class NoctuaLookupService {
     const url = this.golrURLBase + params.toString();
 
     return this.httpClient.jsonp(url, 'json.wrf').pipe(
-      map(response => this._lookupMap(response))
+      map(response => self._lookupMap(response))
     );
   }
 
   termPreLookup(type: ActivityNodeType): Entity[] {
-    const filtered = filter(this.termList, (activityNode: ActivityNode) => {
+    const self = this;
+
+    const filtered = filter(self.termList, (activityNode: ActivityNode) => {
       return activityNode.type === type;
     });
 
@@ -95,31 +98,37 @@ export class NoctuaLookupService {
   }
 
   referencePreLookup(): string[] {
-    const filtered = uniqWith(this.evidenceList, compareEvidenceReference);
+    const self = this;
+
+    const filtered = uniqWith(self.evidenceList, compareEvidenceReference);
     return filtered.map((evidence: Evidence) => {
       return evidence.reference;
     });
   }
 
   withPreLookup(): string[] {
-    const filtered = uniqWith(this.evidenceList, compareEvidenceWith);
+    const self = this;
+
+    const filtered = uniqWith(self.evidenceList, compareEvidenceWith);
     return filtered.map((evidence: Evidence) => {
       return evidence.with;
     });
   }
 
   evidenceLookup(searchText: string, category: 'reference' | 'with'): string[] {
+    const self = this;
+
     const filterValue = searchText.toLowerCase();
     let filteredResults: string[] = [];
 
     switch (category) {
       case 'reference':
-        filteredResults = this.referencePreLookup().filter(
+        filteredResults = self.referencePreLookup().filter(
           option => option ? option.toLowerCase().includes(filterValue) : false
         );
         break;
       case 'with':
-        filteredResults = this.withPreLookup().filter(
+        filteredResults = self.withPreLookup().filter(
           option => option ? option.toLowerCase().includes(filterValue) : false
         );
         break;
@@ -130,6 +139,7 @@ export class NoctuaLookupService {
 
 
   companionLookup(gp, aspect, extraParams) {
+    const self = this;
     const golrUrl = environment.globalGolrServer + `select?`;
 
     const fqFilters = [
@@ -213,7 +223,7 @@ export class NoctuaLookupService {
             evidence.with = doc.evidence_with.join(' | ');
           }
 
-          evidence.groups = this.noctuaUserService.getGroupsFromNames([doc.assigned_by]);
+          evidence.groups = self.noctuaUserService.getGroupsFromNames([doc.assigned_by]);
 
           activityNode = find(result, (srcActivityNode: ActivityNode) => {
             return srcActivityNode.getTerm().id === doc.annotation_class;
@@ -320,6 +330,8 @@ export class NoctuaLookupService {
   }
 
   getTermDetail(a: string) {
+    const self = this;
+
     const requestParams = {
       q: NoctuaUtils.formatSolrQueryString(a),
       defType: 'edismax',
@@ -358,7 +370,7 @@ export class NoctuaLookupService {
     const url = this.golrURLBase + params.toString();
 
     return this.httpClient.jsonp(url, 'json.wrf').pipe(
-      map(response => this._lookupMap(response)),
+      map(response => self._lookupMap(response)),
       map(response => {
         if (response.length > 0) {
           return response[0]
@@ -371,6 +383,8 @@ export class NoctuaLookupService {
 
 
   getTermURL(id: string) {
+    const self = this;
+
     if (id.startsWith('ECO')) {
       return 'http://www.evidenceontology.org/term/' + id;
     } else if (id.startsWith('PMID')) {
@@ -382,11 +396,12 @@ export class NoctuaLookupService {
       }
 
     } else {
-      return this.linker.url(id);
+      return self.linker.url(id);
     }
   }
 
   addPubmedInfos(pmids: string[]) {
+    const self = this;
     const presentPmids = Object.keys(this.articleCache)
     const ids = difference(pmids, presentPmids);
 
@@ -402,13 +417,13 @@ export class NoctuaLookupService {
             });
           })).subscribe((articles: Article[]) => {
             articles.forEach(article => {
-              this.articleCache['PMID:' + article.id] = article;
+              self.articleCache['PMID:' + article.id] = article;
             })
 
-            this.onArticleCacheReady.next(true)
+            self.onArticleCacheReady.next(true)
           });
     } else {
-      this.onArticleCacheReady.next(true)
+      self.onArticleCacheReady.next(true)
     }
   }
 
@@ -425,6 +440,7 @@ export class NoctuaLookupService {
   }
 
   private _addArticles(res) {
+    const self = this;
     if (!res) {
       return;
     }
@@ -432,7 +448,7 @@ export class NoctuaLookupService {
     const article = new Article();
     article.id = res.uid
     article.title = res.title;
-    article.link = this.linker.url(`${noctuaFormConfig.evidenceDB.options.pmid.name}:${res.uid}`);
+    article.link = self.linker.url(`${noctuaFormConfig.evidenceDB.options.pmid.name}:${res.uid}`);
     article.date = res.pubdate;
     if (res.authors && Array.isArray(res.authors)) {
       article.author = res.authors.map(author => {
@@ -444,6 +460,7 @@ export class NoctuaLookupService {
   }
 
   private _lookupMap(response) {
+    const self = this;
     const data = response.response.docs;
     const result = data.map((item) => {
       let xref;
@@ -455,11 +472,11 @@ export class NoctuaLookupService {
       return {
         id: item.annotation_class,
         label: item.annotation_class_label,
-        link: this.getTermURL(item.annotation_class),
+        link: self.getTermURL(item.annotation_class),
         description: item.description,
         isObsolete: item.is_obsolete,
         replacedBy: item.replaced_by,
-        rootTypes: this._makeEntitiesArray(item.isa_closure, item.isa_closure_label),
+        rootTypes: self._makeEntitiesArray(item.isa_closure, item.isa_closure_label),
         xref: xref,
         neighborhoodGraphJson: item.neighborhood_graph_json,
         notAnnotatable: !item.subset?.includes('gocheck_do_not_annotate')

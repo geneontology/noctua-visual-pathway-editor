@@ -18,7 +18,10 @@
       "Bash(git checkout:*)",
       "Bash(findstr:*)",
       "Read(//c/**)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(cd:*)",
+      "Bash(Select-String:*)",
+      "Bash(Select-Object -First 30)"
     ]
   }
 }
