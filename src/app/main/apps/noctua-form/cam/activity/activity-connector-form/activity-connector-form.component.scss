@@ -1,8 +1,9 @@
 @use "@angular/material" as mat;
+@use 'sass:map';
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
 
-$primary: map-get($theme, primary);
+$primary: map.get($theme, primary);
 
 :host {
   width: 100%;
@@ -27,7 +28,7 @@ $primary: map-get($theme, primary);
   .noc-form-section {
     .noc-group-row {
       padding: 10px 0;
-      border-bottom: rgba(map-get($primary, default), 0.6) solid 1px;
+      border-bottom: rgba(map.get($primary, default), 0.6) solid 1px;
       color: #000;
       font-size: 12px;
     }
@@ -36,7 +37,7 @@ $primary: map-get($theme, primary);
       width: 100%;
       padding: 5px;
       &:not(:last-child) {
-        border-bottom: rgba(map-get($primary, default), 0.6) solid 1px;
+        border-bottom: rgba(map.get($primary, default), 0.6) solid 1px;
       }
     }
 
@@ -90,7 +91,7 @@ $primary: map-get($theme, primary);
             padding-left: 0;
             font-size: 12px;
             text-transform: uppercase;
-            color: map-get($primary, default);
+            color: map.get($primary, default);
           }
         }
       }
@@ -114,7 +115,7 @@ $primary: map-get($theme, primary);
           padding-left: 0;
           font-size: 12px;
           text-transform: uppercase;
-          color: map-get($primary, default);
+          color: map.get($primary, default);
         }
       }
     }
@@ -148,7 +149,7 @@ $primary: map-get($theme, primary);
       padding: 4px;
       height: 30px;
       width: 100%;
-      border-bottom: rgba(map-get($primary, default), 0.6) solid 1px;
+      border-bottom: rgba(map.get($primary, default), 0.6) solid 1px;
       font-size: 14px;
       color: #777;
     }

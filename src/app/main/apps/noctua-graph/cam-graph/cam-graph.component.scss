@@ -1,8 +1,9 @@
 @use "@angular/material" as mat;
+@use 'sass:map';
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
 
-$primary: map-get($theme, primary);
+$primary: map.get($theme, primary);
 
 :host {
   display: block;
@@ -38,13 +39,13 @@ $primary: map-get($theme, primary);
     .noc-button-row {
       button {
         padding: 0;
-        color: map-get($primary, 400);
+        color: map.get($primary, 400);
         font-size: 14px;
         @include deep-width(40px);
 
         &:hover {
           font-size: 16px;
-          color: map-get($primary, default);
+          color: map.get($primary, default);
         }
 
         .mat-icon {

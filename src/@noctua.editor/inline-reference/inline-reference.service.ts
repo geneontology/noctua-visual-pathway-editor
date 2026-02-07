@@ -109,16 +109,7 @@ export class InlineReferenceService {
                 originX: 'end',
                 originY: 'bottom'
             }]);
-        //.withOffsetY(1)
-        //.withDirection('ltr')
-        //.withFallbackPosition(origin.bottomRight, overlay.topRight)
-        //.withFallbackPosition(origin.topLeft, overlay.bottomLeft)
-        //.withFallbackPosition(origin.topRight, overlay.bottomRight)
-        // .withFallbackPosition(origin.topCenter, overlay.bottomCenter)
-        // .withFallbackPosition(origin.bottomCenter, overlay.topCenter)
     }
 
-    getLink() {
 
-    }
 }

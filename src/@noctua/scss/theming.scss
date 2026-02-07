@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use 'sass:map';
 
 // Custom color maps
 $mat-white: (500: white,
@@ -77,12 +78,20 @@ $primary: mat.m2-define-palette($mat-noctuadark);
 $accent: mat.m2-define-palette(mat.$m2-light-blue-palette, 600, 400, 700);
 $warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-// Create the Material theme object
-$theme: mat.m2-define-light-theme($primary, $accent, $warn);
+// Force the input field font sizes to 16px
+$typography: mat.m2-define-typography-config($body-1: mat.m2-define-typography-level(16px, 1.125, 400));
+
+// Create the Material theme object with proper structure
+$theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn
+  ),
+  typography: $typography,
+  density: 0
+));
 
 // Store the background and foreground colors for easier access
-$background: map-get($theme, background);
-$foreground: map-get($theme, foreground);
-
-// Force the input field font sizes to 16px
-$typography: mat.m2-define-typography-config($body-1: mat.m2-define-typography-level(16px, 1.125, 400))
+$background: map.get($theme, background);
+$foreground: map.get($theme, foreground)

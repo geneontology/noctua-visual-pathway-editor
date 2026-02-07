@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,20 +17,20 @@ import { DetailDropdownOverlayRef } from './detail-dropdown-ref';
 import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 
 @Component({
-    selector: 'noc-detail-dropdown',
-    templateUrl: './detail-dropdown.component.html',
-    styleUrls: ['./detail-dropdown.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatListModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-detail-dropdown',
+  templateUrl: './detail-dropdown.component.html',
+  styleUrls: ['./detail-dropdown.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatListModule,
+    FontAwesomeModule
+  ]
 })
 
-export class NoctuaDetailDropdownComponent implements OnInit, OnDestroy {
+export class NoctuaDetailDropdownComponent implements OnDestroy {
   dialogRef = inject(DetailDropdownOverlayRef);
   data = inject(detailDropdownData);
   private noctuaFormDialogService = inject(NoctuaFormDialogService);
@@ -51,22 +51,14 @@ export class NoctuaDetailDropdownComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit(): void {
-  }
-
-  clearValues() {
-
-  }
-
   save() {
-    const self = this;
     const db = this.evidenceDBForm.value.db;
     const accession = this.evidenceDBForm.value.accession;
     const errors = [];
     let canSave = true;
 
     if (accession.trim() === '') {
-      self.noctuaFormDialogService.openActivityErrorsDialog(errors);
+      this.noctuaFormDialogService.openActivityErrorsDialog(errors);
       canSave = false;
     }
 

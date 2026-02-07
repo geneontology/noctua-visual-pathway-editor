@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import * as joint from 'jointjs';
+import { NodeLink } from '@noctua.graph/services/shapes.service';
 
 @Component({
     selector: 'noc-relation-preview',

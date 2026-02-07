@@ -1,6 +1,7 @@
+@use 'sass:map';
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
-$primary: map-get($theme, primary);
+$primary: map.get($theme, primary);
 
 :host {
   @include media-breakpoint("xs") {
@@ -32,7 +33,7 @@ $primary: map-get($theme, primary);
       padding: 0 10px;
       font-weight: bold;
       border-bottom: $noc-primary-color-light solid 1px;
-      color: map-get($primary, default);
+      color: map.get($primary, default);
       text-transform: uppercase;
     }
 
@@ -43,10 +44,10 @@ $primary: map-get($theme, primary);
 
   // Left panel - theme-based border colors
   .noc-left-panel {
-    border-right: rgba(map-get($primary, default), 0.6) solid 1px;
+    border-right: rgba(map.get($primary, default), 0.6) solid 1px;
 
     .noc-term-box {
-      border-bottom: rgba(map-get($primary, default), 0.2) solid 1px;
+      border-bottom: rgba(map.get($primary, default), 0.2) solid 1px;
 
       .noc-check-icon {
         display: none;

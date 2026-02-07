@@ -1,8 +1,9 @@
+@use 'sass:map';
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
 @import "@noctua.common/scss/noctua-form.common";
 
-$primary: map-get($theme, primary);
+$primary: map.get($theme, primary);
 
 :host {
   width: 100%;
@@ -48,10 +49,10 @@ $primary: map-get($theme, primary);
     }
 
     &:hover {
-      border: map-get($primary, default) solid 1px;
+      border: map.get($primary, default) solid 1px;
 
       .noc-cell-floating-title {
-        color: map-get($primary, default);
+        color: map.get($primary, default);
       }
 
       .noc-edit-button,

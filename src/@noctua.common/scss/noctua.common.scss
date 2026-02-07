@@ -1,6 +1,8 @@
 @use "@angular/material" as mat;
-$primary: map-get($theme, primary);
-$accent: map-get($theme, accent);
+@use 'sass:map';
+
+$primary: map.get($theme, primary);
+$accent: map.get($theme, accent);
 
 .noc-disabled {
   pointer-events: none;
@@ -92,7 +94,7 @@ $accent: map-get($theme, accent);
 
   .noc-dialog-header {
     padding: 0 12px;
-    background-color: rgba(map-get($primary, default), 0.7);
+    background-color: rgba(map.get($primary, default), 0.7);
     color: #eee;
     @include deep-height(40px);
     @include mat.elevation(2);

@@ -1,9 +1,10 @@
 @use "@angular/material" as mat;
+@use 'sass:map';
 @import "@noctua/scss/noctua";
 @import "@noctua.common/scss/noctua.common";
 @import "@noctua.common/scss/noctua-form.common";
 
-$primary: map-get($theme, primary);
+$primary: map.get($theme, primary);
 
 :host {
   width: 100%;
@@ -13,7 +14,7 @@ $primary: map-get($theme, primary);
       padding: 0 10px;
       font-size: 10px !important;
       font-weight: bold;
-      color: map-get($primary, default);
+      color: map.get($primary, default);
       text-transform: uppercase;
     }
 
@@ -66,10 +67,10 @@ $primary: map-get($theme, primary);
       overflow-wrap: break-word;
 
       &:hover {
-        border: map-get($primary, default) solid 1px;
+        border: map.get($primary, default) solid 1px;
 
         .noc-cell-floating-title {
-          color: map-get($primary, default);
+          color: map.get($primary, default);
         }
 
         .noc-edit-button,

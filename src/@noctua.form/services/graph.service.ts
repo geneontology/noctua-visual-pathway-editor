@@ -204,10 +204,6 @@ export class NoctuaGraphService {
     cam.modified = response.data()['modified-p'];
     cam.isReasoned = response['is-reasoned'];
 
-    if (cam.isReasoned) {
-
-    }
-
     const titleAnnotations = cam.graph.get_annotations_by_key('title');
     const commentAnnotations = cam.graph.get_annotations_by_key('comment');
     const stateAnnotations = cam.graph.get_annotations_by_key('state');

@@ -37,21 +37,21 @@ import { InlineReferenceService } from './../../inline-reference/inline-referenc
 import { InlineWithService } from './../../inline-with/inline-with.service';
 
 @Component({
-    selector: 'noc-editor-dropdown',
-    templateUrl: './editor-dropdown.component.html',
-    styleUrls: ['./editor-dropdown.component.scss'],
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatAutocompleteModule,
-        MatButtonModule,
-        MatMenuModule,
-        FontAwesomeModule
-    ]
+  selector: 'noc-editor-dropdown',
+  templateUrl: './editor-dropdown.component.html',
+  styleUrls: ['./editor-dropdown.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatMenuModule,
+    FontAwesomeModule
+  ]
 })
 
 export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
@@ -180,11 +180,6 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
               this.cam.reviewCamChanges()
             })
           }))
-          .subscribe(() => {
-            this.zone.run(() => {
-            })
-
-          });
         break;
       case EditorCategory.evidenceAll:
         this.noctuaActivityEntityService.addEvidence().then(() => {

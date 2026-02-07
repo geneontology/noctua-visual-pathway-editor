@@ -49,19 +49,11 @@ export enum ActivityType {
 export class ActivitySize {
   width = 150;
   height = 150;
-
-  constructor() {
-
-  }
 }
 
 export class ActivityPosition {
   x = 0;
   y = 0;
-
-  constructor() {
-
-  }
 }
 
 export class Activity extends SaeGraph<ActivityNode> {
