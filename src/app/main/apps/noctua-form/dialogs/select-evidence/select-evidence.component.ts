@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { SelectionModel } from '@angular/cdk/collections';
@@ -38,17 +38,17 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ],
 })
 export class SelectEvidenceDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<SelectEvidenceDialogComponent>>(MatDialogRef);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
   private _unsubscribeAll: Subject<any>;
   evidence: Evidence[] = [];
   displayedColumns: string[] = ['select', 'evidence', 'reference', 'with'];
   dataSource;
   selection = new SelectionModel<Evidence>(true, []);
 
-  constructor(
-    private _matDialogRef: MatDialogRef<SelectEvidenceDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
     this.evidence = this._data.evidence;

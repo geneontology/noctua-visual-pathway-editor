@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, FormBuilder, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,6 +40,13 @@ import { NoctuaFormDialogService } from 'app/main/apps/noctua-form';
 })
 
 export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  dialogRef = inject(WithDropdownOverlayRef);
+  data = inject(withDropdownData);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   evidenceDBForm: FormGroup;
   formControl: FormControl;
 
@@ -53,12 +60,9 @@ export class NoctuaWithDropdownComponent implements OnInit, OnDestroy {
 
 
 
-  constructor(private fb: FormBuilder, public dialogRef: WithDropdownOverlayRef,
-    @Inject(withDropdownData) public data: any,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this._unsubscribeAll = new Subject();
     this.formControl = data.formControl;
 

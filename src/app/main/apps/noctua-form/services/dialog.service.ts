@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,14 +16,12 @@ import { referenceAllowedDBs, withFromAllowedDBs } from '@geneontology/noctua-fo
     providedIn: 'root'
 })
 export class NoctuaFormDialogService {
+    private zone = inject(NgZone);
+    private snackBar = inject(MatSnackBar);
+    private _matDialog = inject(MatDialog);
+
 
     dialogRef: any;
-
-    constructor(
-        private zone: NgZone,
-        private snackBar: MatSnackBar,
-        private _matDialog: MatDialog) {
-    }
 
     openInfoToast(message: string, action: string) {
         this.zone.run(() => {

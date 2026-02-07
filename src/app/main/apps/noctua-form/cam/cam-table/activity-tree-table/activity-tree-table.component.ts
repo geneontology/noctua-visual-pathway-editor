@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
@@ -49,6 +49,13 @@ import { ActivityFormTableNodeComponent } from '../activity-form-table/activity-
     ]
 })
 export class ActivityTreeTableComponent implements OnInit, OnDestroy {
+  camService = inject(CamService);
+  noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   EditorCategory = EditorCategory;
   ActivityType = ActivityType;
   activityTypeOptions = noctuaFormConfig.activityType.options;
@@ -71,13 +78,7 @@ export class ActivityTreeTableComponent implements OnInit, OnDestroy {
 
   private unsubscribeAll: Subject<any>;
 
-  constructor(
-    public camService: CamService,
-    public noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaActivityEntityService: NoctuaActivityEntityService,
-    public noctuaActivityFormService: NoctuaActivityFormService) {
+  constructor() {
 
     this.dataSource = new MatTableDataSource<ActivityNode>();
     this.unsubscribeAll = new Subject();

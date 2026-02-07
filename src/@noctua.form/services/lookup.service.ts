@@ -1,5 +1,5 @@
 import { environment } from './../../environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
@@ -38,6 +38,10 @@ engine.use_jsonp(true)
   providedIn: 'root'
 })
 export class NoctuaLookupService {
+  private httpClient = inject(HttpClient);
+  private noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
   evidenceList: Evidence[] = [];
   termList: ActivityNode[] = [];
   name;
@@ -47,9 +51,7 @@ export class NoctuaLookupService {
   onArticleCacheReady: BehaviorSubject<any>;
   articleCache = {}
 
-  constructor(private httpClient: HttpClient,
-    private noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService) {
+  constructor() {
     this.onArticleCacheReady = new BehaviorSubject(null);
     this.name = 'DefaultLookupName';
     this.linker = new amigo.linker();

@@ -1,5 +1,5 @@
 import { environment } from './../../environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import * as ModelDefinition from './../data/config/model-definition';
@@ -45,6 +45,12 @@ const jquery_engine = bbop_rest_manager.jquery;
   providedIn: 'root'
 })
 export class NoctuaGraphService {
+  private curieService = inject(CurieService);
+  private httpClient = inject(HttpClient);
+  private noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   baristaLocation = environment.globalBaristaLocation;
   minervaDefinitionName = environment.globalMinervaDefinitionName;
   linker = new amigo.linker();
@@ -54,12 +60,7 @@ export class NoctuaGraphService {
   onCamGraphChanged: BehaviorSubject<Cam>;
   onActivityAdded: BehaviorSubject<Activity>;
 
-  constructor(
-    private curieService: CurieService,
-    private httpClient: HttpClient,
-    private noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaLookupService: NoctuaLookupService) {
+  constructor() {
 
     this.curieUtil = this.curieService.getCurieUtil();
     this.onCamRebuildChange = new BehaviorSubject(null);

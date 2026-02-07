@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -47,6 +47,12 @@ import { takeUntil } from 'rxjs/operators';
   ]
 })
 export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
+  noctuaActivityConnectorService = inject(NoctuaActivityConnectorService);
+  noctuaUserService = inject(NoctuaUserService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   ConnectorType = ConnectorType
 
   @Input()
@@ -67,13 +73,7 @@ export class ActivityConnectorFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    public noctuaActivityConnectorService: NoctuaActivityConnectorService,
-    public noctuaUserService: NoctuaUserService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

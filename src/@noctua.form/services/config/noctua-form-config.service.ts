@@ -1,5 +1,5 @@
 import { environment } from '../../../environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { noctuaFormConfig } from './../../noctua-form-config';
 import * as ModelDefinition from './../../data/config/model-definition';
 import * as ShapeDescription from './../../data/config/shape-definition';
@@ -20,6 +20,8 @@ import { Predicate } from './../../models/activity/predicate';
   providedIn: 'root'
 })
 export class NoctuaFormConfigService {
+  private noctuaUserService = inject(NoctuaUserService);
+
 
   globalUrl: any = {};
   loginUrl: string;
@@ -28,7 +30,7 @@ export class NoctuaFormConfigService {
   homeUrl: string;
   onSetupReady: BehaviorSubject<any>;
 
-  constructor(private noctuaUserService: NoctuaUserService) {
+  constructor() {
     this.onSetupReady = new BehaviorSubject(null);
   }
 

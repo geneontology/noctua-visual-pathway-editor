@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import 'jqueryui';
 import * as joint from 'jointjs';
 import { each } from 'lodash';
@@ -20,6 +20,17 @@ import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-se
   providedIn: 'root'
 })
 export class CamGraphService {
+  private _camService = inject(CamService);
+  private noctuaGraphEditorService = inject(NoctuaGraphEditorService);
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  private _noctuaFormDialogService = inject(NoctuaFormDialogService);
+  private _noctuaUserService = inject(NoctuaUserService);
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  private _activityFormService = inject(NoctuaActivityFormService);
+  private _activityConnectorService = inject(NoctuaActivityConnectorService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  private noctuaShapesService = inject(NoctuaShapesService);
+
   cam: Cam;
   stencils: {
     id: string,
@@ -34,38 +45,6 @@ export class CamGraphService {
 
   camCanvas: CamCanvas;
   camStencil: CamStencil;
-
-  constructor(
-    private _camService: CamService,
-    private noctuaGraphEditorService: NoctuaGraphEditorService,
-    private _noctuaGraphService: NoctuaGraphService,
-    private _noctuaFormDialogService: NoctuaFormDialogService,
-    private _noctuaUserService: NoctuaUserService,
-    private confirmDialogService: NoctuaConfirmDialogService,
-    private _activityFormService: NoctuaActivityFormService,
-    private _activityConnectorService: NoctuaActivityConnectorService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService,
-    private noctuaShapesService: NoctuaShapesService) {
-
-
-    /*    this._camService.onCamChanged
-         .subscribe((cam: Cam) => {
-           if (!cam || !self.selectedElement) {
-             return;
-           }
-   
-           const type = self.selectedElement.get('type');
-   
-           if (type === NodeCellType.link) {
-             (self.selectedElement as NodeLink).setText(cam.title);
-           } else {
-             self.selectedElement.attr('noctuaTitle/text', cam.title);
-             // (self.selectedElement as NodeCell).addColor(cam.backgroundColor);
-           }
-           self.selectedElement.set({ cam: cam });
-           self.selectedElement.set({ id: cam.id });
-         }); */
-  }
 
   initializeGraph() {
     const self = this;

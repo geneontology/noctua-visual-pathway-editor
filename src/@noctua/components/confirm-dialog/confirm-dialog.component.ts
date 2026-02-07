@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,9 @@ export interface ConfirmDialogData {
     ]
 })
 export class NoctuaConfirmDialogComponent {
+    dialogRef = inject<MatDialogRef<NoctuaConfirmDialogComponent>>(MatDialogRef);
+    private _data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+
     public title: string;
     public message: string;
     public readonlyDialog = false;
@@ -32,8 +35,9 @@ export class NoctuaConfirmDialogComponent {
     public highlightCancel = false
     public highlightConfirm = true
 
-    constructor(public dialogRef: MatDialogRef<NoctuaConfirmDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: ConfirmDialogData) {
+    constructor() {
+        const _data = this._data;
+
 
         if (_data) {
             this.cancelLabel = _data.cancelLabel ? _data.cancelLabel : 'Cancel';

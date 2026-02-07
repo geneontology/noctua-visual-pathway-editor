@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
@@ -34,6 +34,11 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
     ]
 })
 export class CamToolbarComponent implements OnInit, OnDestroy {
+  private camService = inject(CamService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+
 
   ActivityType = ActivityType
   LeftPanel = LeftPanel;
@@ -46,13 +51,7 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    private camService: CamService,
-
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

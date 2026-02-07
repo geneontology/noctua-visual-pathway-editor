@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -55,6 +55,17 @@ import { InlineWithService } from './../../inline-with/inline-with.service';
 })
 
 export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
+  private zone = inject(NgZone);
+  dialogRef = inject(EditorDropdownOverlayRef);
+  data = inject(editorDropdownData);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  private camService = inject(CamService);
+  private noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+  private inlineReferenceService = inject(InlineReferenceService);
+  private inlineWithService = inject(InlineWithService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   EditorCategory = EditorCategory;
   activity: Activity;
   cam: Cam;
@@ -77,18 +88,9 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
     with: false,
   };
 
-  constructor(
-    private zone: NgZone,
-    public dialogRef: EditorDropdownOverlayRef,
-    @Inject(editorDropdownData) public data: any,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    private camService: CamService,
-    private noctuaActivityEntityService: NoctuaActivityEntityService,
-    private inlineReferenceService: InlineReferenceService,
-    private inlineWithService: InlineWithService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this._unsubscribeAll = new Subject();
 
     this.cam = data.cam;

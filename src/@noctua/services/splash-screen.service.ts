@@ -1,18 +1,18 @@
-import { Inject, Injectable, DOCUMENT } from '@angular/core';
+import { Injectable, DOCUMENT, inject } from '@angular/core';
 
 import { animate, AnimationBuilder, AnimationPlayer, style } from '@angular/animations';
 import { NavigationEnd, Router } from '@angular/router';
 
 @Injectable()
 export class NoctuaSplashScreenService {
+    private animationBuilder = inject(AnimationBuilder);
+    private document = inject(DOCUMENT);
+    private router = inject(Router);
+
     splashScreenEl;
     public player: AnimationPlayer;
 
-    constructor(
-        private animationBuilder: AnimationBuilder,
-        @Inject(DOCUMENT) private document: any,
-        private router: Router
-    ) {
+    constructor() {
         this.splashScreenEl = this.document.body.querySelector('#noctua-splash-screen');
 
         if (this.splashScreenEl) {

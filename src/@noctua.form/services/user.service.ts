@@ -1,5 +1,5 @@
 import { environment } from '../../environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Contributor } from '../models/contributor';
@@ -11,6 +11,8 @@ import { find } from 'lodash';
   providedIn: 'root'
 })
 export class NoctuaUserService {
+  private httpClient = inject(HttpClient);
+
   private _baristaToken: string;
   baristaUrl = environment.globalBaristaLocation;
   onUserChanged: BehaviorSubject<any>;
@@ -18,9 +20,7 @@ export class NoctuaUserService {
   contributors: Contributor[] = [];
   groups: Group[] = [];
 
-  constructor(
-    private httpClient: HttpClient
-  ) {
+  constructor() {
     this.onUserChanged = new BehaviorSubject(undefined);
   }
 

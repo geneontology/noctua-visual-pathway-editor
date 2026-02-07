@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,6 +39,13 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
 })
 
 export class NoctuaToolbarComponent implements OnInit, OnDestroy {
+    private router = inject(Router);
+    private camService = inject(CamService);
+    private noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+    noctuaUserService = inject(NoctuaUserService);
+    noctuaConfigService = inject(NoctuaFormConfigService);
+    noctuaActivityFormService = inject(NoctuaActivityFormService);
+
     ActivityType = ActivityType;
     public cam: Cam;
     userStatusOptions: any[];
@@ -59,14 +66,7 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
 
     private _unsubscribeAll: Subject<any>;
 
-    constructor(
-        private router: Router,
-        private camService: CamService,
-        private noctuaCommonMenuService: NoctuaCommonMenuService,
-        public noctuaUserService: NoctuaUserService,
-        public noctuaConfigService: NoctuaFormConfigService,
-        public noctuaActivityFormService: NoctuaActivityFormService,
-    ) {
+    constructor() {
         this._unsubscribeAll = new Subject();
 
         this.router.events.pipe(takeUntil(this._unsubscribeAll))

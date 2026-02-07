@@ -1,5 +1,5 @@
 import { environment } from 'environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { NoctuaGraphService, NoctuaUserService } from '@geneontology/noctua-form-base';
@@ -13,6 +13,9 @@ import { WorkbenchId } from '@noctua.common/models/workench-id';
   providedIn: 'root'
 })
 export class NoctuaCommonMenuService {
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  private noctuaUserService = inject(NoctuaUserService);
+
 
   onCamSettingsChanged: BehaviorSubject<SettingsOptions>;
   selectedLeftSidenav: LeftPanel;
@@ -25,9 +28,7 @@ export class NoctuaCommonMenuService {
   private _rightDrawer: MatDrawer;
   private _leftSidenav: MatSidenav;
 
-  constructor(
-    private _noctuaGraphService: NoctuaGraphService,
-    private noctuaUserService: NoctuaUserService) {
+  constructor() {
 
     const settings = new SettingsOptions()
     settings.graphSettings()

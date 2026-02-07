@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -51,6 +51,13 @@ import { NoctuaFormModule } from '../noctua-form/noctua-form.module';
     ]
 })
 export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private camService = inject(CamService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  noctuaUserService = inject(NoctuaUserService);
+
 
   @ViewChild('leftDrawer', { static: true })
   leftDrawer: MatDrawer;
@@ -116,14 +123,7 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    private route: ActivatedRoute,
-    private camService: CamService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaUserService: NoctuaUserService
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
 

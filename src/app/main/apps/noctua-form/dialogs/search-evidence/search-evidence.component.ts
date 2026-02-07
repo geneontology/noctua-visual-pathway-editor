@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, Injectable } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injectable, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntil } from 'rxjs/operators';
 
@@ -56,6 +56,11 @@ export class EvidenceItemFlatNode {
     ],
 })
 export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<SearchEvidenceDialogComponent>>(MatDialogRef);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   private _unsubscribeAll: Subject<any>;
   activityNodes: ActivityNode[] = [];
   searchCriteria: any;
@@ -68,12 +73,7 @@ export class SearchEvidenceDialogComponent implements OnInit, OnDestroy {
   dataSource: MatTreeFlatDataSource<EvidenceItemNode, EvidenceItemFlatNode>;
   checklistSelection = new SelectionModel<EvidenceItemFlatNode>(true /* multiple */);
 
-  constructor(
-    private _matDialogRef: MatDialogRef<SearchEvidenceDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaLookupService: NoctuaLookupService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
     this.searchCriteria = this._data.searchCriteria;

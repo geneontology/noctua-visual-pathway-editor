@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, forkJoin } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
@@ -19,6 +19,12 @@ import { Triple } from '../models//activity/triple';
   providedIn: 'root'
 })
 export class NoctuaActivityFormService {
+  private _fb = inject(FormBuilder);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private camService = inject(CamService);
+  private noctuaGraphService = inject(NoctuaGraphService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   public state: ActivityState;
   public mfLocation;
   public errors = [];
@@ -31,10 +37,7 @@ export class NoctuaActivityFormService {
   public activityFormGroup$: Observable<FormGroup>;
   public cam: Cam;
 
-  constructor(private _fb: FormBuilder, public noctuaFormConfigService: NoctuaFormConfigService,
-    private camService: CamService,
-    private noctuaGraphService: NoctuaGraphService,
-    private noctuaLookupService: NoctuaLookupService) {
+  constructor() {
 
     this.camService.onCamChanged.subscribe((cam) => {
       if (!cam) {

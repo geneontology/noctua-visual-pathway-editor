@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -24,15 +24,16 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ],
 })
 export class CamErrorsDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<CamErrorsDialogComponent>>(MatDialogRef);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
   ErrorType = ErrorType;
   ErrorLevel = ErrorLevel;
   private _unsubscribeAll: Subject<any>;
   errors
 
-  constructor(
-    private _matDialogRef: MatDialogRef<CamErrorsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
     this.errors = this._data.errors

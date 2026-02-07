@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -40,6 +40,11 @@ import {
 })
 
 export class CamFormComponent implements OnInit, OnDestroy {
+  noctuaUserService = inject(NoctuaUserService);
+  private camService = inject(CamService);
+  private noctuaGraphService = inject(NoctuaGraphService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
 
   @Input()
   panelDrawer: MatDrawer;
@@ -50,11 +55,7 @@ export class CamFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(public noctuaUserService: NoctuaUserService,
-    private camService: CamService,
-    private noctuaGraphService: NoctuaGraphService,
-    public noctuaFormConfigService: NoctuaFormConfigService
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

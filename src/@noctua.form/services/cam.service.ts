@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { CurieService } from './../../@noctua.curie/services/curie.service';
@@ -25,6 +25,16 @@ import { DataUtils } from '@noctua.form/data/config/data-utils';
   providedIn: 'root'
 })
 export class CamService {
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  private zone = inject(NgZone);
+  private httpClient = inject(HttpClient);
+  private noctuaUserService = inject(NoctuaUserService);
+  private _fb = inject(FormBuilder);
+  private noctuaLookupService = inject(NoctuaLookupService);
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  private curieService = inject(CurieService);
+
   searchApi = environment.searchApi;
   curieUtil: any;
   cams: Cam[] = [];
@@ -44,16 +54,7 @@ export class CamService {
 
   currentMatch: Entity = new Entity(null, null);
 
-  constructor(
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private confirmDialogService: NoctuaConfirmDialogService,
-    private zone: NgZone,
-    private httpClient: HttpClient,
-    private noctuaUserService: NoctuaUserService,
-    private _fb: FormBuilder,
-    private noctuaLookupService: NoctuaLookupService,
-    private _noctuaGraphService: NoctuaGraphService,
-    private curieService: CurieService) {
+  constructor() {
 
     this.onCamChanged = new BehaviorSubject(null);
     this.camFormGroup = new BehaviorSubject(null);

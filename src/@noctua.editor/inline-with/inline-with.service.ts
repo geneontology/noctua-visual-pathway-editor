@@ -1,4 +1,4 @@
-import { Injectable, Inject, Injector, ElementRef, ComponentRef, ViewChild } from '@angular/core';
+import { Injectable, Injector, ElementRef, ComponentRef, ViewChild, inject } from '@angular/core';
 import {
     Overlay,
     OverlayRef,
@@ -34,10 +34,9 @@ const DEFAULT_CONFIG: WithDropdownDialogConfig = {
     providedIn: 'root'
 })
 export class InlineWithService {
+    private injector = inject(Injector);
+    private overlay = inject(Overlay);
 
-    constructor(
-        private injector: Injector,
-        private overlay: Overlay) { }
 
 
     open(elementToConnectTo: ElementRef, config: WithDropdownDialogConfig = {}) {

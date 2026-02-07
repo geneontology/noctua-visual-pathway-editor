@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -48,6 +48,13 @@ import { DataUtils } from '@noctua.form/data/config/data-utils';
     ]
 })
 export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  noctuaActivityConnectorService = inject(NoctuaActivityConnectorService);
+  noctuaUserService = inject(NoctuaUserService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   ConnectorType = ConnectorType
 
   @Input()
@@ -74,14 +81,7 @@ export class ChemicalConnectorFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    private confirmDialogService: NoctuaConfirmDialogService,
-    public noctuaActivityConnectorService: NoctuaActivityConnectorService,
-    public noctuaUserService: NoctuaUserService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

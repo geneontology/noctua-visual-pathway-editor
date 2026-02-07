@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output, ElementRef, ViewChild, Input } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ElementRef, ViewChild, Input, inject } from '@angular/core';
 import { Overlay, OverlayConfig, OriginConnectionPosition, OverlayConnectionPosition } from '@angular/cdk/overlay';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -31,6 +31,12 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
     ]
 })
 export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
+    private inlineEditorService = inject(InlineEditorService);
+    private camService = inject(CamService);
+    private _noctuaUserService = inject(NoctuaUserService);
+    private confirmDialogService = inject(NoctuaConfirmDialogService);
+    private noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+
     collapsed: boolean;
     noctuaConfig: any;
 
@@ -44,11 +50,7 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
     private editorDropdownTrigger: ElementRef;
     private _unsubscribeAll: Subject<any>;
 
-    constructor(private inlineEditorService: InlineEditorService,
-        private camService: CamService,
-        private _noctuaUserService: NoctuaUserService,
-        private confirmDialogService: NoctuaConfirmDialogService,
-        private noctuaActivityEntityService: NoctuaActivityEntityService) {
+    constructor() {
         this._unsubscribeAll = new Subject();
     }
 

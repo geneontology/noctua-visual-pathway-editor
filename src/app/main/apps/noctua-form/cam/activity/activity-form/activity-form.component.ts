@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -44,6 +44,11 @@ import { EntityFormComponent } from './entity-form/entity-form.component';
 })
 
 export class ActivityFormComponent implements OnInit, OnDestroy {
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   ActivityState = ActivityState;
   ActivityType = ActivityType;
 
@@ -71,12 +76,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

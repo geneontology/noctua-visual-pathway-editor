@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,6 +48,17 @@ import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-m
     ]
 })
 export class CamErrorsComponent implements OnInit, OnDestroy {
+  private ngZone = inject(NgZone);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  camService = inject(CamService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+
   ErrorType = ErrorType;
   ErrorLevel = ErrorLevel;
   EditorCategory = EditorCategory;
@@ -61,17 +72,7 @@ export class CamErrorsComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    private ngZone: NgZone,
-    private changeDetectorRef: ChangeDetectorRef,
-    public camService: CamService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityEntityService: NoctuaActivityEntityService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    private confirmDialogService: NoctuaConfirmDialogService,
-    private noctuaFormDialogService: NoctuaFormDialogService) {
+  constructor() {
 
     this._unsubscribeAll = new Subject();
   }

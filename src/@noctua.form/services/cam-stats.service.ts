@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NoctuaFormConfigService } from './../services/config/noctua-form-config.service';
 import { ActivityNode, Entity, TermsSummary, CamSummary, ActivityNodeType } from './../models/activity';
 import { orderBy } from 'lodash';
@@ -9,10 +9,8 @@ import { Contributor } from './../models/contributor';
   providedIn: 'root'
 })
 export class CamStatsService {
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
 
-  constructor(
-    public noctuaFormConfigService: NoctuaFormConfigService) {
-  }
 
   buildTermsStats(termsSummary: TermsSummary) {
     const allTerms = [

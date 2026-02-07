@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
@@ -23,13 +23,15 @@ export interface AllowedDatabasesDialogData {
     ],
 })
 export class AllowedDatabasesDialogComponent {
+  private _matDialogRef = inject<MatDialogRef<AllowedDatabasesDialogComponent>>(MatDialogRef);
+  private _data = inject<AllowedDatabasesDialogData>(MAT_DIALOG_DATA);
+
   allowedDatabases: string[];
   dialogTitle: string;
 
-  constructor(
-    private _matDialogRef: MatDialogRef<AllowedDatabasesDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private _data: AllowedDatabasesDialogData
-  ) {
+  constructor() {
+    const _data = this._data;
+
     this.allowedDatabases = _data.databases.slice().sort();
     this.dialogTitle = _data.title;
   }

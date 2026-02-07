@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -25,15 +25,17 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ],
 })
 export class ConfirmCopyModelDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<ConfirmCopyModelDialogComponent>>(MatDialogRef);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private _data = inject(MAT_DIALOG_DATA);
+
   private _unsubscribeAll: Subject<any>;
   camForm: FormGroup;
   cam: Cam
 
-  constructor(
-    private _matDialogRef: MatDialogRef<ConfirmCopyModelDialogComponent>,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-  ) {
+  constructor() {
+    const _data = this._data;
+
     this._unsubscribeAll = new Subject();
     this.cam = _data.cam
 

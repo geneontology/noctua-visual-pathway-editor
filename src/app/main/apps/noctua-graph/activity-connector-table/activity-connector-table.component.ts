@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -51,6 +51,17 @@ import { NoctuaFormModule } from '../../noctua-form/noctua-form.module';
     ]
 })
 export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  private _camService = inject(CamService);
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  noctuaActivityConnectorService = inject(NoctuaActivityConnectorService);
+  noctuaUserService = inject(NoctuaUserService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  private noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+
   ConnectorType = ConnectorType
 
   @Input()
@@ -84,18 +95,7 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
   private _unsubscribeAll: Subject<any>;
   relationshipOptions: any;
 
-  constructor(
-    private confirmDialogService: NoctuaConfirmDialogService,
-    private _camService: CamService,
-    private _noctuaGraphService: NoctuaGraphService,
-    public noctuaActivityConnectorService: NoctuaActivityConnectorService,
-    public noctuaUserService: NoctuaUserService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    private noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaActivityEntityService: NoctuaActivityEntityService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
   }
 

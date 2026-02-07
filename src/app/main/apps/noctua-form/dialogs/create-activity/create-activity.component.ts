@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -23,6 +23,11 @@ import { ChemicalConnectorFormComponent } from '../../cam/activity/chemical-conn
     ],
 })
 export class CreateActivityDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<CreateActivityDialogComponent>>(MatDialogRef);
+  private activityFormService = inject(NoctuaActivityFormService);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
   FormType = FormType
 
   closeDialog: () => void;
@@ -30,11 +35,9 @@ export class CreateActivityDialogComponent implements OnInit, OnDestroy {
 
   formType: FormType;
 
-  constructor(
-    private _matDialogRef: MatDialogRef<CreateActivityDialogComponent>,
-    private activityFormService: NoctuaActivityFormService,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService) {
+  constructor() {
+    const _data = this._data;
+
     this.closeDialog = this.close.bind(this);
     this._unsubscribeAll = new Subject();
     this.formType = _data.formType;

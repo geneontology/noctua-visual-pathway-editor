@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, forkJoin } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
@@ -21,6 +21,12 @@ import { Predicate } from '../models';
   providedIn: 'root'
 })
 export class NoctuaActivityConnectorService {
+  private _fb = inject(FormBuilder);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private camService = inject(CamService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+  private noctuaGraphService = inject(NoctuaGraphService);
+
 
   cam: Cam;
   public subjectActivity: Activity;
@@ -38,10 +44,7 @@ export class NoctuaActivityConnectorService {
 
   private _allowRequestWatch = false;
 
-  constructor(private _fb: FormBuilder, public noctuaFormConfigService: NoctuaFormConfigService,
-    private camService: CamService,
-    private noctuaLookupService: NoctuaLookupService,
-    private noctuaGraphService: NoctuaGraphService) {
+  constructor() {
 
     this.onActivityChanged = new BehaviorSubject(null);
     this.onLinkChanged = new BehaviorSubject(null);

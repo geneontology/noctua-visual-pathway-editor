@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntil } from 'rxjs/operators';
 
@@ -39,6 +39,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ],
 })
 export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<SearchDatabaseDialogComponent>>(MatDialogRef);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   private _unsubscribeAll: Subject<any>;
   evidence: Evidence[] = [];
   activityNodes: ActivityNode[] = [];
@@ -48,12 +53,7 @@ export class SearchDatabaseDialogComponent implements OnInit, OnDestroy {
   dataSource;
   selection = new SelectionModel<Evidence>(true, []);
 
-  constructor(
-    private _matDialogRef: MatDialogRef<SearchDatabaseDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaLookupService: NoctuaLookupService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
     this.evidence = this._data.evidence;

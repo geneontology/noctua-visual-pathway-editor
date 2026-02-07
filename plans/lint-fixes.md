@@ -86,3 +86,86 @@ To gradually improve code quality, consider enabling these rules as warnings the
 npm run lint           # Check for issues
 npm run lint -- --fix  # Auto-fix what's possible
 ```
+
+---
+
+## Phase 2: Standard ESLint Configuration
+
+### Goal
+
+Update ESLint config to:
+1. Ignore non-source directories (workbenches, downloads, node_modules, dist)
+2. Use standard Angular ESLint rules instead of relaxed rules
+
+### Current Problems
+
+1. **No ignores configured** - ESLint may search workbenches/, downloads/, node_modules/
+2. **Relaxed rules** - Many rules turned off that should be enforced in a proper Angular app
+
+### Implementation Plan
+
+| Step | Task | Status |
+|------|------|--------|
+| 1 | Add ignores block for non-source directories | ✓ DONE |
+| 2 | Remove relaxed rules, use recommended defaults | ✓ DONE |
+| 3 | Keep project-specific rules (selectors, unused vars pattern) | ✓ DONE |
+| 4 | Run lint to verify and assess current error count | ✓ DONE |
+| 5 | Fix critical errors if reasonable | IN PROGRESS |
+| 5a | Run Angular inject() migration schematic | ✓ DONE |
+| 5b | Fix unused vars/imports | PENDING |
+
+### Results
+
+**Initial lint output: 1125 errors, 0 warnings**
+
+**After inject() migration: 838 errors** (287 fixed)
+- Ran `ng generate @angular/core:inject`
+- Migrated 57 files from constructor injection to `inject()` function
+
+Top error categories:
+- `@typescript-eslint/no-explicit-any` - Many `any` types need proper typing
+- `@angular-eslint/prefer-inject` - Constructor injection should migrate to `inject()`
+- `@typescript-eslint/no-this-alias` - `const self = this` patterns need refactoring
+- `@typescript-eslint/no-unused-vars` - Unused imports/variables to remove
+- `@typescript-eslint/no-empty-function` - Empty functions need implementation or removal
+- `@angular-eslint/no-empty-lifecycle-method` - Empty lifecycle hooks
+- `@angular-eslint/template/click-events-have-key-events` - Accessibility issues
+- `@angular-eslint/template/interactive-supports-focus` - Accessibility issues
+
+### Proposed eslint.config.js Changes
+
+**Add ignores block:**
+```javascript
+{
+  ignores: [
+    "node_modules/**",
+    "workbenches/**",
+    "downloads/**",
+    "dist/**",
+    "coverage/**",
+    "*.js",
+    "!eslint.config.js",
+  ],
+},
+```
+
+**Standard TypeScript rules (remove overrides, keep recommended):**
+- Keep `@typescript-eslint/no-unused-vars` with underscore pattern
+- Keep `@typescript-eslint/explicit-function-return-type: off` (common in Angular)
+- Keep `@typescript-eslint/explicit-module-boundary-types: off` (common in Angular)
+- Remove: `no-explicit-any: off`, `no-empty-function: off`, `no-namespace: off`
+
+**Standard Angular rules (remove overrides):**
+- Remove: `prefer-inject: off`, `no-empty-lifecycle-method: off`
+- Change selectors from warn to error
+
+**Standard template rules:**
+- Use recommended defaults (remove all custom rule overrides)
+
+### Expected Impact
+
+Switching to standard rules will likely surface many warnings/errors that need fixing. This is intentional - it improves code quality over time.
+
+### Files to Modify
+
+- `eslint.config.js`

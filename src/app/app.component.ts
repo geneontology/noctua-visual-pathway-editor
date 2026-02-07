@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, Inject, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener, DOCUMENT } from '@angular/core';
+import { Component, ElementRef, HostBinding, OnInit, OnDestroy, Renderer2, ViewEncapsulation, HostListener, DOCUMENT, inject } from '@angular/core';
 
 import { Platform } from '@angular/cdk/platform';
 import { Subject, Subscription } from 'rxjs';
@@ -19,6 +19,14 @@ import { LayoutNoctuaComponent } from './layout/layout-noctua/layout-noctua.comp
     imports: [LayoutNoctuaComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
+    private noctuaSplashScreen = inject(NoctuaSplashScreenService);
+    private _renderer = inject(Renderer2);
+    private _elementRef = inject(ElementRef);
+    private noctuaConfigService = inject(NoctuaConfigService);
+    noctuaUserService = inject(NoctuaUserService);
+    private platform = inject(Platform);
+    private document = inject(DOCUMENT);
+
     noctuaConfig: any;
     navigation: any;
 
@@ -28,15 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.noctuaUserService.getUser();
     }
 
-    constructor(
-        private noctuaSplashScreen: NoctuaSplashScreenService,
-        private _renderer: Renderer2,
-        private _elementRef: ElementRef,
-        private noctuaConfigService: NoctuaConfigService,
-        public noctuaUserService: NoctuaUserService,
-        private platform: Platform,
-        @Inject(DOCUMENT) private document: any
-    ) {
+    constructor() {
         if (this.platform.ANDROID || this.platform.IOS) {
             this.document.body.className += ' is-mobile';
         }

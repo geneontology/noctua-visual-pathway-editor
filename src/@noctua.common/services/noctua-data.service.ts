@@ -1,5 +1,5 @@
 import { environment } from 'environments/environment';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
 import { NoctuaUserService, Contributor, Organism, compareOrganism, compareGroup, compareContributor } from '@geneontology/noctua-form-base';
@@ -11,13 +11,14 @@ import { MatColors } from '@noctua/mat-colors';
   providedIn: 'root'
 })
 export class NoctuaDataService {
+  private httpClient = inject(HttpClient);
+  private noctuaUserService = inject(NoctuaUserService);
+
   baristaUrl = environment.globalBaristaLocation;
   searchApi = environment.searchApi;
   onOrganismsChanged: BehaviorSubject<any>;
 
-  constructor(
-    private httpClient: HttpClient,
-    private noctuaUserService: NoctuaUserService) {
+  constructor() {
     this.onOrganismsChanged = new BehaviorSubject(null);
 
   }

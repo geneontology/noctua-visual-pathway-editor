@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation, ViewChild, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -22,6 +22,9 @@ import { ContentComponent } from 'app/layout/components/content/content.componen
     ]
 })
 export class LayoutNoctuaComponent implements OnInit, OnDestroy {
+    private _noctuaConfigService = inject(NoctuaConfigService);
+    noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+
     LeftPanel = LeftPanel;
     noctuaConfig: any;
     navigation: any;
@@ -29,8 +32,7 @@ export class LayoutNoctuaComponent implements OnInit, OnDestroy {
     leftSidenav: MatSidenav;
     private _unsubscribeAll: Subject<any>;
 
-    constructor(private _noctuaConfigService: NoctuaConfigService,
-        public noctuaCommonMenuService: NoctuaCommonMenuService) {
+    constructor() {
         this._unsubscribeAll = new Subject();
     }
 

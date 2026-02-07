@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { Observable, BehaviorSubject } from 'rxjs'
 import { FormGroup, FormBuilder } from '@angular/forms'
@@ -19,15 +19,18 @@ import { Triple } from './../models/activity/triple';
   providedIn: 'root'
 })
 export class NoctuaTripleFormService {
+  private _fb = inject(FormBuilder);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private camService = inject(CamService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   cam: Cam;
   public triple: Triple<ActivityNode>;
   private tripleForm: TripleForm;
   private tripleFormGroup: BehaviorSubject<FormGroup | undefined>;
   public tripleFormGroup$: Observable<FormGroup>;
 
-  constructor(private _fb: FormBuilder, public noctuaFormConfigService: NoctuaFormConfigService,
-    private camService: CamService,
-    private noctuaLookupService: NoctuaLookupService) {
+  constructor() {
 
     this.tripleFormGroup = new BehaviorSubject(null);
     this.tripleFormGroup$ = this.tripleFormGroup.asObservable()

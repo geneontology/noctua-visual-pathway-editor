@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatMenuTrigger, MatMenuModule } from '@angular/material/menu';
@@ -50,6 +50,14 @@ import { InlineDetailService } from '@noctua.editor/inline-detail/inline-detail.
 })
 
 export class EntityFormComponent implements OnInit, OnDestroy {
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  private camService = inject(CamService);
+  private inlineReferenceService = inject(InlineReferenceService);
+  private inlineDetailService = inject(InlineDetailService);
+  private inlineWithService = inject(InlineWithService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+
   @Input()
   public entityFormGroup: FormGroup;
 
@@ -72,14 +80,7 @@ export class EntityFormComponent implements OnInit, OnDestroy {
 
   private unsubscribeAll: Subject<any>;
 
-  constructor(
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    private camService: CamService,
-    private inlineReferenceService: InlineReferenceService,
-    private inlineDetailService: InlineDetailService,
-    private inlineWithService: InlineWithService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService) {
+  constructor() {
     this.unsubscribeAll = new Subject();
   }
 

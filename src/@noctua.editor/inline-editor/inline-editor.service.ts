@@ -1,4 +1,4 @@
-import { Injectable, Inject, Injector, ElementRef, ComponentRef, ViewChild } from '@angular/core';
+import { Injectable, Injector, ElementRef, ComponentRef, ViewChild, inject } from '@angular/core';
 import {
     Overlay,
     OverlayRef,
@@ -45,13 +45,12 @@ const DEFAULT_CONFIG: EditorDropdownDialogConfig = {
     providedIn: 'root'
 })
 export class InlineEditorService {
+    private injector = inject(Injector);
+    private overlay = inject(Overlay);
+    private camService = inject(CamService);
+    noctuaActivityFormService = inject(NoctuaActivityFormService);
+    private noctuaActivityEntityService = inject(NoctuaActivityEntityService);
 
-    constructor(
-        private injector: Injector,
-        private overlay: Overlay,
-        private camService: CamService,
-        public noctuaActivityFormService: NoctuaActivityFormService,
-        private noctuaActivityEntityService: NoctuaActivityEntityService) { }
 
     /*     openEditorDropdown(event, config) {
             const data = {

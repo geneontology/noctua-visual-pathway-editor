@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -30,6 +30,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ],
 })
 export class AddEvidenceDialogComponent implements OnInit, OnDestroy {
+  private _matDialogRef = inject<MatDialogRef<AddEvidenceDialogComponent>>(MatDialogRef);
+  private _noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+  private camService = inject(CamService);
+  private inlineReferenceService = inject(InlineReferenceService);
+  private _data = inject(MAT_DIALOG_DATA);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+
   private _fb = new FormBuilder();
   private _unsubscribeAll: Subject<any>;
   searchFormData: any = {};
@@ -38,14 +45,7 @@ export class AddEvidenceDialogComponent implements OnInit, OnDestroy {
   evidenceFormGroup: FormGroup;
   entity: ActivityNode;
 
-  constructor(
-    private _matDialogRef: MatDialogRef<AddEvidenceDialogComponent>,
-    private _noctuaActivityEntityService: NoctuaActivityEntityService,
-    private camService: CamService,
-    private inlineReferenceService: InlineReferenceService,
-    @Inject(MAT_DIALOG_DATA) private _data: any,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
 
     this.evidenceFormGroup = this.createEvidenceForm();

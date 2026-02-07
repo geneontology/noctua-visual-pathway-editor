@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { Injectable, InjectionToken, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Platform } from '@angular/cdk/platform';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -9,14 +9,16 @@ export const NOCTUA_CONFIG = new InjectionToken('noctuaCustomConfig');
 
 @Injectable()
 export class NoctuaConfigService {
+    private _platform = inject(Platform);
+    private _router = inject(Router);
+    private _config = inject(NOCTUA_CONFIG);
+
     private _configSubject: BehaviorSubject<any>;
     private readonly _defaultConfig: any;
 
-    constructor(
-        private _platform: Platform,
-        private _router: Router,
-        @Inject(NOCTUA_CONFIG) private _config
-    ) {
+    constructor() {
+        const _config = this._config;
+
         this._defaultConfig = _config;
         this._init();
     }

@@ -1,5 +1,5 @@
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
@@ -47,6 +47,15 @@ import { NoctuaInlineEditorComponent } from '@noctua.editor/inline-editor/inline
     ]
 })
 export class EvidenceFormTableComponent implements OnInit, OnDestroy {
+  camService = inject(CamService);
+  noctuaUserService = inject(NoctuaUserService);
+  private confirmDialogService = inject(NoctuaConfirmDialogService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  private inlineEditorService = inject(InlineEditorService);
+  noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+
   EditorCategory = EditorCategory;
 
   @Input()
@@ -67,15 +76,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
   private unsubscribeAll: Subject<any>;
   currentMenuEvent: any = {};
 
-  constructor(
-    public camService: CamService,
-    public noctuaUserService: NoctuaUserService,
-    private confirmDialogService: NoctuaConfirmDialogService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    private inlineEditorService: InlineEditorService,
-    public noctuaActivityEntityService: NoctuaActivityEntityService) {
+  constructor() {
 
     this.unsubscribeAll = new Subject();
   }

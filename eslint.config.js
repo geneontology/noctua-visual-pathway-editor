@@ -6,6 +6,17 @@ const angular = require("angular-eslint");
 
 module.exports = defineConfig([
   {
+    ignores: [
+      "node_modules/**",
+      "workbenches/**",
+      "downloads/**",
+      "dist/**",
+      "coverage/**",
+      "*.js",
+      "!eslint.config.js",
+    ],
+  },
+  {
     files: ["**/*.ts"],
     extends: [
       eslint.configs.recommended,
@@ -16,39 +27,27 @@ module.exports = defineConfig([
     processor: angular.processInlineTemplates,
     rules: {
       "@angular-eslint/directive-selector": [
-        "warn",
+        "error",
         {
           type: "attribute",
           prefix: "noc",
           style: "camelCase",
         },
       ],
-      // Relaxed rules for existing codebase
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-      "@typescript-eslint/no-unused-expressions": "warn",
-      "@typescript-eslint/prefer-for-of": "warn",
-      "@typescript-eslint/adjacent-overload-signatures": "warn",
-      "@typescript-eslint/no-namespace": "off",
-      "@angular-eslint/prefer-inject": "off",
-      "@angular-eslint/no-empty-lifecycle-method": "off",
-      "@angular-eslint/no-input-rename": "warn",
       "@angular-eslint/component-selector": [
-        "warn",
+        "error",
         {
           type: "element",
           prefix: ["noc", "app"],
           style: "kebab-case",
         },
       ],
-      "no-var": "error",
-      "no-empty": "warn",
-      "no-useless-escape": "warn",
-      "no-prototype-builtins": "warn",
-      "prefer-const": "warn",
-      "prefer-rest-params": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
     },
   },
   {
@@ -57,12 +56,6 @@ module.exports = defineConfig([
       angular.configs.templateRecommended,
       angular.configs.templateAccessibility,
     ],
-    rules: {
-      "@angular-eslint/template/alt-text": "warn",
-      "@angular-eslint/template/click-events-have-key-events": "warn",
-      "@angular-eslint/template/interactive-supports-focus": "warn",
-      "@angular-eslint/template/prefer-control-flow": "off",
-      "@angular-eslint/template/elements-content": "warn",
-    },
+    rules: {},
   }
 ]);

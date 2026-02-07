@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 
@@ -55,6 +55,16 @@ import { ActivityFormTableNodeComponent } from './activity-form-table-node/activ
     ]
 })
 export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+  camService = inject(CamService);
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  private noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  noctuaUserService = inject(NoctuaUserService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaActivityEntityService = inject(NoctuaActivityEntityService);
+  noctuaActivityFormService = inject(NoctuaActivityFormService);
+  private inlineEditorService = inject(InlineEditorService);
+
   ActivityDisplayType = ActivityDisplayType;
   EditorCategory = EditorCategory;
   ActivityType = ActivityType;
@@ -106,16 +116,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(
-    public camService: CamService,
-    private _noctuaGraphService: NoctuaGraphService,
-    private noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaUserService: NoctuaUserService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaActivityEntityService: NoctuaActivityEntityService,
-    public noctuaActivityFormService: NoctuaActivityFormService,
-    private inlineEditorService: InlineEditorService) {
+  constructor() {
 
     this.dataSource = new MatTableDataSource<ActivityNode>();
     this._unsubscribeAll = new Subject();

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ViewChildren, QueryList, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ViewChildren, QueryList, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,6 +32,15 @@ import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-se
     ]
 })
 export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
+  noctuaDataService = inject(NoctuaDataService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaGraphEditorService = inject(NoctuaGraphEditorService);
+  private camService = inject(CamService);
+  private _noctuaGraphService = inject(NoctuaGraphService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  noctuaCamGraphService = inject(CamGraphService);
+  private noctuaCamShapesService = inject(NoctuaShapesService);
+
 
   @ViewChildren('stencils') stencilContainers: QueryList<any>;
 
@@ -43,16 +52,7 @@ export class CamGraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
   selectedLayoutDetail;
 
-  constructor(
-    public noctuaDataService: NoctuaDataService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaGraphEditorService: NoctuaGraphEditorService,
-    private camService: CamService,
-    // public noctuaCamEditorService: NoctuaCamEditorService,
-    private _noctuaGraphService: NoctuaGraphService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaCamGraphService: CamGraphService,
-    private noctuaCamShapesService: NoctuaShapesService) {
+  constructor() {
 
     this._unsubscribeAll = new Subject();
 

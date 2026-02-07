@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
@@ -19,6 +19,13 @@ import { ConnectorActivity } from './../models/activity/connector-activity';
   providedIn: 'root'
 })
 export class NoctuaActivityEntityService {
+  private _fb = inject(FormBuilder);
+  private zone = inject(NgZone);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  private noctuaGraphService = inject(NoctuaGraphService);
+  private camService = inject(CamService);
+  private noctuaLookupService = inject(NoctuaLookupService);
+
   public cam: Cam;
   public currentActivity: Activity;
   public activity: Activity;
@@ -27,13 +34,7 @@ export class NoctuaActivityEntityService {
   private entityFormGroup: BehaviorSubject<FormGroup | undefined>;
   public entityFormGroup$: Observable<FormGroup>;
 
-  constructor(private _fb: FormBuilder,
-    private zone: NgZone,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaGraphService: NoctuaGraphService,
-    private camService: CamService,
-
-    private noctuaLookupService: NoctuaLookupService) {
+  constructor() {
 
     this.entityFormGroup = new BehaviorSubject(null);
     this.entityFormGroup$ = this.entityFormGroup.asObservable();

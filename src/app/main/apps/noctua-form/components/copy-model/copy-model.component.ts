@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
@@ -40,6 +40,13 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
 })
 
 export class CopyModelComponent implements OnInit, OnDestroy {
+  noctuaUserService = inject(NoctuaUserService);
+  private ngZone = inject(NgZone);
+  private camService = inject(CamService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
+  noctuaFormConfigService = inject(NoctuaFormConfigService);
+  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+
 
   @Input() panelDrawer: MatDrawer;
   @Input() panelSide: string
@@ -51,13 +58,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor(public noctuaUserService: NoctuaUserService,
-    private ngZone: NgZone,
-    private camService: CamService,
-    private noctuaFormDialogService: NoctuaFormDialogService,
-    public noctuaFormConfigService: NoctuaFormConfigService,
-    public noctuaCommonMenuService: NoctuaCommonMenuService
-  ) {
+  constructor() {
     this._unsubscribeAll = new Subject();
     // this.activity = self.noctuaCamFormService.activity;
     //  this.camFormPresentation = this.noctuaCamFormService.activityPresentation;
