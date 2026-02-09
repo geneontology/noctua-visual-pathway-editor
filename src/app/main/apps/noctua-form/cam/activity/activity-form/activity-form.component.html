@@ -38,7 +38,7 @@
         <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
       </button>
     </div>
-    <div class="noc-drawer-body pb-[200px] overflow-y-auto">
+    <div class="noc-drawer-body">
       @if (!noctuaUserService.user) {
       <div class="noc-draw-body-disabled flex justify-center items-center">
         Log in to Continue
@@ -143,7 +143,7 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-row justify-start items-center noc-drawer-footer my-2.5 py-2.5 bg-white">
+    <div class="noc-drawer-footer flex flex-row justify-start items-center">
       @if (noctuaActivityFormService.activity.submitErrors.length>0) {
       <button (click)='checkErrors()' mat-button color="warn" class="noc-rounded-button noc-sm">
         Why is the "Save" button disabled?

@@ -164,6 +164,24 @@ mat-chip,
   }
 }
 
+.activity-errors-dialog {
+  @include deep-height(90%);
+  @include deep-width(900px);
+
+  @include media-breakpoint("lt-lg") {
+    @include deep-width(90%);
+  }
+}
+
+.cam-errors-dialog {
+  @include deep-height(90%);
+  @include deep-width(900px);
+
+  @include media-breakpoint("lt-lg") {
+    @include deep-width(90%);
+  }
+}
+
 .noc-display-number {
   display: flex;
   align-items: center;

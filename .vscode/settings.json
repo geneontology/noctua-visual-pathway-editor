@@ -12,5 +12,7 @@
     "reqs",
     "shex",
     "withs"
-  ]
+  ],
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": ["."]
 }

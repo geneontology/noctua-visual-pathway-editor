@@ -1,5 +1,5 @@
-<div class="w-full min-h-[90%] flex flex-col justify-start items-stretch noc-dialog">
-  <div class="m-0 noc-dialog-header flex flex-row justify-start items-center">
+<div class="dialog-content-wrapper noc-dialog">
+  <div class="noc-dialog-header flex flex-row justify-start items-center">
     <span class="noc-dialog-header-title">
       Search Annotations</span>
     <span class="grow"></span>
@@ -7,7 +7,7 @@
       <fa-icon [icon]="['fas', 'times']"></fa-icon> Close
     </button>
   </div>
-  <div class="m-0 p-0 w-full flex flex-row justify-start items-start">
+  <div class="noc-dialog-body flex flex-row justify-start items-start">
     <div class="h-full noc-left-panel w-[200px] flex flex-col justify-start items-stretch bg-[#eee]">
       <div class="deep-h-[40px] pl-2 w-full flex flex-row justify-start items-center">
         <div class="p-0 text-xs leading-[15px] w-full">
@@ -101,7 +101,7 @@
       </div>
     </div>
   </div>
-  <div class="m-0 p-4 noc-dialog-footer flex flex-row justify-between items-center">
+  <div class="noc-dialog-footer flex flex-row justify-between items-center">
     <span class="grow"></span>
     <button (click)='close()' type="button" mat-raised-button color="" class="mr-2">Cancel</button>
     <button (click)="save()" type="button" mat-raised-button color="primary">Done</button>

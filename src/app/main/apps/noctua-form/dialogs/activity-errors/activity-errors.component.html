@@ -1,5 +1,5 @@
-<div class="w-[900px] min-h-[80%] flex flex-col">
-  <mat-toolbar class="mat-primary m-0">
+<div class="dialog-content-wrapper noc-dialog">
+  <mat-toolbar class="mat-primary noc-dialog-header">
     <mat-toolbar-row class="grow flex flex-row justify-start items-center">
       <span class="title dialog-title">
         Errors</span>
@@ -10,7 +10,7 @@
       </button>
     </mat-toolbar-row>
   </mat-toolbar>
-  <div mat-dialog-content class="m-0 p-0 w-full overflow-y-auto">
+  <div class="noc-dialog-body">
     <div class="flex flex-col justify-start items-stretch">
       @for (error of errors; track error; let i = $index) {
       <div class="w-full border-b border-double border-[#ccc] flex flex-row">
@@ -53,7 +53,7 @@
       }
     </div>
   </div>
-  <div mat-dialog-actions class="m-0 p-4 flex flex-row justify-between items-center">
+  <div class="noc-dialog-footer flex flex-row justify-between items-center">
     <span class="grow"></span>
     <button (click)='close()' mat-raised-button color="" class="mr-2">Close</button>
   </div>

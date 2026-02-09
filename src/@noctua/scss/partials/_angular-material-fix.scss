@@ -2,13 +2,30 @@
   min-width: 20px !important;
 }
 
+// Prevent button label text from wrapping and ensure buttons don't shrink in flex containers
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-flat-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  flex-shrink: 0;
+
+  .mdc-button__label {
+    white-space: nowrap;
+  }
+}
+
 // Reset MDC icon button to match legacy size (40x40)
 .mat-mdc-icon-button {
   --mat-icon-button-state-layer-size: 40px;
   --mat-icon-button-icon-size: 24px;
-  width: var(--mat-icon-button-state-layer-size);
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: var(--mat-icon-button-state-layer-size) !important;
   height: var(--mat-icon-button-state-layer-size);
-  padding: 8px;
+  padding: 0 !important;
 
   // MDC button ripple - legacy class for backward compatibility
   .mat-button-ripple,
@@ -25,6 +42,13 @@
     font-size: 20px;
     width: 24px;
     height: 24px;
+  }
+
+  // Material icon alignment
+  .mat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

@@ -43,7 +43,8 @@
       row="2">
     </textarea>
     <mat-autocomplete #termAuto="matAutocomplete" [displayWith]="termDisplayFn"
-      (optionSelected)="updateMenu($event.option.value)" class="noc-term-autocomplete flex flex-row justify-start items-start">
+      (optionSelected)="updateMenu($event.option.value)"
+      class="noc-term-autocomplete flex flex-row justify-start items-start">
       <div class="w-[400px]">
         @for (item of entity?.termLookup.results; track item) {
         <mat-option [value]="item" [disabled]="item.notAnnotatable===false">

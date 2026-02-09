@@ -49,12 +49,17 @@ $accent: map.get(theming.$theme, accent);
 }
 
 .noc-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   .noc-drawer-header {
     padding: 0 12px;
     @include deep-height(40px);
     background-color: #fff;
     @include mat.elevation(2);
     z-index: 1000;
+    flex-shrink: 0;
 
     .noc-drawer-header-title {
       font-size: 14px;
@@ -63,7 +68,8 @@ $accent: map.get(theming.$theme, accent);
   }
 
   .noc-drawer-body {
-    min-height: calc(100% - 90px);
+    flex: 1;
+    overflow-y: auto;
 
     .noc-draw-body-disabled {
       position: absolute;
@@ -86,11 +92,20 @@ $accent: map.get(theming.$theme, accent);
 
     border-top: 1px solid #ccc;
     z-index: 1000;
+    flex-shrink: 0;
 
     -webkit-box-shadow: 2px -5px 2px 0px rgba(0, 0, 0, 0.26);
     -moz-box-shadow: 2px -5px 2px 0px rgba(0, 0, 0, 0.26);
     box-shadow: 2px -5px 2px 0px rgba(0, 0, 0, 0.26);
   }
+}
+
+// Dialog content wrapper - provides consistent dialog structure
+.dialog-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .noc-dialog {
@@ -105,6 +120,7 @@ $accent: map.get(theming.$theme, accent);
     @include deep-height(40px);
     @include mat.elevation(2);
     z-index: 1000;
+    flex-shrink: 0;
 
     .noc-dialog-header-title {
       font-size: 14px;
@@ -124,6 +140,8 @@ $accent: map.get(theming.$theme, accent);
 
   .noc-dialog-body {
     @include deep-height(calc(100% - 90px));
+    overflow-y: auto;
+    flex: 1;
   }
 
   .noc-dialog-footer {
@@ -133,6 +151,7 @@ $accent: map.get(theming.$theme, accent);
 
     border-top: 1px solid #ccc;
     z-index: 1000;
+    flex-shrink: 0;
 
     -webkit-box-shadow: 2px -5px 2px 0px rgba(0, 0, 0, 0.26);
     -moz-box-shadow: 2px -5px 2px 0px rgba(0, 0, 0, 0.26);
