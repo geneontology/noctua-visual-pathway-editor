@@ -148,10 +148,10 @@ export class NoctuaLookupService {
       'bioentity: "' + gp + '"'
     ];
 
-    // Filter CC annotations to cellular anatomical structure (GO:0110165) when relation is occurs_in
-    // This prevents protein-containing complexes from being selected for MF occurs_in CC assertions
     if (aspect === 'C') {
-      fqFilters.push('isa_partof_closure:"GO:0110165"');
+      fqFilters.push('regulates_closure:"GO:0005575"');
+      fqFilters.push('-regulates_closure:"GO:0032991"');
+
     } else {
       fqFilters.push('aspect: "' + aspect + '"');
     }

@@ -2,8 +2,7 @@
 <div class="noc-cam-heading flex-auto flex flex-row justify-start items-center">
   @if (cam.title) {
   <div class="noc-title flex flex-row justify-start items-center">
-    <div class="truncate pr-2" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'"
-      [matTooltipShowDelay]="2000">
+    <div class="truncate pr-2" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'" [matTooltipShowDelay]="2000">
       <strong>Title: </strong>{{cam.title }}
     </div>
     <div class="noc-icon-action" (click)="openCamForm()">
@@ -22,7 +21,7 @@
       </div>
     </mat-chip>
   </div> -->
-  <div class="border-r border-[#BBB] border-l border-[#BBB] px-4">
+  <div class="border-r border-[#BBB] border-l px-4">
     <button mat-icon-button class="noc-toolbar-button noc-rounded-button" (click)="openCamForm()"
       matTooltip="{{cam?.comments}}" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1000">
       <fa-icon [icon]="['fas', 'comment']"></fa-icon>
@@ -69,8 +68,7 @@
   <div class="grow flex flex-row justify-start items-center">
     <mat-chip-set>
       @for (contributor of cam.contributors; track contributor) {
-      <mat-chip class="noc-table-chip noc-user-chip flex flex-row justify-start items-center"
-        (click)="openCamForm()">
+      <mat-chip class="noc-table-chip noc-user-chip flex flex-row justify-start items-center" (click)="openCamForm()">
         <div class="noc-icon">
           <fa-icon [icon]="['fas', 'user']"></fa-icon>
         </div>
