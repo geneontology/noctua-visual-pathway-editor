@@ -137,6 +137,20 @@ export class NoctuaLookupService {
     const self = this;
     const golrUrl = environment.globalGolrServer + `select?`;
 
+    const fqFilters = [
+      'document_category: "annotation"',
+      '-qualifier:"not"',
+      'bioentity: "' + gp + '"'
+    ];
+
+    if (aspect === 'C') {
+      fqFilters.push('regulates_closure:"GO:0005575"');
+      fqFilters.push('-regulates_closure:"GO:0032991"');
+
+    } else {
+      fqFilters.push('aspect: "' + aspect + '"');
+    }
+
     const requestParams = {
       defType: 'edismax',
       qt: 'standard',
@@ -151,12 +165,7 @@ export class NoctuaLookupService {
       'facet.sort': 'count',
       'json.nl': 'arrarr',
       'facet.limit': '2000',
-      fq: [
-        'document_category: "annotation"',
-        '-qualifier:"not"',
-        'aspect: "' + aspect + '"',
-        'bioentity: "' + gp + '"'
-      ],
+      fq: fqFilters,
       'facet.field': [
         'source',
         'assigned_by',
