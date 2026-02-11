@@ -5,9 +5,9 @@
     <div class="truncate pr-2" matTooltip="{{cam.title}}" [matTooltipPosition]="'above'" [matTooltipShowDelay]="2000">
       <strong>Title: </strong>{{cam.title }}
     </div>
-    <div class="noc-icon-action" (click)="openCamForm()">
+    <button class="noc-icon-action" (click)="openCamForm()">
       <fa-icon [icon]="['fas', 'pen']"></fa-icon>
-    </div>
+    </button>
   </div>
   }
   <!--   <div class="noc-error flex flex-row justify-start items-center">
@@ -38,46 +38,62 @@
   </div>
   @if (cam.state) {
   <div class="noc-model-state flex flex-row justify-start items-center">
-    <mat-chip class="noc-table-chip noc-state-chip flex flex-row justify-start items-center" [ngClass]="{'noc-development': cam.state.name === 'development',
-        'noc-production': cam.state.name === 'production',
-        'noc-review': cam.state.name === 'review'}">
-      <div class="noc-icon">
+    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border"
+         [ngClass]="{
+           'border-[#f4c89c] bg-[#f4c89c]/20': cam.state.name === 'development',
+           'border-[#b6f1cc] bg-[#b6f1cc]/20': cam.state.name === 'production',
+           'border-[#d8f6a3] bg-[#d8f6a3]/20': cam.state.name === 'review'
+         }">
+      <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full text-[#777] text-[14px] flex-shrink-0"
+           [ngClass]="{
+             'bg-[#f4c89c]': cam.state.name === 'development',
+             'bg-[#b6f1cc]': cam.state.name === 'production',
+             'bg-[#d8f6a3]': cam.state.name === 'review'
+           }">
         <fa-icon [icon]="['fas', 'tasks']"></fa-icon>
       </div>
-      <div class="grow noc-chip-label">
+      <div class="grow px-2">
         {{cam.state.label}}
       </div>
-      <div class="noc-icon-action" (click)="openCamForm()">
+      <button class="flex items-center justify-center h-[25px] w-[25px] rounded-full text-[#777] text-[10px] flex-shrink-0 bg-transparent hover:text-[14px] hover:text-[#222] hover:bg-black/20" (click)="openCamForm()">
         <fa-icon [icon]="['fas', 'pen']"></fa-icon>
-      </div>
-    </mat-chip>
+      </button>
+    </div>
   </div>
   }
   @if (cam.date) {
   <div class="noc-date border-r border-[#BBB] mr-2 w-[100px] flex flex-row justify-start items-center">
-    <mat-chip class="noc-table-chip noc-date-chip flex flex-row justify-start items-center" (click)="openCamForm()">
-      <div class="noc-icon">
+    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#aee9f5] bg-[#aee9f5]/20 cursor-pointer"
+         (click)="openCamForm()"
+         (keydown.enter)="openCamForm()"
+         (keydown.space)="openCamForm()"
+         tabindex="0"
+         role="button">
+      <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#aee9f5] text-[#777] text-[14px] flex-shrink-0">
         <fa-icon [icon]="['fas', 'calendar-day']"></fa-icon>
       </div>
-      <div class="grow noc-chip-label">
+      <div class="grow px-2">
         {{cam.date}}
       </div>
-    </mat-chip>
+    </div>
   </div>
   }
-  <div class="grow flex flex-row justify-start items-center">
-    <mat-chip-set>
-      @for (contributor of cam.contributors; track contributor) {
-      <mat-chip class="noc-table-chip noc-user-chip flex flex-row justify-start items-center" (click)="openCamForm()">
-        <div class="noc-icon">
-          <fa-icon [icon]="['fas', 'user']"></fa-icon>
-        </div>
-        <div class="grow noc-chip-label">
-          {{contributor.name}}
-        </div>
-      </mat-chip>
-      }
-    </mat-chip-set>
+  <div class="grow flex flex-row justify-start items-center gap-2">
+    @for (contributor of cam.contributors; track contributor) {
+    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#bbc9cc] bg-[#bbc9cc]/20 cursor-pointer"
+         (click)="openCamForm()"
+         (keydown.enter)="openCamForm()"
+         (keydown.space)="openCamForm()"
+         tabindex="0"
+         role="button">
+      <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#bbc9cc] text-[#59939e] text-[14px] flex-shrink-0">
+        <fa-icon [icon]="['fas', 'user']"></fa-icon>
+      </div>
+      <div class="grow px-2">
+        {{contributor.name}}
+      </div>
+    </div>
+    }
   </div>
   <div class="w-[180px] flex flex-row justify-end items-center">
     <button mat-stroked-button [matMenuTriggerFor]="viewMenu" class="noc-edit-button noc-rounded-button noc-sm mr-4"

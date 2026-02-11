@@ -165,11 +165,12 @@
           </mat-autocomplete>
         </mat-form-field>
       </div>
-      <span class="grow"></span>
       @if (displayMenuButton) {
-      <button mat-icon-button class="noc-action-button w-10 mt-2 shadow" [matMenuTriggerFor]="entityMenu">
-        <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
-      </button>
+      <div class="flex items-center justify-center flex-shrink-0 p-4">
+        <button mat-icon-button class="noc-action-button shadow" [matMenuTriggerFor]="entityMenu">
+          <fa-icon [icon]="['fas', 'ellipsis-v']"></fa-icon>
+        </button>
+      </div>
       }
       <mat-menu #entityMenu="matMenu" class="noc-dropdown-menu noc-menu-panel">
         @if (entity.aspect) {
@@ -233,7 +234,7 @@
 </div>
 
 @if (displayAddButton) {
-<button mat-icon-button class="noc-action-button w-10 mt-2 shadow" [matMenuTriggerFor]="ccOnlyAddMenu">
+<button mat-icon-button class="noc-action-button deep-w-10 mt-2 shadow" [matMenuTriggerFor]="ccOnlyAddMenu">
   <fa-icon [icon]="['fas', 'plus']"></fa-icon>
 </button>
 }
