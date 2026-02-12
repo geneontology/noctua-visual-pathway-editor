@@ -12,7 +12,7 @@ For EVERY task you receive:
 
 ### 1. Before Starting Work
 
-Create `plans/[task-name].md` with:
+Create `plans/[[task-category][task-name].md` with:
 - Clear goal statement
 - Current state analysis (what works, what's broken)
 - Detailed implementation plan broken into phases/steps
@@ -23,7 +23,7 @@ Create `plans/[task-name].md` with:
 
 ### 2. While Working
 
-Update `plans/[task-name].md` after completing each step:
+Update `plans/[[task-category][task-name].md` after completing each step:
 - Mark completed steps with ✓ or DONE
 - Update progress tables
 - Add new findings or changes to approach
@@ -32,7 +32,7 @@ Update `plans/[task-name].md` after completing each step:
 
 ### 3. After Completing
 
-Final update to `plans/[task-name].md`:
+Final update to `plans/[[task-category][task-name].md`:
 - Mark all steps complete
 - Summary of what was accomplished
 - Any remaining TODO items
@@ -92,18 +92,18 @@ Clear statement of what needs to be accomplished
 
 ## Progress Summary
 
-| Phase | Status | Progress |
-|-------|--------|----------|
-| Phase 1 | In Progress | 2/3 |
-| Phase 2 | Not Started | 0/2 |
+| Phase   | Status      | Progress |
+| ------- | ----------- | -------- |
+| Phase 1 | In Progress | 2/3      |
+| Phase 2 | Not Started | 0/2      |
 
 ## Files to Create/Modify
 
-| File | Action | Status |
-|------|--------|--------|
-| path/to/file1.ts | Create | ✓ Done |
+| File             | Action | Status      |
+| ---------------- | ------ | ----------- |
+| path/to/file1.ts | Create | ✓ Done      |
 | path/to/file2.ts | Modify | In Progress |
-| path/to/file3.ts | Modify | Pending |
+| path/to/file3.ts | Modify | Pending     |
 
 ## Dependencies
 - [ ] Dependency 1
@@ -194,22 +194,22 @@ Implement dark mode theme toggle across the application
 
 ## Progress Summary
 
-| Phase | Status | Progress |
-|-------|--------|----------|
-| Phase 1 | Complete | 3/3 |
-| Phase 2 | In Progress | 2/4 |
-| Phase 3 | Not Started | 0/3 |
+| Phase   | Status      | Progress |
+| ------- | ----------- | -------- |
+| Phase 1 | Complete    | 3/3      |
+| Phase 2 | In Progress | 2/4      |
+| Phase 3 | Not Started | 0/3      |
 
 ## Files to Create/Modify
 
-| File | Action | Status |
-|------|--------|--------|
-| src/services/theme.service.ts | Create | ✓ Done |
-| src/styles/themes/dark.scss | Create | ✓ Done |
-| src/components/header/header.component.ts | Modify | ✓ Done |
-| src/components/sidebar/sidebar.component.ts | Modify | ✓ Done |
-| src/components/dialog/dialog.component.ts | Modify | In Progress |
-| src/components/form/form.component.ts | Modify | Pending |
+| File                                        | Action | Status      |
+| ------------------------------------------- | ------ | ----------- |
+| src/services/theme.service.ts               | Create | ✓ Done      |
+| src/styles/themes/dark.scss                 | Create | ✓ Done      |
+| src/components/header/header.component.ts   | Modify | ✓ Done      |
+| src/components/sidebar/sidebar.component.ts | Modify | ✓ Done      |
+| src/components/dialog/dialog.component.ts   | Modify | In Progress |
+| src/components/form/form.component.ts       | Modify | Pending     |
 
 ## Dependencies
 - [x] Angular Material 16+ (already installed)
