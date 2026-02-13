@@ -125,6 +125,37 @@ export class NoctuaFormDialogService {
             });
     }
 
+    async openCamFormDialog(cam: Cam): Promise<void> {
+        const { CamFormDialogComponent } = await import('../dialogs/cam-form-dialog/cam-form-dialog.component');
+        this.dialogRef = this._matDialog.open(CamFormDialogComponent, {
+            panelClass: 'noc-cam-form-dialog',
+            data: {
+                cam: cam
+            },
+            width: '800px',
+            height: '90vh'
+        });
+        this.dialogRef.afterClosed()
+            .subscribe(_response => {
+
+            });
+    }
+
+    async openCopyModelDialog(cam: Cam): Promise<void> {
+        const { CopyModelDialogComponent } = await import('../dialogs/copy-model-dialog/copy-model-dialog.component');
+        this.dialogRef = this._matDialog.open(CopyModelDialogComponent, {
+            panelClass: 'noc-copy-model-dialog',
+            data: {
+                cam: cam
+            },
+            width: '800px',
+            height: '90vh'
+        });
+        this.dialogRef.afterClosed()
+            .subscribe(_response => {
+
+            });
+    }
 
     async openSelectEvidenceDialog(evidence: Evidence[], success): Promise<void> {
         const { SelectEvidenceDialogComponent } = await import('../dialogs/select-evidence/select-evidence.component');

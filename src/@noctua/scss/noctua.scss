@@ -120,6 +120,24 @@ mat-chip,
   @include deep-width(600px);
 }
 
+.noc-cam-form-dialog {
+  @include deep-height(90%);
+  @include deep-width(800px);
+
+  @include media-breakpoint("lt-lg") {
+    @include deep-width(90%);
+  }
+}
+
+.noc-copy-model-dialog {
+  @include deep-height(90%);
+  @include deep-width(800px);
+
+  @include media-breakpoint("lt-lg") {
+    @include deep-width(90%);
+  }
+}
+
 .noc-search-evidence-dialog {
   @include deep-height(90%);
   @include deep-width(1000px);

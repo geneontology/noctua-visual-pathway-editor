@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, OnDestroy, NgZone, inject } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -18,14 +18,11 @@ import {
   CamService,
 } from '@geneontology/noctua-form-base';
 import { NoctuaFormDialogService } from '../../services/dialog.service';
-import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
-import { LeftPanel } from '@noctua.common/models/menu-panels';
-
 
 @Component({
-  selector: 'noc-copy-model',
-  templateUrl: './copy-model.component.html',
-  styleUrls: ['./copy-model.component.scss'],
+  selector: 'noc-copy-model-dialog',
+  templateUrl: './copy-model-dialog.component.html',
+  styleUrls: ['./copy-model-dialog.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -33,23 +30,18 @@ import { LeftPanel } from '@noctua.common/models/menu-panels';
     MatButtonModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    MatSidenavModule,
     MatTooltipModule,
     FontAwesomeModule
   ]
 })
-
-export class CopyModelComponent implements OnInit, OnDestroy {
+export class CopyModelDialogComponent implements OnInit, OnDestroy {
   noctuaUserService = inject(NoctuaUserService);
   private ngZone = inject(NgZone);
   private camService = inject(CamService);
   private noctuaFormDialogService = inject(NoctuaFormDialogService);
   noctuaFormConfigService = inject(NoctuaFormConfigService);
-  noctuaCommonMenuService = inject(NoctuaCommonMenuService);
+  private dialogRef = inject(MatDialogRef<CopyModelDialogComponent>);
 
-
-  @Input() panelDrawer: MatDrawer;
-  @Input() panelSide: string
   cam: Cam;
   loading = false;
   includeEvidence = false;
@@ -58,10 +50,8 @@ export class CopyModelComponent implements OnInit, OnDestroy {
 
   private _unsubscribeAll: Subject<any>;
 
-  constructor() {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { cam: Cam }) {
     this._unsubscribeAll = new Subject();
-    // this.activity = this.noctuaCamFormService.activity;
-    //  this.camFormPresentation = this.noctuaCamFormService.activityPresentation;
   }
 
   ngOnInit(): void {
@@ -81,13 +71,13 @@ export class CopyModelComponent implements OnInit, OnDestroy {
         this.loading = false;
 
         this.ngZone.run(() => {
-          this.duplicatedCam = cam
+          this.duplicatedCam = cam;
         });
       });
   }
 
   ngOnDestroy(): void {
-    this.camService.onCopyModelChanged.next(null)
+    this.camService.onCopyModelChanged.next(null);
     this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();
   }
@@ -99,14 +89,13 @@ export class CopyModelComponent implements OnInit, OnDestroy {
         this.camService.copyModel(this.cam, value?.title, this.includeEvidence);
       } else {
         this.loading = false;
-      };
-    }
+      }
+    };
 
     this.noctuaFormDialogService.openConfirmCopyModelDialog(this.cam, success);
   }
 
   close() {
-    this.panelDrawer.close();
+    this.dialogRef.close();
   }
-
 }

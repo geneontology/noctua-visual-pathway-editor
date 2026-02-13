@@ -208,20 +208,6 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     return width + 'px'
   }
 
-  openCamForm() {
-    this.camService.initializeForm(this.cam);
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camForm);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
-
-  openCopyModel() {
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.copyModel);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
-  }
-
   ngOnDestroy(): void {
     this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();

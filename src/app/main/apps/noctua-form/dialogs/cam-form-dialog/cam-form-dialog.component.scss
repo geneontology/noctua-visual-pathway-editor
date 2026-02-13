@@ -1,0 +1,16 @@
+@use "@noctua/scss/noctua" as *;
+@use "@noctua.common/scss/noctua.common";
+
+:host {
+  @include media-breakpoint("xs") {
+    width: 100%;
+  }
+
+  @include media-breakpoint-up("sm") {
+    width: 800px;
+  }
+
+  .mat-mdc-dialog-container {
+    padding: 0;
+  }
+}

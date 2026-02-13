@@ -17,6 +17,7 @@ import {
 } from '@geneontology/noctua-form-base';
 
 import { NoctuaCommonMenuService } from '@noctua.common/services/noctua-common-menu.service';
+import { NoctuaFormDialogService } from '../../services/dialog.service';
 import { LeftPanel, MiddlePanel, RightPanel } from '@noctua.common/models/menu-panels';
 import { WorkbenchId } from '@noctua.common/models/workench-id';
 import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
@@ -37,6 +38,7 @@ import { CamToolbarOptions } from '@noctua.common/models/cam-toolbar-options';
 })
 export class CamToolbarComponent implements OnInit, OnDestroy {
   private camService = inject(CamService);
+  private noctuaFormDialogService = inject(NoctuaFormDialogService);
   noctuaActivityFormService = inject(NoctuaActivityFormService);
   noctuaFormConfigService = inject(NoctuaFormConfigService);
   noctuaCommonMenuService = inject(NoctuaCommonMenuService);
@@ -83,15 +85,11 @@ export class CamToolbarComponent implements OnInit, OnDestroy {
 
   openCamForm() {
     this.camService.initializeForm(this.cam);
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.camForm);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
+    this.noctuaFormDialogService.openCamFormDialog(this.cam);
   }
 
   openCopyModel() {
-    this.noctuaCommonMenuService.selectLeftPanel(LeftPanel.copyModel);
-    this.noctuaCommonMenuService.closeRightDrawer();
-    this.noctuaCommonMenuService.openLeftDrawer();
+    this.noctuaFormDialogService.openCopyModelDialog(this.cam);
   }
 
   openCamErrors() {

@@ -1,6 +1,4 @@
 export enum LeftPanel {
-    camForm = 'camForm',
-    copyModel = 'copyModel',
     activityForm = 'activityForm',
 };
 

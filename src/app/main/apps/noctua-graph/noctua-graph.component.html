@@ -12,13 +12,8 @@
       <mat-drawer #leftDrawer class="noc-left-drawer" mode="side" position="start" opened>
         <div class="h-full">
           @switch (noctuaCommonMenuService.selectedLeftPanel) {
-          @case (LeftPanel.camForm) {
-          <noc-cam-form [panelDrawer]="leftDrawer">
-          </noc-cam-form>
-          }
-          @case (LeftPanel.copyModel) {
-          <noc-copy-model [panelDrawer]="leftDrawer" [panelSide]="'left'">
-          </noc-copy-model>
+          @case (LeftPanel.activityForm) {
+          <!-- Activity form panel would go here when implemented -->
           }
           }
         </div>
