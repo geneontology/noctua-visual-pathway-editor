@@ -22,7 +22,10 @@
       "Bash(cd:*)",
       "Bash(Select-String:*)",
       "Bash(Select-Object -First 30)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(for f in plans/bugfix/fix-dialogs-and-buttons.md plans/bugfix/fix-mdc-button-sizing.md plans/bugfix/fix-mdc-form-fields-proper.md plans/bugfix/fix-mdc-inputs-autocomplete.md plans/bugfix/fix-ui-alignment-issues.md plans/config/lint-fixes.md plans/config/migrate-to-application-builder.md plans/feature/convert-panels-to-dialogs.md plans/refactor/mdc-migration-style-updates.md plans/refactor/migrate-scss-to-tailwind.md plans/refactor/remove-unused-components.md plans/refactor/scss-import-to-use-migration.md plans/refactor/standalone-migration.md plans/refactor/tailwind-migration.md plans/refactor/tailwind-scss-migration.md)",
+      "Bash(do sed -i 's/^n\\\\*\\\\*Issue:/\\\\n**Issue:/' \"$f\")",
+      "Bash(done)"
     ]
   }
 }

@@ -17,7 +17,7 @@ Noctua Visual Pathway Editor is an Angular 20 application for visualizing and ed
 
 For EVERY non-trivial task you receive:
 
-**Before starting work**: Create `plans/[[task-category][task-name].md` with:
+**Before starting work**: Create `.plans/[task-category]/[task-name].md` with:
 
 - Clear goal statement
 - Current state analysis (what works, what's broken)
@@ -27,7 +27,7 @@ For EVERY non-trivial task you receive:
 - Files to create/modify
 - Next steps
 
-**While working**: Update `plans/[[task-category][task-name].md` after completing each step:
+**While working**: Update `.plans/[task-category]/[task-name].md` after completing each step:
 
 - Mark completed steps with ✓ or DONE
 - Update progress tables
@@ -35,14 +35,14 @@ For EVERY non-trivial task you receive:
 - Note any issues encountered
 - Update next steps
 
-**After completing**: Final update to `plans/[[task-category][task-name].md`:
+**After completing**: Final update to `.plans/[task-category]/[task-name].md`:
 
 - Mark all steps complete
 - Summary of what was accomplished
 - Any remaining TODO items
 - Lessons learned or notes for future work
 
-See [plans/template.md](plans/template.md) for detailed examples and formats.
+See [.plans/template.md](.plans/template.md) for detailed examples and formats.
 
 ## Build Commands
 
