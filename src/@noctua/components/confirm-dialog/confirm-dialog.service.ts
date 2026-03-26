@@ -28,7 +28,7 @@ export class NoctuaConfirmDialogService {
     openConfirmDialog(title: string, message: string, success, options?): void {
         let confirmDialogRef: MatDialogRef<NoctuaConfirmDialogComponent> = this._matDialog.open(NoctuaConfirmDialogComponent, {
             panelClass: 'noc-confirm-dialog',
-            disableClose: false,
+            disableClose: options?.disableClose || false,
             width: '600px',
             data: options
         });
@@ -37,6 +37,9 @@ export class NoctuaConfirmDialogService {
         confirmDialogRef.componentInstance.message = message;
         if (!success) {
             confirmDialogRef.componentInstance.readonlyDialog = true;
+        }
+        if (options?.hideCancel) {
+            confirmDialogRef.componentInstance.hideCancel = true;
         }
 
         confirmDialogRef.afterClosed().subscribe(response => {

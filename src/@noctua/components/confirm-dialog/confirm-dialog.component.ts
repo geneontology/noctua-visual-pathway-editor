@@ -6,6 +6,8 @@ export interface ConfirmDialogData {
     confirmLabel?: string;
     highlightCancel?: boolean;
     highlightConfirm?: boolean;
+    disableClose?: boolean;
+    hideCancel?: boolean;
 }
 
 @Component({
@@ -21,6 +23,7 @@ export class NoctuaConfirmDialogComponent {
     public confirmLabel = 'Confirm'
     public highlightCancel = false
     public highlightConfirm = true
+    public hideCancel = false
 
     constructor(public dialogRef: MatDialogRef<NoctuaConfirmDialogComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: ConfirmDialogData) {
