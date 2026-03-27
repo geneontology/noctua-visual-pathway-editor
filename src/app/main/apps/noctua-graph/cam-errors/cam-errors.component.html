@@ -1,44 +1,29 @@
-<div class="error-drawer" fxLayout="column" fxLayoutAlign="start stretch">
+<div class="noc-drawer w-100-p h-100-p" fxLayout="column" fxLayoutAlign="start stretch">
   <!-- Header -->
-  <div class="error-drawer__header" fxLayout="row" fxLayoutAlign="space-between center">
-    <div class="error-drawer__header-content" fxLayout="row" fxLayoutAlign="start center">
-      <div class="error-drawer__header-icon">
-        <mat-icon>error_outline</mat-icon>
-      </div>
-      <div class="error-drawer__header-text">
-        <h1 class="error-drawer__header-title">Validation Errors</h1>
-      </div>
-    </div>
-    <div class="error-drawer__header-actions" fxLayout="row" fxLayoutAlign="end center">
-      <button mat-icon-button [matMenuTriggerFor]="activityOptionMenu" class="error-drawer__menu-btn">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #activityOptionMenu="matMenu" class="error-drawer__dropdown">
-        <button mat-menu-item (click)="deleteActivity(activity)" class="error-drawer__delete-btn">
-          <mat-icon>delete</mat-icon>
-          Delete
-        </button>
-      </mat-menu>
-      <button mat-stroked-button (click)="close()" class="error-drawer__close-btn">
-        <mat-icon>close</mat-icon>
-        Close
-      </button>
-    </div>
+  <div class="noc-drawer-header" fxLayout="row" fxLayoutAlign="start center">
+    <span class="noc-drawer-header-title">
+      Validation Errors
+    </span>
+    <span fxFlex></span>
+    <button mat-stroked-button (click)="close()" class="noc-rounded-button noc-sm" color="primary"
+      aria-label="Close dialog">
+      <mat-icon>close</mat-icon> Close
+    </button>
   </div>
 
   <!-- Summary Stats -->
   <div class="error-drawer__summary" fxLayout="row" fxLayoutAlign="space-around center">
     <div class="error-drawer__stat error-drawer__stat--total">
       <div class="error-drawer__stat-number">{{ cam.errors.length }}</div>
-      <div class="error-drawer__stat-label">Total Errors</div>
+      <div class="error-drawer__stat-label">Data model violation errors (ShEx)</div>
     </div>
     <div class="error-drawer__stat error-drawer__stat--relation">
       <div class="error-drawer__stat-number">{{ cam.diffNodes.length }}</div>
-      <div class="error-drawer__stat-label">Node Errors</div>
+      <div class="error-drawer__stat-label">Activity Units / Chemicals errors</div>
     </div>
     <div class="error-drawer__stat error-drawer__stat--cardinality">
       <div class="error-drawer__stat-number">{{ cam.diffEdges.length }}</div>
-      <div class="error-drawer__stat-label">Relation Errors</div>
+      <div class="error-drawer__stat-label">Relations errors</div>
     </div>
   </div>
 
@@ -98,9 +83,10 @@
       <div class="annotations__section">
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
           <mat-icon class="annotations__icon">account_tree</mat-icon>
-          <h3 class="annotations__title">Nodes</h3>
+          <h3 class="annotations__title">Activity Units / Chemicals errors</h3>
           <span class="annotations__count">{{ cam.diffNodes.length }}</span>
         </div>
+        <div class="annotations__subcategory">Node/relation combination not allowed</div>
         <div class="annotations__list">
           @for (node of cam.diffNodes; track node) {
           <div class="annotation-item" fxLayout="row" fxLayoutAlign="start center">
@@ -117,9 +103,10 @@
       <div class="annotations__section">
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
           <mat-icon class="annotations__icon">link</mat-icon>
-          <h3 class="annotations__title">Edges</h3>
+          <h3 class="annotations__title">Relations errors</h3>
           <span class="annotations__count">{{ cam.diffEdges.length }}</span>
         </div>
+        <div class="annotations__subcategory">Node/relation combination not allowed</div>
         <div class="annotations__list">
           @for (edge of cam.diffEdges; track edge) {
           <div class="annotation-item annotation-item--edge" fxLayout="row" fxLayoutAlign="start center">

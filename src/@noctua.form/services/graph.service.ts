@@ -583,6 +583,7 @@ export class NoctuaGraphService {
           subjectActivityNode.classExpression = subjectNode.classExpression;
           subjectActivityNode.uuid = bbopNode.id();
           activity.id = bbopNode.id();
+          activity.uuid = bbopNode.id();
           self._graphToActivityDFS(camGraph, activity, subjectEdges, subjectActivityNode);
           //activity.postRunUpdate();
           activities.push(activity);

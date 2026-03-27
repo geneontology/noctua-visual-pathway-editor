@@ -1,78 +1,24 @@
-// Variables
-$primary: #1976d2;
-$accent: #ff4081;
-$warn: #f44336;
-$success: #4caf50;
+@import "@noctua/scss/noctua";
+@import "@noctua.common/scss/noctua.common";
 
-$bg-primary: #fafafa;
+// Variables — aligned with Noctua theme
+$primary: $noc-primary-color;        // #3b5998
+$primary-light: $noc-primary-color-lighter; // #dfe3ee
+$accent: $noc-primary-color-accent;  // #8b9dc3
+$warn: #c0392b;
+$success: #27ae60;
+
+$bg-primary: #f5f6fa;
 $bg-secondary: #ffffff;
-$text-primary: #212121;
-$text-secondary: #757575;
-$border: #e0e0e0;
+$text-primary: #2c3e50;
+$text-secondary: #7f8c8d;
+$border: $noc-primary-color-light;
 
-$radius: 8px;
-$shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+$radius: 6px;
+$shadow: 0 1px 3px rgba(59, 89, 152, 0.12);
 
-// Main container
+// Summary
 .error-drawer {
-  height: 100vh;
-  background: $bg-primary;
-
-  // Header
-  &__header {
-    background: $primary;
-    color: white;
-    padding: 16px 24px;
-
-    &-content {
-      gap: 16px;
-    }
-
-    &-icon {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: $radius;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    &-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    &-subtitle {
-      font-size: 14px;
-      opacity: 0.8;
-      margin: 0;
-    }
-
-    &-actions {
-      gap: 8px;
-    }
-  }
-
-  &__close-btn {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  &__menu-btn {
-    color: white;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  // Summary
   &__summary {
     background: $bg-secondary;
     padding: 16px 24px;
@@ -88,21 +34,21 @@ $shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
     min-width: 100px;
 
     &--total {
-      background: #ffebee;
+      background: rgba($warn, 0.08);
       border-color: $warn;
       color: $warn;
     }
 
     &--relation {
-      background: #e3f2fd;
+      background: rgba($primary, 0.08);
       border-color: $primary;
       color: $primary;
     }
 
     &--cardinality {
-      background: #fff3e0;
-      border-color: #ff9800;
-      color: #ff9800;
+      background: rgba($noc-secondary-color, 0.08);
+      border-color: $noc-secondary-color;
+      color: $noc-secondary-color;
     }
 
     &-number {
@@ -208,14 +154,14 @@ $shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
     white-space: nowrap;
 
     &--warning {
-      background: #ff9800;
+      background: $noc-secondary-color;
     }
   }
 }
 
 .cardinality-viz {
-  background: #fff8e1;
-  border: 1px solid #ff9800;
+  background: rgba($noc-secondary-color, 0.06);
+  border: 1px solid rgba($noc-secondary-color, 0.3);
 }
 
 // Annotations
@@ -238,7 +184,7 @@ $shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
   }
 
   &__icon {
-    background: $success;
+    background: $primary;
     color: white;
     width: 28px;
     height: 28px;
@@ -256,12 +202,19 @@ $shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
   }
 
   &__count {
-    background: #e8f5e8;
-    color: $success;
+    background: $primary-light;
+    color: $primary;
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
+  }
+
+  &__subcategory {
+    font-size: 12px;
+    color: $text-secondary;
+    font-style: italic;
+    padding: 0 0 8px 40px;
   }
 
   &__list {
@@ -280,11 +233,11 @@ $shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 
   &:hover {
     background: $bg-secondary;
-    border-color: $success;
+    border-color: $accent;
   }
 
   &__id {
-    background: $success;
+    background: $primary;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
