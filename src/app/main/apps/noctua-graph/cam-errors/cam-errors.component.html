@@ -79,25 +79,55 @@
 
     <!-- Annotations -->
     <div class="annotations" fxLayout="column">
-      <!-- Nodes Section -->
+      <!-- Activity Units / Chemicals errors -->
       <div class="annotations__section">
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
           <mat-icon class="annotations__icon">account_tree</mat-icon>
           <h3 class="annotations__title">Activity Units / Chemicals errors</h3>
           <span class="annotations__count">{{ cam.validationErrors.orphanedNodes.length }}</span>
         </div>
-        <div class="annotations__subcategory">Node/relation combination not allowed</div>
-        <div class="annotations__list">
-          @for (node of cam.validationErrors.orphanedNodes; track node) {
-          <div class="annotation-item" fxLayout="row" fxLayoutAlign="start center">
-            <div class="annotation-item__id">{{ node.id }}</div>
-            <div class="annotation-item__content" fxFlex>
-              <div class="annotation-item__label">{{ node.term?.label }}</div>
-              <div class="annotation-item__term-id">{{ node.term?.id }}</div>
-            </div>
+
+        @if (cam.validationErrors.standaloneNodes.length > 0) {
+        <div class="annotations__subsection">
+          <div class="annotations__subheader" fxLayout="row" fxLayoutAlign="start center">
+            <mat-icon class="annotations__subicon">visibility_off</mat-icon>
+            <h4 class="annotations__subtitle">Node not shown</h4>
+            <span class="annotations__count">{{ cam.validationErrors.standaloneNodes.length }}</span>
           </div>
-          }
+          <div class="annotations__list">
+            @for (node of cam.validationErrors.standaloneNodes; track node) {
+            <div class="annotation-item" fxLayout="row" fxLayoutAlign="start center">
+              <div class="annotation-item__id">{{ node.id }}</div>
+              <div class="annotation-item__content" fxFlex>
+                <div class="annotation-item__label">{{ node.term?.label }}</div>
+                <div class="annotation-item__term-id">{{ node.term?.id }}</div>
+              </div>
+            </div>
+            }
+          </div>
         </div>
+        }
+
+        @if (cam.validationErrors.relationNodes.length > 0) {
+        <div class="annotations__subsection">
+          <div class="annotations__subheader" fxLayout="row" fxLayoutAlign="start center">
+            <mat-icon class="annotations__subicon">block</mat-icon>
+            <h4 class="annotations__subtitle">Node/relation combination not allowed</h4>
+            <span class="annotations__count">{{ cam.validationErrors.relationNodes.length }}</span>
+          </div>
+          <div class="annotations__list">
+            @for (node of cam.validationErrors.relationNodes; track node) {
+            <div class="annotation-item" fxLayout="row" fxLayoutAlign="start center">
+              <div class="annotation-item__id">{{ node.id }}</div>
+              <div class="annotation-item__content" fxFlex>
+                <div class="annotation-item__label">{{ node.term?.label }}</div>
+                <div class="annotation-item__term-id">{{ node.term?.id }}</div>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
       </div>
 
       <div class="annotations__section">

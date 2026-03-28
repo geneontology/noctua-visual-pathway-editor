@@ -129,6 +129,24 @@ export class CamValidationErrors {
   get hasErrors(): boolean {
     return this.total > 0;
   }
+
+  get standaloneNodes(): ActivityNode[] {
+    const edgeNodeUuids = new Set<string>();
+    this.orphanedEdges.forEach((triple: Triple<ActivityNode>) => {
+      if (triple.subject?.uuid) edgeNodeUuids.add(triple.subject.uuid);
+      if (triple.object?.uuid) edgeNodeUuids.add(triple.object.uuid);
+    });
+    return this.orphanedNodes.filter((node: ActivityNode) => !edgeNodeUuids.has(node.uuid));
+  }
+
+  get relationNodes(): ActivityNode[] {
+    const edgeNodeUuids = new Set<string>();
+    this.orphanedEdges.forEach((triple: Triple<ActivityNode>) => {
+      if (triple.subject?.uuid) edgeNodeUuids.add(triple.subject.uuid);
+      if (triple.object?.uuid) edgeNodeUuids.add(triple.object.uuid);
+    });
+    return this.orphanedNodes.filter((node: ActivityNode) => edgeNodeUuids.has(node.uuid));
+  }
 }
 
 export class Cam {
