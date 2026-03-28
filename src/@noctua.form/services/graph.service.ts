@@ -238,7 +238,7 @@ export class NoctuaGraphService {
   loadCam(cam: Cam, publish = true) {
     const activities = this.graphToActivities(cam.graph);
 
-    cam.errors = cam.getViolationDisplayErrors();
+    cam.validationErrors.shexViolations = cam.getViolationDisplayErrors();
 
     if (environment.isGraph) {
       const molecules = this.graphToMolecules(cam.graph);
@@ -291,7 +291,7 @@ export class NoctuaGraphService {
       validationResults['shex-validation'] &&
       validationResults['shex-validation']['violations']) {
       violations = validationResults['shex-validation']['violations'];
-      cam.hasViolations = violations.length > 0;
+      // hasViolations is now derived from cam.validationErrors.hasErrors
       cam.violations = [];
       violations.forEach((violation: any) => {
         violation.explanations.forEach((explanation) => {

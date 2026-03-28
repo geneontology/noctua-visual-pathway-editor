@@ -14,15 +14,15 @@
   <!-- Summary Stats -->
   <div class="error-drawer__summary" fxLayout="row" fxLayoutAlign="space-around center">
     <div class="error-drawer__stat error-drawer__stat--total">
-      <div class="error-drawer__stat-number">{{ cam.errors.length }}</div>
+      <div class="error-drawer__stat-number">{{ cam.validationErrors.shexViolations.length }}</div>
       <div class="error-drawer__stat-label">Data model violation errors (ShEx)</div>
     </div>
     <div class="error-drawer__stat error-drawer__stat--relation">
-      <div class="error-drawer__stat-number">{{ cam.diffNodes.length }}</div>
+      <div class="error-drawer__stat-number">{{ cam.validationErrors.orphanedNodes.length }}</div>
       <div class="error-drawer__stat-label">Activity Units / Chemicals errors</div>
     </div>
     <div class="error-drawer__stat error-drawer__stat--cardinality">
-      <div class="error-drawer__stat-number">{{ cam.diffEdges.length }}</div>
+      <div class="error-drawer__stat-number">{{ cam.validationErrors.orphanedEdges.length }}</div>
       <div class="error-drawer__stat-label">Relations errors</div>
     </div>
   </div>
@@ -30,13 +30,13 @@
   <!-- Error List -->
   <div class="error-drawer__body overflow-y-auto" fxLayout="column">
     <div class="error-list">
-      @for (error of cam.errors; track error; let i = $index) {
+      @for (error of cam.validationErrors.shexViolations; track error; let i = $index) {
       <div class="error-item" fxLayout="column">
         <div class="error-item__header" fxLayout="row" fxLayoutAlign="start start">
           <div class="error-item__number">{{ i + 1 }}</div>
           <div class="error-item__content" fxFlex>
             <div class="error-item__title">
-              <span class="error-item__aspect">{{ error.meta?.aspect }}</span>: {{ error.message }}
+              {{ error.message }}
             </div>
           </div>
         </div>
@@ -84,11 +84,11 @@
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
           <mat-icon class="annotations__icon">account_tree</mat-icon>
           <h3 class="annotations__title">Activity Units / Chemicals errors</h3>
-          <span class="annotations__count">{{ cam.diffNodes.length }}</span>
+          <span class="annotations__count">{{ cam.validationErrors.orphanedNodes.length }}</span>
         </div>
         <div class="annotations__subcategory">Node/relation combination not allowed</div>
         <div class="annotations__list">
-          @for (node of cam.diffNodes; track node) {
+          @for (node of cam.validationErrors.orphanedNodes; track node) {
           <div class="annotation-item" fxLayout="row" fxLayoutAlign="start center">
             <div class="annotation-item__id">{{ node.id }}</div>
             <div class="annotation-item__content" fxFlex>
@@ -104,15 +104,15 @@
         <div class="annotations__header" fxLayout="row" fxLayoutAlign="start center">
           <mat-icon class="annotations__icon">link</mat-icon>
           <h3 class="annotations__title">Relations errors</h3>
-          <span class="annotations__count">{{ cam.diffEdges.length }}</span>
+          <span class="annotations__count">{{ cam.validationErrors.orphanedEdges.length }}</span>
         </div>
         <div class="annotations__subcategory">Node/relation combination not allowed</div>
         <div class="annotations__list">
-          @for (edge of cam.diffEdges; track edge) {
+          @for (edge of cam.validationErrors.orphanedEdges; track edge) {
           <div class="annotation-item annotation-item--edge" fxLayout="row" fxLayoutAlign="start center">
             <div class="annotation-item__id annotation-item__id--edge">→</div>
             <div class="annotation-item__content" fxFlex>
-              {{ edge.subject.term?.label }} —— {{ edge.predicate?.edge.label }} ——→ {{ edge.object.term?.label }}
+              {{ edge.subject.term?.label }} —— {{ edge.predicate?.edge?.label }} ——→ {{ edge.object.term?.label }}
             </div>
           </div>
           }
