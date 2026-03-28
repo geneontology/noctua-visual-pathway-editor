@@ -12,8 +12,14 @@
   </div>
   }
   <div class="noc-error" fxLayout="row" fxLayoutAlign="start center">
+<<<<<<< HEAD
     <mat-chip class="noc-error-chip noc-chip-xs ml-8" fxLayout="row" fxLayoutAlign="start center"
       (click)="openCamErrors()">
+=======
+    <mat-chip class="noc-table-chip noc-validation-chip ml-8" fxLayout="row" fxLayoutAlign="start center"
+      (click)="openCamErrors()"
+      [ngClass]="{'noc-has-errors': cam.totalErrors > 0}">
+>>>>>>> noctua-184-error-message
       <div class="noc-icon">
         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
       </div>

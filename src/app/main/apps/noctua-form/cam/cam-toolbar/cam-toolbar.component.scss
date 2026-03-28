@@ -169,6 +169,23 @@ $accent: map-get($theme, accent);
         @include noc-chip-color(#aee9f5);
       }
 
+      &.noc-validation-chip {
+        @include noc-chip-color(#b6d4b6);
+        cursor: pointer;
+
+        .noc-icon {
+          color: #4caf50;
+        }
+
+        &.noc-has-errors {
+          @include noc-chip-color(#e8a0a0);
+
+          .noc-icon {
+            color: #fff;
+          }
+        }
+      }
+
       &.noc-state-chip {
         &.noc-development {
           @include noc-chip-color(#f4c89c);
