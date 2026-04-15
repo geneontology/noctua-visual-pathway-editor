@@ -144,6 +144,9 @@ export class Cam {
   //bbop graphs
   graph;
 
+  // Last loaded model data snapshot for change detection
+  lastResponseData: any = null;
+
   // bbop managers 
   engine;
   manager;

@@ -49,7 +49,7 @@ export class CamFormComponent implements OnInit, OnDestroy {
         this.commentFormArray = camFormGroup.get('commentFormArray') as FormArray
       });
 
-    this.camService.onCamChanged
+    this.noctuaGraphService.onCamChanged
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((cam) => {
         if (!cam) {

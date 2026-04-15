@@ -29,7 +29,6 @@ export class CamService {
   curieUtil: any;
   cams: Cam[] = [];
   cam: Cam;
-  onCamChanged: BehaviorSubject<any>;
   onCamsChanged: BehaviorSubject<any>;
   onCopyModelChanged: BehaviorSubject<any>;
   onCamsCheckoutChanged: BehaviorSubject<any>;
@@ -55,7 +54,6 @@ export class CamService {
     private _noctuaGraphService: NoctuaGraphService,
     private curieService: CurieService) {
 
-    this.onCamChanged = new BehaviorSubject(null);
     this.camFormGroup = new BehaviorSubject(null);
     this.camFormGroup$ = this.camFormGroup.asObservable();
 
@@ -118,7 +116,7 @@ export class CamService {
     cam.expanded = true;
     this._noctuaGraphService.getGraphInfo(cam, modelId);
     cam.manager.get_model(cam.id);
-    this.onCamChanged.next(cam);
+    this._noctuaGraphService.onCamChanged.next(cam);
 
     return cam;
   }

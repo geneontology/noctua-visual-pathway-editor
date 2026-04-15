@@ -159,7 +159,6 @@ export class CamGraphService {
       this._camService.deleteActivity(activity).then(() => {
         this._camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
-        this._camService.getCam(this.cam.id);
         self._noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
       });
     };

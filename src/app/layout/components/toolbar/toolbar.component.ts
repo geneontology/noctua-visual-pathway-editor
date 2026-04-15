@@ -4,6 +4,7 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import {
     Cam,
     CamService,
+    NoctuaGraphService,
     NoctuaUserService,
     NoctuaFormConfigService,
     NoctuaActivityFormService,
@@ -45,6 +46,7 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private camService: CamService,
+        private noctuaGraphService: NoctuaGraphService,
         private noctuaCommonMenuService: NoctuaCommonMenuService,
         public noctuaUserService: NoctuaUserService,
         public noctuaConfigService: NoctuaFormConfigService,
@@ -66,7 +68,7 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         //this.noctuaAnnouncementService.getAnnouncement();
-        this.camService.onCamChanged
+        this.noctuaGraphService.onCamChanged
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((cam) => {
                 if (!cam) {
@@ -76,7 +78,7 @@ export class NoctuaToolbarComponent implements OnInit, OnDestroy {
                 this.cam = cam;
             });
 
-        this.camService.onCamChanged
+        this.noctuaGraphService.onCamChanged
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((cam) => {
                 if (!cam) {

@@ -88,7 +88,6 @@ export class ActivityTableComponent implements OnInit, OnDestroy {
       this.camService.deleteActivity(activity).then(() => {
         this.camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
-        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast('Successfully deleted.', 'OK');
       });
     };

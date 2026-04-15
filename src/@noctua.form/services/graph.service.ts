@@ -42,6 +42,7 @@ export class NoctuaGraphService {
   curieUtil: any;
 
   onCamRebuildChange: BehaviorSubject<any>;
+  onCamChanged: BehaviorSubject<Cam>;
   onCamGraphChanged: BehaviorSubject<Cam>;
   onActivityAdded: BehaviorSubject<Activity>;
 
@@ -54,6 +55,7 @@ export class NoctuaGraphService {
 
     this.curieUtil = this.curieService.getCurieUtil();
     this.onCamRebuildChange = new BehaviorSubject(null);
+    this.onCamChanged = new BehaviorSubject(null);
     this.onCamGraphChanged = new BehaviorSubject(null);
     this.onActivityAdded = new BehaviorSubject(null);
   }
@@ -121,6 +123,7 @@ export class NoctuaGraphService {
     cam.groupManager = this.registerManager();
     cam.replaceManager = this.registerManager(false);
     cam.manager.register('rebuild', function (resp) {
+      console.log('Rebuild response:', resp);
       self.rebuild(cam, resp);
     }, 10);
   }
@@ -177,26 +180,14 @@ export class NoctuaGraphService {
   rebuild(cam: Cam, response) {
     const self = this;
 
-    // cam.loading.status = true;
-    // cam.loading.message = 'Loading Model Entities Metadata...';
+    cam.lastResponseData = response.data();
+    cam.graph = new bbopGraph();
+    cam.graph.load_data_basic(response.data());
 
-    if (cam.graph) {
-      const inGraph = new bbopGraph();
-
-      inGraph.load_data_basic(response.data());
-      cam.graph.merge_special(inGraph);
-    } else {
-      cam.graph = new bbopGraph();
-      cam.graph.load_data_basic(response.data());
-    }
 
     cam.id = response.data().id;
     cam.modified = response.data()['modified-p'];
     cam.isReasoned = response['is-reasoned'];
-
-    if (cam.isReasoned) {
-
-    }
 
     const titleAnnotations = cam.graph.get_annotations_by_key('title');
     const commentAnnotations = cam.graph.get_annotations_by_key('comment');
@@ -235,7 +226,7 @@ export class NoctuaGraphService {
     cam.loading.status = false;
   }
 
-  loadCam(cam: Cam, publish = true) {
+  loadCam(cam: Cam) {
     const activities = this.graphToActivities(cam.graph);
 
     cam.errors = cam.getViolationDisplayErrors();
@@ -266,9 +257,8 @@ export class NoctuaGraphService {
 
     cam.setDiffs(cam.rawNodes, cam.rawTriples);
 
-    if (publish) {
-      this.onCamGraphChanged.next(cam);
-    }
+    this.onCamGraphChanged.next(cam);
+    this.onCamChanged.next(cam);
 
   }
 

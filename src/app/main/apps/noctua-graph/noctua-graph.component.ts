@@ -126,7 +126,7 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
         this.noctuaFormConfigService.setupUrls();
         this.noctuaFormConfigService.setUniversalUrls();
         this.loadCam(this.modelId);
-        this.baristaSocketService.watchModel(this.modelId, (modelId) => this.loadCam(modelId));
+        // this.baristaSocketService.watchModel(this.modelId, () => this.cam, (modelId) => this.loadCam(modelId));
       });
   }
 

@@ -8,6 +8,7 @@ import {
   NoctuaFormConfigService,
   NoctuaActivityFormService,
   NoctuaActivityEntityService,
+  NoctuaGraphService,
   CamService,
   Evidence,
   Entity,
@@ -70,6 +71,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
   constructor(
     public camService: CamService,
+    private noctuaGraphService: NoctuaGraphService,
     private confirmDialogService: NoctuaConfirmDialogService,
     public noctuaUserService: NoctuaUserService,
     public noctuaFormConfigService: NoctuaFormConfigService,
@@ -118,7 +120,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
       evidenceIndex: entity.predicate.evidence.length - 1
     };
 
-    this.camService.onCamChanged.next(this.cam);
+    this.noctuaGraphService.onCamChanged.next(this.cam);
     this.camService.activity = this.activity;
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
@@ -138,7 +140,6 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
 
     const success = () => {
       this.noctuaActivityEntityService.deleteActivityNode(self.activity, entity).then(() => {
-        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${entity.term.label} successfully deleted.`, 'OK');
       });
     };
@@ -209,7 +210,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
       insertEntity: true
     };
 
-    this.camService.onCamChanged.next(this.cam);
+    this.noctuaGraphService.onCamChanged.next(this.cam);
     this.camService.activity = this.activity;
     this.noctuaActivityEntityService.initializeForm(this.activity, insertedNode);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
@@ -226,7 +227,7 @@ export class ActivityFormTableNodeComponent implements OnInit, OnDestroy {
       insertEntity: true
     };
 
-    this.camService.onCamChanged.next(this.cam);
+    this.noctuaGraphService.onCamChanged.next(this.cam);
     this.camService.activity = this.activity;
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
