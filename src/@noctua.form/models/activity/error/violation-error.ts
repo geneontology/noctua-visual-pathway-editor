@@ -10,7 +10,7 @@ export class Violation {
   constructor(public node: Partial<ActivityNode>, public type: ViolationType) {
   }
 
-  getDisplayError() { }
+  getDisplayError(): ActivityError { return null; }
 
   get message() {
     return this._message;

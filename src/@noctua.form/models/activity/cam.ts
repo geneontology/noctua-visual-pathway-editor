@@ -9,6 +9,7 @@ import { Entity } from './entity';
 import { each, find, orderBy } from 'lodash';
 import { NoctuaFormUtils } from './../../utils/noctua-form-utils';
 import { Violation } from './error/violation-error';
+import { ActivityError } from './parser/activity-error';
 import { PendingChange } from './pending-change';
 
 export enum ReloadType {
@@ -116,6 +117,38 @@ export class CamRebuildRule {
   }
 }
 
+export class CamValidationErrors {
+  shexViolations: ActivityError[] = [];
+  orphanedNodes: ActivityNode[] = [];
+  orphanedEdges: Triple<ActivityNode>[] = [];
+
+  get total(): number {
+    return this.shexViolations.length + this.orphanedNodes.length + this.orphanedEdges.length;
+  }
+
+  get hasErrors(): boolean {
+    return this.total > 0;
+  }
+
+  get standaloneNodes(): ActivityNode[] {
+    const edgeNodeUuids = new Set<string>();
+    this.orphanedEdges.forEach((triple: Triple<ActivityNode>) => {
+      if (triple.subject?.uuid) edgeNodeUuids.add(triple.subject.uuid);
+      if (triple.object?.uuid) edgeNodeUuids.add(triple.object.uuid);
+    });
+    return this.orphanedNodes.filter((node: ActivityNode) => !edgeNodeUuids.has(node.uuid));
+  }
+
+  get relationNodes(): ActivityNode[] {
+    const edgeNodeUuids = new Set<string>();
+    this.orphanedEdges.forEach((triple: Triple<ActivityNode>) => {
+      if (triple.subject?.uuid) edgeNodeUuids.add(triple.subject.uuid);
+      if (triple.object?.uuid) edgeNodeUuids.add(triple.object.uuid);
+    });
+    return this.orphanedNodes.filter((node: ActivityNode) => edgeNodeUuids.has(node.uuid));
+  }
+}
+
 export class Cam {
   title: string;
   comments: string[] = [];
@@ -172,9 +205,8 @@ export class Cam {
 
   // Error Handling
   isReasoned = false;
-  hasViolations = false;
   violations: Violation[] = [];
-  errors = [];
+  validationErrors = new CamValidationErrors();
 
   //Graph
   manualLayout = false;
@@ -184,9 +216,6 @@ export class Cam {
   private _activities: Activity[] = [];
   private _storedActivities: Activity[] = [];
   private _id: string;
-
-  diffNodes: ActivityNode[] = [];
-  diffEdges: Triple<ActivityNode>[] = [];
 
   //raw data
   rawTriples: Triple<ActivityNode>[];
@@ -221,7 +250,7 @@ export class Cam {
   }
 
   get totalErrors() {
-    return this.errors.length + this.diffEdges.length + this.diffNodes.length;
+    return this.validationErrors.total;
   }
 
   set activities(srcActivities: Activity[]) {
@@ -271,9 +300,9 @@ export class Cam {
       existingTripleUuids.add(triple.id);
     });
 
-    this.diffNodes = nodes.filter((node: ActivityNode) => !existingNodeUuids.has(node.uuid));
+    this.validationErrors.orphanedNodes = nodes.filter((node: ActivityNode) => !existingNodeUuids.has(node.uuid));
 
-    this.diffEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.id));
+    this.validationErrors.orphanedEdges = triples.filter((triple: Triple<ActivityNode>) => !existingTripleUuids.has(triple.id));
 
   }
 
@@ -477,14 +506,10 @@ export class Cam {
     });
   }
 
-  getViolationDisplayErrors() {
-    const result = [];
-
-    result.push(...this.violations.map((violation: Violation) => {
+  getViolationDisplayErrors(): ActivityError[] {
+    return this.violations.map((violation: Violation) => {
       return violation.getDisplayError();
-    }));
-
-    return result;
+    });
   }
 
   tableCanDisplayEnabledBy(node: ActivityNode) {
