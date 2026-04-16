@@ -208,6 +208,11 @@ When creating PRs, use this format:
 cc @pgaudet @vanaukenk @kltm @thomaspd
 ```
 
-## Git
+## Git Commits
 
-Do not add "Co-Authored-By" lines to commits.
+- Do NOT include the `Co-Authored-By` line in commit messages.
+
+## Task Plans
+
+- Always create and maintain task plans using the [.plans/template.md](.plans/template.md) system.
+- On context resume, check `.plans/` for ACTIVE plans before doing anything else.

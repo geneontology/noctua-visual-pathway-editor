@@ -6,6 +6,7 @@ import {
   Cam,
   NoctuaUserService,
   NoctuaFormConfigService,
+  NoctuaGraphService,
   CamService,
 } from '@geneontology/noctua-form-base';
 import { NoctuaFormDialogService } from '../../services/dialog.service';
@@ -34,6 +35,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
   constructor(public noctuaUserService: NoctuaUserService,
     private ngZone: NgZone,
     private camService: CamService,
+    private noctuaGraphService: NoctuaGraphService,
     private noctuaFormDialogService: NoctuaFormDialogService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaCommonMenuService: NoctuaCommonMenuService
@@ -44,7 +46,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.camService.onCamChanged
+    this.noctuaGraphService.onCamChanged
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((cam) => {
         if (!cam) {

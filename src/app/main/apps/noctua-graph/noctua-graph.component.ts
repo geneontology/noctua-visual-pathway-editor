@@ -11,7 +11,8 @@ import {
   CamService,
   ActivityDisplayType,
   ActivityType,
-  NoctuaActivityFormService
+  NoctuaActivityFormService,
+  BaristaSocketService
 } from '@geneontology/noctua-form-base';
 
 import { FormGroup } from '@angular/forms';
@@ -102,11 +103,12 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
     public noctuaActivityFormService: NoctuaActivityFormService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaCommonMenuService: NoctuaCommonMenuService,
-    public noctuaUserService: NoctuaUserService
+    public noctuaUserService: NoctuaUserService,
+    private baristaSocketService: BaristaSocketService
   ) {
     this._unsubscribeAll = new Subject();
 
-
+    this.baristaSocketService.connect();
 
     this.route
       .queryParams
@@ -124,6 +126,7 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
         this.noctuaFormConfigService.setupUrls();
         this.noctuaFormConfigService.setUniversalUrls();
         this.loadCam(this.modelId);
+        this.baristaSocketService.watchModel(this.modelId, () => this.cam, (modelId) => this.loadCam(modelId));
       });
   }
 
@@ -204,6 +207,7 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.baristaSocketService.disconnect();
     this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();
   }

@@ -230,7 +230,7 @@ export class ActivityFormTableComponent implements OnInit, OnDestroy, OnChanges,
       evidenceIndex: entity.predicate.evidence.length - 1
     };
 
-    this.camService.onCamChanged.next(this.cam);
+    this._noctuaGraphService.onCamChanged.next(this.cam);
     this.camService.activity = this.activity;
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });

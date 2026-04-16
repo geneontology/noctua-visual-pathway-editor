@@ -158,7 +158,6 @@ export class ActivityConnectorTableComponent implements OnInit, OnDestroy {
       self.noctuaActivityConnectorService.deleteConnectorEdge(this.currentConnectorActivity).then(() => {
         this._camService.onSelectedActivityChanged.next(null);
         this.noctuaCommonMenuService.closeRightDrawer();
-        this._camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast('Causal relation successfully deleted.', 'OK');
       });
     };

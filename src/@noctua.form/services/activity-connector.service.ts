@@ -48,7 +48,7 @@ export class NoctuaActivityConnectorService {
     this.connectorFormGroup = new BehaviorSubject(null);
     this.connectorFormGroup$ = this.connectorFormGroup.asObservable();
 
-    this.camService.onCamChanged.subscribe((cam) => {
+    this.noctuaGraphService.onCamChanged.subscribe((cam) => {
       if (!cam) {
         return;
       }

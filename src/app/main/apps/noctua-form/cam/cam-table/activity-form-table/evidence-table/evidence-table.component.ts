@@ -8,6 +8,7 @@ import { noctuaAnimations } from './../../../../../../../../@noctua/animations';
 import {
   NoctuaFormConfigService,
   NoctuaActivityEntityService,
+  NoctuaGraphService,
   CamService,
   NoctuaUserService,
   NoctuaActivityFormService,
@@ -55,6 +56,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
   constructor(
     public camService: CamService,
+    private noctuaGraphService: NoctuaGraphService,
     public noctuaUserService: NoctuaUserService,
     private confirmDialogService: NoctuaConfirmDialogService,
     private noctuaFormDialogService: NoctuaFormDialogService,
@@ -86,7 +88,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
       evidenceIndex: entity.predicate.evidence.length - 1
     };
 
-    this.camService.onCamChanged.next(this.cam);
+    this.noctuaGraphService.onCamChanged.next(this.cam);
     this.camService.activity = this.activity;
     this.noctuaActivityEntityService.initializeForm(this.activity, entity);
     this.inlineEditorService.open(this.currentMenuEvent.target, { data });
@@ -99,7 +101,7 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = (evidence: Evidence[]) => {
       if (evidence) {
-        this.camService.onCamChanged.next(this.cam);
+        this.noctuaGraphService.onCamChanged.next(this.cam);
         this.camService.activity = this.activity;
         this.noctuaActivityEntityService.initializeForm(this.activity, this.entity);
 
@@ -118,7 +120,6 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidence(evidence.uuid).then(() => {
         this.camService.onSelectedActivityChanged.next(null);
-        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.evidence.label} successfully deleted.`, 'OK');
       });
     };
@@ -136,7 +137,6 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidenceReference(evidence.uuid, evidence.reference).then(() => {
-        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.reference} successfully deleted.`, 'OK');
       });
     };
@@ -152,7 +152,6 @@ export class EvidenceFormTableComponent implements OnInit, OnDestroy {
 
     const success = () => {
       self.noctuaActivityEntityService.deleteEvidenceWith(evidence.uuid, evidence.with).then(() => {
-        this.camService.getCam(this.cam.id);
         self.noctuaFormDialogService.openInfoToast(`${evidence.with} successfully deleted.`, 'OK');
       });
     };
