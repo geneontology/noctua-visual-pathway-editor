@@ -144,10 +144,10 @@ export class Cam {
   //bbop graphs
   graph;
 
-  // Last loaded model data snapshot for change detection
-  lastResponseData: any = null;
+  // Packet ID tracking for socket event deduplication
+  processedPacketIds = new Set<string>();
 
-  // bbop managers 
+  // bbop managers
   engine;
   manager;
   copyModelManager;

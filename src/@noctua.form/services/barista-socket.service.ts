@@ -4,10 +4,11 @@ import { filter } from 'rxjs/operators';
 import { environment } from './../../environments/environment';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { Cam } from './../models/activity/cam';
-import { isEqual } from 'lodash';
 
 declare const require: any;
 const io = require('socket.io-client');
+
+const DEDUP_DELAY_MS = 500;
 
 @Injectable({
   providedIn: 'root'
@@ -68,44 +69,62 @@ export class BaristaSocketService implements OnDestroy {
       this.modelSubscription.unsubscribe();
     }
 
+    this.dialogOpen = false;
+
     this.modelSubscription = this.relayEvent$.pipe(
       filter((event) => event.model_id === modelId)
     ).subscribe((event) => {
-      console.log('Barista relay event:', event);
-      if (this.dialogOpen) {
+      console.log('[BaristaSocket] Relay event:', event.class, event.packet_id);
+
+      if (this.dialogOpen) return;
+
+      const packetId = event.packet_id;
+      if (!packetId || packetId === 'unknown') {
+        this.showUpdateDialog(modelId, reloadFn);
         return;
       }
 
-      if (event.class === 'rebuild') {
-        const cam = getCam();
-        if (this.isModelDataEqual(event.data?.data, cam?.lastResponseData)) {
-          return;
-        }
+      // Check immediately — covers the common case where HTTP arrived first
+      const cam = getCam();
+      if (cam?.processedPacketIds.has(packetId)) {
+        cam.processedPacketIds.delete(packetId);
+        console.log('[BaristaSocket] Skipping own change:', packetId);
+        return;
       }
 
-      this.dialogOpen = true;
-      this.confirmDialogService.openConfirmDialog(
-        'Model Updated',
-        'This model has been modified. Please refresh to get the latest version.',
-        () => {
-          this.dialogOpen = false;
-          reloadFn(modelId);
-        },
-        {
-          disableClose: true,
-          confirmLabel: 'Refresh',
-          hideCancel: true
+      // Defer to allow the rebuild callback to register the packet_id
+      // (handles the rare case where socket arrives before HTTP response)
+      setTimeout(() => {
+        if (this.dialogOpen) return;
+
+        const cam = getCam();
+        if (cam?.processedPacketIds.has(packetId)) {
+          cam.processedPacketIds.delete(packetId);
+          console.log('[BaristaSocket] Skipping own change (deferred):', packetId);
+          return;
         }
-      );
+
+        // External change
+        this.showUpdateDialog(modelId, reloadFn);
+      }, DEDUP_DELAY_MS);
     });
   }
 
-  private isModelDataEqual(eventData: any, lastData: any): boolean {
-    if (!eventData || !lastData) return false;
-
-    return isEqual(eventData.individuals, lastData.individuals)
-      && isEqual(eventData.facts, lastData.facts)
-      && isEqual(eventData.annotations, lastData.annotations);
+  private showUpdateDialog(modelId: string, reloadFn: (modelId: string) => void): void {
+    this.dialogOpen = true;
+    this.confirmDialogService.openConfirmDialog(
+      'Model Updated',
+      'This model has been modified. Please refresh to get the latest version.',
+      () => {
+        this.dialogOpen = false;
+        reloadFn(modelId);
+      },
+      {
+        disableClose: true,
+        confirmLabel: 'Refresh',
+        hideCancel: true
+      }
+    );
   }
 
   ngOnDestroy(): void {

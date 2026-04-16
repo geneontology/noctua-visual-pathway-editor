@@ -180,7 +180,11 @@ export class NoctuaGraphService {
   rebuild(cam: Cam, response) {
     const self = this;
 
-    cam.lastResponseData = response.data();
+    const packetId = response.packet_id();
+    if (packetId && packetId !== 'unknown') {
+      cam.processedPacketIds.add(packetId);
+    }
+
     cam.graph = new bbopGraph();
     cam.graph.load_data_basic(response.data());
 
