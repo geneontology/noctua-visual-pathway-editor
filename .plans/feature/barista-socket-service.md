@@ -19,27 +19,20 @@ Create a simple Angular service that connects to Barista via socket.io, listens 
 
 ## Current State
 - BaristaSocketService is implemented and connected
-- **Implementing:** `packet_id`-based deduplication with manager lifecycle hooks to solve the race condition
+- `packet_id`-based deduplication with 500ms debounce for the rare "socket before HTTP" case
 
-### The Race Condition (solved)
+### The Race Condition
 
 When the current user makes a change, both an HTTP response (via manager rebuild callback) and a socket relay event arrive for the same operation. These carry the same `packet_id` (confirmed in `barista.js:2305-2322`). The old `isModelDataEqual()` approach compared data snapshots and was unreliable because the socket could arrive before `cam.lastResponseData` was set.
 
-### Solution: `packet_id` dedup with pending operation buffering
+### Solution: `packet_id` dedup with debounce
 
 **How it works:**
-1. Manager lifecycle hooks (`prerun`/`postrun`) track in-flight operations on the Cam
-2. Each `rebuild` callback registers its `response.packet_id()` in `cam.processedPacketIds`
-3. Socket relay events are checked against `processedPacketIds` — matches are skipped
-4. If an operation is pending (`cam.pendingOps > 0`), socket events are buffered
-5. When pending ops complete, buffered events are flushed: matching packet_ids discarded, non-matching trigger the dialog
+1. The existing `rebuild()` callback in `graph.service.ts` registers `response.packet_id()` in `cam.processedPacketIds`
+2. Socket relay events check `packet_id` against `processedPacketIds` — matches are skipped (common case: HTTP arrives first)
+3. If no match on first check, a 500ms debounce gives the HTTP response time to arrive, then re-checks before showing the dialog
 
-**Why this is correct:**
-- HTTP before socket → packet_id registered → socket handler finds match → skip
-- Socket before HTTP → `pendingOps > 0` → buffered → HTTP completes → packet_id registered → flush discards match
-- External change → no pending ops, no matching packet_id → dialog shown
-- Same user different tab → different manager = different packet_id → dialog shown correctly
-- `packet_id === 'unknown'` → guard treats as no-match → conservative fallback (shows dialog)
+**Why 500ms:** Both the HTTP response and socket relay originate from the same Barista server-side function call (`barista.js:2308-2326`). Slow internet slows both equally. The 500ms covers the relative jitter between HTTP and WebSocket channels, not absolute network latency.
 
 ## Barista Server Protocol
 - socket.io 1.4.6, no namespaces/rooms, default `/` namespace
@@ -59,23 +52,23 @@ When the current user makes a change, both an HTTP response (via manager rebuild
 - [x] Call `watchModel(cam, reloadFn)` after `loadCam()` in the `onUserChanged` subscription
 - [x] Call `disconnect()` in `ngOnDestroy()`
 
-### Phase 3: packet_id dedup with manager lifecycle hooks
-- [ ] Add `processedPacketIds`, `pendingOps`, `onPendingOpsComplete` to Cam model
-- [ ] Remove `lastResponseData` from Cam model and `graph.service.ts`
-- [ ] Register `prerun`/`rebuild`(p9)/`postrun`(p8) on `cam.manager` in `getGraphInfo()`
-- [ ] Rewrite `watchModel()` — packet_id check, pending ops buffering, flush on complete
-- [ ] Remove `isModelDataEqual()` and lodash `isEqual` import
+### Phase 3: packet_id dedup
+- [x] Add `processedPacketIds` to Cam model
+- [x] Remove `lastResponseData` from Cam model and `graph.service.ts`
+- [x] Add `cam.processedPacketIds.add(response.packet_id())` in existing `rebuild()` method
+- [x] Rewrite `watchModel()` — packet_id check with 500ms debounce fallback
+- [x] Remove `isModelDataEqual()` and lodash `isEqual` import
 
 ### Phase 4: Verify
-- [ ] `npm start` compiles without errors
+- [x] `npm start` / `ng build` compiles without errors
 - [ ] Socket handshake visible in DevTools Network/WS tab when opening a CAM
 - [ ] Model reloads when another tab/user makes a change
 - [ ] Own changes do NOT trigger the dialog
 
 ## Recovery Checkpoint
 
-> **Last completed action:** Implementing packet_id dedup with manager lifecycle hooks
-> **Next immediate action:** Verify build compiles and test
+> **Last completed action:** Implemented packet_id dedup with debounce, build compiles clean
+> **Next immediate action:** Manual testing — verify socket handshake, external changes trigger dialog, own changes do not
 > **Environment state:** Branch issue-1077-noctua-stale-ui
 
 ## Failed Approaches
@@ -90,11 +83,11 @@ When the current user makes a change, both an HTTP response (via manager rebuild
 
 | File | Action | Status |
 | ---- | ------ | ------ |
-| `src/@noctua.form/services/barista-socket.service.ts` | Create new service → rewrite with packet_id dedup | Done |
+| `src/@noctua.form/services/barista-socket.service.ts` | Create new service → packet_id dedup with debounce | Done |
 | `src/@noctua.form/services/index.ts` | Add export | Done |
 | `src/@noctua.form/services/cam.service.ts` | Removed BaristaSocketService injection | Done |
-| `src/@noctua.form/models/activity/cam.ts` | Add processedPacketIds, pendingOps, onPendingOpsComplete; remove lastResponseData | Done |
-| `src/@noctua.form/services/graph.service.ts` | Register prerun/rebuild/postrun on cam.manager; remove lastResponseData assignment | Done |
+| `src/@noctua.form/models/activity/cam.ts` | Add `processedPacketIds: Set<string>`; remove `lastResponseData` | Done |
+| `src/@noctua.form/services/graph.service.ts` | Add `cam.processedPacketIds.add(packet_id)` in `rebuild()`; remove `lastResponseData` assignment | Done |
 | `src/app/main/apps/noctua-graph/noctua-graph.component.ts` | Inject + call connect/watchModel/disconnect | Done |
 
 ## Blockers
@@ -106,6 +99,34 @@ When the current user makes a change, both an HTTP response (via manager rebuild
 - `NgZone` already injected in CamService (line 50) but unused — socket callbacks run outside Angular zone
 - `bbop-client-barista` is in package.json but intentionally NOT used — we use socket.io-client directly for a clean Angular integration
 - CamService.getCam() already does full model load: sets up managers, calls `manager.get_model()`, triggers rebuild → loadCam → onCamGraphChanged
+
+## Future: Deterministic dedup with prerun/postrun (if debounce causes problems)
+
+If the 500ms debounce proves unreliable (false-positive dialogs for own changes), upgrade to deterministic buffering using the manager's `prerun`/`postrun` lifecycle hooks. These are internal events on `bbop-manager-minerva` (same registry as `rebuild`), NOT Barista socket events:
+
+- `prerun` — fires before every HTTP request to Minerva (`manager.js:1026`)
+- `postrun` — fires after every response, success or error (`manager.js:149`, "Postrun goes no matter what")
+- Already registered as empty callbacks in `graph.service.ts:registerManager()` (`shieldsUp`/`shieldsDown`)
+
+**How it would work:** Register 3 additional callbacks on `cam.manager` in `getGraphInfo()`:
+```typescript
+cam.manager.register('prerun', function () { cam.pendingOps++; });
+cam.manager.register('rebuild', function (resp) {
+  const packetId = resp.packet_id();
+  if (packetId && packetId !== 'unknown') cam.processedPacketIds.add(packetId);
+}, 9);
+cam.manager.register('postrun', function () {
+  cam.pendingOps--;
+  if (cam.pendingOps <= 0) {
+    cam.pendingOps = 0;
+    if (cam.onPendingOpsComplete) cam.onPendingOpsComplete();
+  }
+}, 8);
+```
+
+Priority ordering ensures: main rebuild (10) → packet_id registration (9) → pending decrement + flush (8).
+
+Add `pendingOps: number` and `onPendingOpsComplete: (() => void) | null` to the Cam model. In `watchModel()`, buffer events when `cam.pendingOps > 0` instead of using setTimeout, and flush the buffer from `onPendingOpsComplete`. This removes all timing assumptions.
 
 ## Additional Context (Claude)
 - The old Noctua app (C:\work\go\noctua\js\NoctuaEditor.js lines 2499-2543) used `bbop-client-barista` which wraps socket.io-client with its own callback registry. We skip that layer.
