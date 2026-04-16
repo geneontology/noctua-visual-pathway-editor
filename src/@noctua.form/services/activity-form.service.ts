@@ -36,7 +36,7 @@ export class NoctuaActivityFormService {
     private noctuaGraphService: NoctuaGraphService,
     private noctuaLookupService: NoctuaLookupService) {
 
-    this.camService.onCamChanged.subscribe((cam) => {
+    this.noctuaGraphService.onCamChanged.subscribe((cam) => {
       if (!cam) {
         return;
       }

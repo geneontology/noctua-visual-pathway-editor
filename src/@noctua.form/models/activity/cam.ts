@@ -177,7 +177,10 @@ export class Cam {
   //bbop graphs
   graph;
 
-  // bbop managers 
+  // Packet ID tracking for socket event deduplication
+  processedPacketIds = new Set<string>();
+
+  // bbop managers
   engine;
   manager;
   copyModelManager;

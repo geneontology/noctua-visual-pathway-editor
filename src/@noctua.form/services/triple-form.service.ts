@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder } from '@angular/forms'
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
 import { NoctuaLookupService } from './lookup.service';
 import { CamService } from './../services/cam.service';
+import { NoctuaGraphService } from './graph.service';
 
 import { ActivityNode } from './../models/activity/activity-node';
 
@@ -27,12 +28,13 @@ export class NoctuaTripleFormService {
 
   constructor(private _fb: FormBuilder, public noctuaFormConfigService: NoctuaFormConfigService,
     private camService: CamService,
+    private noctuaGraphService: NoctuaGraphService,
     private noctuaLookupService: NoctuaLookupService) {
 
     this.tripleFormGroup = new BehaviorSubject(null);
     this.tripleFormGroup$ = this.tripleFormGroup.asObservable()
 
-    this.camService.onCamChanged.subscribe((cam) => {
+    this.noctuaGraphService.onCamChanged.subscribe((cam) => {
       if (!cam) return;
 
       this.cam = cam;

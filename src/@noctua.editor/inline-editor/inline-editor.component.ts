@@ -9,6 +9,7 @@ import { InlineEditorService, EditorDropdownDialogConfig } from './inline-editor
 
 import {
     CamService,
+    NoctuaGraphService,
     NoctuaActivityEntityService,
     ActivityNode,
     Activity,
@@ -39,6 +40,7 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
 
     constructor(private inlineEditorService: InlineEditorService,
         private camService: CamService,
+        private noctuaGraphService: NoctuaGraphService,
         private _noctuaUserService: NoctuaUserService,
         private confirmDialogService: NoctuaConfirmDialogService,
         private noctuaActivityEntityService: NoctuaActivityEntityService) {
@@ -60,7 +62,7 @@ export class NoctuaInlineEditorComponent implements OnInit, OnDestroy {
                 category: this.category,
                 evidenceIndex: this.evidenceIndex
             };
-            this.camService.onCamChanged.next(this.cam);
+            this.noctuaGraphService.onCamChanged.next(this.cam);
             this.camService.activity = this.activity;
             this.noctuaActivityEntityService.initializeForm(this.activity, displayEntity);
             this.inlineEditorService.open(event.target, { data });

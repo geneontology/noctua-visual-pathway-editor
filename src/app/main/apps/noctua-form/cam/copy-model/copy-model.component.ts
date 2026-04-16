@@ -7,6 +7,7 @@ import {
   Cam,
   NoctuaUserService,
   NoctuaFormConfigService,
+  NoctuaGraphService,
   CamService,
   LeftPanel
 } from '@geneontology/noctua-form-base';
@@ -36,6 +37,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
   constructor(public noctuaUserService: NoctuaUserService,
     private ngZone: NgZone,
     private camService: CamService,
+    private noctuaGraphService: NoctuaGraphService,
     private noctuaFormDialogService: NoctuaFormDialogService,
     public noctuaFormConfigService: NoctuaFormConfigService,
     public noctuaSearchMenuService: NoctuaSearchMenuService,
@@ -47,7 +49,7 @@ export class CopyModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.camService.onCamChanged
+    this.noctuaGraphService.onCamChanged
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((cam) => {
         if (!cam) {
