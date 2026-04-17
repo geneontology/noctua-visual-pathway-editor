@@ -22,6 +22,7 @@ import * as moment from 'moment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { graph as bbopGraph } from 'bbop-graph-noctua';
 import { CardinalityViolation, RelationViolation } from '@noctua.form/models/activity/error/violation-error';
+import { NoctuaLoadingOverlayService } from '@noctua/services/loading-overlay.service';
 
 declare const require: any;
 
@@ -51,7 +52,8 @@ export class NoctuaGraphService {
     private httpClient: HttpClient,
     private noctuaUserService: NoctuaUserService,
     public noctuaFormConfigService: NoctuaFormConfigService,
-    private noctuaLookupService: NoctuaLookupService) {
+    private noctuaLookupService: NoctuaLookupService,
+    private loadingOverlayService: NoctuaLoadingOverlayService) {
 
     this.curieUtil = this.curieService.getCurieUtil();
     this.onCamRebuildChange = new BehaviorSubject(null);
@@ -116,6 +118,7 @@ export class NoctuaGraphService {
     const self = this;
 
     cam.loading = new CamLoadingIndicator(true, 'Loading Model Activities ...');
+    this.loadingOverlayService.show('Loading Model Activities...');
     cam.id = modelId;
     //cam.baristaClient = this.registerBaristaClient(cam);
     cam.manager = this.registerManager(true);
@@ -228,6 +231,7 @@ export class NoctuaGraphService {
     this.loadViolations(cam, response.data()['validation-results'])
     self.loadCam(cam);
     cam.loading.status = false;
+    setTimeout(() => this.loadingOverlayService.hide(), 1000);
   }
 
   loadCam(cam: Cam) {
@@ -702,6 +706,7 @@ export class NoctuaGraphService {
 
   saveCamAnnotations(cam: Cam, annotations) {
     const self = this;
+    this.loadingOverlayService.show('Saving...');
 
     const titleAnnotations = cam.graph.get_annotations_by_key('title');
     const stateAnnotations = cam.graph.get_annotations_by_key('state');
@@ -733,6 +738,7 @@ export class NoctuaGraphService {
 
   addActivity(cam: Cam, nodes: ActivityNode[], triples: Triple<ActivityNode>[], title, operation = CamOperation.ADD_ACTIVITY) {
     const self = this;
+    this.loadingOverlayService.show('Saving Activity...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.model.id);
 
     if (!cam.title) {
@@ -761,6 +767,7 @@ export class NoctuaGraphService {
     addTriples: Triple<ActivityNode>[]) {
 
     const self = this;
+    this.loadingOverlayService.show('Saving...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
 
     each(removeTriples, (triple: Triple<ActivityNode>) => {
@@ -788,6 +795,7 @@ export class NoctuaGraphService {
     removeTriples: Triple<ActivityNode>[] = []) {
 
     const self = this;
+    this.loadingOverlayService.show('Saving...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
 
     each(addNodes, function (destNode: ActivityNode) {
@@ -821,6 +829,7 @@ export class NoctuaGraphService {
 
   bulkEditActivity(cam: Cam): Observable<any> {
     const self = this;
+    this.loadingOverlayService.show('Saving...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
 
     each(cam.activities, (activity: Activity) => {
@@ -841,6 +850,7 @@ export class NoctuaGraphService {
 
   bulkEditActivityNode(cam: Cam, node: ActivityNode) {
     const self = this;
+    this.loadingOverlayService.show('Saving...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
 
     self.bulkEditIndividual(reqs, cam.id, node);
@@ -859,6 +869,7 @@ export class NoctuaGraphService {
 
   deleteActivity(cam: Cam, uuids: string[], triples: Triple<ActivityNode>[]) {
     const self = this;
+    this.loadingOverlayService.show('Deleting...');
 
     const success = () => {
       const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.model.id);
@@ -889,6 +900,7 @@ export class NoctuaGraphService {
 
   deleteEvidence(cam: Cam, uuid: string) {
     const self = this;
+    this.loadingOverlayService.show('Deleting...');
 
     const success = () => {
       const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.model.id);
@@ -910,6 +922,7 @@ export class NoctuaGraphService {
 
   deleteEvidenceAnnotation(cam: Cam, uuid: string, key: 'source' | 'with', oldValue: string) {
     const self = this;
+    this.loadingOverlayService.show('Deleting...');
 
     const success = () => {
       const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.model.id);
