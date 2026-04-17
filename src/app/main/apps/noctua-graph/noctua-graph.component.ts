@@ -123,6 +123,9 @@ export class NoctuaGraphComponent implements OnInit, AfterViewInit, OnDestroy {
       distinctUntilChanged(this.noctuaUserService.distinctUser),
       takeUntil(this._unsubscribeAll))
       .subscribe((user: Contributor) => {
+        if (user === undefined) {
+          return;
+        }
         this.noctuaFormConfigService.setupUrls();
         this.noctuaFormConfigService.setUniversalUrls();
         this.loadCam(this.modelId);
