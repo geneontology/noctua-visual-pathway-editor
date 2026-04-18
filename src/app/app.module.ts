@@ -5,7 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NoctuaModule } from '@noctua/noctua.module';
-import { NoctuaProgressBarModule } from '@noctua/components';
+import { NoctuaProgressBarModule, NoctuaLoadingOverlayModule } from '@noctua/components';
 import { NoctuaSharedModule } from '@noctua/shared.module';
 import { noctuaConfig } from './noctua-config';
 import { AppComponent } from './app.component';
@@ -95,6 +95,7 @@ const appRoutes: Routes = [
         RouterModule,
         MatSidenavModule,
         NoctuaProgressBarModule,
+        NoctuaLoadingOverlayModule,
         TreeModule,
         //Material 
         MatSidenavModule,

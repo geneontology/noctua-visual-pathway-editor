@@ -7,7 +7,6 @@ import { noctuaFormConfig } from './../../noctua-form-config';
 import { CamStats } from "./cam";
 import { Contributor } from "../contributor";
 import { Group } from "../group";
-import { PendingChange } from "./pending-change";
 import { NoctuaFormUtils } from "../../utils/noctua-form-utils";
 import { DataUtils } from "@noctua.form/data/config/data-utils";
 
@@ -32,9 +31,6 @@ export class Evidence {
   evidenceRequired = false;
   referenceRequired = false;
   ontologyClass = [];
-  pendingEvidenceChanges: PendingChange;
-  pendingReferenceChanges: PendingChange;
-  pendingWithChanges: PendingChange;
   frequency: number;
   date: string;
   formattedDate: string
@@ -127,29 +123,6 @@ export class Evidence {
       self.withEntity.modified = true;
     }
 
-  }
-
-  addPendingChanges(oldEvidence: Evidence) {
-    const self = this;
-
-    if (self.evidence.id !== oldEvidence.evidence.id) {
-      self.pendingEvidenceChanges = new PendingChange(self.uuid, oldEvidence.evidence, self.evidence);
-      self.pendingEvidenceChanges.uuid = self.uuid;
-    }
-
-    if (self.reference !== oldEvidence.reference) {
-      const oldReference = new Entity(oldEvidence.reference, oldEvidence.reference);
-      const newReference = new Entity(self.reference, self.reference);
-
-      self.pendingReferenceChanges = new PendingChange(self.uuid, oldReference, newReference);
-    }
-
-    if (self.with !== oldEvidence.with) {
-      const oldWith = new Entity(oldEvidence.with, oldEvidence.with);
-      const newWith = new Entity(self.with, self.with);
-
-      self.pendingWithChanges = new PendingChange(self.uuid, oldWith, newWith);
-    }
   }
 
   enableSubmit(errors, node: ActivityNode, position) {
