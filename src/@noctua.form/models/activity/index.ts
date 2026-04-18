@@ -41,7 +41,6 @@ export {
 export { Predicate } from './predicate';
 export { Triple } from './triple';
 export { ConnectorRule } from './connector-rule';
-export { PendingChange } from './pending-change';
 export { CamSummary, TermsSummary } from './summary';
 
 

@@ -1,6 +1,6 @@
 import { environment } from './../../environments/environment';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 
 import * as ModelDefinition from './../data/config/model-definition';
 import * as EntityDefinition from './../data/config/entity-definition';
@@ -124,7 +124,6 @@ export class NoctuaGraphService {
     cam.manager = this.registerManager(true);
     cam.copyModelManager = this.registerManager();
     cam.groupManager = this.registerManager();
-    cam.replaceManager = this.registerManager(false);
     cam.manager.register('rebuild', function (resp) {
       console.log('Rebuild response:', resp);
       self.rebuild(cam, resp);
@@ -827,44 +826,71 @@ export class NoctuaGraphService {
     return cam.manager.request_with(reqs);
   }
 
-  bulkEditActivity(cam: Cam): Observable<any> {
+  editTerm(cam: Cam, individualUuid: string, oldTermId: string, newTermId: string): Observable<any> {
     const self = this;
     this.loadingOverlayService.show('Saving...');
     const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
 
-    each(cam.activities, (activity: Activity) => {
-      each(activity.nodes, (node: ActivityNode) => {
-        self.bulkEditIndividual(reqs, cam.id, node);
-        each(node.predicate.evidence, (evidence: Evidence) => {
-          self.bulkEditEvidence(reqs, cam.id, evidence);
-        });
-      });
-    });
+    reqs.remove_type_from_individual(class_expression.cls(oldTermId), individualUuid, cam.id);
+    reqs.add_type_to_individual(class_expression.cls(newTermId), individualUuid, cam.id);
 
-    if (self.noctuaUserService.user && self.noctuaUserService.user.groups.length > 0) {
+    if (self.noctuaUserService.user?.groups?.length > 0) {
       reqs.use_groups([self.noctuaUserService.user.group.id]);
     }
-
-    return cam.replaceManager.request_with(reqs);
-  }
-
-  bulkEditActivityNode(cam: Cam, node: ActivityNode) {
-    const self = this;
-    this.loadingOverlayService.show('Saving...');
-    const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
-
-    self.bulkEditIndividual(reqs, cam.id, node);
-    each(node.predicate.evidence, (evidence: Evidence) => {
-      self.bulkEditEvidence(reqs, cam.id, evidence);
-    });
-
-    if (self.noctuaUserService.user && self.noctuaUserService.user.groups.length > 0) {
-      reqs.use_groups([self.noctuaUserService.user.group.id]);
-    }
-
     reqs.store_model(cam.id);
 
-    return cam.replaceManager.request_with(reqs);
+    return from(cam.manager.request_with(reqs));
+  }
+
+  editEvidenceCode(cam: Cam, evidenceUuid: string, oldCodeId: string, newCodeId: string): Observable<any> {
+    const self = this;
+    this.loadingOverlayService.show('Saving...');
+    const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
+
+    reqs.remove_type_from_individual(class_expression.cls(oldCodeId), evidenceUuid, cam.id);
+    reqs.add_type_to_individual(class_expression.cls(newCodeId), evidenceUuid, cam.id);
+    self.editUserEvidenceAnnotations(reqs, evidenceUuid);
+
+    if (self.noctuaUserService.user?.groups?.length > 0) {
+      reqs.use_groups([self.noctuaUserService.user.group.id]);
+    }
+    reqs.store_model(cam.id);
+
+    return from(cam.manager.request_with(reqs));
+  }
+
+  editEvidenceReference(cam: Cam, evidenceUuid: string, oldRef: string, newRef: string): Observable<any> {
+    const self = this;
+    this.loadingOverlayService.show('Saving...');
+    const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
+
+    reqs.remove_annotation_from_individual('source', oldRef, null, evidenceUuid);
+    reqs.add_annotation_to_individual('source', newRef, null, evidenceUuid);
+    self.editUserEvidenceAnnotations(reqs, evidenceUuid);
+
+    if (self.noctuaUserService.user?.groups?.length > 0) {
+      reqs.use_groups([self.noctuaUserService.user.group.id]);
+    }
+    reqs.store_model(cam.id);
+
+    return from(cam.manager.request_with(reqs));
+  }
+
+  editEvidenceWith(cam: Cam, evidenceUuid: string, oldWith: string, newWith: string): Observable<any> {
+    const self = this;
+    this.loadingOverlayService.show('Saving...');
+    const reqs = new minerva_requests.request_set(self.noctuaUserService.baristaToken, cam.id);
+
+    reqs.remove_annotation_from_individual('with', oldWith, null, evidenceUuid);
+    reqs.add_annotation_to_individual('with', newWith, null, evidenceUuid);
+    self.editUserEvidenceAnnotations(reqs, evidenceUuid);
+
+    if (self.noctuaUserService.user?.groups?.length > 0) {
+      reqs.use_groups([self.noctuaUserService.user.group.id]);
+    }
+    reqs.store_model(cam.id);
+
+    return from(cam.manager.request_with(reqs));
   }
 
   deleteActivity(cam: Cam, uuids: string[], triples: Triple<ActivityNode>[]) {
@@ -992,94 +1018,11 @@ export class NoctuaGraphService {
     return null;
   }
 
-  editIndividual(reqs, cam: Cam, srcNode, destNode) {
-    if (srcNode.hasValue() && destNode.hasValue()) {
-      reqs.remove_type_from_individual(
-        srcNode.classExpression,
-        srcNode.uuid,
-        cam.id,
-      );
-
-      reqs.add_type_to_individual(
-        class_expression.cls(destNode.getTerm().id),
-        srcNode.uuid,
-        cam.id,
-      );
-    }
-  }
-
-  bulkEditIndividual(reqs, camId: string, node: ActivityNode) {
-    if (node.hasValue() && node.pendingEntityChanges) {
-      reqs.remove_type_from_individual(
-        class_expression.cls(node.pendingEntityChanges.oldValue.id),
-        node.pendingEntityChanges.uuid,
-        camId,
-      );
-
-      reqs.add_type_to_individual(
-        class_expression.cls(node.pendingEntityChanges.newValue.id),
-        node.pendingEntityChanges.uuid,
-        camId,
-      );
-    }
-  }
-
-
-  bulkEditEvidence(reqs, camId: string, evidence: Evidence) {
-    if (evidence.hasValue() && evidence.pendingEvidenceChanges) {
-      reqs.remove_type_from_individual(
-        class_expression.cls(evidence.pendingEvidenceChanges.oldValue.id),
-        evidence.uuid,
-        camId,
-      );
-
-      reqs.add_type_to_individual(
-        class_expression.cls(evidence.pendingEvidenceChanges.newValue.id),
-        evidence.pendingEvidenceChanges.uuid,
-        camId,
-      );
-
-      this.editUserEvidenceAnnotations(reqs, evidence.pendingEvidenceChanges.uuid)
-    }
-
-    if (evidence.hasValue() && evidence.pendingReferenceChanges) {
-      reqs.remove_annotation_from_individual('source', evidence.pendingReferenceChanges.oldValue.id, null, evidence.pendingReferenceChanges.uuid);
-      reqs.add_annotation_to_individual('source',
-        evidence.pendingReferenceChanges.newValue.id,
-        null,
-        evidence.pendingReferenceChanges.uuid)
-      this.editUserEvidenceAnnotations(reqs, evidence.pendingReferenceChanges.uuid)
-    }
-
-    if (evidence.hasValue() && evidence.pendingWithChanges) {
-      reqs.remove_annotation_from_individual('with', evidence.pendingWithChanges.oldValue.id, null, evidence.pendingWithChanges.uuid);
-      reqs.add_annotation_to_individual('with',
-        evidence.pendingWithChanges.newValue.id,
-        null,
-        evidence.pendingWithChanges.uuid)
-      this.editUserEvidenceAnnotations(reqs, evidence.pendingWithChanges.uuid)
-    }
-  }
-
   editUserEvidenceAnnotations(reqs, uuid) {
     reqs.remove_annotation_from_individual('provided-by', this.noctuaUserService.user.group.url, null, uuid);
     reqs.add_annotation_to_individual('provided-by', this.noctuaUserService.user.group.url, null, uuid);
     reqs.remove_annotation_from_individual('contributor', this.noctuaUserService.user.orcid, null, uuid);
     reqs.add_annotation_to_individual('contributor', this.noctuaUserService.user.orcid, null, uuid);
-  }
-
-  replaceIndividual(reqs, modelId: string, entity: Entity, replaceWithTerm: Entity) {
-    reqs.remove_type_from_individual(
-      class_expression.cls(entity.id),
-      entity.uuid,
-      modelId,
-    );
-
-    reqs.add_type_to_individual(
-      class_expression.cls(replaceWithTerm.id),
-      entity.uuid,
-      modelId,
-    );
   }
 
   deleteIndividual(reqs, node) {

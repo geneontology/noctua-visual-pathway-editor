@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { CurieService } from './../../@noctua.curie/services/curie.service';
 import { NoctuaGraphService } from './../services/graph.service';
@@ -16,7 +16,6 @@ import { ActivityNodeType, ActivityNode, Entity } from './../models/activity';
 import { compareTerm } from './../models/activity/activity-node';
 import { environment } from './../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/confirm-dialog.service';
 import { ConfirmDialogData } from '@noctua/components/confirm-dialog/confirm-dialog.component';
 import { DataUtils } from '@noctua.form/data/config/data-utils';
@@ -121,15 +120,6 @@ export class CamService {
     return cam;
   }
 
-  bulkEditCam(cam: Cam): Observable<any> {
-    const self = this;
-    const promises = [];
-
-    promises.push(self._noctuaGraphService.bulkEditActivity(cam));
-
-    return forkJoin(promises);
-  }
-
   deleteActivity(activity: Activity) {
     const self = this;
     const deleteData = activity.createDelete();
@@ -196,21 +186,10 @@ export class CamService {
         const cam: Cam = find(cams, { id: response.data().id });
         if (cam) {
           self._noctuaGraphService.rebuild(cam, response);
-          cam.checkStored()
+          //cam.checkStored()
         }
       })
     }
-  }
-
-  bulkEditActivityNode(cam: Cam, node: ActivityNode): Observable<any> {
-    const self = this;
-    const promises = [];
-
-    promises.push(self._noctuaGraphService.bulkEditActivityNode(cam, node));
-
-    return forkJoin(promises).pipe(
-      map(res => self.updateModel([cam], res)),
-    );
   }
 
   updateMFProperties(cam: Cam) {

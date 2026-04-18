@@ -1,10 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NoctuaFormConfigService } from './config/noctua-form-config.service';
 import { NoctuaLookupService } from './lookup.service';
-import { CamService } from './../services/cam.service';
-import { Cam, CamLoadingIndicator } from './../models/activity/cam';
+import { Cam } from './../models/activity/cam';
 import { EntityForm } from './../models/forms/entity-form';
 import { ActivityFormMetadata } from './../models/forms/activity-form-metadata';
 import { NoctuaGraphService } from './graph.service';
@@ -31,8 +30,6 @@ export class NoctuaActivityEntityService {
     private zone: NgZone,
     public noctuaFormConfigService: NoctuaFormConfigService,
     private noctuaGraphService: NoctuaGraphService,
-    private camService: CamService,
-
     private noctuaLookupService: NoctuaLookupService) {
 
     this.entityFormGroup = new BehaviorSubject(null);
@@ -183,19 +180,36 @@ export class NoctuaActivityEntityService {
   }
 
 
-  saveActivityReplace(cam: Cam, addLoadingStatus?: boolean): Observable<any> {
+  saveInlineEdit(
+    cam: Cam,
+    category: 'term' | 'evidence' | 'reference' | 'with' | 'relationship',
+    evidenceIndex = 0
+  ): Observable<any> {
     const self = this;
-
-    if (addLoadingStatus) {
-      cam.loading = new CamLoadingIndicator(true, 'Replacing  ...');
-    }
 
     const oldEntity = cloneDeep(self.entity);
     self.activityEntityFormToActivity();
-    self.entity.addPendingChanges(oldEntity);
+    const newEntity = self.entity;
 
-    return self.camService.bulkEditActivityNode(cam, self.entity);
+    const oldEvidence = oldEntity.predicate.evidence[evidenceIndex];
+    const newEvidence = newEntity.predicate.evidence[evidenceIndex];
 
+    switch (category) {
+      case 'term':
+        return self.noctuaGraphService.editTerm(cam, newEntity.uuid, oldEntity.term.id, newEntity.term.id);
+      case 'evidence':
+        return self.noctuaGraphService.editEvidenceCode(
+          cam, newEvidence.uuid, oldEvidence.evidence.id, newEvidence.evidence.id);
+      case 'reference':
+        return self.noctuaGraphService.editEvidenceReference(
+          cam, newEvidence.uuid, oldEvidence.reference, newEvidence.reference);
+      case 'with':
+        return self.noctuaGraphService.editEvidenceWith(
+          cam, newEvidence.uuid, oldEvidence.with, newEvidence.with);
+      case 'relationship':
+        // Relationship inline-edit has no backend op wired (matches prior behavior).
+        return of(null);
+    }
   }
 }
 

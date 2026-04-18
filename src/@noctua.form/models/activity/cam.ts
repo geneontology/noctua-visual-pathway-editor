@@ -10,7 +10,6 @@ import { each, find, orderBy } from 'lodash';
 import { NoctuaFormUtils } from './../../utils/noctua-form-utils';
 import { Violation } from './error/violation-error';
 import { ActivityError } from './parser/activity-error';
-import { PendingChange } from './pending-change';
 
 export enum ReloadType {
   RESET = 'reset',
@@ -186,7 +185,6 @@ export class Cam {
   copyModelManager;
   artManager;
   groupManager;
-  replaceManager;
 
   // Display 
 
@@ -378,33 +376,6 @@ export class Cam {
 
 
 
-
-  addPendingChanges(findEntities: Entity[], replaceWith: string, category) {
-    const self = this;
-
-    each(self._activities, (activity: Activity) => {
-      each(activity.nodes, (node: ActivityNode) => {
-        each(findEntities, (entity: Entity) => {
-          if (category.name === noctuaFormConfig.findReplaceCategory.options.reference.name) {
-            each(node.predicate.evidence, (evidence: Evidence, key) => {
-              if (evidence.uuid === entity.uuid) {
-                const oldReference = new Entity(evidence.reference, evidence.reference);
-                const newReference = new Entity(replaceWith, replaceWith);
-
-                evidence.pendingReferenceChanges = new PendingChange(evidence.uuid, oldReference, newReference);
-                evidence.pendingReferenceChanges.uuid = evidence.uuid;
-              }
-            });
-          } else {
-            if (node.term.uuid === entity.uuid) {
-              const newValue = new Entity(replaceWith, replaceWith);
-              node.pendingEntityChanges = new PendingChange(node.uuid, node.term, newValue);
-            }
-          }
-        });
-      });
-    });
-  }
 
   reviewCamChanges(stat: CamStats = new CamStats()): boolean {
     const self = this;
