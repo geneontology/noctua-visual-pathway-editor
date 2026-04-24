@@ -36,8 +36,6 @@ export class NoctuaActivityConnectorService {
   public onActivityChanged: BehaviorSubject<any>;
   public onLinkChanged: BehaviorSubject<any>;
 
-  private _allowRequestWatch = false;
-
   constructor(private _fb: FormBuilder, public noctuaFormConfigService: NoctuaFormConfigService,
     private camService: CamService,
     private noctuaLookupService: NoctuaLookupService,
@@ -60,8 +58,6 @@ export class NoctuaActivityConnectorService {
 
   initializeForm(subjectId: string, objectId: string) {
     const self = this;
-
-    self._allowRequestWatch = false;
 
     self.subjectActivity = this.cam.findActivityById(subjectId);
     self.objectActivity = this.cam.findActivityById(objectId);
@@ -173,10 +169,6 @@ export class NoctuaActivityConnectorService {
   private _onActivityFormChanges(): void {
     this.connectorFormGroup.getValue().valueChanges.subscribe(value => {
       this.connectorActivity.checkConnection(value);
-      if (this.connectorActivity.predicate?.edge?.id && this._allowRequestWatch && (this.connectorActivity.state === ConnectorState.editing)) {
-        this.saveActivity()
-      }
-      this._allowRequestWatch = true
     });
   }
 }

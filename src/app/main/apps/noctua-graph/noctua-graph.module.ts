@@ -12,6 +12,7 @@ import { RelationPreviewComponent } from './relation-preview/relation-preview.co
 import { ActivityTableComponent } from './activity-table/activity-table.component';
 import { ActivityConnectorTableComponent } from './activity-connector-table/activity-connector-table.component';
 import { CamErrorsComponent } from './cam-errors/cam-errors.component';
+import { EditActivityConnectorDialogComponent } from './dialogs/edit-activity-connector-dialog/edit-activity-connector-dialog.component';
 
 
 const routes = [
@@ -38,7 +39,8 @@ const routes = [
     RelationPreviewComponent,
     ActivityTableComponent,
     CamErrorsComponent,
-    ActivityConnectorTableComponent
+    ActivityConnectorTableComponent,
+    EditActivityConnectorDialogComponent
   ]
 })
 

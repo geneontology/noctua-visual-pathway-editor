@@ -14,6 +14,5 @@ export enum RightPanel {
     camTable = 'camTable',
     activityTable = 'activityTable',
     camErrors = 'camErrors',
-    activityConnectorTable = 'activityConnectorTable',
     termDetail = 'termDetail'
 }
