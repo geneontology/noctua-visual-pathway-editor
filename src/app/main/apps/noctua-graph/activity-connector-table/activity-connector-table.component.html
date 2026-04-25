@@ -117,9 +117,10 @@
     }
   </div>
   <div fxLayout="row" fxLayoutAlign="start center" class="noc-drawer-footer noc-submit-row">
+    <button (click)='deleteConnectorEdge()' type="button" mat-raised-button color="warn" class="ml-8">Delete</button>
     <span fxFlex></span>
-    <button [disabled]="!connectorActivity?.predicate.edge?.id" (click)="save()" type="button" mat-raised-button
+    <button (click)="close()" type="button" mat-stroked-button class="noc-rounded-button mr-8">Cancel</button>
+    <button [disabled]="!connectorActivity?.predicate?.edge?.id" (click)="save()" type="button" mat-raised-button
       color="primary" class="noc-rounded-button mr-8">Save</button>
-    <button (click)='deleteConnectorEdge()' type="button" mat-raised-button color="warn" class="mr-8">Delete</button>
   </div>
 </form>
