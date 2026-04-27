@@ -147,22 +147,20 @@ export class NoctuaEditorDropdownComponent implements OnInit, OnDestroy {
       case EditorCategory.with:
       case EditorCategory.relationship:
         this.close();
-        self.noctuaActivityEntityService.saveActivityReplace(self.cam).pipe(
+        self.noctuaActivityEntityService.saveInlineEdit(
+          self.cam,
+          self.category as 'term' | 'evidence' | 'reference' | 'with' | 'relationship',
+          self.evidenceIndex
+        ).pipe(
           take(1),
-          concatMap((result) => {
-            return EMPTY;
-          }),
+          concatMap(() => EMPTY),
           finalize(() => {
             self.zone.run(() => {
               self.cam.loading.status = false;
-              self.cam.reviewCamChanges()
-            })
+              self.cam.reviewCamChanges();
+            });
           }))
-          .subscribe(() => {
-            self.zone.run(() => {
-            })
-
-          });
+          .subscribe();
         break;
       case EditorCategory.evidenceAll:
         self.noctuaActivityEntityService.addEvidence().then(() => {

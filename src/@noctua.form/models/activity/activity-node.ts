@@ -7,7 +7,6 @@ import { Contributor } from './../contributor';
 import { each, find, some } from 'lodash';
 import { NoctuaFormUtils } from './../../utils/noctua-form-utils';
 import { Predicate } from './predicate';
-import { PendingChange } from './pending-change';
 import { CamStats } from './cam';
 
 export class GoCategory {
@@ -117,11 +116,7 @@ export class ActivityNode implements ActivityNodeDisplay {
 
   private _id: string;
 
-  //For Save 
-  pendingEntityChanges: PendingChange;
-  pendingRelationChanges: PendingChange;
-
-  //CHemical Properties  
+  //CHemical Properties
   chemicalParticipants = []
 
 
@@ -270,26 +265,6 @@ export class ActivityNode implements ActivityNodeDisplay {
       const oldEvidence = oldNode?.predicate.getEvidenceById(evidence.uuid)
       evidence.checkStored(oldEvidence)
     });
-  }
-
-  addPendingChanges(oldNode: ActivityNode) {
-    const self = this;
-
-    if (self.term.id !== oldNode.term.id) {
-      self.pendingEntityChanges = new PendingChange(self.uuid, oldNode.term, self.term);
-    }
-
-    if (self.predicate.edge.id !== oldNode.predicate.edge.id) {
-      self.pendingRelationChanges = new PendingChange(self.uuid, oldNode.predicate.edge, self.predicate.edge);
-    }
-
-    each(self.predicate.evidence, (evidence: Evidence, key) => {
-      const oldEvidence = oldNode.predicate.getEvidenceById(evidence.uuid)
-      evidence.addPendingChanges(oldEvidence);
-    });
-
-    //this is temporary swap back into old
-    //self.term = oldNode.term
   }
 
   enableSubmit(errors, validateEvidence = true) {

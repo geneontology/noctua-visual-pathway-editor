@@ -29,7 +29,7 @@
       </span>
       <button mat-stroked-button class="noc-rounded-button noc-action-button noc-half-button noc-xs" color="primary"
         [matMenuTriggerFor]="graphLayoutDetailMenu">
-        {{noctuaGraphEditorService.selectedGraphLayoutDetail.label}} @if (cam.expanded) {
+        {{noctuaGraphEditorService.selectedGraphLayoutDetail.label}} @if (cam?.expanded) {
         <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
         }
       </button>
@@ -45,7 +45,7 @@
       </span>
       <button mat-stroked-button class="noc-rounded-button noc-action-button noc-half-button noc-xs" color="primary"
         [matMenuTriggerFor]="graphLayoutSpacingMenu">
-        {{noctuaGraphEditorService.selectedGraphLayoutSpacing.label}} @if (cam.expanded) {
+        {{noctuaGraphEditorService.selectedGraphLayoutSpacing.label}} @if (cam?.expanded) {
         <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
         }
       </button>

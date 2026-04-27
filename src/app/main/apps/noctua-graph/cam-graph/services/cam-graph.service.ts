@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import 'jqueryui';
 import * as joint from 'jointjs';
 import { each } from 'lodash';
@@ -15,6 +16,7 @@ import { NoctuaConfirmDialogService } from '@noctua/components/confirm-dialog/co
 import { CamCanvas } from '@noctua.graph/models/cam-canvas';
 import { CamStencil } from '@noctua.graph/models/cam-stencil';
 import { NoctuaGraphEditorService } from '@noctua.graph/services/graph-editor-service';
+import { EditActivityConnectorDialogComponent } from '../../dialogs/edit-activity-connector-dialog/edit-activity-connector-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +47,8 @@ export class CamGraphService {
     private _activityFormService: NoctuaActivityFormService,
     private _activityConnectorService: NoctuaActivityConnectorService,
     public noctuaCommonMenuService: NoctuaCommonMenuService,
-    private noctuaShapesService: NoctuaShapesService) {
+    private noctuaShapesService: NoctuaShapesService,
+    private _matDialog: MatDialog) {
 
 
     /*    this._camService.onCamChanged
@@ -202,10 +205,10 @@ export class CamGraphService {
     if (!source || !target) return;
 
     self._activityConnectorService.initializeForm(source.id, target.id);
-    self.noctuaCommonMenuService.selectRightPanel(RightPanel.activityConnectorTable);
-    self.noctuaCommonMenuService.closeLeftDrawer();
-    self.noctuaCommonMenuService.openRightDrawer();
-
+    self._matDialog.open(EditActivityConnectorDialogComponent, {
+      panelClass: 'noc-activity-create-dialog',
+      data: { cam: self.cam }
+    });
   }
 
   autoLayoutGraph(spacingId: string) {

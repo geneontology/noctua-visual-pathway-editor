@@ -1,0 +1,8 @@
+@if (visible) {
+  <div class="noc-loading-overlay">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    @if (message) {
+      <span class="noc-loading-overlay-message">{{ message }}</span>
+    }
+  </div>
+}
