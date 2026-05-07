@@ -144,8 +144,8 @@ export class NoctuaLookupService {
     ];
 
     if (aspect === 'C') {
-      fqFilters.push('regulates_closure:"GO:0005575"');
-      fqFilters.push('-regulates_closure:"GO:0032991"');
+      fqFilters.push('isa_partof_closure:"GO:0005575"');
+      fqFilters.push('-isa_partof_closure:"GO:0032991"');
 
     } else {
       fqFilters.push('aspect: "' + aspect + '"');
@@ -171,17 +171,10 @@ export class NoctuaLookupService {
         'assigned_by',
         'aspect',
         'evidence_type_closure',
-        // 'panther_family_label',
-        // 'qualifier',
-        // 'taxon_label',
+        'isa_partof_closure_label',
         'annotation_class_label',
-        // 'regulates_closure_label',
-        // 'annotation_extension_class_closure_label'
       ],
       q: '*:*',
-      //  packet: '1',
-      //  callback_type: 'search',
-      // _: Date.now()
     };
 
 
