@@ -38,15 +38,8 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-<<<<<<< HEAD
 nul
 
 downloads
 # temporarily removed  workbench files
 workbenches
-=======
-
-
-downloads
-nul
->>>>>>> issue-110-filter-occurs-in-complexes

@@ -20,7 +20,10 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "workbenches/noctua-visual-pathway-editor/public",
+            "outputPath": {
+              "base": "workbenches/noctua-visual-pathway-editor/public",
+              "browser": ""
+            },
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [

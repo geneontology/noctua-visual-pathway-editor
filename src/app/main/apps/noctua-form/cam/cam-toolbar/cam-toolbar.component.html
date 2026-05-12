@@ -10,7 +10,7 @@
     </button>
   </div>
   }
-  <!--   <div class="noc-error flex flex-row justify-start items-center">
+  <div class="noc-error flex flex-row justify-start items-center">
     <mat-chip class="noc-error-chip noc-chip-xs ml-2 flex flex-row justify-start items-center"
       (click)="openCamErrors()">
       <div class="noc-icon">
@@ -20,7 +20,7 @@
         {{cam.totalErrors}} Error(s) Found
       </div>
     </mat-chip>
-  </div> -->
+  </div>
   <div class="border-r border-[#BBB] border-l px-4">
     <button mat-icon-button class="noc-toolbar-button noc-rounded-button" (click)="openCamForm()"
       matTooltip="{{cam?.comments}}" [matTooltipPosition]="'after'" [matTooltipShowDelay]="1000">
@@ -38,14 +38,13 @@
   </div>
   @if (cam.state) {
   <div class="noc-model-state flex flex-row justify-start items-center">
-    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border"
-         [ngClass]="{
+    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border" [ngClass]="{
            'border-[#f4c89c] bg-[#f4c89c]/20': cam.state.name === 'development',
            'border-[#b6f1cc] bg-[#b6f1cc]/20': cam.state.name === 'production',
            'border-[#d8f6a3] bg-[#d8f6a3]/20': cam.state.name === 'review'
          }">
       <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full text-[#777] text-[14px] flex-shrink-0"
-           [ngClass]="{
+        [ngClass]="{
              'bg-[#f4c89c]': cam.state.name === 'development',
              'bg-[#b6f1cc]': cam.state.name === 'production',
              'bg-[#d8f6a3]': cam.state.name === 'review'
@@ -55,7 +54,9 @@
       <div class="grow px-2">
         {{cam.state.label}}
       </div>
-      <button class="flex items-center justify-center h-[25px] w-[25px] rounded-full text-[#777] text-[10px] flex-shrink-0 bg-transparent hover:text-[14px] hover:text-[#222] hover:bg-black/20" (click)="openCamForm()">
+      <button
+        class="flex items-center justify-center h-[25px] w-[25px] rounded-full text-[#777] text-[10px] flex-shrink-0 bg-transparent hover:text-[14px] hover:text-[#222] hover:bg-black/20"
+        (click)="openCamForm()">
         <fa-icon [icon]="['fas', 'pen']"></fa-icon>
       </button>
     </div>
@@ -63,13 +64,12 @@
   }
   @if (cam.date) {
   <div class="noc-date border-r border-[#BBB] mr-2 w-[100px] flex flex-row justify-start items-center">
-    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#aee9f5] bg-[#aee9f5]/20 cursor-pointer"
-         (click)="openCamForm()"
-         (keydown.enter)="openCamForm()"
-         (keydown.space)="openCamForm()"
-         tabindex="0"
-         role="button">
-      <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#aee9f5] text-[#777] text-[14px] flex-shrink-0">
+    <div
+      class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#aee9f5] bg-[#aee9f5]/20 cursor-pointer"
+      (click)="openCamForm()" (keydown.enter)="openCamForm()" (keydown.space)="openCamForm()" tabindex="0"
+      role="button">
+      <div
+        class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#aee9f5] text-[#777] text-[14px] flex-shrink-0">
         <fa-icon [icon]="['fas', 'calendar-day']"></fa-icon>
       </div>
       <div class="grow px-2">
@@ -80,13 +80,12 @@
   }
   <div class="grow flex flex-row justify-start items-center gap-2">
     @for (contributor of cam.contributors; track contributor) {
-    <div class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#bbc9cc] bg-[#bbc9cc]/20 cursor-pointer"
-         (click)="openCamForm()"
-         (keydown.enter)="openCamForm()"
-         (keydown.space)="openCamForm()"
-         tabindex="0"
-         role="button">
-      <div class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#bbc9cc] text-[#59939e] text-[14px] flex-shrink-0">
+    <div
+      class="flex flex-row justify-start items-center rounded-full text-[10px] border border-[#bbc9cc] bg-[#bbc9cc]/20 cursor-pointer"
+      (click)="openCamForm()" (keydown.enter)="openCamForm()" (keydown.space)="openCamForm()" tabindex="0"
+      role="button">
+      <div
+        class="flex items-center justify-center h-[25px] w-[25px] rounded-full bg-[#bbc9cc] text-[#59939e] text-[14px] flex-shrink-0">
         <fa-icon [icon]="['fas', 'user']"></fa-icon>
       </div>
       <div class="grow px-2">

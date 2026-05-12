@@ -447,7 +447,7 @@ export class NoctuaGraphService {
       const evidence = new Evidence();
 
       evidence.edge = new Entity(edge.predicate_id(), '');
-      evidence.uuid = annotationNode.id();
+      evidence.uuid = annotationNode?.id();
       if (annotationNode) {
 
         const nodeInfo = self.getNodeInfo(annotationNode);
