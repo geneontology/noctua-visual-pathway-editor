@@ -1,40 +1,4 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "baseUrl": "./src",
-    "module": "es2020",
-    "outDir": "./dist/out-tsc",
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noFallthroughCasesInSwitch": true,
-    "sourceMap": true,
-    "moduleResolution": "bundler",
-    "importHelpers": true,
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "declaration": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "paths": {
-      "@geneontology/noctua-form-base": [
-        "@noctua.form/"
-      ]
-    },
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
-  },
-  "angularCompilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
-  }
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
