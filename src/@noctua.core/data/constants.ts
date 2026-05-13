@@ -12,8 +12,13 @@ const golrServer = typeof global_golr_server !== 'undefined'
   ? global_golr_server
   : 'https://golr-aux.geneontology.io/solr/';
 
+const appEnv: AppEnv = (import.meta.env.VITE_APP_ENV ?? 'dev') as AppEnv
+
 export const ENVIRONMENT = {
-  isDev: import.meta.env.VITE_DEV_MODE === 'true',
+  appEnv,
+  isDev: appEnv === 'dev',
+  isBeta: appEnv === 'beta',
+  isProd: appEnv === 'prod',
 
   globalGolrNeoServer: golrNeoServer,
   globalGolrServer: golrServer,

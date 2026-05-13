@@ -24,7 +24,7 @@ const EditableCell = forwardRef<HTMLDivElement, EditableCellProps>(
       {onDelete && (
         <button
           onClick={onDelete}
-          className="absolute right-0 top-0 hidden h-5 w-5 items-center justify-center text-red-400 hover:bg-red-400 hover:text-white group-hover/cell:flex"
+          className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center text-red-400 opacity-0 pointer-events-none transition-opacity hover:bg-red-400 hover:text-white group-hover/cell:opacity-100 group-hover/cell:pointer-events-auto"
         >
           <FaTrash size={10} />
         </button>
@@ -32,7 +32,7 @@ const EditableCell = forwardRef<HTMLDivElement, EditableCellProps>(
       {onEdit && (
         <button
           onClick={onEdit}
-          className="absolute bottom-0 right-0 hidden h-5 w-5 items-center justify-center text-gray-400 hover:bg-primary-500 hover:text-white group-hover/cell:flex"
+          className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center text-gray-400 opacity-0 pointer-events-none transition-opacity hover:bg-primary-500 hover:text-white group-hover/cell:opacity-100 group-hover/cell:pointer-events-auto"
         >
           <FaPencilAlt size={9} />
         </button>

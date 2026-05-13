@@ -16,7 +16,10 @@ const Toolbar: React.FC = () => {
   const { isLoggedIn, loginUrl, logoutUrl, noctuaUrl } = useAuth()
   const user = useAppSelector(selectAuthUser)
 
-  const isDev = ENVIRONMENT.isDev
+  const { isDev, isBeta, isProd } = ENVIRONMENT
+
+  const toolbarBg = isDev ? 'bg-accent-500' : isBeta ? 'bg-brown-100' : 'bg-white'
+  const envLabel = isDev ? '(dev)' : isBeta ? '(beta)' : null
 
   const logout = () => {
     window.location.href = logoutUrl
@@ -24,7 +27,7 @@ const Toolbar: React.FC = () => {
 
   return (
     <div
-      className={`relative flex h-full items-center py-0 px-4 ${isDev ? 'bg-accent-500' : 'bg-white'}`}
+      className={`relative flex h-full items-center py-0 px-4 ${toolbarBg} bg-mauve-300`}
     >
       {/* Logo / Branding — left side */}
       <div className="flex h-full flex-col items-start justify-center py-2">
@@ -47,9 +50,9 @@ const Toolbar: React.FC = () => {
           >
             Pathway Editor
           </a>
-          {isDev && <span className="text-xl text-gray-700">(dev)</span>}
+          {envLabel && <span className="text-xl text-gray-700">{envLabel}</span>}
         </div>
-        {isDev && (
+        {!isProd && (
           <div className="text-2xs italic font-bold text-gray-700">
             Testing Version. Visit{' '}
             <a

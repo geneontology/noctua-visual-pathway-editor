@@ -1,6 +1,6 @@
 import * as joint from 'jointjs'
 import * as dagre from 'dagre'
-import { NodeCellList, NodeCellMolecule, NodeLink, registerShapes } from './shapes'
+import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace } from './shapes'
 import { getEdgeColor } from './edgeDisplayService'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
@@ -41,17 +41,15 @@ export class CamCanvas {
   onStencilDrop?: (type: string, x: number, y: number) => void
 
   constructor(container: HTMLElement) {
-    registerShapes()
-
     this._container = container
     this._wrapper = document.createElement('div')
     this._wrapper.style.width = '100%'
     this._wrapper.style.height = '100%'
     container.appendChild(this._wrapper)
 
-    this.graph = new joint.dia.Graph({}, { cellNamespace: joint.shapes })
+    this.graph = new joint.dia.Graph({}, { cellNamespace })
     this.paper = new joint.dia.Paper({
-      cellViewNamespace: joint.shapes,
+      cellViewNamespace: cellNamespace,
       el: this._wrapper,
       height: '100%',
       width: '100%',

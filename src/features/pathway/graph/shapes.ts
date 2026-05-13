@@ -485,15 +485,17 @@ export class NodeLink extends joint.shapes.standard.Link {
   }
 }
 
-// ── Register shapes in JointJS namespace ──────────────────────────
-// Required for cellNamespace / cellViewNamespace to resolve types.
+// ── Cell namespace for JointJS Graph/Paper ────────────────────────
+// Combines built-in joint.shapes with our custom shapes. Passed to
+// cellNamespace / cellViewNamespace so type strings resolve to classes.
+// We build a fresh object instead of mutating joint.shapes — under
+// Vite's production ESM bundling, joint.shapes is non-extensible.
 
-export function registerShapes() {
-  Object.assign(joint.shapes, {
-    noctua: {
-      NodeCellList,
-      NodeCellMolecule,
-      NodeLink,
-    },
-  })
+export const cellNamespace = {
+  ...joint.shapes,
+  noctua: {
+    NodeCellList,
+    NodeCellMolecule,
+    NodeLink,
+  },
 }

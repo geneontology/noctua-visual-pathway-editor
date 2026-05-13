@@ -1,4 +1,9 @@
-@import 'tailwindcss';
+/* `important` makes every Tailwind utility `!important`. Required because
+   this workbench is embedded inside the Noctua shell which loads Bootstrap 3
+   globally — Bootstrap rules like `.hidden { display: none !important }`
+   otherwise override our hover/state utilities. With both sides !important,
+   source order wins, and our CSS loads after Bootstrap. */
+@import 'tailwindcss' important;
 
 @theme {
   --color-primary-50: #e4e7ec;
@@ -32,6 +37,28 @@
 .navbar {
   display: none !important;
   visibility: hidden;
+}
+
+/* ── Noctua shell (Bootstrap 3) reset ──────────────────────────────
+   When this workbench is mounted inside the Noctua shell, Bootstrap 3,
+   bbop.css, and amigo.css cascade into our DOM. The `important` flag on
+   the Tailwind import handles utility conflicts; the rules below reset
+   non-utility cascades that still bleed through. Scoped to `#root` so
+   we don't fight the parent navbar's own styling. */
+#root {
+  a:hover {
+    text-decoration: none;
+  }
+  button {
+    background: transparent;
+    border: none;
+    line-height: normal;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
 html {
