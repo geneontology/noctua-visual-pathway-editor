@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
+import fs from 'fs'
 import tsChecker from 'vite-plugin-checker'
 import { loadEnv } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -10,6 +11,27 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const outDir = env.VITE_OUTPUT_PATH || 'dist'
 
+  const workbenchInjectTmpl = {
+    name: 'workbench-inject-tmpl',
+    apply: 'build' as const,
+    transformIndexHtml(html: string) {
+      if (env.VITE_BASE_URL && env.VITE_BASE_URL !== '/') {
+        return html.replace(
+          /<head>/i,
+          `<head>\n  <base href="${env.VITE_BASE_URL}">`
+        )
+      }
+      return html
+    },
+    closeBundle() {
+      const indexPath = path.resolve(outDir, 'index.html')
+      const injectPath = path.resolve(outDir, 'inject.tmpl')
+      if (fs.existsSync(indexPath)) {
+        fs.renameSync(indexPath, injectPath)
+      }
+    },
+  }
+
   return {
     base: env.VITE_BASE_URL,
     logLevel: 'info',
@@ -17,6 +39,7 @@ export default defineConfig(({ command, mode }) => {
       react(),
       tailwindcss(),
       tsChecker({ typescript: true }),
+      workbenchInjectTmpl,
       visualizer({
         filename: `${outDir}/stats-treemap.html`,
         template: 'treemap',
@@ -45,6 +68,15 @@ export default defineConfig(({ command, mode }) => {
           manualChunks(id) {
             if (id.includes('@mantine')) return 'mantine'
             if (id.includes('framer-motion')) return 'framer-motion'
+            if (id.includes('jointjs')) return 'jointjs'
+            if (id.includes('reactflow')) return 'reactflow'
+            if (id.includes('@apollo')) return 'apollo'
+            if (id.includes('graphql')) return 'graphql'
+            if (id.includes('@reduxjs') || id.includes('react-redux')) return 'redux'
+            if (id.includes('react-router')) return 'react-router'
+            if (id.includes('dagre') || id.includes('graphlib')) return 'dagre'
+            if (id.includes('socket.io')) return 'socket-io'
+            if (id.includes('react-hook-form')) return 'react-hook-form'
           },
           assetFileNames: (assetInfo) => {
             let extType = assetInfo.name.split('.').at(1);

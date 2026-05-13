@@ -33,7 +33,6 @@ dist-ssr
 .env.development
 
 downloads
-workbenches/*
 
 
 # Claude Code
