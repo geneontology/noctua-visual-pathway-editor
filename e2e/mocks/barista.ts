@@ -25,6 +25,15 @@ const fakeGroups = [
   { label: 'Test Group', id: 'http://geneontology.org/groups/test' },
 ]
 
+const fakeUserInfo = {
+  uri: 'https://orcid.org/0000-0000-0000-0000',
+  token: 'test-barista-token',
+  email: 'test@example.com',
+  color: '#3b82f6',
+  nickname: 'Test User',
+  groups: fakeGroups,
+}
+
 const jsonResponse = (body: unknown) => ({
   status: 200,
   contentType: 'application/json',
@@ -34,6 +43,20 @@ const jsonResponse = (body: unknown) => ({
 export const mockBaristaMetadata = async (page: Page): Promise<void> => {
   await page.route('**/users', route => route.fulfill(jsonResponse(fakeUsers)))
   await page.route('**/groups', route => route.fulfill(jsonResponse(fakeGroups)))
+}
+
+/**
+ * Mock the user_info_by_token endpoint used by useAuthSetup when a barista_token is present.
+ * Pass a non-empty token to act as "logged in"; pass null to simulate an invalid token
+ * (the response has no token field, which makes useAuthSetup clear auth state).
+ */
+export const mockUserInfoByToken = async (
+  page: Page,
+  opts: { loggedIn: boolean } = { loggedIn: true }
+): Promise<void> => {
+  await page.route('**/user_info_by_token/**', route =>
+    route.fulfill(jsonResponse(opts.loggedIn ? fakeUserInfo : {}))
+  )
 }
 
 export const mockBaristaModel = async (

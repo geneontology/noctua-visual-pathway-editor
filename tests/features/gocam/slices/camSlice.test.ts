@@ -5,9 +5,11 @@ import camReducer, {
   selectCamModel,
   selectSelectedActivity,
   selectModelEvidence,
+  selectModelReferences,
+  selectModelWith,
   makeSelectModelTerms,
 } from '@/features/gocam/slices/camSlice'
-import type { Edge } from '@/features/gocam/models/cam'
+import type { Edge, Evidence, GraphModel } from '@/features/gocam/models/cam'
 import {
   buildActivity,
   buildEdgeWithEvidence,
@@ -141,6 +143,127 @@ describe('camSlice selectModelEvidence', () => {
     const a = buildActivity('act-1', [buildNode('GO:1', 'Foo')], [edge])
     const state = { cam: { ...initial, model: buildModel([a]) } }
     expect(selectModelEvidence(state)).toEqual([])
+  })
+
+  it('includes evidence from activityConnections, not just activity edges', () => {
+    const ecoActivity = { id: 'ECO:0000314', label: 'IDA' }
+    const ecoConnector = { id: 'ECO:0000353', label: 'IPI' }
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithEvidence('e1', [ecoActivity])]
+    )
+    const model: GraphModel = {
+      ...buildModel([a]),
+      activityConnections: [buildEdgeWithEvidence('conn', [ecoConnector])],
+    }
+    const state = { cam: { ...initial, model } }
+
+    const ids = selectModelEvidence(state).map(r => r.id).sort()
+    expect(ids).toEqual(['ECO:0000314', 'ECO:0000353'])
+  })
+})
+
+function buildEdgeWithRefAndWith(id: string, references: string[], withs: string[]): Edge {
+  const max = Math.max(references.length, withs.length)
+  const evidence: Evidence[] = Array.from({ length: max }, (_, i) => ({
+    uid: `ev_${id}_${i}`,
+    evidenceCode: { id: 'ECO:1', label: 'X' },
+    reference: references[i] ?? '',
+    referenceUrl: '',
+    with: withs[i] ?? '',
+    groups: [],
+    contributors: [],
+  }))
+  return {
+    uid: `edge_${id}`,
+    id,
+    label: '',
+    sourceId: 's',
+    targetId: 't',
+    source: buildNode('s', 'S'),
+    target: buildNode('t', 'T'),
+    contributors: [],
+    groups: [],
+    evidence,
+  }
+}
+
+describe('camSlice selectModelReferences', () => {
+  it('returns empty array when model is null', () => {
+    expect(selectModelReferences({ cam: initial })).toEqual([])
+  })
+
+  it('returns unique non-empty references from activity edges', () => {
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [
+        buildEdgeWithRefAndWith('e1', ['PMID:1', 'PMID:2', ''], []),
+        buildEdgeWithRefAndWith('e2', ['PMID:1'], []),
+      ]
+    )
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+
+    expect(selectModelReferences(state).sort()).toEqual(['PMID:1', 'PMID:2'])
+  })
+
+  it('includes references from activityConnections', () => {
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithRefAndWith('e1', ['PMID:1'], [])]
+    )
+    const model: GraphModel = {
+      ...buildModel([a]),
+      activityConnections: [buildEdgeWithRefAndWith('conn', ['PMID:99'], [])],
+    }
+    const state = { cam: { ...initial, model } }
+
+    expect(selectModelReferences(state).sort()).toEqual(['PMID:1', 'PMID:99'])
+  })
+
+  it('trims whitespace and dedupes', () => {
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithRefAndWith('e1', ['  PMID:1  ', 'PMID:1'], [])]
+    )
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+    expect(selectModelReferences(state)).toEqual(['PMID:1'])
+  })
+})
+
+describe('camSlice selectModelWith', () => {
+  it('returns empty array when model is null', () => {
+    expect(selectModelWith({ cam: initial })).toEqual([])
+  })
+
+  it('returns unique non-empty with values from activity edges and connections', () => {
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithRefAndWith('e1', [], ['UniProtKB:P12345'])]
+    )
+    const model: GraphModel = {
+      ...buildModel([a]),
+      activityConnections: [
+        buildEdgeWithRefAndWith('conn', [], ['UniProtKB:P12345', 'UniProtKB:Q99999']),
+      ],
+    }
+    const state = { cam: { ...initial, model } }
+
+    expect(selectModelWith(state).sort()).toEqual(['UniProtKB:P12345', 'UniProtKB:Q99999'])
+  })
+
+  it('skips empty strings', () => {
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithRefAndWith('e1', [], ['', '  ', 'UniProtKB:X'])]
+    )
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+    expect(selectModelWith(state)).toEqual(['UniProtKB:X'])
   })
 })
 
