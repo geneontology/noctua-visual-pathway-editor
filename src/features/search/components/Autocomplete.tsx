@@ -1,15 +1,13 @@
 import type React from 'react'
 import type { KeyboardEvent } from 'react'
-import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FiFile } from 'react-icons/fi'
 import { useSearchTermsQuery } from '../slices/lookupApiSlice'
 import type { GOlrResponse } from '../models/search'
 import { AutocompleteType } from '../models/search'
-import { Loader, Portal } from '@mantine/core'
+import { Loader } from '@mantine/core'
 import FloatingTextarea from '@/@noctua.core/components/textarea/FloatingTextarea'
 import { DEBOUNCE_MS, BLUR_CLOSE_DELAY_MS, MIN_SEARCH_LENGTH } from '@/@noctua.core/data/uiConstants'
-
-const VIEWPORT_PAD = 4
 
 interface TermAutocompleteProps {
   label: string
@@ -72,8 +70,16 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
     }
   }, [data, useAutocomplete])
 
-  // Show initialOptions on focus when no search is active
-  const showInitial = open && inputValue.length < MIN_SEARCH_LENGTH && options.length === 0 && !searching
+  // Clear stale remote options when search becomes inactive so prelookups can show again
+  useEffect(() => {
+    if (!debouncedSearchTerm || debouncedSearchTerm.length < MIN_SEARCH_LENGTH) {
+      setOptions(prev => (prev.length === 0 ? prev : []))
+      setHighlightedIndex(prev => (prev === -1 ? prev : -1))
+    }
+  }, [debouncedSearchTerm])
+
+  // Show initialOptions (prelookups) whenever no remote results are loaded
+  const showInitial = open && options.length === 0 && !searching
   const displayOptions = showInitial ? initialOptions : options
 
   useEffect(() => {
@@ -135,33 +141,6 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
     }
   }, [highlightedIndex])
 
-  useLayoutEffect(() => {
-    const list = listRef.current
-    const anchor = anchorRef.current
-    if (!open || !list || !anchor) return
-
-    const anchorRect = anchor.getBoundingClientRect()
-
-    list.style.position = 'fixed'
-    list.style.visibility = 'hidden'
-    list.style.top = `${anchorRect.bottom + VIEWPORT_PAD}px`
-    list.style.left = `${Math.max(VIEWPORT_PAD, anchorRect.left)}px`
-    list.style.right = ''
-
-    const listRect = list.getBoundingClientRect()
-    if (listRect.right > window.innerWidth - VIEWPORT_PAD) {
-      list.style.left = ''
-      list.style.right = `${Math.max(VIEWPORT_PAD, window.innerWidth - anchorRect.right)}px`
-    }
-
-    const settled = list.getBoundingClientRect()
-    if (settled.bottom > window.innerHeight - VIEWPORT_PAD) {
-      const flippedTop = anchorRect.top - settled.height - VIEWPORT_PAD
-      list.style.top = `${Math.max(VIEWPORT_PAD, flippedTop)}px`
-    }
-
-    list.style.visibility = 'visible'
-  }, [open, displayOptions, searching])
 
   const handleOptionSelect = (option: GOlrResponse) => {
     onChange(option)
@@ -172,7 +151,11 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
 
   return (
     <div className="w-full">
-      <div ref={anchorRef} onKeyDown={handleKeyDown}>
+      <div
+        ref={anchorRef}
+        onKeyDown={handleKeyDown}
+        onMouseDown={() => useAutocomplete && setOpen(true)}
+      >
         <FloatingTextarea
           id={`autocomplete-${name}`}
           name={name}
@@ -183,7 +166,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
             setInputValue(e.target.value)
             if (!open) setOpen(true)
           }}
-          onFocus={() => useAutocomplete && !inputValue && setOpen(true)}
+          onFocus={() => useAutocomplete && setOpen(true)}
           onBlur={() => {
             setTimeout(() => setOpen(false), BLUR_CLOSE_DELAY_MS)
             onBlur?.()
@@ -194,12 +177,11 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
         />
       </div>
 
-      {open && anchorRef.current && (
-        <Portal>
+      {open && (
+        <div className="relative">
           <div
             ref={listRef}
-            className="!bg-accent-50 z-[1300] max-h-60 w-[400px] overflow-y-auto rounded-md bg-white shadow-lg"
-            style={{ position: 'fixed', visibility: 'hidden' }}
+            className="!bg-accent-50 absolute left-0 top-0 z-[1300] max-h-60 w-[400px] overflow-y-auto rounded-md bg-white shadow-lg"
           >
             {!searching && displayOptions.length === 0 && (
               <div className="p-4 text-center text-xs text-gray-500">
@@ -212,7 +194,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
             {displayOptions.map((option, index) => (
               <div
                 key={option.id}
-                className={`flex min-h-[40px] cursor-pointer items-center border-b px-4 py-2 text-xs ${option.isObsolete ? 'pointer-events-none line-through opacity-40' : ''} ${index === highlightedIndex ? 'bg-blue-100' : 'hover:bg-blue-50'}`}
+                className={`flex min-h-[40px] cursor-pointer items-center border-b bg-accent-50 px-4 py-2 text-xs hover:bg-primary-50 ${option.isObsolete ? 'pointer-events-none line-through opacity-40' : ''} ${index === highlightedIndex ? 'bg-primary-100' : ''}`}
                 style={{ borderColor: 'rgba(59,89,152,0.3)' }}
                 onClick={() => !option.isObsolete && handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
@@ -252,7 +234,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               </div>
             ))}
           </div>
-        </Portal>
+        </div>
       )}
     </div>
   )

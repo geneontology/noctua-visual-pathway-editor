@@ -109,6 +109,42 @@ export const selectModelEvidence = createSelector(
   }
 )
 
+/** Unique reference values (e.g. PMID:123) from all edge evidence in the model */
+export const selectModelReferences = createSelector(
+  [selectCamModel],
+  (model): string[] => {
+    if (!model) return []
+    const seen = new Set<string>()
+    for (const activity of model.activities) {
+      for (const edge of activity.edges) {
+        if (!edge.evidence) continue
+        for (const ev of edge.evidence) {
+          if (ev.reference) seen.add(ev.reference)
+        }
+      }
+    }
+    return Array.from(seen)
+  }
+)
+
+/** Unique with/from values from all edge evidence in the model */
+export const selectModelWiths = createSelector(
+  [selectCamModel],
+  (model): string[] => {
+    if (!model) return []
+    const seen = new Set<string>()
+    for (const activity of model.activities) {
+      for (const edge of activity.edges) {
+        if (!edge.evidence) continue
+        for (const ev of edge.evidence) {
+          if (ev.with) seen.add(ev.with)
+        }
+      }
+    }
+    return Array.from(seen)
+  }
+)
+
 function nodeToOption(node: { id: string; label: string }): GOlrResponse {
   return {
     id: node.id,

@@ -1,12 +1,14 @@
 import type React from 'react'
-import { useState, useEffect } from 'react'
-import { ActionIcon, Loader, Select, TextInput } from '@mantine/core'
+import { useState, useEffect, useMemo } from 'react'
+import { ActionIcon, Autocomplete, Loader, Select } from '@mantine/core'
 import AnchoredPopover from '@/@noctua.core/components/popover/AnchoredPopover'
 import { FaRegTimesCircle, FaRegCheckCircle, FaUser, FaCalendarAlt } from 'react-icons/fa'
 import { referenceAllowedDBs } from '../../data/allowedDatabases'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import { useLazyGetPubmedInfoQuery } from '@/features/search/slices/lookupApiSlice'
 import { PUBMED_LOOKUP_DELAY_MS, MIN_PMID_LENGTH } from '@/@noctua.core/data/uiConstants'
+import { useAppSelector } from '@/app/hooks'
+import { selectModelReferences } from '../../slices/camSlice'
 
 interface ReferenceDropdownProps {
   anchorEl: HTMLElement | null
@@ -38,6 +40,14 @@ const ReferenceDropdown: React.FC<ReferenceDropdownProps> = ({
   const [accession, setAccession] = useState('')
   const [triggerPubmed, { data: pubmedInfo, isFetching: pubmedLoading }] =
     useLazyGetPubmedInfoQuery()
+
+  const modelReferences = useAppSelector(selectModelReferences)
+  const referenceSuggestions = useMemo(() => {
+    const prefix = `${db.name}:`
+    return modelReferences
+      .filter(r => r.startsWith(prefix))
+      .map(r => r.slice(prefix.length))
+  }, [modelReferences, db.name])
 
   // Pre-fill when popover opens
   useEffect(() => {
@@ -98,12 +108,14 @@ const ReferenceDropdown: React.FC<ReferenceDropdownProps> = ({
             allowDeselect={false}
             className="mr-3 w-[100px]"
           />
-          <TextInput
+          <Autocomplete
             size="xs"
             placeholder="Accession"
             value={accession}
-            onChange={e => setAccession(e.target.value)}
+            onChange={setAccession}
             onKeyDown={handleKeyDown}
+            data={referenceSuggestions}
+            limit={10}
             autoFocus
             className="flex-1"
           />

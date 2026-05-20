@@ -29,7 +29,8 @@
       "Bash(gh repo:*)",
       "Bash(gh issue:*)",
       "Bash(npm run *)",
-      "Bash(npx playwright *)"
+      "Bash(npx playwright *)",
+      "Bash(curl *)"
     ]
   }
 }

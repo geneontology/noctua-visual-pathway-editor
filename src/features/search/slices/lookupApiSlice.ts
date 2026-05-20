@@ -232,19 +232,17 @@ const lookupApi = apiService
       >({
         queryFn: async pmid => {
           try {
-            const url = `${ENVIRONMENT.pubmedApiUrl}?format=csl&id=${encodeURIComponent(pmid)}`
+            const url = `${ENVIRONMENT.pubmedApiUrl}${encodeURIComponent(pmid)}`
             const res = await fetch(url)
             if (!res.ok) return { data: null }
             const data = await res.json()
-            const title = data.title || ''
-            const authors =
-              data.author
-                ?.map((a: { family?: string; given?: string }) =>
-                  [a.given, a.family].filter(Boolean).join(' ')
-                )
-                .join(', ') || ''
-            const issued = data.issued?.['date-parts']?.[0]
-            const date = issued ? issued.join('-') : ''
+            const entry = data?.result?.[pmid]
+            if (!entry) return { data: null }
+            const title = entry.title || ''
+            const authors = Array.isArray(entry.authors)
+              ? entry.authors.map((a: { name?: string }) => a.name).filter(Boolean).join(', ')
+              : ''
+            const date = entry.pubdate || ''
             return { data: { title, authors, date } }
           } catch {
             return { data: null }

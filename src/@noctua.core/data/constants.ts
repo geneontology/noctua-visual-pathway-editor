@@ -1,16 +1,20 @@
-declare var global_barista_location: any;
-declare var global_minerva_definition_name: any;
-declare var global_golr_neo_server: any;
-declare var global_golr_server: any;
+declare global {
+  interface Window {
+    global_barista_location?: string
+    global_minerva_definition_name?: string
+    global_golr_neo_server?: string
+    global_golr_server?: string
+    global_noctua_url?: string
+    global_workbench_url?: string
+  }
+}
 
-const baristaLocation = typeof global_barista_location !== 'undefined' ? global_barista_location : 'http://localhost:3400';
-const minervaDefinitionName = typeof global_minerva_definition_name !== 'undefined' ? global_minerva_definition_name : 'minerva_local';
-const golrNeoServer = typeof global_golr_neo_server !== 'undefined'
-  ? global_golr_neo_server
-  : 'http://noctua-golr.berkeleybop.org/';
-const golrServer = typeof global_golr_server !== 'undefined'
-  ? global_golr_server
-  : 'https://golr-aux.geneontology.io/solr/';
+const baristaLocation = window.global_barista_location ?? 'http://localhost:3400'
+const minervaDefinitionName = window.global_minerva_definition_name ?? 'minerva_local'
+const golrNeoServer = window.global_golr_neo_server ?? 'http://noctua-golr.berkeleybop.org/'
+const golrServer = window.global_golr_server ?? 'https://golr-aux.geneontology.io/solr/'
+const noctuaUrl = window.global_noctua_url ?? window.location.origin
+const workbenchUrl = window.global_workbench_url ?? `${window.location.origin}/workbench/`
 
 const appEnv: AppEnv = (import.meta.env.VITE_APP_ENV ?? 'dev') as AppEnv
 
@@ -25,13 +29,14 @@ export const ENVIRONMENT = {
   globalMinervaDefinitionName: minervaDefinitionName,
   globalBaristaLocation: baristaLocation,
 
-  noctuaUrl: `${window.location.origin}`,
+  noctuaUrl,
 
-  workbenchUrl: `${window.location.origin}/workbench/`,
+  workbenchUrl,
 
   amigoTermUrl: 'http://amigo.geneontology.org/amigo/term/',
   pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/',
-  pubmedApiUrl: 'https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pubmed/',
+  pubmedApiUrl:
+    'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=',
   evidenceOntologyUrl: 'http://www.evidenceontology.org/term/',
 }
 

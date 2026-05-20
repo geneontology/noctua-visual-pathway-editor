@@ -1,10 +1,12 @@
 import type React from 'react'
-import { useState, useEffect } from 'react'
-import { ActionIcon, Button, Select, TextInput } from '@mantine/core'
+import { useState, useEffect, useMemo } from 'react'
+import { ActionIcon, Autocomplete, Button, Select } from '@mantine/core'
 import AnchoredPopover from '@/@noctua.core/components/popover/AnchoredPopover'
 import { FaPlus, FaRegTrashAlt } from 'react-icons/fa'
 import { withFromAllowedDBs, DB_NONE } from '../../data/allowedDatabases'
 import type { WithEntity, WithGroup } from '../../models/formModels'
+import { useAppSelector } from '@/app/hooks'
+import { selectModelWiths } from '../../slices/camSlice'
 
 interface WithDropdownProps {
   anchorEl: HTMLElement | null
@@ -48,6 +50,25 @@ const WithDropdown: React.FC<WithDropdownProps> = ({
   onSave,
 }) => {
   const [groups, setGroups] = useState<WithGroup[]>(() => parseWithValue(currentValue))
+
+  const modelWiths = useAppSelector(selectModelWiths)
+  const accessionsByDb = useMemo(() => {
+    const map = new Map<string, Set<string>>()
+    for (const raw of modelWiths) {
+      for (const token of raw.split(/[|,]/)) {
+        const t = token.trim()
+        if (!t) continue
+        const colonIdx = t.indexOf(':')
+        if (colonIdx === -1) continue
+        const db = t.slice(0, colonIdx).trim()
+        const acc = t.slice(colonIdx + 1).trim()
+        if (!db || !acc) continue
+        if (!map.has(db)) map.set(db, new Set())
+        map.get(db)!.add(acc)
+      }
+    }
+    return map
+  }, [modelWiths])
 
   // Re-parse when opened with a different value
   useEffect(() => {
@@ -151,11 +172,13 @@ const WithDropdown: React.FC<WithDropdownProps> = ({
                     maxDropdownHeight={300}
                     className="mr-3 w-[120px]"
                   />
-                  <TextInput
+                  <Autocomplete
                     size="xs"
                     placeholder="Accession"
                     value={entity.accession}
-                    onChange={e => updateEntity(gi, ei, 'accession', e.target.value)}
+                    onChange={val => updateEntity(gi, ei, 'accession', val)}
+                    data={Array.from(accessionsByDb.get(entity.db) ?? [])}
+                    limit={10}
                     className="flex-1"
                   />
                   <ActionIcon variant="subtle" color="gray" size="md" onClick={() => addEntity(gi)} title="Add Entity">
