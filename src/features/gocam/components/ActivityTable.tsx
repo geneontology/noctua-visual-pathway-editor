@@ -17,9 +17,18 @@ import { setSelectedActivity } from '../slices/camSlice'
 import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildDeleteActivityOperations } from '../services/activityOperations'
+import { getNodeCategory } from '../data/nodeCategories'
 import ActivityTableNode, {
   getAspectFromRootTypes,
 } from './ActivityTableNode'
+
+function categoryLabelForRootTypes(rootTypes: string[]): string | undefined {
+  for (const rt of rootTypes) {
+    const cat = getNodeCategory(rt)
+    if (cat) return cat.label
+  }
+  return undefined
+}
 
 // ── Build display trees from Activity model ─────────────────────────
 
@@ -113,7 +122,7 @@ function buildDisplayTree(activity: Activity): {
       treeLevel: 1,
       canDelete: false,
       aspect: getAspectFromRootTypes(activity.rootNode.rootTypes),
-      floatingLabel: activity.rootNode.label || 'molecular_function',
+      floatingLabel: categoryLabelForRootTypes(activity.rootNode.rootTypes) ?? 'Molecular Function',
       showEvidence: true,
       showMenu: true,
       showAddButton: false,

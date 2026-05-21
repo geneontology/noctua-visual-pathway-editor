@@ -276,8 +276,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
               {node.aspect && (
                 <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
               )}
-              <Menu.Item onClick={handleToggleComplement}>NOT Qualifier</Menu.Item>
-
               {insertMenuItems.length > 0 && (
                 <Menu.Sub position="left-start">
                   <Menu.Sub.Target>

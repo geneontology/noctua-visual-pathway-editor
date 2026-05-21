@@ -9,13 +9,29 @@ import type { EvidenceForm } from '../../models/formModels'
 import { useSearchAnnotationsQuery } from '@/features/search/slices/lookupApiSlice'
 import { updateTerm, setNodeEvidences, setRelationEvidences } from '../../slices/activityFormSlice'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
+import { useUpdateGraphModelMutation } from '../../slices/camApiSlice'
+import {
+  buildEditIndividualTypeOperations,
+  buildAddEvidenceToEdgeOperations,
+} from '../../services/activityOperations'
+import { useUserContext } from '@/app/hooks/useUserContext'
 
 interface SearchAnnotationsProps {
   gpId: string
   aspect?: Aspect
   term?: string
+  /** Form-mode: form TermNode uid */
   targetNodeUid?: string
+  /** Form-mode: form RelationNode uid */
   relationUid?: string
+  /** Table-mode: CAM model id (presence switches to table mode) */
+  modelId?: string
+  /** Table-mode: CAM individual uid of the term being replaced */
+  camNodeUid?: string
+  /** Table-mode: current type id on that individual */
+  camNodeTypeId?: string
+  /** Table-mode: edge to attach evidence to (subject/object/predicate) */
+  camEdge?: { sourceId: string; targetId: string; predicateId: string }
 }
 
 const SectionHeader: React.FC<{ title: React.ReactNode; subtitle?: React.ReactNode }> = ({
@@ -36,8 +52,14 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
   term,
   targetNodeUid,
   relationUid,
+  modelId,
+  camNodeUid,
+  camNodeTypeId,
+  camEdge,
 }) => {
   const dispatch = useAppDispatch()
+  const userContext = useUserContext()
+  const [updateGraphModel] = useUpdateGraphModelMutation()
   const [selectedTerm, setSelectedTerm] = useState<AnnotationsResponse | null>(null)
   const [selectedEvidences, setSelectedEvidences] = useState<Evidence[]>([])
   const { data: annotations = [], isLoading } = useSearchAnnotationsQuery({
@@ -69,9 +91,46 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
     else setSelectedEvidences([...evidences])
   }
 
-  const handleSave = () => {
-    if (!selectedTerm || !targetNodeUid) return
+  const handleSave = async () => {
+    if (!selectedTerm) return
 
+    // Table mode — apply directly to the CAM model
+    if (modelId && camNodeUid && camNodeTypeId) {
+      const ops = [
+        ...buildEditIndividualTypeOperations(
+          camNodeUid,
+          camNodeTypeId,
+          selectedTerm.term.id,
+          modelId
+        ),
+      ]
+      if (selectedEvidences.length > 0 && camEdge) {
+        for (const ev of selectedEvidences) {
+          const evidenceForm: EvidenceForm = {
+            uid: uuidv4(),
+            evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
+            reference: ev.reference || '',
+            withFrom: ev.with || '',
+          }
+          ops.push(
+            ...buildAddEvidenceToEdgeOperations(
+              camEdge.sourceId,
+              camEdge.targetId,
+              camEdge.predicateId,
+              evidenceForm,
+              modelId,
+              userContext
+            )
+          )
+        }
+      }
+      await updateGraphModel(ops)
+      dispatch(closeDialog())
+      return
+    }
+
+    // Form mode — update the form slice
+    if (!targetNodeUid) return
     dispatch(
       updateTerm({
         uid: targetNodeUid,

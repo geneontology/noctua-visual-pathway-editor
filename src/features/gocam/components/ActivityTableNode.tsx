@@ -9,11 +9,11 @@ import { EditorCategory } from '../models/editorCategory'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
-import { useAppDispatch } from '@/app/hooks'
-import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
+import { useOpenSearchAnnotations } from '../hooks/useOpenSearchAnnotations'
 import {
   buildAddEvidenceToEdgeOperations,
   buildAddNodeOperations,
+  buildEditIndividualTypeOperations,
 } from '../services/activityOperations'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
@@ -57,7 +57,6 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   onNodeDeleted,
   gpNodeId,
 }) => {
-  const dispatch = useAppDispatch()
   const { node, edge, children, treeLevel, canDelete, showEvidence, showMenu, showAddButton } =
     treeNode
   const evidence = edge?.evidence ?? []
@@ -86,20 +85,32 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const { aspect } = treeNode
   const treeBorder = aspect ? TREE_BORDER_BY_ASPECT[aspect] : 'border-blue-400'
 
+  const openSearchAnnotations = useOpenSearchAnnotations()
   const handleSearchAnnotations = useCallback(() => {
-    if (!gpNodeId || !aspect) return
-    dispatch(
-      openDialog({
-        component: DialogComponent.SEARCH_ANNOTATIONS,
-        title: 'Search Annotations',
-        size: 'cam',
-        fullWidth: true,
-        showActions: false,
-        bodyScroll: 'none',
-        customProps: { gpId: gpNodeId, aspect },
-      })
-    )
-  }, [gpNodeId, aspect, dispatch])
+    // If the user is inserting a new child (e.g. part_of → BP), derive the
+    // aspect from the insert's target type so the search filters by the
+    // appropriate aspect (BP, CC, etc.) rather than the parent row's aspect.
+    const insert = editor.data?.insert ?? null
+    const effectiveAspect = insert
+      ? getAspectFromRootTypes([insert.targetType])
+      : aspect
+    editor.close()
+    openSearchAnnotations({
+      gpId: gpNodeId,
+      aspect: effectiveAspect,
+      modelId,
+      // For inserts, there is no existing CAM node to replace — table-mode
+      // apply (handled by SearchAnnotations) only applies when editing an
+      // existing node. Inserts skip the IDs so the dialog doesn't try to
+      // edit a non-existent individual.
+      camNodeUid: insert ? undefined : node.uid,
+      camNodeTypeId: insert ? undefined : node.id,
+      camEdge:
+        !insert && edge
+          ? { sourceId: edge.sourceId, targetId: edge.targetId, predicateId: edge.id }
+          : undefined,
+    })
+  }, [editor, openSearchAnnotations, gpNodeId, aspect, modelId, node.uid, node.id, edge])
 
   const editorCategory = editor.data?.category ?? EditorCategory.term
   const pendingInsert = editor.data?.insert ?? null
@@ -130,7 +141,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           break
         }
         case EditorCategory.all: {
-          if (!pendingInsert) break
+          if (!pendingInsert || !values.term) break
           const ev = values.evidence
             ? {
               ...createEvidenceForm(),
@@ -332,7 +343,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         initialReference=""
         initialWith=""
         hasAspect={Boolean(pendingInsert ? getAspectFromRootTypes([pendingInsert.targetType]) : aspect)}
-        onSearchAnnotations={gpNodeId ? handleSearchAnnotations : undefined}
+        onSearchAnnotations={handleSearchAnnotations}
       />
 
       {children.map(child => (

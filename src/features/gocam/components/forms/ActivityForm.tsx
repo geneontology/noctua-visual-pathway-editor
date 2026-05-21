@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
 import { selectCamModel } from '../../slices/camSlice'
 import { Relations } from '@/@noctua.core/models/relations'
-import { DialogComponent, openDialog } from '@/@noctua.core/components/dialog/dialogSlice'
+import { useOpenSearchAnnotations } from '../../hooks/useOpenSearchAnnotations'
 import {
   initCreateForm,
   resetForm,
@@ -256,28 +256,16 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
     return enabledByRel?.target ?? null
   }, [root])
 
+  const openSearchAnnotations = useOpenSearchAnnotations()
   const handleSearchAnnotations = useCallback(
-    (node: TermNode, relation: RelationNode | null) => {
-      if (!gpNode?.term?.id) {
-        // GP not filled yet — can't search
-        return
-      }
-      dispatch(
-        openDialog({
-          component: DialogComponent.SEARCH_ANNOTATIONS,
-          title: 'Search Annotations',
-          size: 'cam',
-          bodyScroll: 'none',
-          customProps: {
-            gpId: gpNode.term.id,
-            aspect: node.aspect,
-            targetNodeUid: node.uid,
-            relationUid: relation?.uid,
-          },
-        })
-      )
-    },
-    [dispatch, gpNode]
+    (node: TermNode, relation: RelationNode | null) =>
+      openSearchAnnotations({
+        gpId: gpNode?.term?.id,
+        aspect: node.aspect,
+        targetNodeUid: node.uid,
+        relationUid: relation?.uid,
+      }),
+    [openSearchAnnotations, gpNode]
   )
 
   const handleCloneEvidence = useCallback((relationUid: string) => {

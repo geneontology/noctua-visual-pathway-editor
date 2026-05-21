@@ -3,7 +3,7 @@
 export const MODAL_SIZE_PX: Record<string, number> = {
   xs: 444,
   sm: 600,
-  cam: 800,
+  cam: 1200,
   md: 900,
   lg: 1200,
   xl: 1536,

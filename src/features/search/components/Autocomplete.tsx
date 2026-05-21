@@ -191,13 +191,22 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               </div>
             )}
 
-            {displayOptions.map((option, index) => (
+            {displayOptions.map((option, index) => {
+              const doNotAnnotate = option.notAnnotatable === false
+              const disabled = option.isObsolete || doNotAnnotate
+              const bgClass = doNotAnnotate
+                ? 'bg-[#f8cccc]'
+                : index === highlightedIndex
+                  ? 'bg-primary-100'
+                  : 'bg-accent-50 hover:bg-primary-50'
+              return (
               <div
                 key={option.id}
-                className={`flex min-h-[40px] cursor-pointer items-center border-b bg-accent-50 px-4 py-2 text-xs hover:bg-primary-50 ${option.isObsolete ? 'pointer-events-none line-through opacity-40' : ''} ${index === highlightedIndex ? 'bg-primary-100' : ''}`}
+                className={`flex min-h-[40px] cursor-pointer items-center border-b px-4 py-2 text-xs ${bgClass} ${disabled ? 'pointer-events-none' : ''} ${option.isObsolete ? 'opacity-40 line-through' : ''}`}
                 style={{ borderColor: 'rgba(59,89,152,0.3)' }}
-                onClick={() => !option.isObsolete && handleOptionSelect(option)}
+                onClick={() => !disabled && handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
+                title={doNotAnnotate ? 'Do not annotate' : undefined}
               >
                 <div className="min-w-0 shrink font-normal">{option.label}</div>
                 <span className="grow" />
@@ -232,7 +241,8 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
                   </button>
                 )}
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
