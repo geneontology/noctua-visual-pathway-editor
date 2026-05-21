@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Aspect, Entity } from './cam'
-import type { GOlrResponse } from '@/features/search/models/search'
 import type { DisplayGroup } from '../data/insertMenuConfig'
 
 export type ActivityFormType = 'activity' | 'molecule' | 'proteinComplex'
@@ -41,7 +40,7 @@ export interface TermNode {
   uid: string
   category: string // RootTypes ID (e.g. 'GO:0003674')
   label: string
-  term: GOlrResponse | null
+  term: Entity | null
   aspect: Aspect | null
   rootTypes: string[]
   isComplement: boolean

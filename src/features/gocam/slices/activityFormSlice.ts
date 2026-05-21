@@ -14,7 +14,6 @@ import { ActivityType } from '../models/cam'
 import { createActivityTemplate, activityToFormTree } from '../data/activityTemplates'
 import { ROOT_NODES, EVIDENCE_AUTO_POPULATE } from '../data/camConstants'
 import { v4 as uuidv4 } from 'uuid'
-import type { GOlrResponse } from '@/features/search/models/search'
 
 // ── Tree traversal ──────────────────────────────────────────────────
 
@@ -116,7 +115,7 @@ export const activityFormSlice = createSlice({
 
     updateTerm(
       state,
-      action: PayloadAction<{ uid: string; term: GOlrResponse | null }>
+      action: PayloadAction<{ uid: string; term: Entity | null }>
     ) {
       if (!state.root) return
       const node = findTermNode(state.root, action.payload.uid)
@@ -284,18 +283,7 @@ export const activityFormSlice = createSlice({
       const rootEntry = Object.values(ROOT_NODES).find(rn => rn.aspect === node.aspect)
       if (!rootEntry) return
 
-      node.term = {
-        id: rootEntry.id,
-        label: rootEntry.label,
-        link: '',
-        description: '',
-        isObsolete: false,
-        replacedBy: '',
-        rootTypes: [],
-        xref: '',
-        notAnnotatable: true,
-        neighborhoodGraphJson: '',
-      }
+      node.term = { id: rootEntry.id, label: rootEntry.label }
 
       // Add ND evidence
       rel.evidence = [

@@ -30,7 +30,8 @@
       "Bash(gh issue:*)",
       "Bash(npm run *)",
       "Bash(npx playwright *)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(npx eslint *)"
     ]
   }
 }

@@ -1,11 +1,12 @@
 import type React from 'react'
-import { useCallback, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import type { Edge, UserContext, DisplayTreeNode } from '../models/cam'
 import { RootTypes, Aspect } from '../models/cam'
 import { EditorCategory } from '../models/editorCategory'
+import type { GOlrResponse } from '@/features/search/models/search'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
@@ -63,7 +64,16 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
-  const editor = usePopover<{ category: EditorCategory; insert: InsertMenuItem | null }>()
+  const editor = usePopover<{
+    category: EditorCategory
+    insert: InsertMenuItem | null
+    prefill?: {
+      term: GOlrResponse | null
+      evidence: GOlrResponse | null
+      reference: string
+      with: string
+    }
+  }>()
 
   const {
     updateGraphModel,
@@ -91,29 +101,57 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     // aspect from the insert's target type so the search filters by the
     // appropriate aspect (BP, CC, etc.) rather than the parent row's aspect.
     const insert = editor.data?.insert ?? null
+    const category = editor.data?.category ?? EditorCategory.term
     const effectiveAspect = insert
       ? getAspectFromRootTypes([insert.targetType])
       : aspect
+    // The popover backdrop (z=250) sits above Mantine's Modal (z=200), so we
+    // must close the inline editor before the picker opens. We snapshot the
+    // anchor + category + insert so we can reopen it (with prefill) on apply.
+    const anchor = editor.anchor
     editor.close()
     openSearchAnnotations({
       gpId: gpNodeId,
       aspect: effectiveAspect,
-      modelId,
-      // For inserts, there is no existing CAM node to replace — table-mode
-      // apply (handled by SearchAnnotations) only applies when editing an
-      // existing node. Inserts skip the IDs so the dialog doesn't try to
-      // edit a non-existent individual.
-      camNodeUid: insert ? undefined : node.uid,
-      camNodeTypeId: insert ? undefined : node.id,
-      camEdge:
-        !insert && edge
-          ? { sourceId: edge.sourceId, targetId: edge.targetId, predicateId: edge.id }
-          : undefined,
+      onApply: ({ term, evidences }) => {
+        if (!anchor) return
+        const first = evidences[0]
+        editor.open(anchor, {
+          category,
+          insert,
+          prefill: {
+            term: { id: term.id, label: term.label } as GOlrResponse,
+            evidence: first
+              ? ({ id: first.evidenceCode.id, label: first.evidenceCode.label } as GOlrResponse)
+              : null,
+            reference: first?.reference ?? '',
+            with: first?.with ?? '',
+          },
+        })
+      },
     })
-  }, [editor, openSearchAnnotations, gpNodeId, aspect, modelId, node.uid, node.id, edge])
+  }, [editor, openSearchAnnotations, gpNodeId, aspect])
 
   const editorCategory = editor.data?.category ?? EditorCategory.term
   const pendingInsert = editor.data?.insert ?? null
+  const prefill = editor.data?.prefill
+
+  // Memoize the EditorDropdown's initial* props so they only change when their
+  // underlying source does (the popover's prefill, the row's node, or the
+  // pending insert). Without this, fresh object literals on every parent
+  // re-render would re-fire EditorDropdown's sync effect and clobber the
+  // user's in-progress typing.
+  const initialTerm = useMemo<{ id: string; label: string } | null>(() => {
+    if (prefill?.term) return { id: prefill.term.id, label: prefill.term.label }
+    if (pendingInsert) return null
+    return node.id ? { id: node.id, label: node.label } : null
+  }, [prefill?.term, pendingInsert, node.id, node.label])
+  const initialEvidence = useMemo<{ id: string; label: string } | null>(() => {
+    if (prefill?.evidence) return { id: prefill.evidence.id, label: prefill.evidence.label }
+    return null
+  }, [prefill?.evidence])
+  const initialReference = prefill?.reference ?? ''
+  const initialWith = prefill?.with ?? ''
 
   const handleEditorSave = useCallback(
     async (values: EditorDropdownValues) => {
@@ -338,10 +376,10 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         onSave={handleEditorSave}
         termLabel={pendingInsert?.label ?? treeNode.floatingLabel}
         termRootTypes={pendingInsert ? [pendingInsert.targetType] : node.rootTypes}
-        initialTerm={pendingInsert ? null : node.id ? { id: node.id, label: node.label } : null}
-        initialEvidence={null}
-        initialReference=""
-        initialWith=""
+        initialTerm={initialTerm}
+        initialEvidence={initialEvidence}
+        initialReference={initialReference}
+        initialWith={initialWith}
         hasAspect={Boolean(pendingInsert ? getAspectFromRootTypes([pendingInsert.targetType]) : aspect)}
         onSearchAnnotations={handleSearchAnnotations}
       />

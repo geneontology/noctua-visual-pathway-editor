@@ -14,6 +14,8 @@ import {
   resetForm,
   setErrors,
   setNodeEvidences,
+  setRelationEvidences,
+  updateTerm,
   selectActivityForm,
   selectFormRoot,
   selectFormMode,
@@ -262,10 +264,24 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
       openSearchAnnotations({
         gpId: gpNode?.term?.id,
         aspect: node.aspect,
-        targetNodeUid: node.uid,
-        relationUid: relation?.uid,
+        onApply: ({ term, evidences }) => {
+          dispatch(updateTerm({ uid: node.uid, term: { id: term.id, label: term.label } }))
+          if (evidences.length > 0) {
+            const evidenceForms = evidences.map(ev => ({
+              uid: uuidv4(),
+              evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
+              reference: ev.reference || '',
+              withFrom: ev.with || '',
+            }))
+            if (relation?.uid) {
+              dispatch(setRelationEvidences({ relationUid: relation.uid, evidences: evidenceForms }))
+            } else {
+              dispatch(setNodeEvidences({ uid: node.uid, evidences: evidenceForms }))
+            }
+          }
+        },
       }),
-    [openSearchAnnotations, gpNode]
+    [openSearchAnnotations, gpNode, dispatch]
   )
 
   const handleCloneEvidence = useCallback((relationUid: string) => {
