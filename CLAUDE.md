@@ -4,84 +4,85 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Noctua Workbench Site — a React + TypeScript SPA for visually editing Gene Ontology (GO) biological annotations and Causal Activity Models (CAMs). Built with Vite,  Tailwind CSS, Redux Toolkit, & some MUI,.
+Noctua Visual Pathway Editor — a React 19 + TypeScript SPA for visually editing Gene Ontology (GO) biological annotations and Causal Activity Models (CAMs). Built with Vite, Tailwind CSS v4, Redux Toolkit, and Mantine v9.
 
 ## Commands
 
-- `npm run dev` — Start dev server (default Vite port)
-- `npm run start` — Start dev server on port 4208
-- `npm run build` — Type-check then build (`tsc && vite build`)
-- `npm run build:production` — Production build
-- `npm run test` — Run tests with Vitest (`vitest run`)
-- `npm run lint` — ESLint check
-- `npm run lint:fix` — ESLint autofix
-- `npm run format` — Prettier format
-- `npm run type-check` — TypeScript check (`tsc --noEmit`)
+- `npm run dev` — Start dev server on port **4208** (port set in `vite.config.ts`)
+- `npm run start` — Start dev server on port **4202**, host `0.0.0.0`, `development` mode (variants: `start:development`, `start:staging`, `start:production`)
+- `npm run build` — Clean `workbenches/noctua-visual-pathway-editor/public`, run `tsc`, then `vite build --mode production`
+- `npm run build:beta-test` — Same flow against the `noctua-visual-pathway-editor-beta` workbench in `staging` mode
+- `npm run test` — Vitest run (looks for `tests/**/*.test.{ts,tsx}` only — files outside `tests/` are ignored)
+- Run a single test file: `npx vitest run tests/features/gocam/slices/camSlice.test.ts`
+- Watch a single test: `npx vitest tests/features/gocam/slices/camSlice.test.ts`
+- `npm run test:e2e` — Playwright e2e (`test:e2e:ui`, `test:e2e:headed` variants)
+- `npm run lint` / `lint:fix` — ESLint
+- `npm run format` — Prettier
+- `npm run type-check` — `tsc --noEmit`
 
-Environment modes: `development`, `staging`, `production` (via `--mode` flag). Environment files: `.env.development`, `.env.staging`, `.env.production`. Variables are prefixed with `VITE_`.
+Environment modes: `development`, `staging`, `production` (via `--mode`). Env files: `.env.development`, `.env.staging`, `.env.production`. All runtime vars must be prefixed with `VITE_`. `VITE_OUTPUT_PATH` controls the build output directory; the build plugin renames the emitted `index.html` to `inject.tmpl` so the workbench host can inline it.
 
 ## Architecture
 
 ### Source Layout
 
-- `src/@noctua.core/` — Shared library: reusable components (IconButton, Dialog, Drawer), constants, data config, utility functions
-- `src/app/` — App shell: Redux store setup, typed hooks, layout components (Layout, Toolbar, Drawers, Footer), PathwayViewer (main editor)
-- `src/features/` — Feature modules, each self-contained with models, components, services, hooks, and Redux slices:
-  - `gocam/` — Core feature: CAM graph model, activity editing, activity forms, graph services
-  - `relations/` — Decision tree for selecting activity-to-activity relationships (connector type → relationship → effect → directness → RO ID)
+- `src/@noctua.core/` — Shared library: reusable components (Dialog, Drawer, Toast, LoadingOverlay, Popover, Menu), theme, constants, utility functions. Several of these own their own Redux slices (e.g. `drawerSlice`, `dialogSlice`, `toastSlice`, `loadingOverlaySlice`) and live alongside their components.
+- `src/app/` — App shell: store setup (`src/app/store/store.ts`), typed hooks (`src/app/hooks.ts`), layout (Layout, Toolbar, Drawers, Footer), `PathwayViewer` (top-level editor surface that wires dialogs to feature forms).
+- `src/features/` — Self-contained feature modules (models, components, services, hooks, slices):
+  - `gocam/` — Core: CAM graph model, activity editing, activity/annotation forms, graph services
+  - `pathway/` — Pathway-level graph rendering (e.g. `GraphToolbar`)
+  - `relations/` — Decision-tree UI for activity-to-activity relations (connector type → relationship → effect → directness → RO ID)
   - `search/` — GOlr-based term search and autocomplete
   - `auth/` — Barista token authentication
   - `users/` — User metadata, contributors, groups, splash screen
+- `tests/` — Vitest specs mirroring `src/` paths; fixtures + builders in `tests/fixtures/`; shared `renderWithProviders` in `tests/test-utils.tsx`; jsdom setup (incl. `matchMedia` stub for Mantine) in `tests/setup.ts`.
 
 ### State Management
 
-Redux Toolkit with `combineSlices`. RTK Query for API caching (`src/app/store/apiService.ts`).
+Redux Toolkit with `combineSlices`. RTK Query API caching via `src/app/store/apiService.ts`.
 
-Key slices: `cam` (graph model, selected activity), `activityForm` (form state for activity editing), `relation` (connector selection), `auth`, `metadata`, `search`, `drawer`, `dialog`.
+Active reducers (see `store.ts`): `auth`, `metadata`, `activityForm`, `cam`, `relation`, `drawer`, `dialog`, `toast`, `loadingOverlay`, plus the RTK Query reducer.
 
-### Enforced Patterns
+Notable store config: `dialog/openDialog` actions and the `dialog.customProps` path are excluded from the serializable-state check, because entry-point dialogs pass callbacks (e.g. `AnnotationForm.onSubmit`) through `customProps`. Don't try to "fix" this by stringifying callbacks — read the comment in `store.ts` first.
 
-- **Typed Redux hooks only**: Import `useAppDispatch` and `useAppSelector` from `src/app/hooks.ts`. Direct imports of `useSelector`/`useDispatch`/`useStore` from `react-redux` are lint errors.
-- **Consistent type imports**: Use `import type` for type-only imports (enforced via `@typescript-eslint/consistent-type-imports`).
-- **Path alias**: Use `@/*` to reference `src/*` (e.g., `import Foo from '@/features/gocam/...'`).
-
-## Conventions
-
-- **Styling:** Tailwind for utilities/layout; MUI only for complex components (buttons, dialogs, icons)
-- **Path alias:** `@/*` maps to `src/*` (configured in tsconfig and vite)
-- **Environment variables:** Prefixed with `VITE_` (see `.env.example`)
-- **Naming:** PascalCase for components, camelCase for hooks and utilities
-- **Unused parameters:** Prefix with `_` to satisfy ESLint
-- **Formatting:** Single quotes, no semicolons, trailing commas (ES5), 100-char width
-- **Testing:** Vitest + Testing Library, files named `*.test.tsx`
+Custom middleware: `loadingOverlayMiddleware` ties RTK Query lifecycle to the global overlay slice.
 
 ### API Layer
 
-- **Barista/Minerva API** — m3Batch endpoints for reading/updating CAM graph models. Requires Barista token (from `?barista_token=` query param).
-- **GOlr API** — Solr-based search for GO terms, evidence codes, references.
-- **RTK Query** — API slices: `camApiSlice`, `lookupApiSlice`, `authApiSlice`, `metadataApiSlice`.
+- **Barista/Minerva** — m3Batch endpoints for reading/updating CAM graph models. Requires a Barista token sourced from the `?barista_token=` query param.
+- **GOlr** — Solr-based search for GO terms, evidence codes, references.
+- RTK Query slices: `camApiSlice`, `lookupApiSlice`, `authApiSlice`, `metadataApiSlice`.
 
 ### Core Domain Model
 
 `GraphModel` contains `Activity[]` (biological activities with nodes/edges), `GraphNode[]`, `Edge[]`, and `activityConnections` (activity-to-activity relations). Activities have a `rootNode`, optional `molecularFunction`, `enabledBy` (protein), and typed edges with evidence.
 
-### Testing
+### Build / Bundling
 
-Vitest + React Testing Library + jsdom. Use `renderWithProviders` from `src/utils/test-utils.tsx` to render components with an isolated Redux store. Test infrastructure is set up but test files are not yet written.
+`vite.config.ts` defines a `manualChunks` strategy that splits heavy vendors (`@mantine`, `framer-motion`, `jointjs`, `reactflow`, `@apollo`, `graphql`, redux, react-router, dagre/graphlib, socket.io, react-hook-form) into named chunks. Assets are emitted under `assets/<extType>/[name]-[hash][extname]`. After build, `rollup-plugin-visualizer` writes `stats-treemap.html`, `stats-sunburst.html`, and `stats-network.html` into the output dir. The `workbenchInjectTmpl` plugin renames `index.html` to `inject.tmpl` for workbench embedding and injects a `<base href>` when `VITE_BASE_URL` is set.
 
-## Code Style
+## Enforced Patterns
 
-- Prettier: no semicolons, single quotes, 2-space indent, trailing comma es5, 100 char width, arrow parens avoid
-- Tailwind CSS classes are auto-sorted by prettier-plugin-tailwindcss
-- Unused function args prefixed with `_` are allowed
+- **Typed Redux hooks only** — import `useAppDispatch`/`useAppSelector` from `src/app/hooks.ts`. Direct `useSelector`/`useDispatch`/`useStore` from `react-redux` are lint errors.
+- **`import type`** for type-only imports (`@typescript-eslint/consistent-type-imports`).
+- **Path alias** — use `@/*` for `src/*` (and `@tests/*` for `tests/*`). Configured in `tsconfig` and `vite.config.ts`.
+- **UI library** — Mantine v9 for complex components (Modals, Buttons, Inputs); Tailwind for utility/layout styling. The shared dialog wrappers in `src/@noctua.core/components/dialog/` (e.g. `SimpleDialog`, `DialogHeader`, `ConfirmDialog`) are the preferred entry points — prefer them over raw `<Modal>` so sizing/scrolling behavior stays consistent.
+- **Unused parameters** — prefix with `_` to satisfy ESLint.
 
+## Conventions
+
+- Prettier: no semicolons, single quotes, 2-space indent, trailing comma `es5`, 100-char width, `arrowParens: avoid`. Tailwind classes are auto-sorted by `prettier-plugin-tailwindcss`.
+- Naming: PascalCase for components, camelCase for hooks and utilities.
+
+## Testing
+
+Vitest + React Testing Library + jsdom. Use `renderWithProviders` from `tests/test-utils.tsx` to render with an isolated Redux store (accepts optional `preloadedState` and `store`). Fixture builders live in `tests/fixtures/builders.ts` and `tests/fixtures/models.ts` — prefer these over hand-rolled graph models in tests.
 
 ## Task Management
 
-### Always Create and Maintain Task Plans
-
-See [.plans/template.md](plans/template.md) for detailed examples and formats.
+Create and maintain plan files in `.plans/<category>/<task-name>.md` for non-trivial work. See [.plans/template.md](.plans/template.md) for the full template, recovery-checkpoint convention, and category folders (`bugfix`, `feature`, `refactor`, `config`, `docs`, `testing`, `misc`).
 
 ## Git Commits
 
 - **Never** add `Co-Authored-By: Claude ...` trailers (or any Claude attribution) to commit messages.
+- Keep messages short: a one-line subject plus a few brief bullets, not paragraphs.

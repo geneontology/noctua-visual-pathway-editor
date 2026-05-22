@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import type { Entity, Evidence } from '@/features/gocam/models/cam'
 import type { Group } from '@/features/users/models/contributor'
 import type { GOlrResponse, AnnotationsResponse } from '../models/search'
@@ -56,7 +57,7 @@ export const processAnnotationsResponse = (response: any): AnnotationsResponse[]
     const annotationId = doc.annotation_class
 
     const evidence: Evidence = {
-      uid: crypto.randomUUID(),
+      uid: uuidv4(),
       evidenceCode: {
         id: doc.evidence,
         label: doc.evidence_label,
@@ -96,7 +97,7 @@ export const processAnnotationsResponse = (response: any): AnnotationsResponse[]
       resultMap[annotationId].evidences.push(evidence)
     } else {
       resultMap[annotationId] = {
-        uid: crypto.randomUUID(),
+        uid: uuidv4(),
         term: {
           id: doc.annotation_class,
           label: doc.annotation_class_label,
