@@ -9,28 +9,44 @@ import {
 } from '../services/lookupServices'
 import type { Aspect } from '@/features/gocam/models/cam'
 
+let jsonpCounter = 0
+
 function createJsonpScript(url: string): Promise<any> {
   return new Promise((resolve, reject) => {
-    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random())
+    const callbackName = `jsonp_callback_${Date.now()}_${++jsonpCounter}`
     const jsonpUrl = `${url}${url.includes('?') ? '&' : '?'}json.wrf=${callbackName}`
-
     const script = document.createElement('script')
-    script.src = jsonpUrl
-    script.async = true
-    script.type = 'text/javascript'
+    let called = false
 
-    window[callbackName as any] = function (data: any) {
-      document.body.removeChild(script)
-      delete window[callbackName as any]
+    const cleanup = () => {
+      if (script.parentNode) script.parentNode.removeChild(script)
+      delete (window as any)[callbackName]
+    }
+
+    ;(window as any)[callbackName] = (data: any) => {
+      called = true
+      cleanup()
       resolve(data)
     }
 
-    script.onerror = function () {
-      document.body.removeChild(script)
-      delete window[callbackName as any]
+    script.onload = () => {
+      setTimeout(() => {
+        if (!called) {
+          console.warn(`JSONP: script loaded but callback ${callbackName} never invoked`, jsonpUrl)
+          cleanup()
+          reject(new Error(`JSONP callback ${callbackName} was never invoked`))
+        }
+      }, 0)
+    }
+
+    script.onerror = () => {
+      console.warn('JSONP: script load error', jsonpUrl)
+      cleanup()
       reject(new Error('JSONP request failed'))
     }
 
+    script.async = true
+    script.src = jsonpUrl
     document.body.appendChild(script)
   })
 }
