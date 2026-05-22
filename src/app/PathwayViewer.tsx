@@ -25,7 +25,7 @@ import {
 } from '@/features/gocam/slices/activityFormSlice'
 import { Button, Modal } from '@mantine/core'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
-import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
+import SimpleDialog from '@/@noctua.core/components/dialog/SimpleDialog'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import ActivityDialog from '@/features/gocam/components/dialogs/ActivityFormDialog'
 import ActivityForm from '@/features/gocam/components/forms/ActivityForm'
@@ -249,16 +249,14 @@ const PathwayEditor: React.FC = () => {
       />
 
       {/* Connector form dialog */}
-      <Modal
-        opened={connector.open}
+      <SimpleDialog
+        open={connector.open}
         onClose={() => setConnector(closedConnector)}
-        size={resolveModalSize('md')}
-        classNames={{ content: 'overflow-hidden' }}
+        title={connector.edge ? 'Edit Causal Relation' : 'Causal Relation Form'}
+        size="md"
+        tall
+        bodyScroll="none"
       >
-        <DialogHeader
-          title={connector.edge ? 'Edit Causal Relation' : 'Causal Relation Form'}
-          onClose={() => setConnector(closedConnector)}
-        />
         {connector.source && connector.target && (
           <ConnectorForm
             sourceActivity={connector.source}
@@ -270,7 +268,7 @@ const PathwayEditor: React.FC = () => {
             onSaved={() => setConnector(closedConnector)}
           />
         )}
-      </Modal>
+      </SimpleDialog>
 
       {/* Activity form dialog */}
       <ActivityDialog

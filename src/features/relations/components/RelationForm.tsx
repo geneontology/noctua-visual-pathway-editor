@@ -237,7 +237,9 @@ const RelationForm: React.FC<Props> = ({
   )
 
   return (
-    <div className="flex flex-col">
+    <div className="flex min-h-0 w-full flex-1 flex-col">
+      {/* Scrollable body */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       {/* Relationship section */}
       <SectionRow label="Relationship">
         <RadioPillGroup
@@ -370,10 +372,11 @@ const RelationForm: React.FC<Props> = ({
           Add Evidence
         </Button>
       </div>
+      </div>
 
       {/* Footer */}
       <div
-        className="flex items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3"
+        className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3"
         style={{ boxShadow: '2px -5px 2px 0px rgba(0, 0, 0, 0.26)' }}
       >
         <div>
