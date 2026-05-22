@@ -15,11 +15,8 @@ import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/fo
 import { ROOT_NODES } from '../../data/camConstants'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import DatabaseField from './DatabaseField'
-import {
-  consumeAnnotationFormOnSubmit,
-  useOpenAnnotationForm,
-} from '../../hooks/useOpenAnnotationForm'
-import { useOpenSearchAnnotations } from '../../hooks/useOpenSearchAnnotations'
+import type { AnnotationFormOnSubmit } from '../../hooks/useOpenAnnotationForm'
+import SearchAnnotations from './SearchAnnotations'
 
 interface AnnotationFormProps {
   showTerm: boolean
@@ -29,6 +26,7 @@ interface AnnotationFormProps {
   initialEvidences?: EvidenceForm[]
   gpId?: string
   aspect?: Aspect | null
+  onSubmit?: AnnotationFormOnSubmit
 }
 
 const SectionHeader: React.FC<{ title: React.ReactNode; right?: React.ReactNode }> = ({
@@ -49,6 +47,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   initialEvidences = [],
   gpId,
   aspect,
+  onSubmit,
 }) => {
   const dispatch = useAppDispatch()
 
@@ -56,13 +55,11 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   const [evidences, setEvidences] = useState<EvidenceForm[]>(() =>
     initialEvidences.length > 0 ? initialEvidences : [createEvidenceForm()]
   )
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const termInitialOptions = useAppSelector(state => selectTerms(state, termRootTypes))
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
-
-  const openSearchAnnotations = useOpenSearchAnnotations()
-  const openAnnotationForm = useOpenAnnotationForm()
 
   const addEvidence = useCallback(() => {
     setEvidences(prev => [...prev, createEvidenceForm()])
@@ -91,36 +88,31 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
 
   const handleSearchAnnotations = useCallback(() => {
     if (!gpId || !aspect) return
-    // The global dialog slot holds one component at a time, so opening the
-    // picker unmounts this AnnotationForm instance. We consume the pending
-    // onSubmit now (otherwise the re-opened instance would find an empty slot
-    // and silently no-op on Save), and snapshot the props that defined this
-    // dialog so the re-opened form is shaped identically.
-    const capturedOnSubmit = consumeAnnotationFormOnSubmit()
-    if (!capturedOnSubmit) return
-    const snapshot = { showTerm, termLabel, termRootTypes, gpId, aspect }
-    openSearchAnnotations({
-      gpId,
-      aspect,
-      onApply: ({ term: pickedTerm, evidences: pickedEvidences }) => {
-        const nextEvidences: EvidenceForm[] =
-          pickedEvidences.length > 0
-            ? pickedEvidences.map(ev => ({
-              uid: uuidv4(),
-              evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
-              reference: ev.reference || '',
-              withFrom: ev.with || '',
-            }))
-            : [createEvidenceForm()]
-        openAnnotationForm({
-          ...snapshot,
-          initialTerm: { id: pickedTerm.id, label: pickedTerm.label },
-          initialEvidences: nextEvidences,
-          onSubmit: capturedOnSubmit,
-        })
-      },
-    })
-  }, [gpId, aspect, showTerm, termLabel, termRootTypes, openSearchAnnotations, openAnnotationForm])
+    setPickerOpen(true)
+  }, [gpId, aspect])
+
+  const handlePickerApply = useCallback(
+    ({
+      term: pickedTerm,
+      evidences: pickedEvidences,
+    }: {
+      term: Entity
+      evidences: Array<{ evidenceCode: Entity; reference?: string; with?: string }>
+    }) => {
+      setTerm({ id: pickedTerm.id, label: pickedTerm.label })
+      const nextEvidences: EvidenceForm[] =
+        pickedEvidences.length > 0
+          ? pickedEvidences.map(ev => ({
+            uid: uuidv4(),
+            evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
+            reference: ev.reference || '',
+            withFrom: ev.with || '',
+          }))
+          : [createEvidenceForm()]
+      setEvidences(nextEvidences)
+    },
+    []
+  )
 
   const handleFillRootTerm = useCallback(() => {
     const matchedRoot = termRootTypes.find(rt => ROOT_NODES[rt])
@@ -141,10 +133,9 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   const handleSave = useCallback(async () => {
     if (showTerm && !term) return
     const validEvidences = evidences.filter(ev => ev.evidenceCode?.id || ev.reference || ev.withFrom)
-    const cb = consumeAnnotationFormOnSubmit()
-    await cb?.({ term: showTerm ? term : null, evidences: validEvidences })
+    await onSubmit?.({ term: showTerm ? term : null, evidences: validEvidences })
     dispatch(closeDialog())
-  }, [showTerm, term, evidences, dispatch])
+  }, [showTerm, term, evidences, onSubmit, dispatch])
 
   const saveDisabled = showTerm && !term
 
@@ -270,6 +261,17 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
           Save
         </Button>
       </div>
+
+      {/* Locally-rendered picker — stacks on top of this dialog, doesn't evict it */}
+      {gpId && aspect && (
+        <SearchAnnotations
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onApply={handlePickerApply}
+          gpId={gpId}
+          aspect={aspect}
+        />
+      )}
     </div>
   )
 }

@@ -1,11 +1,9 @@
 import type React from 'react'
-import { Modal } from '@mantine/core'
 import { useAppSelector } from '@/app/hooks'
 import { selectFormType, selectFormMode } from '../../slices/activityFormSlice'
 import { ActivityType } from '../../models/cam'
 import { FormMode } from '../../models/formModels'
-import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
-import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
+import SimpleDialog from '@/@noctua.core/components/dialog/SimpleDialog'
 
 interface ActivityFormDialogProps {
   open: boolean
@@ -33,33 +31,9 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({ open, onClose, 
   const title = getDialogTitle(mode, activityType)
 
   return (
-    <Modal
-      opened={open}
-      onClose={onClose}
-      size={resolveModalSize('md')}
-      padding={0}
-      withCloseButton={false}
-      centered
-      styles={{
-        content: {
-          height: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        },
-        body: {
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: 0,
-          overflow: 'hidden',
-          padding: 0,
-        },
-      }}
-    >
-      <DialogHeader title={title} onClose={onClose} />
+    <SimpleDialog open={open} onClose={onClose} title={title} size="md" tall bodyScroll="none">
       {children}
-    </Modal>
+    </SimpleDialog>
   )
 }
 

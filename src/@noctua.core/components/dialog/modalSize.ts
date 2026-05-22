@@ -1,5 +1,4 @@
-/** Maps MUI Dialog `maxWidth` breakpoint names to pixel widths so Mantine
- * Modal sizing matches what the codebase used to get from MUI. */
+/** Pixel widths for the size tokens used by SimpleDialog. */
 export const MODAL_SIZE_PX: Record<string, number> = {
   xs: 444,
   sm: 600,

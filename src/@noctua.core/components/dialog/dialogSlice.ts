@@ -2,7 +2,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 
 export enum DialogComponent {
-  SEARCH_ANNOTATIONS = 'SearchAnnotations',
   ANNOTATION_FORM = 'AnnotationForm',
   CAM_METADATA_FORM = 'CamMetadataForm',
   COPY_MODEL_DIALOG = 'CopyModelDialog',

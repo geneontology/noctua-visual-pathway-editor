@@ -25,23 +25,10 @@ interface OpenAnnotationFormParams {
   onSubmit: AnnotationFormOnSubmit
 }
 
-// Module-level handoff for the form's onSubmit callback. Keeps the dialog
-// slice fully serializable (Redux warns on functions in state). Single slot
-// is enough because only one AnnotationForm is ever open at a time.
-let pendingOnSubmit: AnnotationFormOnSubmit | null = null
-
-/** Consumed by AnnotationForm on mount. Returns and clears the pending callback. */
-export function consumeAnnotationFormOnSubmit(): AnnotationFormOnSubmit | null {
-  const cb = pendingOnSubmit
-  pendingOnSubmit = null
-  return cb
-}
-
 export function useOpenAnnotationForm() {
   const dispatch = useAppDispatch()
   return useCallback(
     (params: OpenAnnotationFormParams) => {
-      pendingOnSubmit = params.onSubmit
       dispatch(
         openDialog({
           component: DialogComponent.ANNOTATION_FORM,
@@ -56,6 +43,7 @@ export function useOpenAnnotationForm() {
             initialEvidences: params.initialEvidences ?? [],
             gpId: params.gpId,
             aspect: params.aspect ?? null,
+            onSubmit: params.onSubmit,
           },
         })
       )

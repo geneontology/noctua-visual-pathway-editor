@@ -8,7 +8,8 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
 import { selectCamModel } from '../../slices/camSlice'
 import { Relations } from '@/@noctua.core/models/relations'
-import { useOpenSearchAnnotations } from '../../hooks/useOpenSearchAnnotations'
+import { showToast } from '@/@noctua.core/components/toast/toastSlice'
+import SearchAnnotations from './SearchAnnotations'
 import {
   initCreateForm,
   resetForm,
@@ -32,7 +33,7 @@ import {
 import { FormMode } from '../../models/formModels'
 import type { TermNode, RelationNode, ValidationError } from '../../models/formModels'
 import { ActivityType } from '../../models/cam'
-import type { Evidence } from '../../models/cam'
+import type { Aspect, Entity, Evidence } from '../../models/cam'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../../data/allowedDatabases'
 import EntityRow from './EntityRow'
 import CloneEvidenceDialog from './CloneEvidenceDialog'
@@ -150,6 +151,13 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
   }>({ open: false, relationUid: '' })
   const [refInfoAnchor, setRefInfoAnchor] = useState<HTMLElement | null>(null)
   const [withInfoAnchor, setWithInfoAnchor] = useState<HTMLElement | null>(null)
+  const [pickerState, setPickerState] = useState<{
+    open: boolean
+    gpId: string
+    aspect: Aspect | undefined
+    nodeUid: string
+    relationUid: string | null
+  }>({ open: false, gpId: '', aspect: undefined, nodeUid: '', relationUid: null })
 
   useEffect(() => {
     if (!root && mode === FormMode.CREATE && !activityType) {
@@ -258,30 +266,56 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
     return enabledByRel?.target ?? null
   }, [root])
 
-  const openSearchAnnotations = useOpenSearchAnnotations()
   const handleSearchAnnotations = useCallback(
-    (node: TermNode, relation: RelationNode | null) =>
-      openSearchAnnotations({
-        gpId: gpNode?.term?.id,
+    (node: TermNode, relation: RelationNode | null) => {
+      const gpId = gpNode?.term?.id
+      if (!gpId) {
+        dispatch(
+          showToast({
+            message: 'Add a gene product first to search annotations',
+            severity: 'warning',
+          })
+        )
+        return
+      }
+      if (!node.aspect) return
+      setPickerState({
+        open: true,
+        gpId,
         aspect: node.aspect,
-        onApply: ({ term, evidences }) => {
-          dispatch(updateTerm({ uid: node.uid, term: { id: term.id, label: term.label } }))
-          if (evidences.length > 0) {
-            const evidenceForms = evidences.map(ev => ({
-              uid: uuidv4(),
-              evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
-              reference: ev.reference || '',
-              withFrom: ev.with || '',
-            }))
-            if (relation?.uid) {
-              dispatch(setRelationEvidences({ relationUid: relation.uid, evidences: evidenceForms }))
-            } else {
-              dispatch(setNodeEvidences({ uid: node.uid, evidences: evidenceForms }))
-            }
-          }
-        },
-      }),
-    [openSearchAnnotations, gpNode, dispatch]
+        nodeUid: node.uid,
+        relationUid: relation?.uid ?? null,
+      })
+    },
+    [gpNode, dispatch]
+  )
+
+  const handlePickerApply = useCallback(
+    ({
+      term,
+      evidences,
+    }: {
+      term: Entity
+      evidences: Array<{ evidenceCode: Entity; reference?: string; with?: string; uid?: string }>
+    }) => {
+      const { nodeUid, relationUid } = pickerState
+      if (!nodeUid) return
+      dispatch(updateTerm({ uid: nodeUid, term: { id: term.id, label: term.label } }))
+      if (evidences.length > 0) {
+        const evidenceForms = evidences.map(ev => ({
+          uid: uuidv4(),
+          evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
+          reference: ev.reference || '',
+          withFrom: ev.with || '',
+        }))
+        if (relationUid) {
+          dispatch(setRelationEvidences({ relationUid, evidences: evidenceForms }))
+        } else {
+          dispatch(setNodeEvidences({ uid: nodeUid, evidences: evidenceForms }))
+        }
+      }
+    },
+    [pickerState, dispatch]
   )
 
   const handleCloneEvidence = useCallback((relationUid: string) => {
@@ -483,6 +517,15 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
         evidences={uniqueEvidences}
         onClose={() => setCloneEvidenceState({ open: false, relationUid: '' })}
         onSelect={handleCloneEvidenceSelect}
+      />
+
+      {/* Locally-rendered Search Annotations picker */}
+      <SearchAnnotations
+        open={pickerState.open}
+        onClose={() => setPickerState(s => ({ ...s, open: false }))}
+        onApply={handlePickerApply}
+        gpId={pickerState.gpId}
+        aspect={pickerState.aspect}
       />
 
       {/* Info popovers */}

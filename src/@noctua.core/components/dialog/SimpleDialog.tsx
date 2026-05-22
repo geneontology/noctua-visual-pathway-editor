@@ -9,6 +9,8 @@ interface SimpleDialogProps {
   onConfirm?: () => void
   title?: string
   size?: 'xs' | 'sm' | 'cam' | 'md' | 'lg' | 'xl'
+  /** Pins dialog to ~90vh and makes the body manage its own height. Implied by size='cam'. */
+  tall?: boolean
   fullWidth?: boolean
   showActions?: boolean
   confirmLabel?: string
@@ -27,6 +29,7 @@ const SimpleDialog = ({
   onConfirm,
   title = 'Add Simple',
   size = 'lg',
+  tall: tallProp,
   fullWidth: _fullWidth = true,
   showActions = false,
   confirmLabel = 'Confirm',
@@ -40,7 +43,7 @@ const SimpleDialog = ({
     onClose()
   }
 
-  const tall = TALL_SIZES.has(size)
+  const tall = tallProp ?? TALL_SIZES.has(size)
 
   return (
     <Modal

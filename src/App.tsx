@@ -11,14 +11,12 @@ import RightDrawerContent from './app/layout/RightDrawer'
 import GlobalDialog from './@noctua.core/components/dialog/GlobalDialog'
 import { DialogComponent } from './@noctua.core/components/dialog/dialogSlice'
 import GlobalToast from './@noctua.core/components/toast/GlobalToast'
-import SearchAnnotations from './features/gocam/components/forms/SearchAnnotations'
 import AnnotationForm from './features/gocam/components/forms/AnnotationForm'
 import CamMetadataForm from './features/gocam/components/CamMetadataForm'
 import CopyModelDialog from './features/gocam/components/CopyModelDialog'
 import ChemicalConnectorForm from './features/relations/components/ChemicalConnectorForm'
 
 const DIALOG_COMPONENTS: Partial<Record<DialogComponent, React.ComponentType<any>>> = {
-  [DialogComponent.SEARCH_ANNOTATIONS]: SearchAnnotations,
   [DialogComponent.ANNOTATION_FORM]: AnnotationForm,
   [DialogComponent.CAM_METADATA_FORM]: CamMetadataForm,
   [DialogComponent.COPY_MODEL_DIALOG]: CopyModelDialog,

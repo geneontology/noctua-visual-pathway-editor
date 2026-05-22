@@ -33,7 +33,16 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
   const store = configureStore({
     reducer: rootReducer,
     middleware: getDefaultMiddleware => {
-      return getDefaultMiddleware().concat(middlewares)
+      return getDefaultMiddleware({
+        // Dialog `customProps` is an opaque escape hatch — entry-point dialogs
+        // pass callbacks (e.g. AnnotationForm.onSubmit) through it. Excluding
+        // it from the serializable-state check lets us drop the module-level
+        // singleton callbacks that used to keep state serializable.
+        serializableCheck: {
+          ignoredActions: ['dialog/openDialog'],
+          ignoredPaths: ['dialog.customProps'],
+        },
+      }).concat(middlewares)
     },
     preloadedState,
   })
