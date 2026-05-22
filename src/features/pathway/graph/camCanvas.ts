@@ -34,6 +34,7 @@ export class CamCanvas {
   // Event callbacks — wired by the React component
   onActivityClick?: (activityId: string) => void
   onEditClick?: (activityId: string) => void
+  onDuplicateClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
@@ -127,6 +128,12 @@ export class CamCanvas {
       evt.stopPropagation()
       const activity = cellView.model.prop('activity') as Activity | undefined
       if (activity) this.onEditClick?.(activity.uid)
+    })
+
+    this.paper.on('element:duplicate:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+      evt.stopPropagation()
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (activity) this.onDuplicateClick?.(activity.uid)
     })
 
     this.paper.on('element:delete:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {

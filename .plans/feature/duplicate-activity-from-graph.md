@@ -1,6 +1,6 @@
 # Task: Duplicate (copy) an activity from the graph into a prefilled Activity Form
 
-**Status:** ACTIVE
+**Status:** COMPLETE
 **Issue:** (none — user request)
 **Branch:** issue-220-update-codebase
 
@@ -33,62 +33,32 @@ Add a "duplicate" icon to each activity node on the pathway graph (next to the e
 ## Steps
 
 ### Phase 1: Asset + shape changes
-- [ ] Add `public/assets/icons/duplicate.svg` (simple two-overlapping-rectangles glyph; match stroke style of `edit.svg`/`delete.svg`)
-- [ ] In `src/features/pathway/graph/shapes.ts`:
-  - [ ] Add `{ tagName: 'image', selector: 'duplicateIcon' }` to `headerMarkup` (between edit and delete, or stacked below delete)
-  - [ ] Add `duplicateIcon` attrs in `headerAttributes.attrs` mirroring `editIcon`/`deleteIcon`:
-    - `event: 'element:duplicate:pointerdown'`
-    - `xlinkHref: './assets/icons/duplicate.svg'`
-    - Position: place at `y: 60` (edit=0, delete=30, duplicate=60) so all three stack down the right edge
-  - [ ] In `NodeCellList.hover(on)` toggle `duplicateIcon/visibility`
-  - [ ] In `NodeCellMolecule` defaults markup + attrs, add `.duplicate` image with the same `element:duplicate:pointerdown` event, and toggle visibility in its `hover()`
+- [x] Added `public/assets/icons/duplicate.svg` (Font Awesome "copy" glyph, matches edit/delete style)
+- [x] In `src/features/pathway/graph/shapes.ts`:
+  - [x] Added `duplicateIcon` to `headerMarkup` between edit and delete
+  - [x] Added `duplicateIcon` attrs in `headerAttributes.attrs` (event `element:duplicate:pointerdown`, y:30); bumped `deleteIcon` y:30→60
+  - [x] `NodeCellList.hover(on)` toggles `duplicateIcon/visibility`
+  - [x] `NodeCellMolecule` markup + attrs gained `.duplicate` (y:30); bumped `.delete` y:30→60; hover toggles all three
 
 ### Phase 2: Canvas event + callback plumbing
-- [ ] In `src/features/pathway/graph/camCanvas.ts`:
-  - [ ] Add `onDuplicateClick?: (activityId: string) => void` to the class
-  - [ ] In `_initEvents`, register `paper.on('element:duplicate:pointerdown', ...)` mirroring the edit/delete handlers — `stopPropagation`, then call `onDuplicateClick?.(activity.uid)`
-- [ ] In `src/features/pathway/components/PathwayGraph.tsx`:
-  - [ ] Add `onDuplicateClick?: (activityId: string) => void` to `PathwayGraphProps`
-  - [ ] Forward it into the callbacks-sync `useEffect` and dependency array
+- [x] `src/features/pathway/graph/camCanvas.ts` — added `onDuplicateClick` field + `paper.on('element:duplicate:pointerdown', …)` handler
+- [x] `src/features/pathway/components/PathwayGraph.tsx` — added `onDuplicateClick` prop, forwarded into the callbacks-sync effect
 
 ### Phase 3: Redux — duplicate-form init
-- [ ] In `src/features/gocam/slices/activityFormSlice.ts`:
-  - [ ] Add a `reIdTree(node: TermNode): TermNode` helper (module-local) that returns a deep clone with every `TermNode.uid` and `RelationNode.uid` and `EvidenceForm.uid` replaced by `uuidv4()`. Term content (id/label/rootTypes/aspect/isComplement) is preserved verbatim.
-  - [ ] Add reducer `initDuplicateForm(activity: Activity, activityType: ActivityFormType)`:
-    - `state.root = reIdTree(activityToFormTree(activity))`
-    - `state.activityType = activityType`
-    - `state.mode = FormMode.CREATE`  ← critical: CREATE so save builds a new activity
-    - `state.existingActivityUid = null`
-    - `state.isDirty = true` (the prefilled content is itself a change vs blank template)
-    - `state.errors = []`
-  - [ ] Export the new action
+- [x] `src/features/gocam/slices/activityFormSlice.ts` — added `reIdTree(node)` deep-clone helper
+- [x] Added `initDuplicateForm({ activity, activityType })` reducer (CREATE mode, fresh uids, isDirty=true) and exported it
 
 ### Phase 4: PathwayViewer wiring
-- [ ] In `src/app/PathwayViewer.tsx`:
-  - [ ] Import `initDuplicateForm` (and `resetForm` is already imported)
-  - [ ] Add `handleDuplicateActivity = useCallback((activityId) => { … })`:
-    - Find the activity in `graphModel?.data.activities` by `uid`
-    - Resolve `ActivityFormType` from `activity.type`: `MOLECULE → 'molecule'`, `PROTEIN_COMPLEX → 'proteinComplex'`, default `'activity'` (same mapping as `loadActivity` uses)
-    - `dispatch(resetForm())` then `dispatch(initDuplicateForm({ activity, activityType }))`
-    - `setActivityFormOpen(true)`
-  - [ ] Pass `onDuplicateClick={handleDuplicateActivity}` to `<PathwayGraph … />`
+- [x] `src/app/PathwayViewer.tsx` — imported `ActivityType` + `initDuplicateForm`; added `handleDuplicateActivity` handler; passed `onDuplicateClick` to `<PathwayGraph>`
 
 ### Phase 5: Verify
-- [ ] `npm run type-check` clean
-- [ ] `npm run lint` clean
-- [ ] Manual: hover an activity → three icons appear; click duplicate → modal opens with the same gene product, MF, BP, CC, evidence; click Save → a NEW activity appears in the graph; the source activity is unchanged
-- [ ] Try on a molecule node (NodeCellMolecule path) — duplicate also works there
-- [ ] Cancel/Clear in the duplicate form does not modify the source activity
+- [x] `npm run type-check` — clean
+- [x] `npm run lint` on touched files — clean (one pre-existing unused-helper warning on `findParentOfRelation` in `activityFormSlice.ts` is not from this change)
+- [ ] Manual smoke (UI testing — not run; recommend trying on dev server)
 
 ## Recovery Checkpoint
 
-> **⚠ UPDATE THIS AFTER EVERY CHANGE**
-
-- **Last completed action:** Created this plan file
-- **Next immediate action:** Phase 1 — add `public/assets/icons/duplicate.svg` and edit `shapes.ts`
-- **Recent commands run:** (none — planning only)
-- **Uncommitted changes:** Pre-existing modifications on this branch (PathwayViewer.tsx, ActivityTable.tsx, ActivityTableNode.tsx, CamMetadataForm.tsx, AnnotationForm.tsx, EntityRow.tsx, RelationForm.tsx, plus new ConfirmDialog.tsx and tests/) — unrelated to this task
-- **Environment state:** Nothing running
+✅ TASK COMPLETE
 
 ## Failed Approaches
 
@@ -100,12 +70,18 @@ Add a "duplicate" icon to each activity node on the pathway graph (next to the e
 
 | File | Action | Status |
 | ---- | ------ | ------ |
-| public/assets/icons/duplicate.svg | create | pending |
-| src/features/pathway/graph/shapes.ts | edit (header markup + attrs + hover) | pending |
-| src/features/pathway/graph/camCanvas.ts | edit (event handler + callback) | pending |
-| src/features/pathway/components/PathwayGraph.tsx | edit (prop + forwarding) | pending |
-| src/features/gocam/slices/activityFormSlice.ts | edit (new reducer + reIdTree helper) | pending |
-| src/app/PathwayViewer.tsx | edit (handler + wiring) | pending |
+| public/assets/icons/duplicate.svg | create | done |
+| src/features/pathway/graph/shapes.ts | edit (header markup + attrs + hover) | done |
+| src/features/pathway/graph/camCanvas.ts | edit (event handler + callback) | done |
+| src/features/pathway/components/PathwayGraph.tsx | edit (prop + forwarding) | done |
+| src/features/gocam/slices/activityFormSlice.ts | edit (new reducer + reIdTree helper) | done |
+| src/app/PathwayViewer.tsx | edit (handler + wiring) | done |
+
+## Summary
+
+Hovering an activity in the pathway graph now shows three icons (edit / duplicate / delete) stacked along the right edge. Clicking duplicate opens the Activity Form prefilled with the source activity's terms, labels, root types, aspects, complement flags, and evidence — all with fresh uids so there's no identity overlap with the source. The form opens in CREATE mode, so Save produces a brand-new activity via the existing `buildCreateActivityOperations` path (it already assigns fresh Barista variable ids per node); Cancel/Clear leaves the source unchanged.
+
+Implementation: 1 new SVG asset + 5 file edits. No new components, no new slices — just one new reducer (`initDuplicateForm`) + one helper (`reIdTree`) + plumbing through the existing edit/delete icon callback path. Out of scope (deferred): connector edges between activities are NOT duplicated; positioning of the new node falls to auto-layout.
 
 ## Blockers
 

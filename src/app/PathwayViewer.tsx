@@ -16,8 +16,13 @@ import {
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import type { Activity, Edge } from '@/features/gocam/models/cam'
+import { ActivityType } from '@/features/gocam/models/cam'
 import type { ActivityFormType } from '@/features/gocam/models/formModels'
-import { resetForm, initCreateForm } from '@/features/gocam/slices/activityFormSlice'
+import {
+  resetForm,
+  initCreateForm,
+  initDuplicateForm,
+} from '@/features/gocam/slices/activityFormSlice'
 import { Button, Modal } from '@mantine/core'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
 import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
@@ -125,6 +130,23 @@ const PathwayEditor: React.FC = () => {
     [graphModel]
   )
 
+  const handleDuplicateActivity = useCallback(
+    (activityId: string) => {
+      const activity = graphModel?.data?.activities.find(a => a.uid === activityId)
+      if (!activity) return
+      const activityType: ActivityFormType =
+        activity.type === ActivityType.MOLECULE
+          ? 'molecule'
+          : activity.type === ActivityType.PROTEIN_COMPLEX
+            ? 'proteinComplex'
+            : 'activity'
+      dispatch(resetForm())
+      dispatch(initDuplicateForm({ activity, activityType }))
+      setActivityFormOpen(true)
+    },
+    [graphModel, dispatch]
+  )
+
   const handleStencilDrop = useCallback(
     (type: string, _x: number, _y: number) => {
       dispatch(resetForm())
@@ -185,6 +207,7 @@ const PathwayEditor: React.FC = () => {
             canvasRef={canvas.canvasRef}
             onActivityClick={handleSelectActivity}
             onEditClick={handleSelectActivity}
+            onDuplicateClick={handleDuplicateActivity}
             onDeleteClick={del.requestDelete}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}

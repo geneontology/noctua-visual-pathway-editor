@@ -100,6 +100,7 @@ const headerMarkup = [
   { tagName: 'text', selector: 'label' },
   { tagName: 'image', selector: 'icon' },
   { tagName: 'image', selector: 'editIcon' },
+  { tagName: 'image', selector: 'duplicateIcon' },
   { tagName: 'image', selector: 'deleteIcon' },
 ]
 
@@ -154,13 +155,25 @@ const headerAttributes = {
       cursor: 'pointer',
       visibility: 'hidden',
     },
+    duplicateIcon: {
+      event: 'element:duplicate:pointerdown',
+      xlinkHref: './assets/icons/duplicate.svg',
+      ref: 'wrapper',
+      refX: '100%',
+      refX2: 5,
+      y: 30,
+      width: 20,
+      height: 20,
+      cursor: 'pointer',
+      visibility: 'hidden',
+    },
     deleteIcon: {
       event: 'element:delete:pointerdown',
       xlinkHref: './assets/icons/delete.svg',
       ref: 'wrapper',
       refX: '100%',
       refX2: 5,
-      y: 30,
+      y: 60,
       width: 20,
       height: 20,
       cursor: 'pointer',
@@ -271,6 +284,7 @@ export class NodeCellList extends joint.dia.Element {
   hover(on: boolean): this {
     this.attr('wrapper/strokeWidth', on ? 40 : 0)
     this.attr('editIcon/visibility', on ? 'visible' : 'hidden')
+    this.attr('duplicateIcon/visibility', on ? 'visible' : 'hidden')
     this.attr('deleteIcon/visibility', on ? 'visible' : 'hidden')
     return this
   }
@@ -317,13 +331,25 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         cursor: 'pointer',
         visibility: 'hidden',
       },
+      '.duplicate': {
+        event: 'element:duplicate:pointerdown',
+        'xlink:href': './assets/icons/duplicate.svg',
+        ref: '.wrapper',
+        refX: '100%',
+        refX2: 5,
+        y: 30,
+        height: 20,
+        width: 20,
+        cursor: 'pointer',
+        visibility: 'hidden',
+      },
       '.delete': {
         event: 'element:delete:pointerdown',
         'xlink:href': './assets/icons/delete.svg',
         ref: '.wrapper',
         refX: '100%',
         refX2: 5,
-        y: 30,
+        y: 60,
         height: 20,
         width: 20,
         cursor: 'pointer',
@@ -340,6 +366,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '</g>',
       '<text class="label"/>',
       '<image class="edit"/>',
+      '<image class="duplicate"/>',
       '<image class="delete"/>',
       '</g>',
     ].join(''),
@@ -363,6 +390,7 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
   hover(on: boolean): this {
     this.attr('.wrapper/strokeWidth', on ? 40 : 0)
     this.attr('.edit/visibility', on ? 'visible' : 'hidden')
+    this.attr('.duplicate/visibility', on ? 'visible' : 'hidden')
     this.attr('.delete/visibility', on ? 'visible' : 'hidden')
     return this
   }
