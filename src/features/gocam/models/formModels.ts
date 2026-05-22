@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Aspect, Entity } from './cam'
 import type { DisplayGroup } from '../data/insertMenuConfig'
+import { EVIDENCE_AUTO_POPULATE } from '../data/camConstants'
 
 export type ActivityFormType = 'activity' | 'molecule' | 'proteinComplex'
 
@@ -119,3 +120,16 @@ export const createEvidenceForm = (): EvidenceForm => ({
   reference: '',
   withFrom: '',
 })
+
+/** Build an evidence form pre-filled from EVIDENCE_AUTO_POPULATE (e.g. 'nd', 'iss'). */
+export const createAutoPopulatedEvidence = (
+  variant: keyof typeof EVIDENCE_AUTO_POPULATE
+): EvidenceForm => {
+  const { evidence, reference } = EVIDENCE_AUTO_POPULATE[variant]
+  return {
+    uid: uuidv4(),
+    evidenceCode: { id: evidence.id, label: evidence.label },
+    reference,
+    withFrom: '',
+  }
+}

@@ -11,8 +11,8 @@ import type { GOlrResponse } from '@/features/search/models/search'
 import type { Aspect, Entity } from '../../models/cam'
 import { RootTypes } from '../../models/cam'
 import type { EvidenceForm } from '../../models/formModels'
-import { createEvidenceForm } from '../../models/formModels'
-import { ROOT_NODES, EVIDENCE_AUTO_POPULATE } from '../../data/camConstants'
+import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/formModels'
+import { ROOT_NODES } from '../../data/camConstants'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import DatabaseField from './DatabaseField'
 import {
@@ -66,6 +66,10 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
 
   const addEvidence = useCallback(() => {
     setEvidences(prev => [...prev, createEvidenceForm()])
+  }, [])
+
+  const addISSEvidence = useCallback(() => {
+    setEvidences(prev => [...prev, createAutoPopulatedEvidence('iss')])
   }, [])
 
   const removeEvidenceAt = useCallback((index: number) => {
@@ -122,17 +126,13 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     const matchedRoot = termRootTypes.find(rt => ROOT_NODES[rt])
     if (!matchedRoot) return
     const { id, label } = ROOT_NODES[matchedRoot]
-    const { evidence: ndEvidence, reference: ndReference } = EVIDENCE_AUTO_POPULATE.nd
     setTerm({ id, label })
-    setEvidences([
-      {
-        uid: uuidv4(),
-        evidenceCode: { id: ndEvidence.id, label: ndEvidence.label },
-        reference: ndReference,
-        withFrom: '',
-      },
-    ])
+    setEvidences([createAutoPopulatedEvidence('nd')])
   }, [termRootTypes])
+
+  const handleFillISSEvidence = useCallback(() => {
+    setEvidences([createAutoPopulatedEvidence('iss')])
+  }, [])
 
   const handleCancel = useCallback(() => {
     dispatch(closeDialog())
@@ -168,6 +168,9 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                       Fill with root term
                     </Button>
                   )}
+                  <Button size="compact-sm" variant="light" color="primary" onClick={handleFillISSEvidence}>
+                    Add ISS
+                  </Button>
                 </div>
               }
             />
@@ -190,9 +193,14 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
           <SectionHeader
             title={`Evidence (${evidences.length})`}
             right={
-              <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addEvidence}>
-                Add evidence
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addEvidence}>
+                  Add evidence
+                </Button>
+                <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISSEvidence}>
+                  Add ISS
+                </Button>
+              </div>
             }
           />
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">

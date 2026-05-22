@@ -8,11 +8,11 @@ import type {
   ActivityFormType,
   ActivityFormState,
 } from '../models/formModels'
-import { createEvidenceForm, FormMode } from '../models/formModels'
+import { createEvidenceForm, createAutoPopulatedEvidence, FormMode } from '../models/formModels'
 import type { Entity, Activity, Aspect } from '../models/cam'
 import { ActivityType } from '../models/cam'
 import { createActivityTemplate, activityToFormTree } from '../data/activityTemplates'
-import { ROOT_NODES, EVIDENCE_AUTO_POPULATE } from '../data/camConstants'
+import { ROOT_NODES } from '../data/camConstants'
 import { v4 as uuidv4 } from 'uuid'
 
 // ── Tree traversal ──────────────────────────────────────────────────
@@ -284,16 +284,7 @@ export const activityFormSlice = createSlice({
       if (!rootEntry) return
 
       node.term = { id: rootEntry.id, label: rootEntry.label }
-
-      // Add ND evidence
-      rel.evidence = [
-        {
-          uid: uuidv4(),
-          evidenceCode: EVIDENCE_AUTO_POPULATE.nd.evidence,
-          reference: EVIDENCE_AUTO_POPULATE.nd.reference,
-          withFrom: '',
-        },
-      ]
+      rel.evidence = [createAutoPopulatedEvidence('nd')]
       state.isDirty = true
     },
 
@@ -304,12 +295,7 @@ export const activityFormSlice = createSlice({
       if (!state.root) return
       const rel = findRelationNode(state.root, action.payload.relationUid)
       if (!rel) return
-      rel.evidence.push({
-        uid: uuidv4(),
-        evidenceCode: { id: 'ECO:0000250', label: 'ISS' },
-        reference: '',
-        withFrom: '',
-      })
+      rel.evidence = [createAutoPopulatedEvidence('iss')]
       state.isDirty = true
     },
 

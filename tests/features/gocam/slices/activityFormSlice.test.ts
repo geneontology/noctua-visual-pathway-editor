@@ -381,14 +381,24 @@ describe('mutating reducers on a hydrated form', () => {
     expect(next.isDirty).toBe(false)
   })
 
-  it('addISSEvidence appends an ISS evidence to the relation', () => {
+  it('addISSEvidence replaces the relation evidence with a single ISS + GO_REF row', () => {
+    // Seed an extra evidence row first so we can prove the reducer replaces, not appends.
     const rel = state.root!.relations[0]
-    const before = rel.evidence.length
-    const next = reducer(state, addISSEvidence({ relationUid: rel.uid }))
-    const added = next.root!.relations[0].evidence
-    expect(added).toHaveLength(before + 1)
-    expect(added[added.length - 1].evidenceCode).toEqual({ id: 'ECO:0000250', label: 'ISS' })
+    const seeded = reducer(state, addEvidenceForm({ relationUid: rel.uid }))
+    expect(seeded.root!.relations[0].evidence.length).toBeGreaterThan(1)
+
+    const next = reducer(seeded, addISSEvidence({ relationUid: rel.uid }))
+    const replaced = next.root!.relations[0].evidence
+    expect(replaced).toHaveLength(1)
+    expect(replaced[0].evidenceCode.id).toBe('ECO:0000250')
+    expect(replaced[0].reference).toBe('GO_REF:0000024')
+    expect(replaced[0].withFrom).toBe('')
     expect(next.isDirty).toBe(true)
+  })
+
+  it('addISSEvidence is a no-op when relationUid does not match', () => {
+    const next = reducer(state, addISSEvidence({ relationUid: 'no-such-relation' }))
+    expect(next).toBe(state)
   })
 
   it('clearNodeValues nulls the term, clears complement, and resets evidence', () => {

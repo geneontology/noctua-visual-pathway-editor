@@ -31,7 +31,8 @@
       "Bash(npm run *)",
       "Bash(npx playwright *)",
       "Bash(curl *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(npx vitest *)"
     ]
   }
 }
