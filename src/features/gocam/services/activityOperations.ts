@@ -422,7 +422,7 @@ export const buildAddNodeOperations = (
   typeId: string,
   modelId: string,
   userContext?: UserContext,
-  details?: { termId?: string; evidence?: EvidenceForm }
+  details?: { termId?: string; evidences?: EvidenceForm[] }
 ): Operation[] => {
   const varId = uuidv4()
   const nodeTypeId = details?.termId || typeId
@@ -463,13 +463,13 @@ export const buildAddNodeOperations = (
     })
   }
 
-  if (details?.evidence?.evidenceCode?.id) {
+  if (details?.evidences && details.evidences.length > 0) {
     addEvidenceOperations(
       operations,
       parentUid,
       varId,
       predicateId,
-      [details.evidence],
+      details.evidences,
       modelId,
       userContext
     )

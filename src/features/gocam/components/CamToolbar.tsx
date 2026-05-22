@@ -35,7 +35,7 @@ const CamToolbar: React.FC = () => {
       openDialog({
         component: DialogComponent.CAM_METADATA_FORM,
         title: 'Edit Model',
-        size: 'cam',
+        size: 'sm',
       })
     )
   }
@@ -45,7 +45,7 @@ const CamToolbar: React.FC = () => {
       openDialog({
         component: DialogComponent.COPY_MODEL_DIALOG,
         title: 'Copy Model',
-        size: 'cam',
+        size: 'sm',
       })
     )
   }

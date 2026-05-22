@@ -6,10 +6,7 @@ import { FaCheckCircle } from 'react-icons/fa'
 import type { Aspect, Evidence } from '../../models/cam'
 import { useSearchAnnotationsQuery } from '@/features/search/slices/lookupApiSlice'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
-import {
-  consumeSearchAnnotationsOnApply,
-  type SearchAnnotationsOnApply,
-} from '../../hooks/useOpenSearchAnnotations'
+import { consumeSearchAnnotationsOnApply } from '../../hooks/useOpenSearchAnnotations'
 
 interface SearchAnnotationsProps {
   gpId: string
@@ -35,11 +32,6 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
   term,
 }) => {
   const dispatch = useAppDispatch()
-  // Snapshot the caller's onApply once on mount. The opener writes it to a
-  // module-level slot just before dispatching openDialog; we claim it here.
-  const [onApply] = useState<SearchAnnotationsOnApply | null>(() =>
-    consumeSearchAnnotationsOnApply()
-  )
   const [selectedTerm, setSelectedTerm] = useState<AnnotationsResponse | null>(null)
   const [selectedEvidences, setSelectedEvidences] = useState<Evidence[]>([])
   const { data: annotations = [], isLoading } = useSearchAnnotationsQuery({
@@ -73,8 +65,14 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
 
   const handleSave = () => {
     if (!selectedTerm) return
-    onApply?.({ term: selectedTerm.term, evidences: selectedEvidences })
+    // Consume at save-time — see note in AnnotationForm.handleSave about
+    // React.StrictMode double-mounting eating the callback.
+    const cb = consumeSearchAnnotationsOnApply()
+    // Close BEFORE invoking the callback. If onApply itself dispatches
+    // openDialog (e.g. AnnotationForm re-opening itself with prefill), the
+    // close-after-call order would tear the new dialog right back down.
     dispatch(closeDialog())
+    cb?.({ term: selectedTerm.term, evidences: selectedEvidences })
   }
 
   return (

@@ -1,16 +1,15 @@
 import type React from 'react'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import type { Edge, UserContext, DisplayTreeNode } from '../models/cam'
 import { RootTypes, Aspect } from '../models/cam'
 import { EditorCategory } from '../models/editorCategory'
-import type { GOlrResponse } from '@/features/search/models/search'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
-import { useOpenSearchAnnotations } from '../hooks/useOpenSearchAnnotations'
+import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
 import {
   buildAddEvidenceToEdgeOperations,
   buildAddNodeOperations,
@@ -20,7 +19,6 @@ import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
 import type { InsertMenuItem } from '../data/insertMenuConfig'
 import { getNodeCategory } from '../data/nodeCategories'
-import { createEvidenceForm } from '../models/formModels'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
 
@@ -64,16 +62,8 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
-  const editor = usePopover<{
-    category: EditorCategory
-    insert: InsertMenuItem | null
-    prefill?: {
-      term: GOlrResponse | null
-      evidence: GOlrResponse | null
-      reference: string
-      with: string
-    }
-  }>()
+  // EditorDropdown is now only used for single-field term edits on this row.
+  const editor = usePopover<{ category: EditorCategory }>()
 
   const {
     updateGraphModel,
@@ -95,115 +85,18 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const { aspect } = treeNode
   const treeBorder = aspect ? TREE_BORDER_BY_ASPECT[aspect] : 'border-blue-400'
 
-  const openSearchAnnotations = useOpenSearchAnnotations()
-  const handleSearchAnnotations = useCallback(() => {
-    // If the user is inserting a new child (e.g. part_of → BP), derive the
-    // aspect from the insert's target type so the search filters by the
-    // appropriate aspect (BP, CC, etc.) rather than the parent row's aspect.
-    const insert = editor.data?.insert ?? null
-    const category = editor.data?.category ?? EditorCategory.term
-    const effectiveAspect = insert
-      ? getAspectFromRootTypes([insert.targetType])
-      : aspect
-    // The popover backdrop (z=250) sits above Mantine's Modal (z=200), so we
-    // must close the inline editor before the picker opens. We snapshot the
-    // anchor + category + insert so we can reopen it (with prefill) on apply.
-    const anchor = editor.anchor
-    editor.close()
-    openSearchAnnotations({
-      gpId: gpNodeId,
-      aspect: effectiveAspect,
-      onApply: ({ term, evidences }) => {
-        if (!anchor) return
-        const first = evidences[0]
-        editor.open(anchor, {
-          category,
-          insert,
-          prefill: {
-            term: { id: term.id, label: term.label } as GOlrResponse,
-            evidence: first
-              ? ({ id: first.evidenceCode.id, label: first.evidenceCode.label } as GOlrResponse)
-              : null,
-            reference: first?.reference ?? '',
-            with: first?.with ?? '',
-          },
-        })
-      },
-    })
-  }, [editor, openSearchAnnotations, gpNodeId, aspect])
-
-  const editorCategory = editor.data?.category ?? EditorCategory.term
-  const pendingInsert = editor.data?.insert ?? null
-  const prefill = editor.data?.prefill
-
-  // Memoize the EditorDropdown's initial* props so they only change when their
-  // underlying source does (the popover's prefill, the row's node, or the
-  // pending insert). Without this, fresh object literals on every parent
-  // re-render would re-fire EditorDropdown's sync effect and clobber the
-  // user's in-progress typing.
-  const initialTerm = useMemo<{ id: string; label: string } | null>(() => {
-    if (prefill?.term) return { id: prefill.term.id, label: prefill.term.label }
-    if (pendingInsert) return null
-    return node.id ? { id: node.id, label: node.label } : null
-  }, [prefill?.term, pendingInsert, node.id, node.label])
-  const initialEvidence = useMemo<{ id: string; label: string } | null>(() => {
-    if (prefill?.evidence) return { id: prefill.evidence.id, label: prefill.evidence.label }
-    return null
-  }, [prefill?.evidence])
-  const initialReference = prefill?.reference ?? ''
-  const initialWith = prefill?.with ?? ''
+  const openAnnotationForm = useOpenAnnotationForm()
 
   const handleEditorSave = useCallback(
     async (values: EditorDropdownValues) => {
-      switch (editorCategory) {
-        case EditorCategory.term: {
-          if (!values.term) break
-          await updateGraphModel(
-            buildEditIndividualTypeOperations(node.uid, node.id, values.term.id, modelId)
-          )
-          break
-        }
-        case EditorCategory.evidenceAll: {
-          if (!edge || !values.evidence) break
-          const ev = {
-            ...createEvidenceForm(),
-            evidenceCode: { id: values.evidence.id, label: values.evidence.label },
-            reference: values.reference || '',
-            withFrom: values.with || '',
-          }
-          await updateGraphModel(
-            buildAddEvidenceToEdgeOperations(
-              edge.sourceId, edge.targetId, edge.id, ev, modelId, resolvedUserContext
-            )
-          )
-          break
-        }
-        case EditorCategory.all: {
-          if (!pendingInsert || !values.term) break
-          const ev = values.evidence
-            ? {
-              ...createEvidenceForm(),
-              evidenceCode: { id: values.evidence.id, label: values.evidence.label },
-              reference: values.reference || '',
-              withFrom: values.with || '',
-            }
-            : undefined
-          await updateGraphModel(
-            buildAddNodeOperations(
-              node.uid,
-              pendingInsert.predicate.id,
-              pendingInsert.targetType,
-              modelId,
-              resolvedUserContext,
-              { termId: values.term?.id, evidence: ev }
-            )
-          )
-          break
-        }
+      if (editor.data?.category === EditorCategory.term && values.term) {
+        await updateGraphModel(
+          buildEditIndividualTypeOperations(node.uid, node.id, values.term.id, modelId)
+        )
       }
       editor.close()
     },
-    [editorCategory, node.uid, node.id, edge, modelId, resolvedUserContext, updateGraphModel, pendingInsert, editor]
+    [editor, node.uid, node.id, modelId, updateGraphModel]
   )
 
   const handleDeleteNode = useCallback(async () => {
@@ -212,12 +105,55 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   const handleInsertNode = useCallback(
     (item: InsertMenuItem) => {
-      if (actionCellRef.current) {
-        editor.open(actionCellRef.current, { category: EditorCategory.all, insert: item })
-      }
+      const targetAspect = getAspectFromRootTypes([item.targetType])
+      openAnnotationForm({
+        showTerm: true,
+        title: `Add ${item.label}`,
+        termLabel: item.label,
+        termRootTypes: [item.targetType],
+        gpId: gpNodeId,
+        aspect: targetAspect,
+        onSubmit: async ({ term, evidences }) => {
+          if (!term) return
+          await updateGraphModel(
+            buildAddNodeOperations(
+              node.uid,
+              item.predicate.id,
+              item.targetType,
+              modelId,
+              resolvedUserContext,
+              { termId: term.id, evidences }
+            )
+          )
+        },
+      })
     },
-    [editor]
+    [openAnnotationForm, gpNodeId, node.uid, modelId, resolvedUserContext, updateGraphModel]
   )
+
+  const handleAddEvidence = useCallback(() => {
+    if (!edge) return
+    openAnnotationForm({
+      showTerm: false,
+      title: 'Add Evidence',
+      gpId: gpNodeId,
+      aspect,
+      onSubmit: async ({ evidences }) => {
+        if (evidences.length === 0) return
+        const ops = evidences.flatMap(ev =>
+          buildAddEvidenceToEdgeOperations(
+            edge.sourceId,
+            edge.targetId,
+            edge.id,
+            ev,
+            modelId,
+            resolvedUserContext
+          )
+        )
+        await updateGraphModel(ops)
+      },
+    })
+  }, [edge, openAnnotationForm, gpNodeId, aspect, modelId, resolvedUserContext, updateGraphModel])
 
   return (
     <>
@@ -242,7 +178,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           label={treeNode.floatingLabel}
           onEdit={() => {
             if (termCellRef.current) {
-              editor.open(termCellRef.current, { category: EditorCategory.term, insert: null })
+              editor.open(termCellRef.current, { category: EditorCategory.term })
             }
           }}
           onDelete={canDelete ? handleDeleteNode : undefined}
@@ -323,19 +259,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                     </Menu.Sub.Dropdown>
                   </Menu.Sub>
                 )}
-                {edge && (
-                  <Menu.Item
-                    onClick={() => {
-                      if (actionCellRef.current)
-                        editor.open(actionCellRef.current, {
-                          category: EditorCategory.evidenceAll,
-                          insert: null,
-                        })
-                    }}
-                  >
-                    Add Evidence
-                  </Menu.Item>
-                )}
+                {edge && <Menu.Item onClick={handleAddEvidence}>Add Evidence</Menu.Item>}
                 {canDelete && (
                   <Menu.Item color="red" onClick={handleDeleteNode}>
                     Delete
@@ -371,17 +295,12 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
       <EditorDropdown
         anchorEl={editor.anchor}
-        category={editorCategory}
+        category={editor.data?.category ?? EditorCategory.term}
         onClose={editor.close}
         onSave={handleEditorSave}
-        termLabel={pendingInsert?.label ?? treeNode.floatingLabel}
-        termRootTypes={pendingInsert ? [pendingInsert.targetType] : node.rootTypes}
-        initialTerm={initialTerm}
-        initialEvidence={initialEvidence}
-        initialReference={initialReference}
-        initialWith={initialWith}
-        hasAspect={Boolean(pendingInsert ? getAspectFromRootTypes([pendingInsert.targetType]) : aspect)}
-        onSearchAnnotations={handleSearchAnnotations}
+        termLabel={treeNode.floatingLabel}
+        termRootTypes={node.rootTypes}
+        initialTerm={node.id ? { id: node.id, label: node.label } : null}
       />
 
       {children.map(child => (

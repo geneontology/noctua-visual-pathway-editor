@@ -47,57 +47,111 @@ const CamMetadataForm: React.FC = () => {
   if (!cam) return null
 
   return (
-    <div className="flex flex-col gap-3 px-4 py-3">
-      <TextInput
-        label="Title"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        size="xs"
-      />
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-3 px-4 py-4">
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Model Information
+        </div>
 
-      <Select
-        value={state}
-        onChange={value => value && setState(value)}
-        size="xs"
-        data={MODEL_STATES.map(s => ({ value: s, label: s }))}
-      />
+        <Textarea
+          label="Title"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          size="sm"
+          autosize
+          minRows={1}
+          maxRows={3}
+        />
 
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm font-medium">Comments</span>
-          <ActionIcon variant="subtle" color="gray" size="md" onClick={handleAddComment}>
+        <Select
+          label="State"
+          value={state}
+          onChange={value => value && setState(value)}
+          size="sm"
+          data={MODEL_STATES.map(s => ({ value: s, label: s }))}
+        />
+      </div>
+
+      <div className="border-t border-gray-200 px-4 py-4">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Comments
+          </div>
+          <ActionIcon
+            variant="subtle"
+            color="blue"
+            size="sm"
+            onClick={handleAddComment}
+            aria-label="Add comment"
+          >
             <FiPlus size={14} />
           </ActionIcon>
         </div>
-        {comments.map((comment, i) => (
-          <div key={i} className="flex items-center gap-1 mb-1">
-            <Textarea
-              value={comment}
-              onChange={e => handleCommentChange(i, e.target.value)}
-              size="xs"
-              autosize
-              minRows={1}
-              maxRows={3}
-              className="flex-1"
-            />
-            <ActionIcon variant="subtle" color="gray" size="md" onClick={() => handleRemoveComment(i)}>
-              <FiX size={14} />
-            </ActionIcon>
+
+        {comments.length === 0 ? (
+          <div className="py-2 text-xs italic text-gray-400">No comments yet</div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {comments.map((comment, i) => (
+              <div key={i} className="flex items-start gap-1">
+                <Textarea
+                  value={comment}
+                  onChange={e => handleCommentChange(i, e.target.value)}
+                  size="sm"
+                  autosize
+                  minRows={1}
+                  maxRows={3}
+                  className="flex-1"
+                  placeholder="Comment"
+                />
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  onClick={() => handleRemoveComment(i)}
+                  aria-label="Remove comment"
+                >
+                  <FiX size={14} />
+                </ActionIcon>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={() => dispatch(closeDialog())}
-        >
+      {(cam.contributors?.length || cam.groups?.length) ? (
+        <div className="border-t border-gray-200 px-4 py-4">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Model Details
+          </div>
+          <div className="flex flex-col gap-1 text-xs">
+            {cam.contributors?.length ? (
+              <div className="flex gap-2">
+                <span className="font-medium text-gray-600">Contributors:</span>
+                <span className="text-gray-800">
+                  {cam.contributors.map(c => c.name || c.uri).join(', ')}
+                </span>
+              </div>
+            ) : null}
+            {cam.groups?.length ? (
+              <div className="flex gap-2">
+                <span className="font-medium text-gray-600">Groups:</span>
+                <span className="text-gray-800">
+                  {cam.groups.map(g => g.label || g.id).join(', ')}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
+        <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
           Cancel
         </Button>
         <Button
           variant="filled"
-          size="xs"
+          size="sm"
           onClick={handleSave}
           disabled={isLoading || !title.trim()}
         >

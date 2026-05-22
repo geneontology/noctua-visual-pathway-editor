@@ -1,15 +1,11 @@
 import type React from 'react'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { ActionIcon } from '@mantine/core'
-import AnchoredMenu, { MenuItem } from '@/@noctua.core/components/menu/AnchoredMenu'
 import AnchoredPopover from '@/@noctua.core/components/popover/AnchoredPopover'
-import { usePopover } from '@/@noctua.core/hooks/usePopover'
-import { FaEllipsisV } from 'react-icons/fa'
 import { FaRegCircleXmark, FaRegCircleCheck } from 'react-icons/fa6'
 import { useAppSelector } from '@/app/hooks'
 import { EditorCategory } from '../../models/editorCategory'
 import { RootTypes } from '../../models/cam'
-import { ROOT_NODES, EVIDENCE_AUTO_POPULATE } from '../../data/camConstants'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
@@ -18,6 +14,11 @@ import DatabaseField from './DatabaseField'
 
 // ── Types ────────────────────────────────────────────────────────────
 
+/**
+ * EditorDropdown is the inline single-field editor: one of term, evidence,
+ * reference, or with at a time. Multi-section editing (add new child node,
+ * add multiple evidences) lives in AnnotationForm.
+ */
 export interface EditorDropdownValues {
   term?: GOlrResponse | null
   evidence?: GOlrResponse | null
@@ -38,10 +39,6 @@ interface EditorDropdownProps {
   initialEvidence?: { id: string; label: string } | null
   initialReference?: string
   initialWith?: string
-
-  /** Whether the node has an aspect — controls Search Annotations / Fill Root Term visibility */
-  hasAspect?: boolean
-  onSearchAnnotations?: () => void
 }
 
 function getDisplaySections(category: EditorCategory) {
@@ -57,17 +54,6 @@ function getDisplaySections(category: EditorCategory) {
       sections.reference = true
       break
     case EditorCategory.with:
-      sections.with = true
-      break
-    case EditorCategory.evidenceAll:
-      sections.evidence = true
-      sections.reference = true
-      sections.with = true
-      break
-    case EditorCategory.all:
-      sections.term = true
-      sections.evidence = true
-      sections.reference = true
       sections.with = true
       break
   }
@@ -87,13 +73,9 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
   initialEvidence = null,
   initialReference = '',
   initialWith = '',
-  hasAspect = false,
-  onSearchAnnotations,
 }) => {
   const open = Boolean(anchorEl)
   const sections = getDisplaySections(category)
-  const showActionMenu =
-    (category === EditorCategory.all || category === EditorCategory.evidenceAll) && hasAspect
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const rootTypes = termRootTypes ?? []
@@ -105,7 +87,6 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
   const [evidence, setEvidence] = useState<GOlrResponse | null>(null)
   const [reference, setReference] = useState('')
   const [withVal, setWithVal] = useState('')
-  const actionMenu = usePopover()
 
   useEffect(() => {
     if (open) {
@@ -117,13 +98,8 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
       )
       setReference(initialReference)
       setWithVal(initialWith)
-      actionMenu.close()
     }
   }, [open, initialTerm, initialEvidence, initialReference, initialWith]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleClose = useCallback(() => {
-    if (!actionMenu.isOpen) onClose()
-  }, [actionMenu.isOpen, onClose])
 
   const handleSave = useCallback(() => {
     onSave({
@@ -134,21 +110,11 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
     })
   }, [term, evidence, reference, withVal, sections, onSave])
 
-  const handleFillRootTerm = useCallback(() => {
-    const matchedRoot = termRootTypes?.find(rt => ROOT_NODES[rt])
-    if (!matchedRoot) return
-    const { id, label } = ROOT_NODES[matchedRoot]
-    const { evidence: ndEvidence, reference: ndReference } = EVIDENCE_AUTO_POPULATE.nd
-    setTerm({ id, label } as GOlrResponse)
-    setEvidence({ id: ndEvidence.id, label: ndEvidence.label } as GOlrResponse)
-    setReference(ndReference)
-  }, [termRootTypes])
-
   return (
     <AnchoredPopover
       open={open}
       anchorEl={anchorEl}
-      onClose={handleClose}
+      onClose={onClose}
       placement="bottom-end"
       className="!bg-accent-50 !shadow-lg !min-w-[400px]"
     >
@@ -194,46 +160,6 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
           <div className="w-[150px] p-1">
             <DatabaseField type="with" value={withVal} onChange={setWithVal} />
           </div>
-        )}
-
-        {showActionMenu && (
-          <>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="md"
-              onClick={e => actionMenu.open(e.currentTarget)}
-              className="!h-10 !w-10"
-            >
-              <FaEllipsisV size={12} />
-            </ActionIcon>
-            <AnchoredMenu
-              anchorEl={actionMenu.anchor}
-              open={actionMenu.isOpen}
-              onClose={actionMenu.close}
-            >
-              {category !== EditorCategory.evidenceAll && onSearchAnnotations && (
-                <MenuItem
-                  onClick={() => {
-                    actionMenu.close()
-                    onSearchAnnotations()
-                  }}
-                >
-                  Search Annotations
-                </MenuItem>
-              )}
-              {category !== EditorCategory.evidenceAll && (
-                <MenuItem
-                  onClick={() => {
-                    actionMenu.close()
-                    handleFillRootTerm()
-                  }}
-                >
-                  Fill with root term
-                </MenuItem>
-              )}
-            </AnchoredMenu>
-          </>
         )}
 
         <ActionIcon variant="subtle" color="gray" size="md" onClick={onClose} title="Cancel" className="!text-red-400">

@@ -34,33 +34,68 @@ const CopyModelDialog: React.FC = () => {
   if (!cam) return null
 
   return (
-    <div className="flex flex-col gap-3 px-4 py-3">
-      <TextInput
-        label="New Model Title"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        size="xs"
-        autoFocus
-      />
+    <div className="flex flex-col">
+      <div className="border-b border-gray-200 px-4 py-4">
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Source Model
+        </div>
+        <div className="flex flex-col gap-1 text-xs">
+          <div className="flex gap-2">
+            <span className="font-medium text-gray-600">ID:</span>
+            <span className="break-all text-gray-800">{cam.id}</span>
+          </div>
+          {cam.title && (
+            <div className="flex gap-2">
+              <span className="font-medium text-gray-600">Title:</span>
+              <span className="text-gray-800">{cam.title}</span>
+            </div>
+          )}
+          {cam.state && (
+            <div className="flex gap-2">
+              <span className="font-medium text-gray-600">State:</span>
+              <span className="text-gray-800">{cam.state}</span>
+            </div>
+          )}
+          {cam.contributors?.length ? (
+            <div className="flex gap-2">
+              <span className="font-medium text-gray-600">Contributors:</span>
+              <span className="text-gray-800">
+                {cam.contributors.map(c => c.name || c.uri).join(', ')}
+              </span>
+            </div>
+          ) : null}
+        </div>
+      </div>
 
-      <Checkbox
-        checked={preserveEvidence}
-        onChange={e => setPreserveEvidence(e.target.checked)}
-        size="sm"
-        label="Include evidence"
-      />
+      <div className="flex flex-col gap-3 px-4 py-4">
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          New Model
+        </div>
 
-      <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={() => dispatch(closeDialog())}
-        >
+        <TextInput
+          label="Title"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          size="sm"
+          autoFocus
+        />
+
+        <Checkbox
+          checked={preserveEvidence}
+          onChange={e => setPreserveEvidence(e.target.checked)}
+          size="sm"
+          label="Include evidence"
+          description="Copy evidence annotations from the source model"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
+        <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
           Cancel
         </Button>
         <Button
           variant="filled"
-          size="xs"
+          size="sm"
           onClick={handleCopy}
           disabled={isLoading || !title.trim()}
         >

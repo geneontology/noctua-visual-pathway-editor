@@ -1,11 +1,11 @@
 import type React from 'react'
 import type { KeyboardEvent } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { FiFile } from 'react-icons/fi'
 import { useSearchTermsQuery } from '../slices/lookupApiSlice'
 import type { GOlrResponse } from '../models/search'
 import { AutocompleteType } from '../models/search'
-import { Loader } from '@mantine/core'
+import { Loader, Portal } from '@mantine/core'
 import FloatingTextarea from '@/@noctua.core/components/textarea/FloatingTextarea'
 import { DEBOUNCE_MS, BLUR_CLOSE_DELAY_MS, MIN_SEARCH_LENGTH } from '@/@noctua.core/data/uiConstants'
 
@@ -44,6 +44,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('')
   const anchorRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null)
 
   const useAutocomplete =
     autocompleteType === AutocompleteType.TERM ||
@@ -81,6 +82,24 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
   // Show initialOptions (prelookups) whenever no remote results are loaded
   const showInitial = open && options.length === 0 && !searching
   const displayOptions = showInitial ? initialOptions : options
+
+  // Track the anchor's viewport rect so the portaled dropdown can position
+  // itself with fixed coordinates. Recompute on scroll/resize.
+  useLayoutEffect(() => {
+    if (!open || !anchorRef.current) return
+    const update = () => {
+      const rect = anchorRef.current?.getBoundingClientRect()
+      if (!rect) return
+      setDropdownPos({ top: rect.bottom, left: rect.left, width: Math.max(rect.width, 400) })
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [open])
 
   useEffect(() => {
     if (!useAutocomplete) return
@@ -177,11 +196,18 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
         />
       </div>
 
-      {open && (
-        <div className="relative">
+      {open && dropdownPos && (
+        <Portal>
           <div
             ref={listRef}
-            className="!bg-accent-50 absolute left-0 top-0 z-[1300] max-h-60 w-[400px] overflow-y-auto rounded-md bg-white shadow-lg"
+            className="!bg-accent-50 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg"
+            style={{
+              position: 'fixed',
+              top: dropdownPos.top + 4,
+              left: dropdownPos.left,
+              width: dropdownPos.width,
+              zIndex: 1300,
+            }}
           >
             {!searching && displayOptions.length === 0 && (
               <div className="p-4 text-center text-xs text-gray-500">
@@ -244,7 +270,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               )
             })}
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   )
