@@ -1,7 +1,8 @@
 import type React from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
@@ -11,7 +12,6 @@ import type { Entity } from '../../models/cam'
 import { RootTypes } from '../../models/cam'
 import {
   updateTerm,
-  toggleComplement,
   addEvidenceForm,
   removeEvidenceForm,
   updateEvidenceForm,
@@ -108,31 +108,42 @@ const EntityRow: React.FC<EntityRowProps> = ({
     [dispatch, relation]
   )
 
-  const handleToggleComplement = () => {
-    dispatch(toggleComplement({ uid: node.uid }))
-  }
-
   const handleAddEvidence = () => {
     if (relation) {
       dispatch(addEvidenceForm({ relationUid: relation.uid }))
     }
   }
 
+  const [removeEvidenceConfirmOpen, setRemoveEvidenceConfirmOpen] = useState(false)
+  const [removeNodeConfirmOpen, setRemoveNodeConfirmOpen] = useState(false)
+
   const handleRemoveLastEvidence = () => {
     if (relation && evidence.length > 0) {
-      dispatch(
-        removeEvidenceForm({
-          relationUid: relation.uid,
-          evidenceUid: evidence[evidence.length - 1].uid,
-        })
-      )
+      setRemoveEvidenceConfirmOpen(true)
     }
+  }
+
+  const confirmRemoveLastEvidence = () => {
+    if (!relation || evidence.length === 0) return
+    dispatch(
+      removeEvidenceForm({
+        relationUid: relation.uid,
+        evidenceUid: evidence[evidence.length - 1].uid,
+      })
+    )
+    setRemoveEvidenceConfirmOpen(false)
   }
 
   const handleRemoveNode = () => {
     if (parentTermUid && relation) {
-      dispatch(removeRelationForm({ parentTermUid, relationUid: relation.uid }))
+      setRemoveNodeConfirmOpen(true)
     }
+  }
+
+  const confirmRemoveNode = () => {
+    if (!parentTermUid || !relation) return
+    dispatch(removeRelationForm({ parentTermUid, relationUid: relation.uid }))
+    setRemoveNodeConfirmOpen(false)
   }
 
   const handleFillRootTerm = () => {
@@ -356,6 +367,28 @@ const EntityRow: React.FC<EntityRowProps> = ({
           </Menu>
         </div>
       )}
+
+      <ConfirmDialog
+        open={removeEvidenceConfirmOpen}
+        onClose={() => setRemoveEvidenceConfirmOpen(false)}
+        onConfirm={confirmRemoveLastEvidence}
+        title="Remove Evidence"
+        message="Remove the last evidence from this relation?"
+        confirmLabel="Remove"
+      />
+
+      <ConfirmDialog
+        open={removeNodeConfirmOpen}
+        onClose={() => setRemoveNodeConfirmOpen(false)}
+        onConfirm={confirmRemoveNode}
+        title="Remove Node"
+        message={
+          <>
+            Remove <strong>{node.term?.label || 'this node'}</strong> from the form? Unsaved changes will be lost.
+          </>
+        }
+        confirmLabel="Remove"
+      />
     </div>
   )
 }

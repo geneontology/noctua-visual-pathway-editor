@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react'
-import { ActionIcon, Button, Select, TextInput, Textarea } from '@mantine/core'
+import { ActionIcon, Button, Select, Textarea } from '@mantine/core'
 import { FiPlus, FiX } from 'react-icons/fi'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveModelAnnotationsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { MODEL_STATES } from '../data/camConstants'
 
 const CamMetadataForm: React.FC = () => {
@@ -16,14 +17,30 @@ const CamMetadataForm: React.FC = () => {
   const [title, setTitle] = useState(cam?.title ?? '')
   const [state, setState] = useState(cam?.state ?? 'development')
   const [comments, setComments] = useState<string[]>(cam?.comments ?? [])
+  const [pendingRemoveCommentIndex, setPendingRemoveCommentIndex] = useState<number | null>(null)
 
   const handleAddComment = useCallback(() => {
     setComments(prev => [...prev, ''])
   }, [])
 
-  const handleRemoveComment = useCallback((index: number) => {
-    setComments(prev => prev.filter((_, i) => i !== index))
-  }, [])
+  const handleRemoveComment = useCallback(
+    (index: number) => {
+      const current = comments[index] ?? ''
+      if (!current.trim()) {
+        // Empty comment — no data to lose, remove immediately
+        setComments(prev => prev.filter((_, i) => i !== index))
+        return
+      }
+      setPendingRemoveCommentIndex(index)
+    },
+    [comments]
+  )
+
+  const confirmRemoveComment = useCallback(() => {
+    if (pendingRemoveCommentIndex === null) return
+    setComments(prev => prev.filter((_, i) => i !== pendingRemoveCommentIndex))
+    setPendingRemoveCommentIndex(null)
+  }, [pendingRemoveCommentIndex])
 
   const handleCommentChange = useCallback((index: number, value: string) => {
     setComments(prev => prev.map((c, i) => (i === index ? value : c)))
@@ -158,6 +175,15 @@ const CamMetadataForm: React.FC = () => {
           {isLoading ? 'Saving...' : 'Save'}
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={pendingRemoveCommentIndex !== null}
+        onClose={() => setPendingRemoveCommentIndex(null)}
+        onConfirm={confirmRemoveComment}
+        title="Remove Comment"
+        message="Remove this comment? You'll lose what you've typed."
+        confirmLabel="Remove"
+      />
     </div>
   )
 }

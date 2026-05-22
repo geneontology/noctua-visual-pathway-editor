@@ -17,6 +17,7 @@ import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice
 import DatabaseField from './DatabaseField'
 import type { AnnotationFormOnSubmit } from '../../hooks/useOpenAnnotationForm'
 import SearchAnnotations from './SearchAnnotations'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 
 interface AnnotationFormProps {
   showTerm: boolean
@@ -56,6 +57,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     initialEvidences.length > 0 ? initialEvidences : [createEvidenceForm()]
   )
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const termInitialOptions = useAppSelector(state => selectTerms(state, termRootTypes))
@@ -72,6 +74,26 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   const removeEvidenceAt = useCallback((index: number) => {
     setEvidences(prev => prev.filter((_, i) => i !== index))
   }, [])
+
+  const requestRemoveEvidenceAt = useCallback(
+    (index: number) => {
+      const ev = evidences[index]
+      const rowHasContent = !!ev?.evidenceCode?.id || !!ev?.reference || !!ev?.withFrom
+      if (!rowHasContent) {
+        // Empty row — no data to lose, remove immediately
+        removeEvidenceAt(index)
+        return
+      }
+      setPendingRemoveIndex(index)
+    },
+    [evidences, removeEvidenceAt]
+  )
+
+  const confirmRemoveEvidenceAt = useCallback(() => {
+    if (pendingRemoveIndex === null) return
+    removeEvidenceAt(pendingRemoveIndex)
+    setPendingRemoveIndex(null)
+  }, [pendingRemoveIndex, removeEvidenceAt])
 
   const patchEvidence = useCallback(
     (uid: string, patch: Partial<EvidenceForm>) => {
@@ -240,7 +262,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                   variant="subtle"
                   color="red"
                   size="md"
-                  onClick={() => removeEvidenceAt(i)}
+                  onClick={() => requestRemoveEvidenceAt(i)}
                   disabled={evidences.length === 1}
                   title="Remove evidence"
                 >
@@ -272,6 +294,15 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
           aspect={aspect}
         />
       )}
+
+      <ConfirmDialog
+        open={pendingRemoveIndex !== null}
+        onClose={() => setPendingRemoveIndex(null)}
+        onConfirm={confirmRemoveEvidenceAt}
+        title="Remove Evidence"
+        message="Remove this evidence row? You'll lose what you've typed."
+        confirmLabel="Remove"
+      />
     </div>
   )
 }

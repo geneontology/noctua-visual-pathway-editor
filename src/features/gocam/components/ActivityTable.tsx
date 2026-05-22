@@ -1,8 +1,7 @@
 import type React from 'react'
 import { useState, useCallback, useMemo } from 'react'
-import { ActionIcon, Button, Menu, Modal, Tooltip } from '@mantine/core'
-import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
-import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
+import { ActionIcon, Menu, Tooltip } from '@mantine/core'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { FaEllipsisV, FaInfoCircle } from 'react-icons/fa'
 import { FiX } from 'react-icons/fi'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../data/allowedDatabases'
@@ -277,24 +276,13 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
       </div>
 
       {/* ── Delete confirmation ── */}
-      <Modal
-        opened={confirmDelete}
+      <ConfirmDialog
+        open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        size={resolveModalSize('sm')}
-      >
-        <DialogHeader title="Delete Activity" onClose={() => setConfirmDelete(false)} />
-        <div className="px-4 py-4 text-sm text-gray-700">
-          Are you sure you want to delete this activity? This cannot be undone.
-        </div>
-        <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
-          <Button variant="outline" onClick={() => setConfirmDelete(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteActivity} color="red" variant="filled">
-            Delete
-          </Button>
-        </div>
-      </Modal>
+        onConfirm={handleDeleteActivity}
+        title="Delete Activity"
+        message="Are you sure you want to delete this activity? This cannot be undone."
+      />
 
       {/* ── Allowed-database popovers ── */}
       <AllowedDatabasesPopover

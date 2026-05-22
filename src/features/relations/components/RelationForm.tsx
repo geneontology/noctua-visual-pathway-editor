@@ -5,7 +5,8 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
 import type { Activity } from '@/features/gocam/models/cam'
 import { RootTypes } from '@/features/gocam/models/cam'
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import {
   EffectDirectionId,
   DirectnessId,
@@ -187,9 +188,17 @@ const RelationForm: React.FC<Props> = ({
     dispatch,
   ])
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
+  const requestDelete = useCallback(() => {
+    if (!existingEdgeId) return
+    setDeleteConfirmOpen(true)
+  }, [existingEdgeId])
+
   const handleDelete = useCallback(async () => {
     if (!existingEdgeId || !existingSourceUid || !existingTargetUid || !model?.id) return
 
+    setDeleteConfirmOpen(false)
     const ops = buildConnectorDeleteOperations(
       existingSourceUid,
       existingTargetUid,
@@ -378,7 +387,7 @@ const RelationForm: React.FC<Props> = ({
               variant="outline"
               size="xs"
               color="red"
-              onClick={handleDelete}
+              onClick={requestDelete}
               disabled={isSaving}
             >
               Delete
@@ -401,6 +410,15 @@ const RelationForm: React.FC<Props> = ({
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Causal Relation"
+        message="Are you sure you want to delete this causal relation? This cannot be undone."
+        busy={isSaving}
+      />
     </div>
   )
 }

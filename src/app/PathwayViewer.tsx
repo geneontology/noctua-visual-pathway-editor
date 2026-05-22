@@ -21,6 +21,7 @@ import { resetForm, initCreateForm } from '@/features/gocam/slices/activityFormS
 import { Button, Modal } from '@mantine/core'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
 import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import ActivityDialog from '@/features/gocam/components/dialogs/ActivityFormDialog'
 import ActivityForm from '@/features/gocam/components/forms/ActivityForm'
 import ConnectorForm from '@/features/relations/components/ConnectorForm'
@@ -216,24 +217,13 @@ const PathwayEditor: React.FC = () => {
       </Modal>
 
       {/* Delete confirmation dialog */}
-      <Modal
-        opened={del.isDeleteOpen}
+      <ConfirmDialog
+        open={del.isDeleteOpen}
         onClose={del.cancelDelete}
-        size={resolveModalSize('sm')}
-      >
-        <DialogHeader title="Confirm Delete?" onClose={del.cancelDelete} />
-        <div className="px-4 py-4 text-sm text-gray-700">
-          Deleting this activity cannot be undone. Continue?
-        </div>
-        <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
-          <Button variant="outline" onClick={del.cancelDelete}>
-            Cancel
-          </Button>
-          <Button onClick={del.confirmDelete} color="red" variant="filled">
-            Delete
-          </Button>
-        </div>
-      </Modal>
+        onConfirm={del.confirmDelete}
+        title="Confirm Delete?"
+        message="Deleting this activity cannot be undone. Continue?"
+      />
 
       {/* Connector form dialog */}
       <Modal

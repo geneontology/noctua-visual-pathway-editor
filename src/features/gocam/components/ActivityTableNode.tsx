@@ -1,10 +1,12 @@
 import type React from 'react'
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
-import type { Edge, UserContext, DisplayTreeNode } from '../models/cam'
+import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
 import { RootTypes, Aspect } from '../models/cam'
+import { AnnotationKey } from '../models/operations'
 import { EditorCategory } from '../models/editorCategory'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
@@ -99,9 +101,46 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     [editor, node.uid, node.id, modelId, updateGraphModel]
   )
 
-  const handleDeleteNode = useCallback(async () => {
+  const [nodeDeleteConfirmOpen, setNodeDeleteConfirmOpen] = useState(false)
+  const [evidencePendingDelete, setEvidencePendingDelete] = useState<Evidence | null>(null)
+  const [fieldPendingClear, setFieldPendingClear] = useState<{
+    ev: Evidence
+    key: AnnotationKey.SOURCE | AnnotationKey.WITH
+  } | null>(null)
+
+  const requestDeleteNode = useCallback(() => {
+    setNodeDeleteConfirmOpen(true)
+  }, [])
+
+  const confirmDeleteNode = useCallback(async () => {
+    setNodeDeleteConfirmOpen(false)
     await handleDeleteNodeRaw()
   }, [handleDeleteNodeRaw])
+
+  const requestRemoveEvidence = useCallback((ev: Evidence) => {
+    setEvidencePendingDelete(ev)
+  }, [])
+
+  const confirmRemoveEvidence = useCallback(async () => {
+    if (!evidencePendingDelete) return
+    const ev = evidencePendingDelete
+    setEvidencePendingDelete(null)
+    await handleRemoveEvidence(ev)
+  }, [evidencePendingDelete, handleRemoveEvidence])
+
+  const requestClearField = useCallback(
+    (ev: Evidence, key: AnnotationKey.SOURCE | AnnotationKey.WITH) => {
+      setFieldPendingClear({ ev, key })
+    },
+    []
+  )
+
+  const confirmClearField = useCallback(async () => {
+    if (!fieldPendingClear) return
+    const { ev, key } = fieldPendingClear
+    setFieldPendingClear(null)
+    await handleClearField(ev, key)
+  }, [fieldPendingClear, handleClearField])
 
   const handleInsertNode = useCallback(
     (item: InsertMenuItem) => {
@@ -181,7 +220,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
               editor.open(termCellRef.current, { category: EditorCategory.term })
             }
           }}
-          onDelete={canDelete ? handleDeleteNode : undefined}
+          onDelete={canDelete ? requestDeleteNode : undefined}
           className="shrink-0"
           style={{ flexBasis: termWidth }}
         >
@@ -214,8 +253,8 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                     ev={ev}
                     modelId={modelId}
                     userContext={resolvedUserContext}
-                    onRemoveEvidence={handleRemoveEvidence}
-                    onClearField={handleClearField}
+                    onRemoveEvidence={requestRemoveEvidence}
+                    onClearField={requestClearField}
                   />
                 ) : null
               )
@@ -261,7 +300,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 )}
                 {edge && <Menu.Item onClick={handleAddEvidence}>Add Evidence</Menu.Item>}
                 {canDelete && (
-                  <Menu.Item color="red" onClick={handleDeleteNode}>
+                  <Menu.Item color="red" onClick={requestDeleteNode}>
                     Delete
                   </Menu.Item>
                 )}
@@ -315,6 +354,57 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         />
       ))}
 
+      <ConfirmDialog
+        open={nodeDeleteConfirmOpen}
+        onClose={() => setNodeDeleteConfirmOpen(false)}
+        onConfirm={confirmDeleteNode}
+        title="Delete Annotation"
+        message={
+          <>
+            Are you sure you want to delete <strong>{node.label || node.id}</strong>? This cannot be undone.
+          </>
+        }
+      />
+
+      <ConfirmDialog
+        open={evidencePendingDelete !== null}
+        onClose={() => setEvidencePendingDelete(null)}
+        onConfirm={confirmRemoveEvidence}
+        title="Remove Evidence"
+        message={
+          <>
+            Are you sure you want to remove this evidence
+            {evidencePendingDelete?.evidenceCode?.label
+              ? <> (<strong>{evidencePendingDelete.evidenceCode.label}</strong>)</>
+              : null}
+            ? This cannot be undone.
+          </>
+        }
+        confirmLabel="Remove"
+      />
+
+      <ConfirmDialog
+        open={fieldPendingClear !== null}
+        onClose={() => setFieldPendingClear(null)}
+        onConfirm={confirmClearField}
+        title={fieldPendingClear?.key === AnnotationKey.WITH ? 'Clear With' : 'Clear Reference'}
+        message={
+          <>
+            Clear the{' '}
+            <strong>{fieldPendingClear?.key === AnnotationKey.WITH ? 'With' : 'Reference'}</strong>{' '}
+            value
+            {(() => {
+              const current =
+                fieldPendingClear?.key === AnnotationKey.WITH
+                  ? fieldPendingClear?.ev.with
+                  : fieldPendingClear?.ev.reference
+              return current ? <> (<strong>{current}</strong>)</> : null
+            })()}
+            ? This cannot be undone.
+          </>
+        }
+        confirmLabel="Clear"
+      />
     </>
   )
 }
