@@ -65,7 +65,7 @@ export const baristaSocketService = {
     if (socket) return
 
     connectedUrl = baseUrl
-    socket = io.connect(baseUrl, { transports: ['websocket', 'polling'] })
+    socket = io.connect(baseUrl)
 
     socket.on('relay', handleRelay)
   },
