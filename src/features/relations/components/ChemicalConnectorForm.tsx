@@ -202,7 +202,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
       {/* Body */}
       <div className="flex flex-col items-stretch justify-start">
         {hasNoParticipants ? (
-          <div className="px-[10px] py-[30px] text-center text-[30px] italic text-[#aaa]">
+          <div className="px-2.5 py-8 text-center text-3xl italic text-gray-400">
             No chemical participants found for these molecular functions.
           </div>
         ) : (

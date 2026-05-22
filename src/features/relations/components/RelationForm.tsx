@@ -375,10 +375,7 @@ const RelationForm: React.FC<Props> = ({
       </div>
 
       {/* Footer */}
-      <div
-        className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3"
-        style={{ boxShadow: '2px -5px 2px 0px rgba(0, 0, 0, 0.26)' }}
-      >
+      <div className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3 shadow-md">
         <div>
           {!relation && (
             <Button variant="subtle" color="yellow" size="xs">

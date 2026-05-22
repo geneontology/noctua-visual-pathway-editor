@@ -14,7 +14,7 @@ const EditableCell = forwardRef<HTMLDivElement, EditableCellProps>(
   ({ label, onEdit, onDelete, className = '', style, children }, ref) => (
     <div
       ref={ref}
-      className={`group/cell relative break-words rounded-md border border-[#aaa] px-[5px] py-2 text-xs text-black hover:border-primary-500 ${className}`}
+      className={`group/cell relative break-words rounded-md border border-gray-400 px-1.5 py-2 text-xs text-black hover:border-primary-500 ${className}`}
       style={style}
     >
       <div className="absolute -top-1.5 left-1 h-3 max-w-[80%] truncate bg-white px-1 text-[8px] leading-3 text-gray-500 group-hover/cell:text-primary-500">

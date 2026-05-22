@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ rightDrawerContent }) => {
 
         {rightDrawerContent && (
           <div
-            className={`fixed right-0 overflow-hidden border-l border-gray-300 bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            className={`fixed right-0 overflow-hidden border-l border-gray-300 bg-white shadow-lg transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
               }`}
             style={{
               top: 120,

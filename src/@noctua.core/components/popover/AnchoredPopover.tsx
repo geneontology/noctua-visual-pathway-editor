@@ -126,8 +126,8 @@ const AnchoredPopover = ({
       {/* Backdrop: blocks pointer events to everything underneath. Click
           dismisses when allowed, otherwise just absorbs the event. */}
       <div
-        className="fixed inset-0"
-        style={{ zIndex: BACKDROP_Z, backgroundColor: 'rgba(0, 50, 100, 0.1)' }}
+        className="fixed inset-0 bg-blue-950/10"
+        style={{ zIndex: BACKDROP_Z }}
         onMouseDown={e => {
           e.stopPropagation()
           if (closeOnClickOutside) onClose()

@@ -94,7 +94,7 @@ const CamErrors: React.FC<CamErrorsProps> = ({ model }) => {
           size="xs"
           onClick={() => dispatch(setRightDrawerOpen(false))}
           leftSection={<FaTimes size={10} />}
-          className="!min-h-[26px] !text-xs !normal-case !text-[#3b5998] !border-gray-300 hover:!border-[#3b5998]"
+          className="!min-h-[26px] !border-gray-300 !text-xs !normal-case !text-primary-500 hover:!border-primary-500"
         >
           Close
         </Button>
@@ -122,7 +122,7 @@ const CamErrors: React.FC<CamErrorsProps> = ({ model }) => {
               {violations.map((error, i) => (
                 <div
                   key={i}
-                  className="rounded-md border-l-4 border-l-red-700 bg-white p-4 shadow-[0_1px_3px_rgba(59,89,152,0.12)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.16)]"
+                  className="rounded-md border-l-4 border-l-red-700 bg-white p-4 shadow-sm hover:shadow-md"
                 >
                   <div className="mb-3 flex items-start gap-4">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-sm font-semibold text-white">

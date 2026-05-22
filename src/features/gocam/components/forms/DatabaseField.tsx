@@ -116,8 +116,7 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
               {filtered.map((option, index) => (
                 <div
                   key={option}
-                  className={`flex min-h-[40px] cursor-pointer items-center border-b bg-accent-50 px-4 py-2 text-xs hover:bg-primary-50 ${index === highlightedIndex ? 'bg-primary-100' : ''}`}
-                  style={{ borderColor: 'rgba(59,89,152,0.3)' }}
+                  className={`flex min-h-[40px] cursor-pointer items-center border-b border-primary-100 bg-accent-50 px-4 py-2 text-xs hover:bg-primary-50 ${index === highlightedIndex ? 'bg-primary-100' : ''}`}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => handleSelect(option)}
                   onMouseEnter={() => setHighlightedIndex(index)}

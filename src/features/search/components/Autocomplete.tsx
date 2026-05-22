@@ -221,15 +221,14 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               const doNotAnnotate = option.notAnnotatable === false
               const disabled = option.isObsolete || doNotAnnotate
               const bgClass = doNotAnnotate
-                ? 'bg-[#f8cccc]'
+                ? 'bg-red-200'
                 : index === highlightedIndex
                   ? 'bg-primary-100'
                   : 'bg-accent-50 hover:bg-primary-50'
               return (
               <div
                 key={option.id}
-                className={`flex min-h-[40px] cursor-pointer items-center border-b px-4 py-2 text-xs ${bgClass} ${disabled ? 'pointer-events-none' : ''} ${option.isObsolete ? 'opacity-40 line-through' : ''}`}
-                style={{ borderColor: 'rgba(59,89,152,0.3)' }}
+                className={`flex min-h-[40px] cursor-pointer items-center border-b border-primary-100 px-4 py-2 text-xs ${bgClass} ${disabled ? 'pointer-events-none' : ''} ${option.isObsolete ? 'opacity-40 line-through' : ''}`}
                 onClick={() => !disabled && handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 title={doNotAnnotate ? 'Do not annotate' : undefined}
@@ -239,7 +238,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
                 {autocompleteType === AutocompleteType.EVIDENCE_CODE && option.xref && (
                   <div className="ml-2 shrink-0 font-bold">{option.xref}</div>
                 )}
-                <div className="ml-2 shrink-0 text-2xs" style={{ color: 'rgba(0,0,0,0.6)' }}>
+                <div className="ml-2 shrink-0 text-2xs text-black/60">
                   {option.link ? (
                     <a
                       href={option.link}

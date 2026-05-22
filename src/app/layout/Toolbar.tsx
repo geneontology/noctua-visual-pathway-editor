@@ -141,7 +141,7 @@ const Toolbar: React.FC = () => {
               <Button
                 component="a"
                 href={loginUrl}
-                className="!bg-[#52a16c] !text-white hover:!bg-green-700"
+                className="!bg-green-600 !text-white hover:!bg-green-700"
                 data-pw="noc-login-button"
               >
                 Login

@@ -15,16 +15,12 @@ interface RadioPillGroupProps {
 
 const RadioPillGroup: React.FC<RadioPillGroupProps> = ({ name, value, options, onChange }) => (
   <div className="flex flex-col py-1">
-    {options.map((opt, index) => {
+    {options.map(opt => {
       const isSelected = value === opt.value
       return (
         <div
           key={opt.value}
-          className="flex w-full items-center py-[5px]"
-          style={{
-            borderBottom:
-              index < options.length - 1 ? '1px solid rgba(59,89,152,0.6)' : 'none',
-          }}
+          className="flex w-full items-center border-b border-primary-200 py-[5px] last:border-b-0"
         >
           <label className="flex w-[170px] shrink-0 cursor-pointer items-center gap-2 text-xs">
             <span
