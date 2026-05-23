@@ -59,14 +59,21 @@ const lookupApi = apiService
   })
   .injectEndpoints({
     endpoints: builder => ({
-      searchTerms: builder.query<GOlrResponse[], { searchText: string; closureIds: string[] }>({
-        queryFn: async ({ searchText, closureIds }) => {
+      searchTerms: builder.query<
+        GOlrResponse[],
+        { searchText: string; closureIds: string[]; excludeClosureIds?: string[] }
+      >({
+        queryFn: async ({ searchText, closureIds, excludeClosureIds }) => {
           try {
             const escapedQuery = escapeGOlrValue(searchText)
 
+            const closureClauses = (closureIds ?? []).map(id => `isa_closure:"${id}"`)
+            const excludeClauses = (excludeClosureIds ?? []).map(
+              id => `NOT isa_closure:"${id}"`
+            )
             const closureFilter =
-              closureIds && closureIds.length > 0
-                ? closureIds.map(id => `isa_closure:"${id}"`).join(' OR ')
+              closureClauses.length + excludeClauses.length > 0
+                ? [...closureClauses, ...excludeClauses].join(' OR ')
                 : null
 
             const requestParams = {

@@ -1,6 +1,7 @@
 import { Aspect, RootTypes } from '../models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
 import { predicate } from './shapeTerms'
+import type { NodeCategory } from '../models/formModels'
 
 interface RelationConstraint {
   predicate: { id: string; label: string }
@@ -55,6 +56,8 @@ export const cellularComponent = {
   label: 'Cellular Component',
   aspect: Aspect.CELLULAR_COMPONENT as Aspect | null,
   searchClosureIds: [RootTypes.CELLULAR_COMPONENT],
+  // Protein-containing complex is a CC descendant in GO; exclude it from CC term search.
+  excludeClosureIds: [RootTypes.PROTEIN_CONTAINING_COMPLEX],
   partOf: rel(Relations.PART_OF, [RootTypes.ANATOMICAL_ENTITY, RootTypes.ORGANISM]),
 }
 
@@ -71,6 +74,9 @@ export const chemicalEntity = {
   label: 'Chemical',
   aspect: null as Aspect | null,
   searchClosureIds: [RootTypes.CHEMICAL_ENTITY],
+  // Gene products (MOLECULAR_ENTITY = CHEBI:33695) are descendants of chemical entity
+  // (CHEBI:24431) in ChEBI; exclude them so a chemical search doesn't surface GPs.
+  excludeClosureIds: [RootTypes.MOLECULAR_ENTITY],
   locatedIn: rel(Relations.LOCATED_IN, [RootTypes.CELLULAR_COMPONENT]),
 }
 
@@ -149,8 +155,8 @@ const CATEGORY_BY_ID = new Map<string, AnyCategory>(
   ALL_CATEGORIES.map(c => [c.id, c])
 )
 
-export const getNodeCategory = (id: string): AnyCategory | undefined => {
-  return CATEGORY_BY_ID.get(id)
+export const getNodeCategory = (id: string): (AnyCategory & NodeCategory) | undefined => {
+  return CATEGORY_BY_ID.get(id) as (AnyCategory & NodeCategory) | undefined
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────

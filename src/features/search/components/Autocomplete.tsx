@@ -13,6 +13,7 @@ interface TermAutocompleteProps {
   label: string
   name: string
   rootTypeIds?: string[]
+  excludeRootTypeIds?: string[]
   autocompleteType?: AutocompleteType
   value: GOlrResponse | null | string
   onChange: (value: GOlrResponse | null | string) => void
@@ -28,6 +29,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
   label = '',
   name,
   rootTypeIds = [],
+  excludeRootTypeIds,
   autocompleteType = AutocompleteType.TERM,
   value,
   onChange,
@@ -51,7 +53,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
     autocompleteType === AutocompleteType.EVIDENCE_CODE
 
   const { data, isLoading, isFetching } = useSearchTermsQuery(
-    { searchText: debouncedSearchTerm, closureIds: rootTypeIds },
+    { searchText: debouncedSearchTerm, closureIds: rootTypeIds, excludeClosureIds: excludeRootTypeIds },
     {
       skip: !useAutocomplete || !debouncedSearchTerm || debouncedSearchTerm.length < MIN_SEARCH_LENGTH,
       selectFromResult: ({ data, isLoading, isFetching }) => ({

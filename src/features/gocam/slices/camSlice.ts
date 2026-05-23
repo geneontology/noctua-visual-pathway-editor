@@ -56,8 +56,13 @@ export const selectSelectedActivity = createSelector(
 /** Unique terms from all activities, filtered by rootTypes overlap */
 export const makeSelectModelTerms = () =>
   createSelector(
-    [selectCamModel, (_state: { cam: CamState }, rootTypeIds: string[]) => rootTypeIds],
-    (model, rootTypeIds): GOlrResponse[] => {
+    [
+      selectCamModel,
+      (_state: { cam: CamState }, rootTypeIds: string[]) => rootTypeIds,
+      (_state: { cam: CamState }, _rootTypeIds: string[], excludeRootTypeIds?: string[]) =>
+        excludeRootTypeIds,
+    ],
+    (model, rootTypeIds, excludeRootTypeIds): GOlrResponse[] => {
       if (!model) return []
       const seen = new Set<string>()
       const results: GOlrResponse[] = []
@@ -67,6 +72,12 @@ export const makeSelectModelTerms = () =>
           if (
             rootTypeIds.length > 0 &&
             !node.rootTypes.some(rt => rootTypeIds.includes(rt))
+          )
+            continue
+          if (
+            excludeRootTypeIds &&
+            excludeRootTypeIds.length > 0 &&
+            node.rootTypes.some(rt => excludeRootTypeIds.includes(rt))
           )
             continue
           seen.add(node.id)

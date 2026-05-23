@@ -17,6 +17,7 @@ export interface NodeCategory {
   label: string
   aspect: Aspect | null
   searchClosureIds: string[]
+  excludeClosureIds?: string[]
 }
 
 export interface TermDescriptor {
@@ -44,6 +45,7 @@ export interface TermNode {
   term: Entity | null
   aspect: Aspect | null
   rootTypes: string[]
+  excludeRootTypes?: string[]
   isComplement: boolean
   canDelete: boolean
   required: boolean
