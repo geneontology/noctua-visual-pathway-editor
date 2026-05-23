@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Activity, GraphNode, UserContext } from '@/features/gocam/models/cam'
+import { ActivityType } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
 import type { EvidenceForm } from '@/features/gocam/models/formModels'
 import {
@@ -9,6 +10,17 @@ import {
   ExpressionType,
 } from '@/features/gocam/models/operations'
 import type { Operation } from '@/features/gocam/models/operations'
+
+/**
+ * `has_input` is rendered as a reverse arrow (molecule → activity, labeled "input of"),
+ * but the persisted triple is always `activity has_input molecule`.
+ * This predicate identifies that case from the form's source/relation perspective.
+ */
+export const isReverseLinkConnector = (
+  relationId: string | null | undefined,
+  sourceActivity: Activity
+): boolean =>
+  relationId === Relations.HAS_INPUT && sourceActivity.type === ActivityType.MOLECULE
 
 /**
  * Build Barista API operations to create a causal relation between two activities.
@@ -23,8 +35,12 @@ export const buildConnectorOperations = (
   userContext?: UserContext
 ): Operation[] => {
   const operations: Operation[] = []
-  const subjectId = sourceActivity.rootNode.uid
-  const objectId = targetActivity.rootNode.uid
+
+  // When the form's source is the molecule and relation is has_input, swap
+  // subject/object back so the persisted triple is `activity has_input molecule`.
+  const reverseLink = isReverseLinkConnector(relationId, sourceActivity)
+  const subjectId = reverseLink ? targetActivity.rootNode.uid : sourceActivity.rootNode.uid
+  const objectId = reverseLink ? sourceActivity.rootNode.uid : targetActivity.rootNode.uid
 
   operations.push({
     entity: OperationEntity.EDGE,

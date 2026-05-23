@@ -26,6 +26,7 @@ import { useUpdateGraphModelMutation } from '@/features/gocam/slices/camApiSlice
 import {
   buildConnectorOperations,
   buildConnectorDeleteOperations,
+  isReverseLinkConnector,
 } from '../services/connectorServices'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
@@ -141,7 +142,11 @@ const RelationForm: React.FC<Props> = ({
       dispatch(updateSelection({ [field]: value }))
     }
 
-  const resolvedLabel = relation ? relationLabelMap.get(relation) || relation : null
+  const resolvedLabel = relation
+    ? isReverseLinkConnector(relation, sourceActivity)
+      ? 'input of'
+      : relationLabelMap.get(relation) || relation
+    : null
 
   const handleSave = useCallback(async () => {
     if (!relation || !model?.id) return
