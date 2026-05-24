@@ -22,7 +22,7 @@ import {
   fillRootTerm,
   selectFormType,
 } from '../../slices/activityFormSlice'
-import { ActivityType } from '../../models/cam'
+import { canAddISSEvidence } from '../../services/annotationRules'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import { getNodeCategory } from '../../data/nodeCategories'
 import { getInsertMenuItems, DisplayGroup } from '../../data/insertMenuConfig'
@@ -64,7 +64,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
   const treeBorder = displayGroup ? TREE_BORDER[displayGroup] : 'border-gray-400'
   const dispatch = useAppDispatch()
   const activityType = useAppSelector(selectFormType)
-  const isMoleculeForm = activityType === ActivityType.MOLECULE
+  const canAddISS = canAddISSEvidence(node.aspect, activityType)
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const termInitialOptions = useAppSelector(state =>
     selectTerms(state, node.rootTypes, node.excludeRootTypes)
@@ -291,7 +291,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              {node.aspect && !isMoleculeForm && (
+              {node.aspect && (
                 <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
               )}
               {insertMenuItems.length > 0 && (
@@ -322,6 +322,9 @@ const EntityRow: React.FC<EntityRowProps> = ({
                   </Menu.Sub.Target>
                   <Menu.Sub.Dropdown>
                     <Menu.Item onClick={handleAddEvidence}>Add Evidence</Menu.Item>
+                    {canAddISS && (
+                      <Menu.Item onClick={handleAddISSEvidence}>Add ISS Evidence</Menu.Item>
+                    )}
                     {evidence.length > 0 && (
                       <Menu.Item onClick={handleRemoveLastEvidence}>Remove Evidence</Menu.Item>
                     )}
@@ -332,11 +335,8 @@ const EntityRow: React.FC<EntityRowProps> = ({
                 </Menu.Sub>
               )}
 
-              {node.aspect && relation && !isMoleculeForm && (
+              {canAddISS && relation && (
                 <Menu.Item onClick={handleFillRootTerm}>Fill with root term</Menu.Item>
-              )}
-              {node.aspect && relation && !isMoleculeForm && (
-                <Menu.Item onClick={handleAddISSEvidence}>Add ISS Evidence</Menu.Item>
               )}
               <Menu.Item onClick={handleClearValues}>Clear Values</Menu.Item>
               {node.canDelete && parentTermUid && (

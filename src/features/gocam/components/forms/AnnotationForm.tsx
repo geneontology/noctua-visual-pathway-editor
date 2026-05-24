@@ -8,12 +8,13 @@ import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
 import type { GOlrResponse } from '@/features/search/models/search'
-import type { Aspect, Entity } from '../../models/cam'
+import type { ActivityType, Aspect, Entity } from '../../models/cam'
 import { RootTypes } from '../../models/cam'
 import type { EvidenceForm } from '../../models/formModels'
 import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/formModels'
 import { ROOT_NODES } from '../../data/camConstants'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
+import { canAddISSEvidence } from '../../services/annotationRules'
 import DatabaseField from './DatabaseField'
 import type { AnnotationFormOnSubmit } from '../../hooks/useOpenAnnotationForm'
 import SearchAnnotations from './SearchAnnotations'
@@ -27,6 +28,7 @@ interface AnnotationFormProps {
   initialEvidences?: EvidenceForm[]
   gpId?: string
   aspect?: Aspect | null
+  activityType?: ActivityType | null
   onSubmit?: AnnotationFormOnSubmit
 }
 
@@ -48,8 +50,10 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   initialEvidences = [],
   gpId,
   aspect,
+  activityType,
   onSubmit,
 }) => {
+  const canAddISS = canAddISSEvidence(aspect, activityType)
   const dispatch = useAppDispatch()
 
   const [term, setTerm] = useState<Entity | null>(initialTerm)
@@ -176,14 +180,16 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                       Search Annotations
                     </Button>
                   )}
-                  {termRootTypes.length > 0 && (
+                  {termRootTypes.length > 0 && canAddISS && (
                     <Button size="compact-sm" variant="light" color="primary" onClick={handleFillRootTerm}>
                       Fill with root term
                     </Button>
                   )}
-                  <Button size="compact-sm" variant="light" color="primary" onClick={handleFillISSEvidence}>
-                    Add ISS
-                  </Button>
+                  {canAddISS && (
+                    <Button size="compact-sm" variant="light" color="primary" onClick={handleFillISSEvidence}>
+                      Add ISS
+                    </Button>
+                  )}
                 </div>
               }
             />
@@ -210,9 +216,11 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                 <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addEvidence}>
                   Add evidence
                 </Button>
-                <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISSEvidence}>
-                  Add ISS
-                </Button>
+                {canAddISS && (
+                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISSEvidence}>
+                    Add ISS
+                  </Button>
+                )}
               </div>
             }
           />

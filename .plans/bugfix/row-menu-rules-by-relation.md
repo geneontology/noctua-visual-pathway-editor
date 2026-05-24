@@ -92,10 +92,20 @@ const isHappensDuring = relation?.predicate.id === Relations.HAPPENS_DURING
 
 ## Recovery Checkpoint
 
-- **Last completed action:** plan drafted from three related bullets in `downloads/notes`.
-- **Next immediate action:** Phase 1 — extend `GroupedRow` with `parentCategory`.
-- **Recent commands run:** none.
-- **Uncommitted changes:** none.
+- **Last completed action:** Phases 1-5 implemented. `npm run type-check` clean. `formUtils.test.ts` 18/18 pass.
+  - `formModels.ts`: `GroupedRow.parentCategory: string | null` added.
+  - `formUtils.ts`: `buildGroupedRows` populates `parentCategory` from the parent node during the walk.
+  - `ActivityForm.tsx`: `GroupCard` threads `parentCategory={row.parentCategory}` into `EntityRow`.
+  - `EntityRow.tsx`:
+    - New prop `parentCategory?: string | null`.
+    - Computes `isNestedBp = node.category === BIOLOGICAL_PROCESS && parentCategory === BIOLOGICAL_PROCESS`.
+    - Computes `isHappensDuring = relation?.predicate.id === HAPPENS_DURING`.
+    - "Add ISS Evidence" moved inside the Evidence submenu, gated by `node.aspect && !isHappensDuring && !isMoleculeForm`.
+    - Standalone "Add ISS Evidence" Menu.Item deleted.
+    - "Fill with root term" gate now also excludes `isNestedBp` and `isHappensDuring`.
+- **Next immediate action:** Phase 6 — manual verification in dev server (nested BP shows Add ISS in Evidence submenu; happens-during target doesn't).
+- **Recent commands run:** `npm run type-check`, `npx vitest run tests/features/gocam/services/formUtils.test.ts`.
+- **Uncommitted changes:** four files above.
 - **Environment state:** none.
 
 ## Failed Approaches

@@ -4,7 +4,7 @@ import { ActionIcon, Menu } from '@mantine/core'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
-import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
+import type { ActivityType, Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
 import { RootTypes, Aspect } from '../models/cam'
 import { AnnotationKey } from '../models/operations'
 import { EditorCategory } from '../models/editorCategory'
@@ -31,6 +31,7 @@ interface ActivityTableNodeProps {
   allEdges: Edge[]
   onNodeDeleted?: () => void
   gpNodeId?: string
+  activityType: ActivityType
 }
 
 function getAspectFromRootTypes(rootTypes: string[]): Aspect | null {
@@ -57,6 +58,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   allEdges,
   onNodeDeleted,
   gpNodeId,
+  activityType,
 }) => {
   const { node, edge, children, treeLevel, canDelete, showEvidence, showMenu, showAddButton } =
     treeNode
@@ -152,6 +154,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         termRootTypes: [item.targetType],
         gpId: gpNodeId,
         aspect: targetAspect,
+        activityType,
         onSubmit: async ({ term, evidences }) => {
           if (!term) return
           await updateGraphModel(
@@ -167,7 +170,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         },
       })
     },
-    [openAnnotationForm, gpNodeId, node.uid, modelId, resolvedUserContext, updateGraphModel]
+    [openAnnotationForm, gpNodeId, activityType, node.uid, modelId, resolvedUserContext, updateGraphModel]
   )
 
   const handleAddEvidence = useCallback(() => {
@@ -177,6 +180,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
       title: 'Add Evidence',
       gpId: gpNodeId,
       aspect,
+      activityType,
       onSubmit: async ({ evidences }) => {
         if (evidences.length === 0) return
         const ops = evidences.flatMap(ev =>
@@ -192,7 +196,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         await updateGraphModel(ops)
       },
     })
-  }, [edge, openAnnotationForm, gpNodeId, aspect, modelId, resolvedUserContext, updateGraphModel])
+  }, [edge, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
   return (
     <>
@@ -349,6 +353,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           modelId={modelId}
           userContext={resolvedUserContext}
           gpNodeId={gpNodeId}
+          activityType={activityType}
           allEdges={allEdges}
           onNodeDeleted={onNodeDeleted}
         />

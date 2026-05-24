@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppDispatch } from '@/app/hooks'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
-import type { Aspect, Entity } from '../models/cam'
+import type { ActivityType, Aspect, Entity } from '../models/cam'
 import type { EvidenceForm } from '../models/formModels'
 
 export interface AnnotationFormResult {
@@ -22,6 +22,7 @@ interface OpenAnnotationFormParams {
   /** Needed for the in-dialog "Search Annotations" trigger. Omit to hide it. */
   gpId?: string
   aspect?: Aspect | null
+  activityType?: ActivityType | null
   onSubmit: AnnotationFormOnSubmit
 }
 
@@ -43,6 +44,7 @@ export function useOpenAnnotationForm() {
             initialEvidences: params.initialEvidences ?? [],
             gpId: params.gpId,
             aspect: params.aspect ?? null,
+            activityType: params.activityType ?? null,
             onSubmit: params.onSubmit,
           },
         })

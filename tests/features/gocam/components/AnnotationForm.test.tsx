@@ -144,7 +144,11 @@ describe('AnnotationForm — initial render', () => {
 
   it('renders the Term section with Fill/ISS buttons when showTerm is true and rootTypes provided', () => {
     renderForm(
-      <AnnotationForm showTerm termRootTypes={[RootTypes.BIOLOGICAL_PROCESS]} />
+      <AnnotationForm
+        showTerm
+        termRootTypes={[RootTypes.BIOLOGICAL_PROCESS]}
+        aspect={'biological_process' as never}
+      />
     )
     // "Term" appears twice — once as the section header, once as the Autocomplete label
     expect(screen.getAllByText('Term').length).toBeGreaterThanOrEqual(1)
@@ -179,7 +183,7 @@ describe('AnnotationForm — evidence section buttons', () => {
 
   it('"Add ISS" in the evidence section appends an ISS + GO_REF:0000024 row', async () => {
     const user = userEvent.setup()
-    renderForm(<AnnotationForm showTerm={false} />)
+    renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
     expect(evidenceCount()).toBe(1)
 
     await user.click(screen.getByRole('button', { name: 'Add ISS' }))
@@ -207,6 +211,7 @@ describe('AnnotationForm — term section buttons', () => {
         showTerm
         termRootTypes={[RootTypes.BIOLOGICAL_PROCESS]}
         initialEvidences={initial}
+        aspect={'biological_process' as never}
       />
     )
     expect(evidenceCount()).toBe(2)
@@ -228,6 +233,7 @@ describe('AnnotationForm — term section buttons', () => {
           { uid: 'a', evidenceCode: { id: 'ECO:0000314', label: 'IDA' }, reference: 'PMID:1', withFrom: '' },
           { uid: 'b', evidenceCode: { id: 'ECO:0000314', label: 'IDA' }, reference: 'PMID:2', withFrom: '' },
         ]}
+        aspect={'biological_process' as never}
       />
     )
 
