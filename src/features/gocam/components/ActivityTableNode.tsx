@@ -84,7 +84,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         e.target?.rootTypes?.find(rt => getNodeCategory(rt)) ?? e.target?.rootTypes?.[0] ?? ''
       return { predicateId: e.id, targetType }
     })
-  const insertMenuItems = getInsertMenuItems(node.rootTypes[0] ?? '', usedEdges)
+  const insertMenuItems = getInsertMenuItems(node.rootTypes[0] ?? '', usedEdges, edge?.id)
   const termWidth = 250 - (treeLevel - 1) * 20
   const { aspect } = treeNode
   const treeBorder = aspect ? TREE_BORDER_BY_ASPECT[aspect] : 'border-blue-400'

@@ -82,7 +82,6 @@ interface GroupCardProps {
   errors: ValidationError[]
   bgClass: string
   displayMenuButton: boolean
-  displayAddButton?: boolean
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
   onCloneEvidence?: (relationUid: string) => void
 }
@@ -93,7 +92,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
   errors,
   bgClass,
   displayMenuButton,
-  displayAddButton,
   onSearchAnnotations,
   onCloneEvidence,
 }) => {
@@ -116,7 +114,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
               displayGroup={group}
               errors={errors}
               displayMenuButton={displayMenuButton}
-              displayAddButton={displayAddButton}
               onSearchAnnotations={onSearchAnnotations}
               onCloneEvidence={onCloneEvidence}
             />
@@ -379,8 +376,9 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                   rows={rows}
                   errors={errors}
                   bgClass=""
-                  displayMenuButton={false}
-                  displayAddButton={true}
+                  displayMenuButton
+                  onSearchAnnotations={handleSearchAnnotations}
+                  onCloneEvidence={handleCloneEvidence}
                 />
               ))}
             </div>

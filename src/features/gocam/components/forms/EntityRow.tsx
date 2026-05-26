@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
-import { FaEllipsisV, FaPlus } from 'react-icons/fa'
+import { FaEllipsisV } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
@@ -44,7 +44,6 @@ interface EntityRowProps {
   displayGroup?: DisplayGroup
   errors: ValidationError[]
   displayMenuButton?: boolean
-  displayAddButton?: boolean
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
   onCloneEvidence?: (relationUid: string) => void
 }
@@ -57,7 +56,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
   displayGroup,
   errors: _errors,
   displayMenuButton = true,
-  displayAddButton = false,
   onSearchAnnotations,
   onCloneEvidence,
 }) => {
@@ -165,9 +163,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
   }
 
   const handleClearValues = () => {
-    if (relation) {
-      dispatch(clearNodeValues({ termUid: node.uid, relationUid: relation.uid }))
-    }
+    dispatch(clearNodeValues({ termUid: node.uid, relationUid: relation?.uid }))
   }
 
   const handleCloneEvidence = () => {
@@ -184,7 +180,8 @@ const EntityRow: React.FC<EntityRowProps> = ({
 
   const insertMenuItems = getInsertMenuItems(
     node.category,
-    node.relations.map(r => ({ predicateId: r.predicate.id, targetType: r.target.category }))
+    node.relations.map(r => ({ predicateId: r.predicate.id, targetType: r.target.category })),
+    relation?.predicate.id
   )
 
   const handleInsertNode = (item: InsertMenuItem) => {
@@ -344,32 +341,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
                   Remove
                 </Menu.Item>
               )}
-            </Menu.Dropdown>
-          </Menu>
-        </div>
-      )}
-
-      {/* Add button — same slot as the ellipsis so position matches across sections */}
-      {displayAddButton && insertMenuItems.length > 0 && (
-        <div className="flex shrink-0 items-center justify-center px-2">
-          <Menu shadow="md" position="bottom-end" withinPortal>
-            <Menu.Target>
-              <ActionIcon variant="light" color="primary" radius="xl" size="md">
-                <FaPlus size={12} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              {insertMenuItems.map(item => (
-                <Menu.Item
-                  key={`${item.predicate.id}-${item.targetType}`}
-                  onClick={() => handleInsertNode(item)}
-                >
-                  <div className="flex flex-col items-start">
-                    <span>{item.label}</span>
-                    <span className="text-xs text-gray-500">{item.rangeLabel}</span>
-                  </div>
-                </Menu.Item>
-              ))}
             </Menu.Dropdown>
           </Menu>
         </div>

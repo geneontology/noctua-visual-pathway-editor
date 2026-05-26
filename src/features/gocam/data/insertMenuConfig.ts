@@ -245,10 +245,13 @@ export function getDisplayGroup(
  * Returns the items insertable from a parent of the given type, after dropping:
  * - items hidden via showInMenu: false
  * - oneToOne items whose (predicate, targetType) is already used on the parent
+ * - protein-complex/GP recursive insertions, suppressed based on how the parent
+ *   was reached (see filterRecursiveInsertions)
  */
 export function getInsertMenuItems(
   parentType: string,
-  used: UsedEdge[] = []
+  used: UsedEdge[] = [],
+  reachedViaPredicateId?: string
 ): InsertMenuItem[] {
   const items = canInsertEntity[parentType] ?? []
   return items.filter(item => {
@@ -259,6 +262,24 @@ export function getInsertMenuItems(
       )
       if (exists) return false
     }
+    if (isRecursiveInsertion(item, reachedViaPredicateId)) return false
     return true
   })
+}
+
+function isRecursiveInsertion(
+  item: InsertMenuItem,
+  reachedViaPredicateId: string | undefined
+): boolean {
+  if (
+    reachedViaPredicateId === Relations.HAS_PART &&
+    item.predicate.id === Relations.PART_OF &&
+    item.targetType === RootTypes.PROTEIN_CONTAINING_COMPLEX
+  ) return true
+  if (
+    reachedViaPredicateId === Relations.PART_OF &&
+    item.predicate.id === Relations.HAS_PART &&
+    item.targetType === RootTypes.MOLECULAR_ENTITY
+  ) return true
+  return false
 }

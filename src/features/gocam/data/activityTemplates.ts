@@ -59,7 +59,6 @@ const moleculeActivity: TermDescriptor = {
 const proteinComplexActivity: TermDescriptor = {
   category: mfCat,
   required: true,
-  visible: false,
   relations: [
     {
       predicateId: Relations.ENABLED_BY,

@@ -96,8 +96,7 @@ describe('initCreateForm', () => {
     const next = reducer(initial, initCreateForm('proteinComplex'))
     expect(next.activityType).toBe('proteinComplex')
     expect(next.root?.category).toBe(RootTypes.MOLECULAR_FUNCTION)
-    // proteinComplex root is invisible
-    expect(next.root?.visible).toBe(false)
+    expect(next.root?.visible).toBe(true)
   })
 
   it('clears dirty + errors from prior state', () => {

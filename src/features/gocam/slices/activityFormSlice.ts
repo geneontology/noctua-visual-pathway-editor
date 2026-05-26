@@ -334,17 +334,19 @@ export const activityFormSlice = createSlice({
 
     clearNodeValues(
       state,
-      action: PayloadAction<{ termUid: string; relationUid: string }>
+      action: PayloadAction<{ termUid: string; relationUid?: string }>
     ) {
       if (!state.root) return
       const node = findTermNode(state.root, action.payload.termUid)
-      const rel = findRelationNode(state.root, action.payload.relationUid)
       if (!node) return
 
       node.term = null
       node.isComplement = false
-      if (rel) {
-        rel.evidence = [createEvidenceForm()]
+      if (action.payload.relationUid) {
+        const rel = findRelationNode(state.root, action.payload.relationUid)
+        if (rel) {
+          rel.evidence = [createEvidenceForm()]
+        }
       }
       state.isDirty = true
     },
