@@ -9,7 +9,7 @@ import {
 
 test.describe('toolbar link menus', () => {
   test.beforeEach(async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await page.goto(buildModelUrl(getModelIdFromRaw(raw)))
@@ -55,7 +55,7 @@ test.describe('toolbar link menus', () => {
 
 test.describe('global toolbar — Help menu', () => {
   test.beforeEach(async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await page.goto(buildModelUrl(getModelIdFromRaw(raw)))

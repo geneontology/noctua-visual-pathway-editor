@@ -13,7 +13,7 @@ import {
 // Each fixture should load, populate the toolbar, mount the canvas, and not surface
 // the transport-error overlay.
 
-const fixtures: FixtureName[] = ['swiss-1', 'another-model', 'large-val']
+const fixtures: FixtureName[] = ['small-baseline', 'diverse-relations', 'large-scale']
 
 for (const name of fixtures) {
   test.describe(`fixture: ${name}`, () => {

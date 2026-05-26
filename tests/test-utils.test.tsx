@@ -3,7 +3,7 @@ import { act } from 'react'
 import { useAppSelector } from '@/app/hooks'
 import { setModel, setSelectedActivity } from '@/features/gocam/slices/camSlice'
 import { renderWithProviders } from '@tests/test-utils'
-import { swissOneModel } from '@tests/fixtures/models'
+import { smallBaselineModel } from '@tests/fixtures/models'
 
 const ModelIdProbe = () => {
   const id = useAppSelector(s => s.cam.model?.id ?? 'empty')
@@ -20,14 +20,14 @@ describe('renderWithProviders', () => {
     const { getByTestId } = renderWithProviders(<ModelIdProbe />, {
       preloadedState: {
         cam: {
-          model: swissOneModel,
+          model: smallBaselineModel,
           loading: false,
           error: null,
           selectedActivityId: null,
         },
       },
     })
-    expect(getByTestId('model-id').textContent).toBe(swissOneModel.id)
+    expect(getByTestId('model-id').textContent).toBe(smallBaselineModel.id)
   })
 
   it('returns a store whose dispatches update connected components', () => {
@@ -51,9 +51,9 @@ describe('renderWithProviders', () => {
     // until end-of-test cleanup, which would fail any DOM-scoped query here.
     const first = renderWithProviders(<ModelIdProbe />)
     act(() => {
-      first.store.dispatch(setModel(swissOneModel))
+      first.store.dispatch(setModel(smallBaselineModel))
     })
-    expect(first.store.getState().cam.model?.id).toBe(swissOneModel.id)
+    expect(first.store.getState().cam.model?.id).toBe(smallBaselineModel.id)
 
     const second = renderWithProviders(<ModelIdProbe />)
     expect(second.store.getState().cam.model).toBeNull()

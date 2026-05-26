@@ -10,7 +10,7 @@ import {
 
 test.describe('copy model dialog', () => {
   test.beforeEach(async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await page.goto(buildModelUrl(getModelIdFromRaw(raw)))
@@ -26,7 +26,7 @@ test.describe('copy model dialog', () => {
   })
 
   test('pre-fills the title with "Copy of <model title>"', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     const original = getTitleFromRaw(raw)
 
     await page.getByTestId('toolbar-copy').click()

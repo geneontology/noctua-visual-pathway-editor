@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import type { GraphModel } from '@/features/gocam/models/cam'
 import {
-  swissOneModel,
-  anotherModel,
-  largeValModel,
+  smallBaselineModel,
+  diverseRelationsModel,
+  largeScaleModel,
+  indirectRegulationModel,
+  directRegulationHeavyModel,
+  chemicalPathwayModel,
+  emptyModelModel,
+  reviewStateModel,
 } from '@tests/fixtures/models'
 
 const collectRelationIds = (m: GraphModel): Set<string> => {
@@ -23,8 +28,8 @@ interface FixtureCase {
 
 const cases: FixtureCase[] = [
   {
-    name: 'swissOne',
-    model: swissOneModel,
+    name: 'smallBaseline',
+    model: smallBaselineModel,
     expectedRelations: [
       'BFO:0000050', 'BFO:0000051', 'BFO:0000066', 'RO:0001025',
       'RO:0002233', 'RO:0002234', 'RO:0002333', 'RO:0002629',
@@ -32,8 +37,8 @@ const cases: FixtureCase[] = [
     ],
   },
   {
-    name: 'anotherModel',
-    model: anotherModel,
+    name: 'diverseRelations',
+    model: diverseRelationsModel,
     expectedRelations: [
       'BFO:0000050', 'BFO:0000051', 'BFO:0000066', 'RO:0001025',
       'RO:0002233', 'RO:0002234', 'RO:0002304', 'RO:0002333',
@@ -42,12 +47,36 @@ const cases: FixtureCase[] = [
     ],
   },
   {
-    name: 'largeVal',
-    model: largeValModel,
+    name: 'largeScale',
+    model: largeScaleModel,
     expectedRelations: [
       'BFO:0000050', 'BFO:0000051', 'BFO:0000066', 'RO:0002333',
       'RO:0002409', 'RO:0002413', 'RO:0002629', 'RO:0002630',
       'RO:0012009',
+    ],
+  },
+  {
+    name: 'indirectRegulation',
+    model: indirectRegulationModel,
+    expectedRelations: [
+      'BFO:0000050', 'BFO:0000066', 'RO:0001025', 'RO:0002233',
+      'RO:0002234', 'RO:0002333', 'RO:0002407', 'RO:0012005',
+    ],
+  },
+  {
+    name: 'directRegulationHeavy',
+    model: directRegulationHeavyModel,
+    expectedRelations: [
+      'BFO:0000050', 'BFO:0000066', 'RO:0002233', 'RO:0002234',
+      'RO:0002333', 'RO:0002413', 'RO:0002629', 'RO:0002630',
+    ],
+  },
+  {
+    name: 'chemicalPathway',
+    model: chemicalPathwayModel,
+    expectedRelations: [
+      'BFO:0000050', 'BFO:0000066', 'RO:0002233', 'RO:0002234',
+      'RO:0002333', 'RO:0012005',
     ],
   },
 ]
@@ -60,7 +89,7 @@ describe.each(cases)('fixture: $name', ({ model, expectedRelations }) => {
 
   it('every activity has a non-null rootNode with uid and id', () => {
     // Note: `label` may be undefined when the Barista response omits it
-    // (observed in largeVal for GO:0140378). UI must handle this.
+    // (observed in largeScale for GO:0140378). UI must handle this.
     for (const a of model.activities) {
       expect(a.rootNode).toBeTruthy()
       expect(a.rootNode.uid).toBeTruthy()
@@ -96,20 +125,70 @@ describe.each(cases)('fixture: $name', ({ model, expectedRelations }) => {
 
 // Specific anchors — values from the raw JSON, would catch transform regressions.
 
-describe('swissOne specific metadata', () => {
+describe('smallBaseline specific metadata', () => {
   it('parses the title and taxon from top-level annotations', () => {
-    expect(swissOneModel.title).toContain('OPN1MW3')
-    expect(swissOneModel.taxon).toBe('NCBITaxon:9606')
+    expect(smallBaselineModel.title).toContain('OPN1MW3')
+    expect(smallBaselineModel.taxon).toBe('NCBITaxon:9606')
   })
 
   it('parses model-level contributors', () => {
-    expect(swissOneModel.contributors.length).toBeGreaterThan(0)
+    expect(smallBaselineModel.contributors.length).toBeGreaterThan(0)
   })
 })
 
 describe('relative model sizes', () => {
-  it('largeVal has more activities than the other two', () => {
-    expect(largeValModel.activities.length).toBeGreaterThan(swissOneModel.activities.length)
-    expect(largeValModel.activities.length).toBeGreaterThan(anotherModel.activities.length)
+  it('largeScale has more activities than smallBaseline and diverseRelations', () => {
+    expect(largeScaleModel.activities.length).toBeGreaterThan(smallBaselineModel.activities.length)
+    expect(largeScaleModel.activities.length).toBeGreaterThan(diverseRelationsModel.activities.length)
+  })
+})
+
+// Edge-case fixtures — separate assertions because the standard "has at least one
+// activity / one evidence-bearing edge" checks don't apply.
+
+describe('emptyModel — brand-new empty model', () => {
+  it('has a valid gomodel: id', () => {
+    expect(emptyModelModel.id).toMatch(/^gomodel:/)
+  })
+
+  it('has no activities, no edges, no nodes', () => {
+    expect(emptyModelModel.activities).toHaveLength(0)
+    expect(emptyModelModel.edges).toHaveLength(0)
+    expect(emptyModelModel.nodes).toHaveLength(0)
+  })
+
+  it('carries the development state and the modified flag', () => {
+    expect(emptyModelModel.state).toBe('development')
+    expect(emptyModelModel.modified).toBe(true)
+  })
+})
+
+describe('reviewState — single-individual model in review state', () => {
+  it('has a valid gomodel: id', () => {
+    expect(reviewStateModel.id).toMatch(/^gomodel:/)
+  })
+
+  it('carries the review state', () => {
+    expect(reviewStateModel.state).toBe('review')
+  })
+
+  it('has no edges (no facts in source)', () => {
+    expect(reviewStateModel.edges).toHaveLength(0)
+  })
+
+  it('produces a single activity from the lone individual', () => {
+    expect(reviewStateModel.activities).toHaveLength(1)
+  })
+
+  it('that single activity has no edges', () => {
+    expect(reviewStateModel.activities[0].edges).toHaveLength(0)
+  })
+})
+
+describe('cross-fixture state coverage', () => {
+  it('production / development / review states are all represented', () => {
+    expect(smallBaselineModel.state).toBe('production')
+    expect(emptyModelModel.state).toBe('development')
+    expect(reviewStateModel.state).toBe('review')
   })
 })

@@ -41,9 +41,16 @@ tests/
 │   ├── models.ts                     # real Barista snapshots → transformed GraphModels
 │   ├── models.test.ts                # invariants on the fixtures
 │   └── raw/
-│       ├── swiss-1.json              # 10 relation types
-│       ├── another-model.json        # 14 relation types (most diverse)
-│       └── large-val.json            # 376 individuals (largest)
+│       ├── models/                              # Barista / Minerva graph dumps (named for the test scenario)
+│       │   ├── small-baseline.json              #   small + common 10 relations — default fixture
+│       │   ├── diverse-relations.json           #   14 relation types — pick when relation variety matters
+│       │   ├── large-scale.json                 #   376 individuals — scale / activity-rich tests
+│       │   ├── indirect-regulation.json         #   small + RO:0002407 — indirect-regulation flows
+│       │   ├── direct-regulation-heavy.json     #   45× directly_positively_regulates — regulation density stress
+│       │   ├── chemical-pathway.json            #   has_input / has_output heavy — chemical biosynthesis
+│       │   ├── empty-model.json                 #   0 individuals + modified-p=true — empty state / unsaved draft
+│       │   └── review-state.json                #   state=review — review-state UI coverage
+│       └── golr/                                # GOlr search / annotation / participant responses
 └── features/
     ├── auth/slices/authSlice.test.ts
     ├── gocam/

@@ -4,9 +4,17 @@ import { fileURLToPath } from 'node:url'
 import type { Page } from '@playwright/test'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const RAW_DIR = path.resolve(__dirname, '..', '..', 'tests', 'fixtures', 'raw')
+const RAW_DIR = path.resolve(__dirname, '..', '..', 'tests', 'fixtures', 'raw', 'models')
 
-export type FixtureName = 'swiss-1' | 'another-model' | 'large-val'
+export type FixtureName =
+  | 'small-baseline'
+  | 'diverse-relations'
+  | 'large-scale'
+  | 'indirect-regulation'
+  | 'direct-regulation-heavy'
+  | 'chemical-pathway'
+  | 'empty-model'
+  | 'review-state'
 
 export const loadRaw = (name: FixtureName): unknown => {
   return JSON.parse(readFileSync(path.join(RAW_DIR, `${name}.json`), 'utf-8'))

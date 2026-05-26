@@ -10,7 +10,7 @@ import {
 
 test.describe('auth banner', () => {
   test('shows "Not Logged In" when visiting without a barista_token', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
 
@@ -21,7 +21,7 @@ test.describe('auth banner', () => {
   })
 
   test('hides the banner when a barista_token resolves to a real user', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await mockUserInfoByToken(page, { loggedIn: true })
@@ -37,7 +37,7 @@ test.describe('auth banner', () => {
   })
 
   test('keeps banner visible when user_info_by_token returns no token (invalid token)', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await mockUserInfoByToken(page, { loggedIn: false })

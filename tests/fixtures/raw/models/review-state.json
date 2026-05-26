@@ -1,0 +1,60 @@
+{
+  "modified-p": false,
+  "id": "gomodel:6a10d98e00000001",
+  "individuals": [
+    {
+      "id": "gomodel:6a10d98e00000001/6a10d98e00000002",
+      "type": [
+        {
+          "type": "class",
+          "id": "CHEBI:174843",
+          "label": "4-(3-Hydroxy-7-phenyl-6-heptenyl)-1,2-benzenediol"
+        }
+      ],
+      "root-type": [
+        {
+          "type": "class",
+          "id": "CHEBI:24431",
+          "label": "chemical entity"
+        }
+      ],
+      "annotations": [
+        {
+          "key": "providedBy",
+          "value": "http://geneontology.org"
+        },
+        {
+          "key": "contributor",
+          "value": "https://orcid.org/0000-0002-2874-6934"
+        },
+        {
+          "key": "date",
+          "value": "2026-05-26"
+        }
+      ]
+    }
+  ],
+  "facts": [],
+  "annotations": [
+    {
+      "key": "state",
+      "value": "review"
+    },
+    {
+      "key": "contributor",
+      "value": "https://orcid.org/0000-0002-2874-6934"
+    },
+    {
+      "key": "date",
+      "value": "2026-05-26"
+    },
+    {
+      "key": "title",
+      "value": "enabled by undefined"
+    },
+    {
+      "key": "providedBy",
+      "value": "http://geneontology.org"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ import type {
 } from '@/features/gocam/models/cam'
 import { ErrorLevel, ErrorType, RootTypes } from '@/features/gocam/models/cam'
 import { buildActivity, buildModel, buildNode } from '@tests/fixtures/builders'
-import { swissOneModel } from '@tests/fixtures/models'
+import { smallBaselineModel } from '@tests/fixtures/models'
 
 // Smaller helper to build an edge between two existing nodes
 const makeEdge = (uid: string, sourceId: string, targetId: string, id = 'BFO:0000050'): Edge => ({
@@ -47,8 +47,8 @@ describe('buildValidationErrors — empty / clean model', () => {
     expect(result).toEqual(emptyValidationErrors())
   })
 
-  it('runs against the swissOne fixture without throwing and returns a consistent shape', () => {
-    const result = buildValidationErrors(swissOneModel)
+  it('runs against the smallBaseline fixture without throwing and returns a consistent shape', () => {
+    const result = buildValidationErrors(smallBaselineModel)
     // The fixture has no ShEx violations (real-world model loaded clean from Barista)
     expect(result.shexViolations).toEqual([])
     // total always equals the sum of the three lists
@@ -63,9 +63,9 @@ describe('buildValidationErrors — empty / clean model', () => {
   })
 
   it('does not mutate the source model in obvious places', () => {
-    const before = swissOneModel.activities.length
-    buildValidationErrors(swissOneModel)
-    expect(swissOneModel.activities.length).toBe(before)
+    const before = smallBaselineModel.activities.length
+    buildValidationErrors(smallBaselineModel)
+    expect(smallBaselineModel.activities.length).toBe(before)
   })
 })
 

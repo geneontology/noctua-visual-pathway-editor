@@ -9,7 +9,7 @@ import {
 
 test.describe('graph toolbar', () => {
   test.beforeEach(async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
     await page.goto(buildModelUrl(getModelIdFromRaw(raw)))

@@ -8,12 +8,12 @@ import {
 } from './mocks/barista'
 
 test.describe('validation errors', () => {
-  // The swiss-1 fixture has natural orphan nodes (CNGA3, CNGB3 — UniProt gene
+  // The small-baseline fixture has natural orphan nodes (CNGA3, CNGB3 — UniProt gene
   // products referenced by edges but not packed into an activity). The validation
   // chip should appear and clicking it should open the Validation Errors drawer.
 
   test('chip appears for a model with orphans and opens the errors drawer', async ({ page }) => {
-    const raw = loadRaw('swiss-1')
+    const raw = loadRaw('small-baseline')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
 
@@ -29,7 +29,7 @@ test.describe('validation errors', () => {
   })
 
   test('Close button slides the drawer off-screen', async ({ page }) => {
-    const raw = loadRaw('swiss-1')
+    const raw = loadRaw('small-baseline')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
 
@@ -48,7 +48,7 @@ test.describe('validation errors', () => {
   })
 
   test('reflects the model error count in the chip text', async ({ page }) => {
-    const raw = loadRaw('swiss-1')
+    const raw = loadRaw('small-baseline')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
 

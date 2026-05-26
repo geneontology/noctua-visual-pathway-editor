@@ -10,7 +10,7 @@ import {
 
 test.describe('model loading', () => {
   test('loads a model end-to-end with mocked Barista (no token, read-only)', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     const modelId = getModelIdFromRaw(raw)
 
     await mockBaristaMetadata(page)
@@ -37,7 +37,7 @@ test.describe('model loading', () => {
   })
 
   test('clicking the title pen opens the edit-model dialog', async ({ page }) => {
-    const raw = loadRaw('another-model')
+    const raw = loadRaw('diverse-relations')
     await mockBaristaMetadata(page)
     await mockBaristaModel(page, raw)
 
