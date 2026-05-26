@@ -66,7 +66,7 @@ const CamMetadataForm: React.FC = () => {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-3 px-4 py-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="text-sm font-semibold uppercase tracking-wide text-gray-500">
           Model Information
         </div>
 
@@ -91,7 +91,7 @@ const CamMetadataForm: React.FC = () => {
 
       <div className="border-t border-gray-200 px-4 py-4">
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Comments
           </div>
           <ActionIcon
@@ -106,7 +106,7 @@ const CamMetadataForm: React.FC = () => {
         </div>
 
         {comments.length === 0 ? (
-          <div className="py-2 text-xs italic text-gray-400">No comments yet</div>
+          <div className="py-2 text-sm italic text-gray-400">No comments yet</div>
         ) : (
           <div className="flex flex-col gap-2">
             {comments.map((comment, i) => (
@@ -138,10 +138,10 @@ const CamMetadataForm: React.FC = () => {
 
       {(cam.contributors?.length || cam.groups?.length) ? (
         <div className="border-t border-gray-200 px-4 py-4">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
             Model Details
           </div>
-          <div className="flex flex-col gap-1 text-xs">
+          <div className="flex flex-col gap-1 text-sm">
             {cam.contributors?.length ? (
               <div className="flex gap-2">
                 <span className="font-medium text-gray-600">Contributors:</span>

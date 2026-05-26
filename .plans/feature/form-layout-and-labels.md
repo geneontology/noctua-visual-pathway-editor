@@ -1,107 +1,101 @@
 # Task: Form layout consistency + nested-CC label cleanup
 
-**Status:** ACTIVE
+**Status:** COMPLETE (Phase 3 deferred per user direction)
 **Issue:** — (from `downloads/notes`)
 **Branch:** issue-220-update-codebase
 
 ## Goal
 
-Cosmetic alignment across the form surface:
+Four cosmetic items from the notes:
 
-1. **Consistent fonts.** All text in the various forms (ActivityForm, AnnotationForm, RelationForm, ChemicalConnectorForm, CamMetadataForm) should use the same scale.
-2. **Wider forms.** Bump form dialog widths so more of each row is visible.
-3. **Fixed screen anchor.** Forms should open at a consistent spot — right or center, pick once.
-4. **Nested CC labels.** Strip the redundant "CC/" prefix from CC insertion menu labels.
+1. Consistent font size across forms.
+2. Wider form dialogs.
+3. Fixed screen anchor (right vs center) — `(?)` in notes.
+4. Strip "CC/" prefix from nested-CC menu labels.
 
-## Context
+## Resolved decisions
 
-- **Related files:**
-  - `src/@noctua.core/components/dialog/SimpleDialog.tsx` + `modalSize.ts` — current size tokens
-  - `src/features/gocam/components/forms/ActivityForm.tsx`, `AnnotationForm.tsx`, `RelationForm.tsx`, `ChemicalConnectorForm.tsx`, `CamMetadataForm.tsx`
-  - `src/@noctua.core/theme/mantineTheme.ts` (lines 49-55 — `fontSizes`)
-  - `src/features/gocam/data/insertMenuConfig.ts` (lines 154, 167, 181 — three `'CC/Cell/Anatomy/Organism'` strings)
-- **Triggered by:** `downloads/notes`:
-  > all font size in the various forms should be the same
-  > forms should be wider so that more information in the form can be read
-  > (?) make forms always appear at the same place in the browser (right, or center)
-  > Menu to add a nested CC: ... labels are consistent; keep, but remove 'CC'
-
-## Current State (audit-needed for fonts/width/anchor)
-
-Sampling the form files:
-
-- ActivityForm section title: `text-sm font-semibold` (line 371, 398).
-- RelationForm section labels: `text-xs leading-[30px]` (line 295, 326).
-- ChemicalConnectorForm section labels: `text-xs leading-[30px]` (line 162, 238).
-- AnnotationForm SectionHeader: `text-xs font-semibold text-primary-700` (line 38).
-
-So section titles drift between `text-sm` and `text-xs`. Forms open at different sizes per `openDialog({ size })` call. Mantine `Modal` centers by default.
-
-CC labels: three identical `'CC/Cell/Anatomy/Organism'` strings in `insertMenuConfig.ts`.
+- **Phase 1+2:** All form text normalized to `text-sm`; primary form dialogs bumped from `md` (900px) to `lg` (1200px).
+- **Phase 3 (anchor):** Deferred per user — still uncertain right vs center.
 
 ## Steps
 
-### Phase 1: Font-size audit (read-only)
+### Phase 1: Normalize section/body text to `text-sm` ✅
 
-- [ ] Walk the five forms; record every Tailwind text token in use (section titles, row labels, button text, body copy, badges).
-- [ ] Decide on a target scale. Recommend three tokens:
-  - `text-sm` — section titles
-  - `text-xs` — row labels, button text, body copy
-  - `text-2xs` — badges / metadata only
-- [ ] Replace inconsistencies. Don't churn — only touch tokens that don't match.
+Per the audit, `text-xs` was the dominant size for section headers and helper copy. User picked promotion to `text-sm` for the whole form surface.
 
-### Phase 2: Width
+- [x] `AnnotationForm.tsx` — SectionHeader title.
+- [x] `RelationForm.tsx` — section labels (Suggested / Evidence / Chemical Intermediate), helper text, resolved-label span.
+- [x] `ChemicalConnectorForm.tsx` — three section labels + two "no participants" info messages.
+- [x] `ConnectorForm.tsx` — subject/object header strip.
+- [x] `SectionRow.tsx` — label column.
+- [x] `RadioPillGroup.tsx` — option labels + descriptions.
+- [x] `CamMetadataForm.tsx` — three section headers (Model Information / Comments / Model Details), "No comments yet", model-details grid.
+- [x] `ActivityForm.tsx` — protein-complex amber callout + "Why is the Save button disabled?" link.
+- Left alone (intentional micro-text / badges / non-form surfaces): `ActivityForm.tsx:104` "IS NOT" badge (`text-[8px]`); `EntityRow.tsx:307` insert-menu sub-label (visual hierarchy under `item.label`); `DatabaseField.tsx` autocomplete dropdown rows; `SearchAnnotations.tsx` results table micro-headers; `AllowedDatabasesPopover.tsx` chip badges; `WithDropdown.tsx` / `ReferenceDropdown.tsx` popover content.
 
-- [ ] Inventory `openDialog({ size: ... })` calls — list the size token each form opens with.
-- [ ] Pick a wider default for the form set: bump `md` or introduce a `form` token in `modalSize.ts`. Avoid widening sizes that aren't form dialogs (CloneEvidenceDialog, ConfirmDialog).
-- [ ] Verify no horizontal scrolling at the new size on a 1280px-wide window.
+### Phase 2: Bump form dialog widths from `md` → `lg` ✅
 
-### Phase 3: Anchor (right vs center)
+`md = 900px` → `lg = 1200px` (per `modalSize.ts`). Applied to the four edit-form surfaces; the two metadata-style dialogs (CamMetadata, CopyModel) stay `sm`.
 
-The note marks this `(?)` — confirm with stakeholder first.
+- [x] `useOpenAnnotationForm.ts` — AnnotationForm dialog.
+- [x] `RelationForm.tsx` — ChemicalConnectorForm dialog open.
+- [x] `PathwayViewer.tsx` — ConnectorForm SimpleDialog.
+- [x] `ActivityFormDialog.tsx` — Activity form SimpleDialog.
+- `CamMetadataForm` + `CopyModelDialog` left at `sm`.
 
-- [ ] If center: nothing to change.
-- [ ] If right: pass `<Modal classNames={{ inner: 'justify-end' }} />` (or equivalent) through `SimpleDialog`. Either as the form-dialog default or as an `anchor?: 'center' | 'right'` prop.
+### Phase 3: Anchor (right vs center) — DEFERRED
 
-### Phase 4: Strip "CC/" from nested-CC labels
+- [ ] Decide right vs center, then wire `<SimpleDialog classNames={{ inner: 'justify-end' }} />` (or equivalent) if right.
 
-- [ ] In `insertMenuConfig.ts`, replace `'CC/Cell/Anatomy/Organism'` with `'Cell/Anatomy/Organism'` at lines 154, 167, 181.
-- [ ] Grep `'CC/Cell/Anatomy/Organism'` across `src/` and `tests/`. Update any test assertions that use the old string.
+### Phase 4: Strip "CC/" prefix from nested-CC labels ✅
+
+- [x] `insertMenuConfig.ts` — three `rangeLabel: 'CC/Cell/Anatomy/Organism'` → `'Cell/Anatomy/Organism'`.
+- [x] Grep'd `'CC/Cell/Anatomy/Organism'` across `tests/` — no test asserts on the old string.
 
 ### Phase 5: Verify
 
-- [ ] `npm run type-check` clean.
-- [ ] Manual: open every form — text reads at the chosen scale; dialogs at the chosen width; anchor consistent.
-- [ ] Manual: CC row Add submenu → label reads "Cell/Anatomy/Organism" (no "CC/").
+- [x] `npm run type-check` clean.
+- [x] Touched tests pass — AnnotationForm (21/21), formUtils (18/18), insertMenuConfig (5/5).
+- [ ] Manual: open every form dialog (Annotation, ChemicalConnector, Connector, Activity), confirm text reads at the chosen scale and dialogs are at the wider size.
+- [ ] Manual: CC row Add submenu reads "Cell/Anatomy/Organism" (no `CC/`).
 
 ## Recovery Checkpoint
 
-- **Last completed action:** plan drafted from `downloads/notes` "Layout of forms" + "Menu to add a nested CC" sections.
-- **Next immediate action:** Phase 1 — font-size audit (read-only).
-- **Recent commands run:** none.
-- **Uncommitted changes:** none.
+- **Last completed action:** Phases 1, 2, 4 implemented; type-check + tests green. Phase 3 deferred.
+- **Next immediate action:** manual verification, or move on to another plan.
+- **Recent commands run:** `npm run type-check`, `npx vitest run tests/features/gocam/components/AnnotationForm.test.tsx tests/features/gocam/services/formUtils.test.ts tests/features/gocam/data/insertMenuConfig.test.ts`.
+- **Uncommitted changes:** files listed below.
 - **Environment state:** none.
 
 ## Failed Approaches
 
 | What was tried | Why it failed | Date |
 | -------------- | ------------- | ---- |
-|                |               |      |
+| Promote everything to `text-xs` (drop down to smallest). | Stakeholder preferred `text-sm` — promotes up for readability rather than down for density. | 2026-05-25 |
 
 ## Files Modified
 
 | File | Action | Status |
 | ---- | ------ | ------ |
-| (TBD by audit) | edit | pending |
-| src/@noctua.core/components/dialog/modalSize.ts | edit (Phase 2) | pending |
-| src/@noctua.core/components/dialog/SimpleDialog.tsx | edit (Phase 3, if right-anchor) | pending |
-| src/features/gocam/data/insertMenuConfig.ts | edit (Phase 4) | pending |
+| src/features/gocam/data/insertMenuConfig.ts | edit (Phase 4) | done |
+| src/features/gocam/hooks/useOpenAnnotationForm.ts | edit (Phase 2) | done |
+| src/features/relations/components/RelationForm.tsx | edit (Phase 1 + 2) | done |
+| src/features/relations/components/ChemicalConnectorForm.tsx | edit (Phase 1) | done |
+| src/features/relations/components/ConnectorForm.tsx | edit (Phase 1) | done |
+| src/features/relations/components/SectionRow.tsx | edit (Phase 1) | done |
+| src/features/relations/components/RadioPillGroup.tsx | edit (Phase 1) | done |
+| src/features/gocam/components/CamMetadataForm.tsx | edit (Phase 1) | done |
+| src/features/gocam/components/forms/AnnotationForm.tsx | edit (Phase 1) | done |
+| src/features/gocam/components/forms/ActivityForm.tsx | edit (Phase 1) | done |
+| src/features/gocam/components/dialogs/ActivityFormDialog.tsx | edit (Phase 2) | done |
+| src/app/PathwayViewer.tsx | edit (Phase 2) | done |
 
 ## Blockers
 
-- Anchor decision (right vs center) — Phase 3.
+- Phase 3 needs an anchor decision.
 
 ## Notes
 
-- This is cosmetic. Don't pair with behavioral changes; easier to review and revert.
-- Phase 4 is a trivial 3-line edit — land it first as a quick win while the font/width audit is in progress.
+- The `md` → `lg` bump is a 1200px modal — on smaller laptop screens that's near-full-width, which is the desired behavior for the form-editing surfaces. Metadata-style dialogs (CamMetadata, CopyModel) stay `sm` (600px) because they have less content.
+- Promoting to `text-sm` may slightly increase form heights; if anything overflows ungracefully, revisit specific outliers rather than reverting the global change.

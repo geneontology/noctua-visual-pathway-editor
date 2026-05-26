@@ -9,7 +9,7 @@ interface SimpleDialogProps {
   onConfirm?: () => void
   title?: string
   size?: 'xs' | 'sm' | 'cam' | 'md' | 'lg' | 'xl'
-  /** Pins dialog to ~90vh and makes the body manage its own height. Implied by size='cam'. */
+  /** Allows the dialog to grow up to ~90vh while still fitting smaller content. Implied by size='cam'. */
   tall?: boolean
   fullWidth?: boolean
   showActions?: boolean
@@ -57,7 +57,7 @@ const SimpleDialog = ({
       centered
       styles={{
         content: {
-          ...(tall ? { height: '90vh' } : {}),
+          ...(tall ? { maxHeight: '90vh' } : {}),
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',

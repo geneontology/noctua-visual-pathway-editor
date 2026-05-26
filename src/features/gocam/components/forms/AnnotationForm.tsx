@@ -37,7 +37,7 @@ const SectionHeader: React.FC<{ title: React.ReactNode; right?: React.ReactNode 
   right,
 }) => (
   <div className="flex h-9 shrink-0 items-center justify-between border-b border-primary-500/30 bg-white px-3">
-    <div className="text-xs font-semibold text-primary-700">{title}</div>
+    <div className="text-sm font-semibold text-primary-700">{title}</div>
     {right}
   </div>
 )

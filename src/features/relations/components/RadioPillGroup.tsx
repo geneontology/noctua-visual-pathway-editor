@@ -22,7 +22,7 @@ const RadioPillGroup: React.FC<RadioPillGroupProps> = ({ name, value, options, o
           key={opt.value}
           className="flex w-full items-center border-b border-primary-200 py-[5px] last:border-b-0"
         >
-          <label className="flex w-[170px] shrink-0 cursor-pointer items-center gap-2 text-xs">
+          <label className="flex w-[170px] shrink-0 cursor-pointer items-center gap-2 text-sm">
             <span
               className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 ${isSelected ? 'border-blue-800' : 'border-gray-400'}`}
             >
@@ -41,7 +41,7 @@ const RadioPillGroup: React.FC<RadioPillGroupProps> = ({ name, value, options, o
             <span className="text-neutral-700">{opt.label}</span>
           </label>
           {opt.description && (
-            <span className="ml-3 max-w-[300px] grow text-xs italic text-neutral-500">
+            <span className="ml-3 max-w-[300px] grow text-sm italic text-neutral-500">
               {opt.description}
             </span>
           )}

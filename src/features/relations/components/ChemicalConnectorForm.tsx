@@ -159,7 +159,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
     return (
       <div className="flex w-full flex-col items-stretch justify-start">
         <div
-          className="flex items-center bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+          className="flex items-center bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
         >
           {title}
         </div>
@@ -221,21 +221,21 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
             {categorized &&
               categorized.subjectOnly.length === 0 &&
               categorized.objectOnly.length > 0 && (
-                <div className="px-4 py-2 text-xs italic text-gray-400">
+                <div className="px-4 py-2 text-sm italic text-gray-400">
                   No participants found for upstream activity
                 </div>
               )}
             {categorized &&
               categorized.objectOnly.length === 0 &&
               categorized.subjectOnly.length > 0 && (
-                <div className="px-4 py-2 text-xs italic text-gray-400">
+                <div className="px-4 py-2 text-sm italic text-gray-400">
                   No participants found for downstream activity
                 </div>
               )}
 
             {/* Evidence section */}
             <div
-              className="mt-2 flex items-center bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+              className="mt-2 flex items-center bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
             >
               Evidence
             </div>

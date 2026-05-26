@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActionIcon, Button, Modal, Tooltip } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
 import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
 import { FaExclamationCircle, FaInfoCircle, FaSave } from 'react-icons/fa'
@@ -140,6 +141,8 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
   const model = useAppSelector(selectCamModel)
   const userContext = useUserContext()
   const [updateGraphModel, { isLoading: isSaving }] = useUpdateGraphModelMutation()
+  const isLargeScreen = useMediaQuery('(min-width: 1024px)')
+  const baseTermWidth = isLargeScreen ? 300 : 250
 
   const [showErrorsDialog, setShowErrorsDialog] = useState(false)
   const [cloneEvidenceState, setCloneEvidenceState] = useState<{
@@ -355,7 +358,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto bg-slate-200">
         {activityType === ActivityType.PROTEIN_COMPLEX && (
-          <div className="mx-3 mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs italic text-amber-800">
+          <div className="mx-3 mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm italic text-amber-800">
             Note that this should be used rarely, and only in the case where the activity cannot be
             ascribed to a single subunit of a complex
           </div>
@@ -387,19 +390,19 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
 
         {/* FD Section */}
         <div className="flex flex-col items-stretch justify-start">
-          {/* Header mirrors EntityRow columns: [Term 250px] [Evidence 50%] [Ref 25%] [With 25%] + menu spacer */}
+          {/* Header mirrors EntityRow columns: [Term baseTermWidth] [Evidence 40%] [Ref 30%] [With 30%] + menu spacer */}
           <div className="flex h-9 flex-row items-stretch border-b border-t border-gray-200 bg-gray-50">
             <div
               className="flex shrink items-center p-1"
-              style={{ flexBasis: 250 }}
+              style={{ flexBasis: baseTermWidth }}
             >
               <span className="pl-2 text-sm font-semibold text-gray-700">
                 {sectionTitles.fd}
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-row items-stretch">
-              <div className="w-1/2 p-1" aria-hidden="true" />
-              <div className="flex w-1/4 items-center justify-center p-1">
+              <div className="w-2/5 p-1" aria-hidden="true" />
+              <div className="flex w-[30%] items-center justify-center p-1">
                 <Tooltip
                   label="Allowed Reference DBs"
                   position="bottom"
@@ -417,7 +420,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                   </ActionIcon>
                 </Tooltip>
               </div>
-              <div className="flex w-1/4 items-center justify-center p-1">
+              <div className="flex w-[30%] items-center justify-center p-1">
                 <Tooltip
                   label="Allowed With/From DBs"
                   position="bottom"
@@ -462,7 +465,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
           <button
             type="button"
             onClick={() => setShowErrorsDialog(true)}
-            className="mr-auto flex items-center gap-1.5 text-xs font-medium text-amber-700 underline decoration-dotted underline-offset-2 hover:text-amber-800"
+            className="mr-auto flex items-center gap-1.5 text-sm font-medium text-amber-700 underline decoration-dotted underline-offset-2 hover:text-amber-800"
           >
             <FaExclamationCircle size={12} />
             Why is the &quot;Save&quot; button disabled?

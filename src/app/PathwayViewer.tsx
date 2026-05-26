@@ -253,7 +253,7 @@ const PathwayEditor: React.FC = () => {
         open={connector.open}
         onClose={() => setConnector(closedConnector)}
         title={connector.edge ? 'Edit Causal Relation' : 'Causal Relation Form'}
-        size="md"
+        size="lg"
         tall
         bodyScroll="none"
       >

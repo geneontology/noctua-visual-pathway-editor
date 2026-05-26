@@ -34,7 +34,7 @@ export function useOpenAnnotationForm() {
         openDialog({
           component: DialogComponent.ANNOTATION_FORM,
           title: params.title ?? (params.showTerm ? 'Add Annotation' : 'Add Evidence'),
-          size: 'md',
+          size: 'lg',
           bodyScroll: 'none',
           customProps: {
             showTerm: params.showTerm,

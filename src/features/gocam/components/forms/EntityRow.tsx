@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { FaEllipsisV } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
@@ -63,6 +64,8 @@ const EntityRow: React.FC<EntityRowProps> = ({
   const dispatch = useAppDispatch()
   const activityType = useAppSelector(selectFormType)
   const canAddISS = canAddISSEvidence(node.aspect, activityType)
+  const isLargeScreen = useMediaQuery('(min-width: 1024px)')
+  const baseTermWidth = isLargeScreen ? 300 : 250
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const termInitialOptions = useAppSelector(state =>
     selectTerms(state, node.rootTypes, node.excludeRootTypes)
@@ -217,7 +220,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
       {/* Term field */}
       <div
         className="min-w-0 shrink p-1"
-        style={{ flexBasis: 250 - (treeLevel - 1) * 20 }}
+        style={{ flexBasis: baseTermWidth - (treeLevel - 1) * 20 }}
       >
         <TermAutocomplete
           label={node.label}
@@ -240,7 +243,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
               key={ev.uid}
               className="flex w-full flex-row items-stretch justify-start"
             >
-              <div className="w-1/2 p-1">
+              <div className="grow p-1">
                 <TermAutocomplete
                   label="Evidence"
                   name={`evidence-${ev.uid}`}
@@ -259,14 +262,14 @@ const EntityRow: React.FC<EntityRowProps> = ({
                   initialOptions={evidenceInitialOptions}
                 />
               </div>
-              <div className="w-1/4 p-1">
+              <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
                 <DatabaseField
                   type="reference"
                   value={ev.reference}
                   onChange={value => handleEvidenceFieldChange(ev, 'reference', value)}
                 />
               </div>
-              <div className="w-1/4 p-1">
+              <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
                 <DatabaseField
                   type="with"
                   value={ev.withFrom}

@@ -31,7 +31,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({ open, onClose, 
   const title = getDialogTitle(mode, activityType)
 
   return (
-    <SimpleDialog open={open} onClose={onClose} title={title} size="md" tall bodyScroll="none">
+    <SimpleDialog open={open} onClose={onClose} title={title} size="lg" tall bodyScroll="none">
       {children}
     </SimpleDialog>
   )

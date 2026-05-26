@@ -128,7 +128,7 @@ const RelationForm: React.FC<Props> = ({
       openDialog({
         component: DialogComponent.CHEMICAL_CONNECTOR_FORM,
         title: 'Connect via Chemical Intermediate',
-        size: 'md',
+        size: 'lg',
         customProps: {
           sourceActivity,
           targetActivity,
@@ -271,7 +271,7 @@ const RelationForm: React.FC<Props> = ({
               }))}
               onChange={onRadioChange('directionId')}
             />
-            <p className="max-w-[260px] grow text-xs italic text-neutral-500">
+            <p className="max-w-[260px] grow text-sm italic text-neutral-500">
               The mechanism regulation should be known, so it should be possible to pick the
               direction of the regulation.
             </p>
@@ -297,12 +297,12 @@ const RelationForm: React.FC<Props> = ({
 
       {/* Suggested Causal Relation */}
       <div
-        className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+        className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
       >
         Suggested Causal Relation
       </div>
       <div className="mb-4 py-5">
-        <span className="pl-[10px] text-xs">
+        <span className="pl-[10px] text-sm">
           {resolvedLabel ?? 'No valid relation'}
         </span>
       </div>
@@ -312,7 +312,7 @@ const RelationForm: React.FC<Props> = ({
         <div
           className="flex items-center gap-3 border-b border-blue-800/70 px-4 py-3"
         >
-          <span className="w-[100px] shrink-0 text-xs font-medium text-blue-800">
+          <span className="w-[100px] shrink-0 text-sm font-medium text-blue-800">
             Chemical Intermediate
           </span>
           <Button
@@ -327,7 +327,7 @@ const RelationForm: React.FC<Props> = ({
 
       {/* Evidence section */}
       <div
-        className="bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+        className="bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
       >
         Evidence
       </div>

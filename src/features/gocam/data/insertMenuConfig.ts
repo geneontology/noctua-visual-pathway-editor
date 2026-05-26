@@ -151,7 +151,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.CELLULAR_COMPONENT]: [
     {
       label: 'part of',
-      rangeLabel: 'CC/Cell/Anatomy/Organism',
+      rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
       showInMenu: true,
@@ -164,7 +164,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.CELL_TYPE]: [
     {
       label: 'part of',
-      rangeLabel: 'CC/Cell/Anatomy/Organism',
+      rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
       showInMenu: true,
@@ -177,7 +177,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.ANATOMICAL_ENTITY]: [
     {
       label: 'part of',
-      rangeLabel: 'CC/Cell/Anatomy/Organism',
+      rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
       showInMenu: true,
