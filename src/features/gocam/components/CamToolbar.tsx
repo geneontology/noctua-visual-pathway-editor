@@ -30,11 +30,31 @@ const CamToolbar: React.FC = () => {
   const baristaToken = useAppSelector(selectBaristaToken)
   const urls = useModelUrls(cam?.id, baristaToken)
 
-  const openCamForm = () => {
+  const openTitleForm = () => {
     dispatch(
       openDialog({
-        component: DialogComponent.CAM_METADATA_FORM,
-        title: 'Edit Model',
+        component: DialogComponent.CAM_TITLE_FORM,
+        title: 'Edit Title',
+        size: 'sm',
+      })
+    )
+  }
+
+  const openStateForm = () => {
+    dispatch(
+      openDialog({
+        component: DialogComponent.CAM_STATE_FORM,
+        title: 'Change State',
+        size: 'xs',
+      })
+    )
+  }
+
+  const openCommentsForm = () => {
+    dispatch(
+      openDialog({
+        component: DialogComponent.CAM_COMMENTS_FORM,
+        title: 'Comments',
         size: 'sm',
       })
     )
@@ -93,9 +113,9 @@ const CamToolbar: React.FC = () => {
             </span>
             <button
               data-testid="edit-model-title"
-              aria-label="Edit model metadata"
+              aria-label="Edit model title"
               className="text-gray-500 hover:text-gray-800 focus:outline-hidden"
-              onClick={openCamForm}
+              onClick={openTitleForm}
             >
               <FaPen size={12} />
             </button>
@@ -125,7 +145,7 @@ const CamToolbar: React.FC = () => {
             color="gray"
             size="lg"
             className="text-gray-600 hover:text-gray-900"
-            onClick={openCamForm}
+            onClick={openCommentsForm}
           >
             <FaComment size={16} />
             {commentCount > 0 && (
@@ -154,7 +174,7 @@ const CamToolbar: React.FC = () => {
           icon={<FaTasks size={12} />}
           chipClass={`${stateColor.chip} capitalize`}
           circleClass={stateColor.circle}
-          onClick={openCamForm}
+          onClick={openStateForm}
           trailing={<FaPen size={9} className="mr-1 opacity-60" />}
         >
           {cam.state}
@@ -166,7 +186,6 @@ const CamToolbar: React.FC = () => {
           icon={<FaCalendarDay size={12} />}
           chipClass="border-sky-300 bg-sky-100 text-sky-900"
           circleClass="border-sky-300 bg-sky-200 text-sky-700"
-          onClick={openCamForm}
         >
           {cam.date}
         </Chip>

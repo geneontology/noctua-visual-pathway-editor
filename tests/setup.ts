@@ -18,3 +18,24 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     }),
   })
 }
+
+// jsdom lacks ResizeObserver; Mantine's Textarea autosize uses it.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver
+}
+
+// jsdom lacks document.fonts; Mantine's Textarea autosize listens to it.
+if (typeof document !== 'undefined' && !document.fonts) {
+  Object.defineProperty(document, 'fonts', {
+    writable: true,
+    value: {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      ready: Promise.resolve(),
+    },
+  })
+}

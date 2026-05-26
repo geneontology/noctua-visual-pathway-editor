@@ -12,13 +12,17 @@ import GlobalDialog from './@noctua.core/components/dialog/GlobalDialog'
 import { DialogComponent } from './@noctua.core/components/dialog/dialogSlice'
 import GlobalToast from './@noctua.core/components/toast/GlobalToast'
 import AnnotationForm from './features/gocam/components/forms/AnnotationForm'
-import CamMetadataForm from './features/gocam/components/CamMetadataForm'
+import CamTitleForm from './features/gocam/components/CamTitleForm'
+import CamStateForm from './features/gocam/components/CamStateForm'
+import CamCommentsForm from './features/gocam/components/CamCommentsForm'
 import CopyModelDialog from './features/gocam/components/CopyModelDialog'
 import ChemicalConnectorForm from './features/relations/components/ChemicalConnectorForm'
 
 const DIALOG_COMPONENTS: Partial<Record<DialogComponent, React.ComponentType<any>>> = {
   [DialogComponent.ANNOTATION_FORM]: AnnotationForm,
-  [DialogComponent.CAM_METADATA_FORM]: CamMetadataForm,
+  [DialogComponent.CAM_TITLE_FORM]: CamTitleForm,
+  [DialogComponent.CAM_STATE_FORM]: CamStateForm,
+  [DialogComponent.CAM_COMMENTS_FORM]: CamCommentsForm,
   [DialogComponent.COPY_MODEL_DIALOG]: CopyModelDialog,
   [DialogComponent.CHEMICAL_CONNECTOR_FORM]: ChemicalConnectorForm,
 }
