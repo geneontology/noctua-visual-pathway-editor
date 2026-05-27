@@ -18,7 +18,7 @@ const Toolbar: React.FC = () => {
 
   const { isDev, isBeta, isProd } = ENVIRONMENT
 
-  const toolbarBg = isDev ? 'bg-accent-500' : isBeta ? 'bg-brown-100' : 'bg-white'
+  const toolbarBg = isDev ? 'bg-brown-100' : isBeta ? 'bg-accent-500' : 'bg-white'
   const envLabel = isDev ? '(dev)' : isBeta ? '(beta)' : null
 
   const logout = () => {
