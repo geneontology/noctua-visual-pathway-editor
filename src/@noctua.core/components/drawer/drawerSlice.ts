@@ -5,6 +5,7 @@ import type { RootState } from '@/app/store/store'
 export enum RightPanelTab {
   ACTIVITY_TABLE = 'activityTable',
   CAM_ERRORS = 'camErrors',
+  COMMENTS = 'comments',
 }
 
 interface DrawerState {

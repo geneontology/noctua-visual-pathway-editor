@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useCallback, useRef, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
+import { useAppDispatch } from '@/app/hooks'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
@@ -12,6 +13,7 @@ import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
+import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import {
   buildAddEvidenceToEdgeOperations,
   buildAddNodeOperations,
@@ -64,10 +66,23 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     treeNode
   const evidence = edge?.evidence ?? []
 
+  const dispatch = useAppDispatch()
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
   // EditorDropdown is now only used for single-field term edits on this row.
   const editor = usePopover<{ category: EditorCategory }>()
+
+  const handleAddComment = useCallback(() => {
+    if (!edge) return
+    dispatch(
+      openDialog({
+        component: DialogComponent.EDGE_COMMENTS_FORM,
+        title: 'Comments',
+        size: 'sm',
+        customProps: { edgeUid: edge.uid },
+      })
+    )
+  }, [dispatch, edge])
 
   const {
     updateGraphModel,
@@ -303,6 +318,11 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                   </Menu.Sub>
                 )}
                 {edge && <Menu.Item onClick={handleAddEvidence}>Add Evidence</Menu.Item>}
+                {edge && (
+                  <Menu.Item onClick={handleAddComment}>
+                    {edge.comments?.length ? `Comments (${edge.comments.length})` : 'Comment'}
+                  </Menu.Item>
+                )}
                 {canDelete && (
                   <Menu.Item color="red" onClick={requestDeleteNode}>
                     Delete

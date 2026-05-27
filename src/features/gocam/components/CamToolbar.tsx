@@ -50,14 +50,9 @@ const CamToolbar: React.FC = () => {
     )
   }
 
-  const openCommentsForm = () => {
-    dispatch(
-      openDialog({
-        component: DialogComponent.CAM_COMMENTS_FORM,
-        title: 'Comments',
-        size: 'sm',
-      })
-    )
+  const openCommentsPanel = () => {
+    dispatch(setRightPanelTab(RightPanelTab.COMMENTS))
+    dispatch(setRightDrawerOpen(true))
   }
 
   const openCopyDialog = () => {
@@ -96,7 +91,11 @@ const CamToolbar: React.FC = () => {
 
   if (!cam) return null
 
-  const commentCount = cam.comments?.length || 0
+  const edgeCommentCount = cam.activities.reduce(
+    (sum, a) => sum + a.edges.reduce((s, e) => s + (e.comments?.length ?? 0), 0),
+    0
+  )
+  const commentCount = (cam.comments?.length ?? 0) + edgeCommentCount
   const stateColor = getStateColor(cam.state)
 
   return (
@@ -136,7 +135,11 @@ const CamToolbar: React.FC = () => {
 
       <div className="flex h-full items-center border-l border-r border-gray-200 px-1">
         <Tooltip
-          label={cam.comments.length > 0 ? cam.comments.join(', ') : 'No comments'}
+          label={
+            commentCount > 0
+              ? `${commentCount} comment${commentCount > 1 ? 's' : ''} — view all`
+              : 'No comments'
+          }
           position="bottom"
           withArrow
         >
@@ -145,7 +148,8 @@ const CamToolbar: React.FC = () => {
             color="gray"
             size="lg"
             className="text-gray-600 hover:text-gray-900"
-            onClick={openCommentsForm}
+            onClick={openCommentsPanel}
+            aria-label="View all comments"
           >
             <FaComment size={16} />
             {commentCount > 0 && (

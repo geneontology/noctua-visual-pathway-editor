@@ -6,6 +6,7 @@ import {
   buildAddNodeOperations,
   buildDeleteNodeOperations,
   buildSaveModelAnnotationsOperations,
+  buildSaveEdgeCommentsOperations,
   buildAddEvidenceToEdgeOperations,
   buildRemoveEvidenceOperations,
   buildEditIndividualTypeOperations,
@@ -77,7 +78,8 @@ const makeEdge = (
   sourceUid: string,
   targetUid: string,
   predicateId: string,
-  evidence: { uid: string; evidenceCode: { id: string; label: string } }[] = []
+  evidence: { uid: string; evidenceCode: { id: string; label: string } }[] = [],
+  comments: string[] = []
 ): Edge => ({
   uid: `edge_${sourceUid}_${targetUid}`,
   id: predicateId,
@@ -88,6 +90,7 @@ const makeEdge = (
   target: makeNode(targetUid, ''),
   contributors: [],
   groups: [],
+  comments,
   evidence: evidence.map(ev => ({
     uid: ev.uid,
     evidenceCode: ev.evidenceCode,
@@ -873,5 +876,80 @@ describe('buildClearEvidenceAnnotationOperations', () => {
     const values = contribAdd.arguments.values as Array<{ key: AnnotationKey; value: string }>
     expect(values.find(v => v.key === AnnotationKey.CONTRIBUTOR)?.value).toBe(USER_CTX.orcid)
     expect(values.find(v => v.key === AnnotationKey.PROVIDED_BY)?.value).toBe(USER_CTX.groupUrl)
+  })
+})
+
+describe('buildSaveEdgeCommentsOperations', () => {
+  it('emits one REMOVE per existing comment then one ADD per new, ending with MODEL/STORE', () => {
+    const edge = makeEdge('mf', 'gp', 'enabled_by', [], ['old1', 'old2'])
+
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, ['new1', 'new2', 'new3'])
+
+    const removes = ops.filter(
+      o => o.entity === OperationEntity.EDGE && o.operation === OperationType.REMOVE_ANNOTATION
+    )
+    const adds = ops.filter(
+      o => o.entity === OperationEntity.EDGE && o.operation === OperationType.ADD_ANNOTATION
+    )
+    expect(removes).toHaveLength(2)
+    expect(adds).toHaveLength(3)
+    expect(lastOp(ops)).toEqual({
+      entity: OperationEntity.MODEL,
+      operation: OperationType.STORE,
+      arguments: { 'model-id': MODEL_ID },
+    })
+  })
+
+  it('uses the edge subject/object/predicate on each op', () => {
+    const edge = makeEdge('mf', 'gp', 'enabled_by', [], ['old'])
+
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, ['new'])
+
+    const remove = findOp(
+      ops,
+      o => o.entity === OperationEntity.EDGE && o.operation === OperationType.REMOVE_ANNOTATION
+    )
+    expect(remove.arguments.subject).toBe('mf')
+    expect(remove.arguments.object).toBe('gp')
+    expect(remove.arguments.predicate).toBe('enabled_by')
+    expect(remove.arguments.values).toEqual([{ key: AnnotationKey.COMMENT, value: 'old' }])
+
+    const add = findOp(
+      ops,
+      o => o.entity === OperationEntity.EDGE && o.operation === OperationType.ADD_ANNOTATION
+    )
+    expect(add.arguments.values).toEqual([{ key: AnnotationKey.COMMENT, value: 'new' }])
+  })
+
+  it('emits no removes when edge has no existing comments', () => {
+    const edge = makeEdge('mf', 'gp', 'enabled_by', [], [])
+
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, ['hello'])
+
+    const removes = ops.filter(o => o.operation === OperationType.REMOVE_ANNOTATION)
+    const adds = ops.filter(o => o.operation === OperationType.ADD_ANNOTATION)
+    expect(removes).toHaveLength(0)
+    expect(adds).toHaveLength(1)
+  })
+
+  it('with empty new comments only removes existing', () => {
+    const edge = makeEdge('mf', 'gp', 'enabled_by', [], ['keep-me-out'])
+
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, [])
+    const removes = ops.filter(o => o.operation === OperationType.REMOVE_ANNOTATION)
+    const adds = ops.filter(o => o.operation === OperationType.ADD_ANNOTATION)
+    expect(removes).toHaveLength(1)
+    expect(adds).toHaveLength(0)
+  })
+
+  it('handles both empty arrays (just STORE)', () => {
+    const edge = makeEdge('mf', 'gp', 'enabled_by', [], [])
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, [])
+    expect(ops).toHaveLength(1)
+    expect(ops[0]).toEqual({
+      entity: OperationEntity.MODEL,
+      operation: OperationType.STORE,
+      arguments: { 'model-id': MODEL_ID },
+    })
   })
 })

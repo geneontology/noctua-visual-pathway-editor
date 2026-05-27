@@ -318,6 +318,7 @@ export const transformGraphData = (data: any): GraphModel => {
           contributors: [],
           groups: [],
           evidence: [],
+          comments: [],
         };
 
         if (fact.annotations && Array.isArray(fact.annotations)) {
@@ -333,6 +334,8 @@ export const transformGraphData = (data: any): GraphModel => {
               if (evidence) {
                 edgeData.evidence?.push(evidence);
               }
+            } else if (annotation.key === AnnotationKey.COMMENT) {
+              edgeData.comments.push(annotation.value);
             }
           });
         }

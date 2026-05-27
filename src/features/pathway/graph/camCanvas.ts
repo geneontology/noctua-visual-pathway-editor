@@ -540,6 +540,50 @@ export class CamCanvas {
     }
   }
 
+  /**
+   * Public selection API used to drive the canvas from outside (e.g. clicking
+   * a comment in the side panel). Highlights the activity and pans the viewport
+   * so it's centered, if it's not already in view.
+   */
+  selectActivity(uid: string | null) {
+    if (!uid) {
+      this._unselectAll()
+      return
+    }
+
+    let target: joint.dia.Element | undefined
+    for (const element of this.graph.getElements()) {
+      const activity = element.prop('activity') as Activity | undefined
+      if (activity?.uid === uid) {
+        target = element
+        break
+      }
+    }
+    if (!target) return
+
+    if (target instanceof NodeCellList) {
+      this._selectNode(target)
+    }
+
+    this._centerOn(target)
+  }
+
+  private _centerOn(element: joint.dia.Element) {
+    const paperEl = this.paper.el as HTMLElement
+    const viewportW = paperEl.clientWidth
+    const viewportH = paperEl.clientHeight
+    if (viewportW === 0 || viewportH === 0) return
+
+    const bbox = element.getBBox()
+    const scale = this.paper.scale().sx
+    const elementCenterX = (bbox.x + bbox.width / 2) * scale
+    const elementCenterY = (bbox.y + bbox.height / 2) * scale
+
+    const tx = viewportW / 2 - elementCenterX
+    const ty = viewportH / 2 - elementCenterY
+    this.paper.translate(tx, ty)
+  }
+
   // ── Coordinate transform ──────────────────────────────────────
 
   private _offsetToLocalPoint(x: number, y: number): { x: number; y: number } {

@@ -38,7 +38,7 @@ export const {
 // ── Base selectors ─────────────────────────────────────────────────
 
 export const selectCamModel = (state: { cam: CamState }) => state.cam.model
-const selectSelectedActivityId = (state: { cam: CamState }) =>
+export const selectSelectedActivityId = (state: { cam: CamState }) =>
   state.cam.selectedActivityId
 
 // ── Derived selectors ──────────────────────────────────────────────
