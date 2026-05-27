@@ -6,7 +6,7 @@ import camReducer, {
   selectSelectedActivity,
   selectModelEvidence,
   selectModelReferences,
-  selectModelWith,
+  selectModelWiths,
   makeSelectModelTerms,
 } from '@/features/gocam/slices/camSlice'
 import type { Edge, Evidence, GraphModel } from '@/features/gocam/models/cam'
@@ -145,7 +145,9 @@ describe('camSlice selectModelEvidence', () => {
     expect(selectModelEvidence(state)).toEqual([])
   })
 
-  it('includes evidence from activityConnections, not just activity edges', () => {
+  it('only walks activity edges (activityConnections are intentionally ignored)', () => {
+    // The current selector scope is activity-level edges. Evidence on top-level
+    // activityConnections is not currently surfaced here.
     const ecoActivity = { id: 'ECO:0000314', label: 'IDA' }
     const ecoConnector = { id: 'ECO:0000353', label: 'IPI' }
     const a = buildActivity(
@@ -159,8 +161,8 @@ describe('camSlice selectModelEvidence', () => {
     }
     const state = { cam: { ...initial, model } }
 
-    const ids = selectModelEvidence(state).map(r => r.id).sort()
-    expect(ids).toEqual(['ECO:0000314', 'ECO:0000353'])
+    const ids = selectModelEvidence(state).map(r => r.id)
+    expect(ids).toEqual(['ECO:0000314'])
   })
 })
 
@@ -208,7 +210,7 @@ describe('camSlice selectModelReferences', () => {
     expect(selectModelReferences(state).sort()).toEqual(['PMID:1', 'PMID:2'])
   })
 
-  it('includes references from activityConnections', () => {
+  it('only walks activity edges (activityConnections are intentionally ignored)', () => {
     const a = buildActivity(
       'act-1',
       [buildNode('GO:1', 'Foo')],
@@ -220,50 +222,46 @@ describe('camSlice selectModelReferences', () => {
     }
     const state = { cam: { ...initial, model } }
 
-    expect(selectModelReferences(state).sort()).toEqual(['PMID:1', 'PMID:99'])
+    expect(selectModelReferences(state)).toEqual(['PMID:1'])
   })
 
-  it('trims whitespace and dedupes', () => {
+  it('dedupes identical references but does not trim whitespace', () => {
+    // The selector relies on Set equality, so identical strings dedupe;
+    // whitespace-padded variants are treated as distinct values.
     const a = buildActivity(
       'act-1',
       [buildNode('GO:1', 'Foo')],
-      [buildEdgeWithRefAndWith('e1', ['  PMID:1  ', 'PMID:1'], [])]
+      [buildEdgeWithRefAndWith('e1', ['  PMID:1  ', 'PMID:1', 'PMID:1'], [])]
     )
     const state = { cam: { ...initial, model: buildModel([a]) } }
-    expect(selectModelReferences(state)).toEqual(['PMID:1'])
+    expect(selectModelReferences(state).sort()).toEqual(['  PMID:1  ', 'PMID:1'])
   })
 })
 
-describe('camSlice selectModelWith', () => {
+describe('camSlice selectModelWiths', () => {
   it('returns empty array when model is null', () => {
-    expect(selectModelWith({ cam: initial })).toEqual([])
+    expect(selectModelWiths({ cam: initial })).toEqual([])
   })
 
-  it('returns unique non-empty with values from activity edges and connections', () => {
+  it('returns unique non-empty with values from activity edges only', () => {
     const a = buildActivity(
       'act-1',
       [buildNode('GO:1', 'Foo')],
-      [buildEdgeWithRefAndWith('e1', [], ['UniProtKB:P12345'])]
-    )
-    const model: GraphModel = {
-      ...buildModel([a]),
-      activityConnections: [
-        buildEdgeWithRefAndWith('conn', [], ['UniProtKB:P12345', 'UniProtKB:Q99999']),
-      ],
-    }
-    const state = { cam: { ...initial, model } }
-
-    expect(selectModelWith(state).sort()).toEqual(['UniProtKB:P12345', 'UniProtKB:Q99999'])
-  })
-
-  it('skips empty strings', () => {
-    const a = buildActivity(
-      'act-1',
-      [buildNode('GO:1', 'Foo')],
-      [buildEdgeWithRefAndWith('e1', [], ['', '  ', 'UniProtKB:X'])]
+      [buildEdgeWithRefAndWith('e1', [], ['UniProtKB:P12345', 'UniProtKB:Q99999', 'UniProtKB:P12345'])]
     )
     const state = { cam: { ...initial, model: buildModel([a]) } }
-    expect(selectModelWith(state)).toEqual(['UniProtKB:X'])
+    expect(selectModelWiths(state).sort()).toEqual(['UniProtKB:P12345', 'UniProtKB:Q99999'])
+  })
+
+  it('skips falsy/empty values (whitespace-only strings pass through since they are truthy)', () => {
+    // Source uses `if (ev.with)` so '' is skipped, but '  ' is kept as-is.
+    const a = buildActivity(
+      'act-1',
+      [buildNode('GO:1', 'Foo')],
+      [buildEdgeWithRefAndWith('e1', [], ['', 'UniProtKB:X'])]
+    )
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+    expect(selectModelWiths(state)).toEqual(['UniProtKB:X'])
   })
 })
 

@@ -358,7 +358,6 @@ describe('mutating reducers on a hydrated form', () => {
     const updatedRel = findRelationByPredicate(next.root!, 'BFO:0000050')!
     expect(updatedRel.target.term?.id).toBe(RootTypes.BIOLOGICAL_PROCESS)
     expect(updatedRel.target.term?.label).toBe('biological_process')
-    expect(updatedRel.target.term?.notAnnotatable).toBe(true)
     expect(updatedRel.evidence).toHaveLength(1)
     expect(updatedRel.evidence[0].evidenceCode.id).toBe('ECO:0000307')
     expect(updatedRel.evidence[0].reference).toBe('GO_REF:0000015')

@@ -39,7 +39,7 @@ import {
   selectRelation,
   selectConnectorEvidences,
 } from '../slices/relationSlice'
-import { selectCamModel } from '@/features/gocam/slices/camSlice'
+import { selectCamModel, selectModelEvidence } from '@/features/gocam/slices/camSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 
@@ -72,6 +72,7 @@ const RelationForm: React.FC<Props> = ({
   const relation = useAppSelector(selectRelation)
   const connectorEvidences = useAppSelector(selectConnectorEvidences)
   const model = useAppSelector(selectCamModel)
+  const evidenceInitialOptions = useAppSelector(selectModelEvidence)
   const userContext = useUserContext()
   const [updateGraphModel, { isLoading: isSaving }] = useUpdateGraphModelMutation()
 
@@ -230,11 +231,15 @@ const RelationForm: React.FC<Props> = ({
       value: GOlrResponse | string | null
     ) => {
       if (value === null) return
+      const normalized =
+        field === 'evidenceCode' && typeof value === 'object'
+          ? { id: value.id, label: value.label }
+          : value
       dispatch(
         updateConnectorEvidence({
           evidenceIndex,
           field,
-          value: value as GOlrResponse | string,
+          value: normalized as GOlrResponse | string,
         })
       )
     },
@@ -331,10 +336,10 @@ const RelationForm: React.FC<Props> = ({
       >
         Evidence
       </div>
-      <div className="px-4 py-2">
+      <div className="px-2 py-2">
         {connectorEvidences.map((ev, index) => (
-          <div key={ev.uid} className="mb-2 flex items-center gap-2">
-            <div className="w-[55%] p-4">
+          <div key={ev.uid} className="flex w-full flex-row items-stretch justify-start">
+            <div className="grow p-1">
               <TermAutocomplete
                 label="Evidence"
                 name={`conn-evidence-${index}`}
@@ -342,29 +347,35 @@ const RelationForm: React.FC<Props> = ({
                 autocompleteType={AutocompleteType.EVIDENCE_CODE}
                 value={ev.evidenceCode?.id ? ev.evidenceCode : null}
                 onChange={value => handleEvidenceFieldChange(index, 'evidenceCode', value)}
+                variant="outlined"
+                initialOptions={evidenceInitialOptions}
               />
             </div>
-            <div className="w-1/4 p-4">
-              <DatabaseField type="reference"
+            <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
+              <DatabaseField
+                type="reference"
                 value={ev.reference || ''}
                 onChange={value => handleEvidenceFieldChange(index, 'reference', value)}
               />
             </div>
-            <div className="w-[20%] p-4">
-              <DatabaseField type="with"
+            <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
+              <DatabaseField
+                type="with"
                 value={ev.withFrom || ''}
                 onChange={value => handleEvidenceFieldChange(index, 'withFrom', value)}
               />
             </div>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="md"
-              onClick={() => dispatch(removeConnectorEvidence(index))}
-              className="!text-gray-400 hover:!text-red-500"
-            >
-              <FiX size={14} />
-            </ActionIcon>
+            <div className="flex shrink-0 items-center justify-center px-2">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="md"
+                onClick={() => dispatch(removeConnectorEvidence(index))}
+                className="!text-gray-400 hover:!text-red-500"
+              >
+                <FiX size={14} />
+              </ActionIcon>
+            </div>
           </div>
         ))}
         <Button
