@@ -7,8 +7,8 @@ interface SectionRowProps {
 
 const SectionRow: React.FC<SectionRowProps> = ({ label, children }) => (
   <div className="border-b border-blue-800/70">
-    <div className="flex items-start gap-3 px-4 py-2">
-      <span className="w-[100px] shrink-0 pt-1.5 text-sm font-medium text-blue-800">
+    <div className="flex items-center gap-3 px-4 py-2">
+      <span className="w-25 shrink-0 pt-2 text-xs font-medium text-blue-800">
         {label}
       </span>
       <div className="flex-1">{children}</div>

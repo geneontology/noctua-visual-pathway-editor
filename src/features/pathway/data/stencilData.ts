@@ -22,7 +22,7 @@ export const camStencil: StencilGroup[] = [
       {
         type: ActivityType.ACTIVITY,
         id: 'default',
-        label: 'DEFAULT',
+        label: 'ACTIVITY UNIT',
         iconUrl: './assets/images/activity/default.png',
         description:
           'Click and drag onto canvas to create new activity for a single object, either a gene product or a protein complex identifier',
@@ -38,7 +38,7 @@ export const camStencil: StencilGroup[] = [
       {
         type: ActivityType.MOLECULE,
         id: 'molecule',
-        label: 'MOLECULE',
+        label: 'CHEMICAL',
         iconUrl: './assets/images/activity/molecule.png',
         description:
           'Click and drag onto canvas to create a new small molecule that is either a substrate, a product, or a regulator of an activity',

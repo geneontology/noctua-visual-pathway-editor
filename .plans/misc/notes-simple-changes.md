@@ -83,7 +83,7 @@ File: `src/features/gocam/components/forms/EntityRow.tsx`
       `Clear Values` `Menu.Item`, the `handleClearValues` handler, and the
       `clearNodeValues` import from `EntityRow.tsx`. `clearNodeValues` is
       still exported from the slice (other consumers may use it).
-- [x] **"Change 'Add' to 'Add context'"** — renamed both `Menu.Sub.Item`
+- [x] **"Change 'Add' to 'Add Context'"** — renamed both `Menu.Sub.Item`
       labels in `EntityRow.tsx` and `ActivityTableNode.tsx`.
 - [x] **"Change the 'dot-dot-dot' to '+' and add only 'has part'"** — when
       `node.category === RootTypes.PROTEIN_CONTAINING_COMPLEX`, `EntityRow`
@@ -216,7 +216,7 @@ rename and should not ride in the same PR:
 | `src/features/gocam/components/forms/EntityRow.tsx`           | Phase 4 menu cleanup + Phase 5 ISO/IC items             | done   |
 | `src/features/gocam/components/forms/NestedNodeGroups.tsx`    | Phase 4 prop chain cleanup                              | done   |
 | `src/features/gocam/components/forms/ActivityForm.tsx`        | Phase 4 prop chain + picker cleanup                     | done   |
-| `src/features/gocam/components/ActivityTableNode.tsx`         | Phase 4 Add context + Phase 6 evidence placeholder      | done   |
+| `src/features/gocam/components/ActivityTableNode.tsx`         | Phase 4 Add Context + Phase 6 evidence placeholder      | done   |
 | `src/features/gocam/data/camConstants.ts`                     | Phase 5 iso/ic entries                                  | done   |
 | `src/features/gocam/slices/activityFormSlice.ts`              | Phase 5 reducers                                        | done   |
 | `src/features/pathway/data/toolbarOptions.ts`                 | Phase 7 layout labels                                   | done   |

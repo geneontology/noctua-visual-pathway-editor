@@ -33,7 +33,8 @@ import { AutocompleteType } from '@/features/search/models/search'
 import type { GOlrResponse } from '@/features/search/models/search'
 import DatabaseField from '@/features/gocam/components/forms/DatabaseField'
 import { ActionIcon, Button } from '@mantine/core'
-import { FiX, FiPlus } from 'react-icons/fi'
+import { FiPlus } from 'react-icons/fi'
+import { FaTrash } from 'react-icons/fa'
 import {
   selectRelationSelected,
   selectRelation,
@@ -250,144 +251,144 @@ const RelationForm: React.FC<Props> = ({
     <div className="flex min-h-0 w-full flex-1 flex-col">
       {/* Scrollable body */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      {/* Relationship section */}
-      <SectionRow label="Relationship">
-        <RadioPillGroup
-          name="relationship"
-          value={selected.relationshipId}
-          options={relationshipOptions.map(key => {
-            const def = definitionMap[key]
-            return { value: key, label: def.label, description: def.description }
-          })}
-          onChange={onRadioChange('relationshipId')}
-        />
-      </SectionRow>
-
-      {/* Effect Direction */}
-      {shouldShowDirection && (
-        <SectionRow label="Effect Direction">
-          <div className="flex items-start gap-3">
-            <RadioPillGroup
-              name="effectDirection"
-              value={selected.directionId || ''}
-              options={Object.values(EffectDirectionId).map(dir => ({
-                value: dir,
-                label: definitions.effectDirection[dir].label,
-              }))}
-              onChange={onRadioChange('directionId')}
-            />
-            <p className="max-w-[260px] grow text-sm italic text-neutral-500">
-              The mechanism regulation should be known, so it should be possible to pick the
-              direction of the regulation.
-            </p>
-          </div>
-        </SectionRow>
-      )}
-
-      {/* Directness */}
-      {shouldShowDirectness && (
-        <SectionRow label="Directness">
+        {/* Relationship section */}
+        <SectionRow label="Relationship">
           <RadioPillGroup
-            name="directness"
-            value={selected.directnessId || ''}
-            options={Object.values(DirectnessId).map(dir => ({
-              value: dir,
-              label: definitions.directness[dir].label,
-              description: definitions.directness[dir].description,
-            }))}
-            onChange={onRadioChange('directnessId')}
+            name="relationship"
+            value={selected.relationshipId}
+            options={relationshipOptions.map(key => {
+              const def = definitionMap[key]
+              return { value: key, label: def.label, description: def.description }
+            })}
+            onChange={onRadioChange('relationshipId')}
           />
         </SectionRow>
-      )}
 
-      {/* Suggested Causal Relation */}
-      <div
-        className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
-      >
-        Suggested Causal Relation
-      </div>
-      <div className="mb-4 py-5">
-        <span className="pl-[10px] text-sm">
-          {resolvedLabel ?? 'No valid relation'}
-        </span>
-      </div>
+        {/* Effect Direction */}
+        {shouldShowDirection && (
+          <SectionRow label="Effect Direction">
+            <div className="flex items-center gap-3">
+              <RadioPillGroup
+                name="effectDirection"
+                value={selected.directionId || ''}
+                options={Object.values(EffectDirectionId).map(dir => ({
+                  value: dir,
+                  label: definitions.effectDirection[dir].label,
+                }))}
+                onChange={onRadioChange('directionId')}
+              />
+              <p className="grow text-sm text-neutral-500">
+                The mechanism regulation should be known, so it should be possible to pick the
+                direction of the regulation.
+              </p>
+            </div>
+          </SectionRow>
+        )}
 
-      {/* Chemical Intermediate section */}
-      {shouldShowChemicalIntermediate && (
+        {/* Directness */}
+        {shouldShowDirectness && (
+          <SectionRow label="Directness">
+            <RadioPillGroup
+              name="directness"
+              value={selected.directnessId || ''}
+              options={Object.values(DirectnessId).map(dir => ({
+                value: dir,
+                label: definitions.directness[dir].label,
+                description: definitions.directness[dir].description,
+              }))}
+              onChange={onRadioChange('directnessId')}
+            />
+          </SectionRow>
+        )}
+
+        {/* Suggested Causal Relation */}
         <div
-          className="flex items-center gap-3 border-b border-blue-800/70 px-4 py-3"
+          className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
         >
-          <span className="w-[100px] shrink-0 text-sm font-medium text-blue-800">
-            Chemical Intermediate
+          Suggested Causal Relation
+        </div>
+        <div className="mb-4 py-2">
+          <span className="pl-[10px] text-xs">
+            {resolvedLabel ?? 'No valid relation'}
           </span>
-          <Button
-            variant="filled"
-            onClick={handleOpenChemicalConnector}
-            className="!bg-green-700 hover:!bg-green-800 !normal-case"
+        </div>
+
+        {/* Chemical Intermediate section */}
+        {shouldShowChemicalIntermediate && (
+          <div
+            className="flex items-center gap-3 border-b border-blue-800/70 px-4 py-3"
           >
-            Connect via Chemical Intermediate
+            <span className="w-25 shrink-0 text-xs font-medium text-blue-800">
+              Chemical Intermediate
+            </span>
+            <Button
+              variant="filled"
+              onClick={handleOpenChemicalConnector}
+              className="!bg-green-700 hover:!bg-green-800 !normal-case"
+            >
+              Connect via Chemical Intermediate
+            </Button>
+          </div>
+        )}
+
+        {/* Evidence section */}
+        <div
+          className="bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+        >
+          Evidence
+        </div>
+        <div className="px-2 py-2">
+          {connectorEvidences.map((ev, index) => (
+            <div key={ev.uid} className="flex w-full flex-row items-stretch justify-start">
+              <div className="grow p-1">
+                <TermAutocomplete
+                  label="Evidence"
+                  name={`conn-evidence-${index}`}
+                  rootTypeIds={[RootTypes.EVIDENCE]}
+                  autocompleteType={AutocompleteType.EVIDENCE_CODE}
+                  value={ev.evidenceCode?.id ? ev.evidenceCode : null}
+                  onChange={value => handleEvidenceFieldChange(index, 'evidenceCode', value)}
+                  variant="outlined"
+                  initialOptions={evidenceInitialOptions}
+                />
+              </div>
+              <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
+                <DatabaseField
+                  type="reference"
+                  value={ev.reference || ''}
+                  onChange={value => handleEvidenceFieldChange(index, 'reference', value)}
+                />
+              </div>
+              <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
+                <DatabaseField
+                  type="with"
+                  value={ev.withFrom || ''}
+                  onChange={value => handleEvidenceFieldChange(index, 'withFrom', value)}
+                />
+              </div>
+              <div className="flex shrink-0 items-center justify-center px-2">
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="md"
+                  onClick={() => dispatch(removeConnectorEvidence(index))}
+                  className="!text-gray-400 hover:!text-red-500"
+                >
+                  <FaTrash size={12} />
+                </ActionIcon>
+              </div>
+            </div>
+          ))}
+          <Button
+            variant="subtle"
+            size="xs"
+            leftSection={<FiPlus />}
+            onClick={() => dispatch(addConnectorEvidence())}
+            className="!text-xs !normal-case"
+          >
+            Add Evidence
           </Button>
         </div>
-      )}
-
-      {/* Evidence section */}
-      <div
-        className="bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
-      >
-        Evidence
-      </div>
-      <div className="px-2 py-2">
-        {connectorEvidences.map((ev, index) => (
-          <div key={ev.uid} className="flex w-full flex-row items-stretch justify-start">
-            <div className="grow p-1">
-              <TermAutocomplete
-                label="Evidence"
-                name={`conn-evidence-${index}`}
-                rootTypeIds={[RootTypes.EVIDENCE]}
-                autocompleteType={AutocompleteType.EVIDENCE_CODE}
-                value={ev.evidenceCode?.id ? ev.evidenceCode : null}
-                onChange={value => handleEvidenceFieldChange(index, 'evidenceCode', value)}
-                variant="outlined"
-                initialOptions={evidenceInitialOptions}
-              />
-            </div>
-            <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
-              <DatabaseField
-                type="reference"
-                value={ev.reference || ''}
-                onChange={value => handleEvidenceFieldChange(index, 'reference', value)}
-              />
-            </div>
-            <div className="w-1/4 lg:w-[30%] max-w-[180px] p-1">
-              <DatabaseField
-                type="with"
-                value={ev.withFrom || ''}
-                onChange={value => handleEvidenceFieldChange(index, 'withFrom', value)}
-              />
-            </div>
-            <div className="flex shrink-0 items-center justify-center px-2">
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size="md"
-                onClick={() => dispatch(removeConnectorEvidence(index))}
-                className="!text-gray-400 hover:!text-red-500"
-              >
-                <FiX size={14} />
-              </ActionIcon>
-            </div>
-          </div>
-        ))}
-        <Button
-          variant="subtle"
-          size="xs"
-          leftSection={<FiPlus />}
-          onClick={() => dispatch(addConnectorEvidence())}
-          className="!text-xs !normal-case"
-        >
-          Add Evidence
-        </Button>
-      </div>
       </div>
 
       {/* Footer */}

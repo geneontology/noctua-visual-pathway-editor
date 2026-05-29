@@ -7,7 +7,7 @@ interface SimpleDialogProps {
   open: boolean
   onClose: () => void
   onConfirm?: () => void
-  title?: string
+  title?: ReactNode
   size?: 'xs' | 'sm' | 'cam' | 'md' | 'lg' | 'xl'
   /** Allows the dialog to grow up to ~90vh while still fitting smaller content. Implied by size='cam'. */
   tall?: boolean

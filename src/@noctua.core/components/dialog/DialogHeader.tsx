@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react'
 import { ActionIcon, Tooltip } from '@mantine/core'
 import { MdClose as CloseIcon } from 'react-icons/md'
 
 interface DialogHeaderProps {
-  title: string
+  title: ReactNode
   onClose: () => void
 }
 

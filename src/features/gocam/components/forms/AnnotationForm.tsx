@@ -75,6 +75,14 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     setEvidences(prev => [...prev, createAutoPopulatedEvidence('iss')])
   }, [])
 
+  const addISOEvidence = useCallback(() => {
+    setEvidences(prev => [...prev, createAutoPopulatedEvidence('iso')])
+  }, [])
+
+  const addICEvidence = useCallback(() => {
+    setEvidences(prev => [...prev, createAutoPopulatedEvidence('ic')])
+  }, [])
+
   const removeEvidenceAt = useCallback((index: number) => {
     setEvidences(prev => prev.filter((_, i) => i !== index))
   }, [])
@@ -210,7 +218,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
 
         <section className="flex min-h-0 flex-1 flex-col bg-white">
           <SectionHeader
-            title={`Evidence (${evidences.length})`}
+            title="Evidence"
             right={
               <div className="flex items-center gap-1">
                 <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addEvidence}>
@@ -219,6 +227,16 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                 {canAddISS && (
                   <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISSEvidence}>
                     Add ISS
+                  </Button>
+                )}
+                {canAddISS && (
+                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISOEvidence}>
+                    Add ISO
+                  </Button>
+                )}
+                {canAddISS && (
+                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addICEvidence}>
+                    Add IC
                   </Button>
                 )}
               </div>

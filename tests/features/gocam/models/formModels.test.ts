@@ -39,6 +39,26 @@ describe('createAutoPopulatedEvidence', () => {
     expect(ev.withFrom).toBe('')
   })
 
+  it('fills the ISO variant from EVIDENCE_AUTO_POPULATE.iso (ECO:0000266 + GO_REF:0000024)', () => {
+    const ev = createAutoPopulatedEvidence('iso')
+    expect(ev.evidenceCode.id).toBe('ECO:0000266')
+    expect(ev.evidenceCode.label).toBe(
+      'sequence orthology evidence used in manual assertion'
+    )
+    expect(ev.reference).toBe('GO_REF:0000024')
+    expect(ev.withFrom).toBe('')
+  })
+
+  it('fills the IC variant from EVIDENCE_AUTO_POPULATE.ic (ECO:0000305 + GO_REF:0000036)', () => {
+    const ev = createAutoPopulatedEvidence('ic')
+    expect(ev.evidenceCode.id).toBe('ECO:0000305')
+    expect(ev.evidenceCode.label).toBe(
+      'curator inference used in manual assertion'
+    )
+    expect(ev.reference).toBe('GO_REF:0000036')
+    expect(ev.withFrom).toBe('')
+  })
+
   it('produces a distinct uid on each call', () => {
     expect(createAutoPopulatedEvidence('iss').uid).not.toBe(
       createAutoPopulatedEvidence('iss').uid

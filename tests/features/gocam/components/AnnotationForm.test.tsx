@@ -97,20 +97,19 @@ vi.mock('@/features/gocam/components/forms/DatabaseField', () => ({
 const renderForm = (ui: ReactElement) =>
   renderWithProviders(<MantineProvider>{ui}</MantineProvider>)
 
-/** Find the Evidence section by its `Evidence (N)` header, then return it. */
+/** Find the Evidence section by its header. */
 const evidenceSection = () => {
-  const header = screen.getByText(/^Evidence \(\d+\)$/)
+  const header = screen
+    .getAllByText('Evidence')
+    .find(el => el.tagName === 'DIV') as HTMLElement | undefined
+  if (!header) throw new Error('Evidence section header not found')
   return header.closest('section') as HTMLElement
-}
-
-const evidenceCount = () => {
-  const header = screen.getByText(/^Evidence \(\d+\)$/).textContent ?? ''
-  const match = header.match(/\((\d+)\)/)
-  return match ? Number(match[1]) : 0
 }
 
 const evidenceReferenceInputs = () =>
   within(evidenceSection()).getAllByLabelText('Reference') as HTMLInputElement[]
+
+const evidenceCount = () => evidenceReferenceInputs().length
 
 beforeEach(() => {
   pickerSpy.lastProps = null
@@ -196,6 +195,43 @@ describe('AnnotationForm — evidence section buttons', () => {
       .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
       .map(el => el.textContent)
     expect(evValues).toContain('ECO:0000250')
+  })
+
+  it('"Add ISO" appends an ISO + GO_REF:0000024 row (ECO:0000266)', async () => {
+    const user = userEvent.setup()
+    renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
+
+    await user.click(screen.getByRole('button', { name: 'Add ISO' }))
+
+    expect(evidenceCount()).toBe(2)
+    expect(evidenceReferenceInputs()[1].value).toBe('GO_REF:0000024')
+
+    const evValues = screen
+      .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
+      .map(el => el.textContent)
+    expect(evValues).toContain('ECO:0000266')
+  })
+
+  it('"Add IC" appends an IC + GO_REF:0000036 row (ECO:0000305)', async () => {
+    const user = userEvent.setup()
+    renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
+
+    await user.click(screen.getByRole('button', { name: 'Add IC' }))
+
+    expect(evidenceCount()).toBe(2)
+    expect(evidenceReferenceInputs()[1].value).toBe('GO_REF:0000036')
+
+    const evValues = screen
+      .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
+      .map(el => el.textContent)
+    expect(evValues).toContain('ECO:0000305')
+  })
+
+  it('omits Add ISS/ISO/IC buttons when aspect is missing (canAddISS=false)', () => {
+    renderForm(<AnnotationForm showTerm={false} />)
+    expect(screen.queryByRole('button', { name: 'Add ISS' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Add ISO' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Add IC' })).toBeNull()
   })
 })
 

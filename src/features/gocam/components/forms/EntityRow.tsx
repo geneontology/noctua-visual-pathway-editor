@@ -2,7 +2,7 @@ import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { FaEllipsisV } from 'react-icons/fa'
+import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
@@ -19,7 +19,8 @@ import {
   removeRelationForm,
   addRelationForm,
   addISSEvidence,
-  clearNodeValues,
+  addISOEvidence,
+  addICEvidence,
   fillRootTerm,
   selectFormType,
 } from '../../slices/activityFormSlice'
@@ -45,7 +46,6 @@ interface EntityRowProps {
   displayGroup?: DisplayGroup
   errors: ValidationError[]
   displayMenuButton?: boolean
-  onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
   onCloneEvidence?: (relationUid: string) => void
 }
 
@@ -57,7 +57,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
   displayGroup,
   errors: _errors,
   displayMenuButton = true,
-  onSearchAnnotations,
   onCloneEvidence,
 }) => {
   const treeBorder = displayGroup ? TREE_BORDER[displayGroup] : 'border-gray-400'
@@ -165,8 +164,16 @@ const EntityRow: React.FC<EntityRowProps> = ({
     }
   }
 
-  const handleClearValues = () => {
-    dispatch(clearNodeValues({ termUid: node.uid, relationUid: relation?.uid }))
+  const handleAddISOEvidence = () => {
+    if (relation) {
+      dispatch(addISOEvidence({ relationUid: relation.uid }))
+    }
+  }
+
+  const handleAddICEvidence = () => {
+    if (relation) {
+      dispatch(addICEvidence({ relationUid: relation.uid }))
+    }
   }
 
   const handleCloneEvidence = () => {
@@ -175,17 +182,13 @@ const EntityRow: React.FC<EntityRowProps> = ({
     }
   }
 
-  const handleSearchAnnotations = () => {
-    if (onSearchAnnotations) {
-      onSearchAnnotations(node, relation)
-    }
-  }
-
   const insertMenuItems = getInsertMenuItems(
     node.category,
     node.relations.map(r => ({ predicateId: r.predicate.id, targetType: r.target.category })),
     relation?.predicate.id
   )
+
+  const isComplexRow = node.category === RootTypes.PROTEIN_CONTAINING_COMPLEX
 
   const handleInsertNode = (item: InsertMenuItem) => {
     const targetCategory = getNodeCategory(item.targetType)
@@ -281,8 +284,32 @@ const EntityRow: React.FC<EntityRowProps> = ({
         </div>
       )}
 
-      {/* Menu button (ellipsis) */}
-      {displayMenuButton && (
+      {/* Menu button — '+' for protein complex rows (insert-only), ellipsis for everything else */}
+      {displayMenuButton && isComplexRow && insertMenuItems.length > 0 && (
+        <div className="flex shrink-0 items-center justify-center px-2">
+          <Menu shadow="md" position="bottom-end" withinPortal>
+            <Menu.Target>
+              <ActionIcon variant="light" color="primary" radius="xl" size="md">
+                <FaPlus size={12} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {insertMenuItems.map(item => (
+                <Menu.Item
+                  key={`${item.predicate.id}-${item.targetType}`}
+                  onClick={() => handleInsertNode(item)}
+                >
+                  <div className="flex flex-col items-start">
+                    <span>{item.label}</span>
+                    <span className="text-xs text-gray-500">{item.rangeLabel}</span>
+                  </div>
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        </div>
+      )}
+      {displayMenuButton && !isComplexRow && (
         <div className="flex shrink-0 items-center justify-center px-2">
           <Menu shadow="md" position="bottom-end" withinPortal>
             <Menu.Target>
@@ -291,13 +318,10 @@ const EntityRow: React.FC<EntityRowProps> = ({
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              {node.aspect && (
-                <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
-              )}
               {insertMenuItems.length > 0 && (
                 <Menu.Sub position="left-start">
                   <Menu.Sub.Target>
-                    <Menu.Sub.Item>Add</Menu.Sub.Item>
+                    <Menu.Sub.Item>Add Context</Menu.Sub.Item>
                   </Menu.Sub.Target>
                   <Menu.Sub.Dropdown>
                     {insertMenuItems.map(item => (
@@ -325,6 +349,12 @@ const EntityRow: React.FC<EntityRowProps> = ({
                     {canAddISS && (
                       <Menu.Item onClick={handleAddISSEvidence}>Add ISS Evidence</Menu.Item>
                     )}
+                    {canAddISS && (
+                      <Menu.Item onClick={handleAddISOEvidence}>Add ISO Evidence</Menu.Item>
+                    )}
+                    {canAddISS && (
+                      <Menu.Item onClick={handleAddICEvidence}>Add IC Evidence</Menu.Item>
+                    )}
                     {evidence.length > 0 && (
                       <Menu.Item onClick={handleRemoveLastEvidence}>Remove Evidence</Menu.Item>
                     )}
@@ -338,7 +368,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
               {canAddISS && relation && (
                 <Menu.Item onClick={handleFillRootTerm}>Fill with root term</Menu.Item>
               )}
-              <Menu.Item onClick={handleClearValues}>Clear Values</Menu.Item>
               {node.canDelete && parentTermUid && (
                 <Menu.Item color="red" onClick={handleRemoveNode}>
                   Remove

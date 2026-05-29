@@ -30,6 +30,7 @@ import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import ActivityDialog from '@/features/gocam/components/dialogs/ActivityFormDialog'
 import ActivityForm from '@/features/gocam/components/forms/ActivityForm'
 import ConnectorForm from '@/features/relations/components/ConnectorForm'
+import { renderConnectorDialogTitle } from '@/features/relations/services/connectorTitle'
 import { selectAuthUser, selectBaristaToken } from '@/features/auth/slices/authSlice'
 import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
@@ -252,7 +253,7 @@ const PathwayEditor: React.FC = () => {
       <SimpleDialog
         open={connector.open}
         onClose={() => setConnector(closedConnector)}
-        title={connector.edge ? 'Edit Causal Relation' : 'Causal Relation Form'}
+        title={renderConnectorDialogTitle(connector.source, connector.target, !!connector.edge)}
         size="lg"
         tall
         bodyScroll="none"

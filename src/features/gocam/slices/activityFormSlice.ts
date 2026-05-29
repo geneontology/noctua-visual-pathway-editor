@@ -332,6 +332,28 @@ export const activityFormSlice = createSlice({
       state.isDirty = true
     },
 
+    addISOEvidence(
+      state,
+      action: PayloadAction<{ relationUid: string }>
+    ) {
+      if (!state.root) return
+      const rel = findRelationNode(state.root, action.payload.relationUid)
+      if (!rel) return
+      rel.evidence = [createAutoPopulatedEvidence('iso')]
+      state.isDirty = true
+    },
+
+    addICEvidence(
+      state,
+      action: PayloadAction<{ relationUid: string }>
+    ) {
+      if (!state.root) return
+      const rel = findRelationNode(state.root, action.payload.relationUid)
+      if (!rel) return
+      rel.evidence = [createAutoPopulatedEvidence('ic')]
+      state.isDirty = true
+    },
+
     clearNodeValues(
       state,
       action: PayloadAction<{ termUid: string; relationUid?: string }>
@@ -378,6 +400,8 @@ export const {
   removeRelationForm,
   fillRootTerm,
   addISSEvidence,
+  addISOEvidence,
+  addICEvidence,
   clearNodeValues,
   setErrors,
   resetForm,

@@ -22,35 +22,15 @@ const ConnectorForm: React.FC<ConnectorFormProps> = ({
   onSaved,
 }) => {
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col">
-      <div className="shrink-0 border-b border-primary-100 bg-gray-50 px-4 py-2 text-sm">
-        <div className="flex gap-1">
-          <span className="w-[60px] font-medium text-blue-700">Subject:</span>
-          <span>
-            {sourceActivity.enabledBy?.label ??
-              sourceActivity.rootNode?.label ??
-              'Unknown'}
-          </span>
-        </div>
-        <div className="flex gap-1">
-          <span className="w-[60px] font-medium text-blue-700">Object:</span>
-          <span>
-            {targetActivity.enabledBy?.label ??
-              targetActivity.rootNode?.label ??
-              'Unknown'}
-          </span>
-        </div>
-      </div>
-      <RelationForm
-        sourceActivity={sourceActivity}
-        targetActivity={targetActivity}
-        existingEdgeId={existingEdgeId}
-        existingSourceUid={existingSourceUid}
-        existingTargetUid={existingTargetUid}
-        onClose={onClose}
-        onSaved={onSaved}
-      />
-    </div>
+    <RelationForm
+      sourceActivity={sourceActivity}
+      targetActivity={targetActivity}
+      existingEdgeId={existingEdgeId}
+      existingSourceUid={existingSourceUid}
+      existingTargetUid={existingTargetUid}
+      onClose={onClose}
+      onSaved={onSaved}
+    />
   )
 }
 

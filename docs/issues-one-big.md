@@ -66,7 +66,7 @@ Use the checkboxes to mark items as done.
 - [ ] Remove **Search annotation**
 - [ ] Widen the Chemical term box by ~50% so longer chemical names fit
 - [ ] When adding a new chemical, remove **Clear values**
-- [ ] Change **Add** → **Add context** (in both New and Edit forms)
+- [ ] Change **Add** → **Add Context** (in both New and Edit forms)
 - [ ] Evidence: disallow GO complexes (mirror Activity Unit behavior)
 - [ ] Remove "no evidence present" text next to the chemical (not applicable for Chemical)
 
@@ -76,7 +76,7 @@ Use the checkboxes to mark items as done.
   - **Chemical** (not "Function Description")
 
 ## Activity Unit Form
-- [ ] Change **Add** → **Add context**
+- [ ] Change **Add** → **Add Context**
 - [ ] Stop repeating per-row field labels
   - [ ] Show column headers once at the top: **Evidence**, **Reference**, **With/From**
   - [ ] Drop the inline labels from each row's inputs (rows already follow the same column layout)

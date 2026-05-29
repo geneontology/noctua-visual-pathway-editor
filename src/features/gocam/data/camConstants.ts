@@ -20,4 +20,12 @@ export const EVIDENCE_AUTO_POPULATE = {
     evidence: { id: 'ECO:0000250', label: 'sequence similarity evidence used in manual assertion' },
     reference: 'GO_REF:0000024',
   },
+  iso: {
+    evidence: { id: 'ECO:0000266', label: 'sequence orthology evidence used in manual assertion' },
+    reference: 'GO_REF:0000024',
+  },
+  ic: {
+    evidence: { id: 'ECO:0000305', label: 'curator inference used in manual assertion' },
+    reference: 'GO_REF:0000036',
+  },
 }

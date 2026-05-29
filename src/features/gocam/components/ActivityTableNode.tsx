@@ -4,8 +4,8 @@ import { ActionIcon, Menu } from '@mantine/core'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
-import type { ActivityType, Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
-import { RootTypes, Aspect } from '../models/cam'
+import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
+import { ActivityType, RootTypes, Aspect } from '../models/cam'
 import { AnnotationKey } from '../models/operations'
 import { EditorCategory } from '../models/editorCategory'
 import { ENVIRONMENT } from '@/@noctua.core/data/constants'
@@ -262,11 +262,11 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                   />
                 ) : null
               )
-            ) : (
+            ) : activityType !== ActivityType.MOLECULE ? (
               <div className="flex items-center px-2 py-1 text-2xs italic text-gray-400">
                 no evidence present.
               </div>
-            )}
+            ) : null}
           </div>
         )}
 
@@ -285,7 +285,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 {insertMenuItems.length > 0 && (
                   <Menu.Sub position="left-start">
                     <Menu.Sub.Target>
-                      <Menu.Sub.Item>Add</Menu.Sub.Item>
+                      <Menu.Sub.Item>Add Context</Menu.Sub.Item>
                     </Menu.Sub.Target>
                     <Menu.Sub.Dropdown>
                       {insertMenuItems.map(item => (

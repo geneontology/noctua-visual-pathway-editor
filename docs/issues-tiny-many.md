@@ -104,7 +104,7 @@ Each H1 below is a standalone GitHub issue (title format
 
 ---
 
-# Chemical Form: width, search annotation, ChEBI-only, Add context, labels
+# Chemical Form: width, search annotation, ChEBI-only, Add Context, labels
 
 ## Term input
 - [ ] Widen the Chemical term box by ~50% so longer chemical names fit
@@ -113,7 +113,7 @@ Each H1 below is a standalone GitHub issue (title format
 ## Menus / actions
 - [ ] Remove **Search annotation**
 - [ ] When adding a new chemical, remove **Clear values**
-- [ ] Change **Add** → **Add context** (in both New and Edit forms)
+- [ ] Change **Add** → **Add Context** (in both New and Edit forms)
 - [ ] Remove **Fill with root**
 
 ## Evidence
@@ -128,9 +128,9 @@ Each H1 below is a standalone GitHub issue (title format
 
 ---
 
-# Activity Unit Form: Add → Add context, drop repeated row labels
+# Activity Unit Form: Add → Add Context, drop repeated row labels
 
-- [ ] Change **Add** → **Add context**
+- [ ] Change **Add** → **Add Context**
 - [ ] Stop repeating per-row field labels
   - [ ] Show column headers once at the top: **Evidence**, **Reference**, **With/From**
   - [ ] Drop the inline labels from each row's inputs (rows already follow the same column layout)

@@ -25,6 +25,14 @@ vi.mock('@/features/gocam/components/forms/DatabaseField', () => ({
   ),
 }))
 
+// Stub the two icon components EntityRow uses so the trigger icon is
+// observable in jsdom (react-icons renders bare <svg> with no identifying
+// attribute by default).
+vi.mock('react-icons/fa', () => ({
+  FaEllipsisV: () => <span data-testid="icon-ellipsis" />,
+  FaPlus: () => <span data-testid="icon-plus" />,
+}))
+
 // Note: in jsdom, Mantine Menu's click-to-open is flaky (it relies on a portal +
 // transition that React Testing Library doesn't reliably trigger). The
 // menu-rendering rules (canAddISSEvidence, etc.) are unit-tested separately in
@@ -168,6 +176,31 @@ describe('EntityRow — term column flex-basis (indent math)', () => {
     const r1 = renderRow({ treeLevel: 1 }).container
     const r3 = renderRow({ treeLevel: 3 }).container
     expect(basisFromContainer(r1) - basisFromContainer(r3)).toBe(40)
+  })
+})
+
+// ─── protein-complex row shows the '+' trigger ──────────────────────
+
+describe('EntityRow — protein-complex row menu trigger', () => {
+  it('renders the "+" trigger (FaPlus) for a PROTEIN_CONTAINING_COMPLEX row', () => {
+    // Pass `relation: null` so the recursive-insertion filter does not strip
+    // the only "has part" entry (otherwise insertMenuItems is empty and the
+    // '+' button conditional renders nothing).
+    const node = makeNode({
+      uid: 'complex-1',
+      category: RootTypes.PROTEIN_CONTAINING_COMPLEX,
+      aspect: null,
+    })
+    const { queryByTestId } = renderRow({ node, relation: null })
+    expect(queryByTestId('icon-plus')).toBeInTheDocument()
+    expect(queryByTestId('icon-ellipsis')).toBeNull()
+  })
+
+  it('renders the ellipsis trigger for non-complex rows', () => {
+    const node = makeNode({ uid: 'mf-row' })
+    const { queryByTestId } = renderRow({ node })
+    expect(queryByTestId('icon-ellipsis')).toBeInTheDocument()
+    expect(queryByTestId('icon-plus')).toBeNull()
   })
 })
 

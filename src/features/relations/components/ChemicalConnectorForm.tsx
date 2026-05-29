@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActionIcon, Button, Checkbox, Loader } from '@mantine/core'
-import { FiPlus, FiX } from 'react-icons/fi'
+import { FiPlus } from 'react-icons/fi'
+import { FaTrash } from 'react-icons/fa'
 import { v4 as uuidv4 } from 'uuid'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
@@ -271,7 +272,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
                     onClick={() => removeEvidence(ev.uid)}
                     className="!text-gray-400 hover:!text-red-500"
                   >
-                    <FiX size={14} />
+                    <FaTrash size={12} />
                   </ActionIcon>
                 </div>
               ))}

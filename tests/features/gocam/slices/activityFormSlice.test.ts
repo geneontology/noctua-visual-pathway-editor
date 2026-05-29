@@ -15,6 +15,8 @@ import activityFormSlice, {
   removeRelationForm,
   fillRootTerm,
   addISSEvidence,
+  addISOEvidence,
+  addICEvidence,
   clearNodeValues,
   setErrors,
   resetForm,
@@ -396,6 +398,44 @@ describe('mutating reducers on a hydrated form', () => {
 
   it('addISSEvidence is a no-op when relationUid does not match', () => {
     const next = reducer(state, addISSEvidence({ relationUid: 'no-such-relation' }))
+    expect(next).toBe(state)
+  })
+
+  it('addISOEvidence replaces the relation evidence with a single ISO + GO_REF row', () => {
+    const rel = state.root!.relations[0]
+    const seeded = reducer(state, addEvidenceForm({ relationUid: rel.uid }))
+    expect(seeded.root!.relations[0].evidence.length).toBeGreaterThan(1)
+
+    const next = reducer(seeded, addISOEvidence({ relationUid: rel.uid }))
+    const replaced = next.root!.relations[0].evidence
+    expect(replaced).toHaveLength(1)
+    expect(replaced[0].evidenceCode.id).toBe('ECO:0000266')
+    expect(replaced[0].reference).toBe('GO_REF:0000024')
+    expect(replaced[0].withFrom).toBe('')
+    expect(next.isDirty).toBe(true)
+  })
+
+  it('addISOEvidence is a no-op when relationUid does not match', () => {
+    const next = reducer(state, addISOEvidence({ relationUid: 'no-such-relation' }))
+    expect(next).toBe(state)
+  })
+
+  it('addICEvidence replaces the relation evidence with a single IC + GO_REF row', () => {
+    const rel = state.root!.relations[0]
+    const seeded = reducer(state, addEvidenceForm({ relationUid: rel.uid }))
+    expect(seeded.root!.relations[0].evidence.length).toBeGreaterThan(1)
+
+    const next = reducer(seeded, addICEvidence({ relationUid: rel.uid }))
+    const replaced = next.root!.relations[0].evidence
+    expect(replaced).toHaveLength(1)
+    expect(replaced[0].evidenceCode.id).toBe('ECO:0000305')
+    expect(replaced[0].reference).toBe('GO_REF:0000036')
+    expect(replaced[0].withFrom).toBe('')
+    expect(next.isDirty).toBe(true)
+  })
+
+  it('addICEvidence is a no-op when relationUid does not match', () => {
+    const next = reducer(state, addICEvidence({ relationUid: 'no-such-relation' }))
     expect(next).toBe(state)
   })
 
