@@ -46,6 +46,14 @@ interface EntityRowProps {
   displayGroup?: DisplayGroup
   errors: ValidationError[]
   displayMenuButton?: boolean
+  /**
+   * Optional Search Annotations callback. The activity-level form decides
+   * whether this is wired up — it is only passed for the regular Activity
+   * Unit form. Protein-complex and Chemical forms leave it undefined per
+   * the review notes (downloads/notes lines 30-46), and the menu item
+   * doesn't render in that case.
+   */
+  onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
   onCloneEvidence?: (relationUid: string) => void
 }
 
@@ -57,6 +65,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
   displayGroup,
   errors: _errors,
   displayMenuButton = true,
+  onSearchAnnotations,
   onCloneEvidence,
 }) => {
   const treeBorder = displayGroup ? TREE_BORDER[displayGroup] : 'border-gray-400'
@@ -179,6 +188,12 @@ const EntityRow: React.FC<EntityRowProps> = ({
   const handleCloneEvidence = () => {
     if (relation && onCloneEvidence) {
       onCloneEvidence(relation.uid)
+    }
+  }
+
+  const handleSearchAnnotations = () => {
+    if (onSearchAnnotations) {
+      onSearchAnnotations(node, relation)
     }
   }
 
@@ -318,6 +333,9 @@ const EntityRow: React.FC<EntityRowProps> = ({
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
+              {node.aspect && onSearchAnnotations && (
+                <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
+              )}
               {insertMenuItems.length > 0 && (
                 <Menu.Sub position="left-start">
                   <Menu.Sub.Target>

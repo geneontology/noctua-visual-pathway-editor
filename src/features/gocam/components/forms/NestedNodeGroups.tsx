@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useMemo } from 'react'
-import type { TermNode, FlatRow, ValidationError } from '../../models/formModels'
+import type { TermNode, RelationNode, FlatRow, ValidationError } from '../../models/formModels'
 import { Relations } from '@/@noctua.core/models/relations'
 import { flattenNode, getAspectBorderClass } from '../../services/formUtils'
 import EntityRow from './EntityRow'
@@ -8,12 +8,14 @@ import EntityRow from './EntityRow'
 interface NestedNodeGroupsProps {
   root: TermNode
   errors: ValidationError[]
+  onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
   onCloneEvidence: (relationUid: string) => void
 }
 
 const NestedNodeGroups: React.FC<NestedNodeGroupsProps> = ({
   root,
   errors,
+  onSearchAnnotations,
   onCloneEvidence,
 }) => {
   const rows = useMemo(() => {
@@ -54,6 +56,7 @@ const NestedNodeGroups: React.FC<NestedNodeGroupsProps> = ({
               treeLevel={row.treeLevel}
               errors={errors}
               displayMenuButton={true}
+              onSearchAnnotations={onSearchAnnotations}
               onCloneEvidence={onCloneEvidence}
             />
           </div>

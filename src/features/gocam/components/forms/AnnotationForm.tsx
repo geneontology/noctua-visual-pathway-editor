@@ -193,11 +193,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                       Fill with root term
                     </Button>
                   )}
-                  {canAddISS && (
-                    <Button size="compact-sm" variant="light" color="primary" onClick={handleFillISSEvidence}>
-                      Add ISS
-                    </Button>
-                  )}
+
                 </div>
               }
             />
