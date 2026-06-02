@@ -13,10 +13,11 @@ import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
 import {
-  buildAddEvidenceToEdgeOperations,
   buildAddNodeOperations,
   buildEditIndividualTypeOperations,
+  buildReconcileEdgeEvidenceOperations,
 } from '../services/activityOperations'
+import { evidenceToForm } from '../models/formModels'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
 import type { InsertMenuItem } from '../data/insertMenuConfig'
@@ -175,25 +176,24 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   const handleAddEvidence = useCallback(() => {
     if (!edge) return
+    const existing = edge.evidence ?? []
     openAnnotationForm({
       showTerm: false,
-      title: 'Add Evidence',
+      title: existing.length > 0 ? 'Edit Evidence' : 'Add Evidence',
+      // Pre-load every existing evidence row so the form shows them all.
+      initialEvidences: existing.map(evidenceToForm),
       gpId: gpNodeId,
       aspect,
       activityType,
       onSubmit: async ({ evidences }) => {
-        if (evidences.length === 0) return
-        const ops = evidences.flatMap(ev =>
-          buildAddEvidenceToEdgeOperations(
-            edge.sourceId,
-            edge.targetId,
-            edge.id,
-            ev,
-            modelId,
-            resolvedUserContext
-          )
+        const ops = buildReconcileEdgeEvidenceOperations(
+          edge,
+          existing,
+          evidences,
+          modelId,
+          resolvedUserContext
         )
-        await updateGraphModel(ops)
+        if (ops.length > 0) await updateGraphModel(ops)
       },
     })
   }, [edge, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])

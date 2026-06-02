@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
+import type * as MantineCore from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import EntityRow from '@/features/gocam/components/forms/EntityRow'
 import { DisplayGroup } from '@/features/gocam/data/insertMenuConfig'
@@ -44,7 +45,7 @@ vi.mock('react-icons/fa', () => ({
 // which lets every condition assert directly on the DOM. Everything else from
 // @mantine/core (MantineProvider, ActionIcon, etc.) passes through.
 vi.mock('@mantine/core', async () => {
-  const actual = await vi.importActual<typeof import('@mantine/core')>('@mantine/core')
+  const actual = await vi.importActual<typeof MantineCore>('@mantine/core')
 
   type Child = { children?: React.ReactNode; onClick?: () => void; color?: string }
 
@@ -321,24 +322,24 @@ describe('EntityRow — non-complex ellipsis menu contents', () => {
     expect(screen.queryByRole('menuitem', { name: 'Add Evidence' })).toBeNull()
   })
 
-  it('shows "Add ISS / ISO / IC Evidence" when the row supports ISS (aspect set, not a molecule form)', () => {
+  it('shows "ISS / ISO / IC" when the row supports ISS (aspect set, not a molecule form)', () => {
     // Default form state already has activityType: 'activity', node has aspect.
     renderRow()
-    expect(screen.getByRole('menuitem', { name: 'Add ISS Evidence' })).toBeInTheDocument()
-    expect(screen.getByRole('menuitem', { name: 'Add ISO Evidence' })).toBeInTheDocument()
-    expect(screen.getByRole('menuitem', { name: 'Add IC Evidence' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'ISS' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'ISO' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'IC' })).toBeInTheDocument()
   })
 
-  it('omits "Add ISS / ISO / IC Evidence" when the active form is a molecule form', () => {
+  it('omits "ISS / ISO / IC" when the active form is a molecule form', () => {
     renderRow({}, { activityType: 'molecule' as ActivityFormType })
-    expect(screen.queryByRole('menuitem', { name: 'Add ISS Evidence' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Add ISO Evidence' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Add IC Evidence' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'ISS' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'ISO' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'IC' })).toBeNull()
   })
 
-  it('omits "Add ISS / ISO / IC Evidence" when the node has no aspect (GP rows)', () => {
+  it('omits "ISS / ISO / IC" when the node has no aspect (GP rows)', () => {
     renderRow({ node: makeNode({ aspect: null }) })
-    expect(screen.queryByRole('menuitem', { name: 'Add ISS Evidence' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'ISS' })).toBeNull()
   })
 
   it('shows "Remove Evidence" when evidence is present, omits it otherwise', () => {
@@ -446,7 +447,7 @@ describe('EntityRow — protein-complex (+) menu contents', () => {
     ).toBeNull()
   })
 
-  it('omits the Evidence submenu (Add Evidence / Add ISS / Remove Evidence / Clone Evidence)', () => {
+  it('omits the Evidence submenu (Add Evidence / ISS / Remove Evidence / Clone Evidence)', () => {
     renderRow({
       node: complexNode,
       relation: makeRelation({
@@ -458,7 +459,7 @@ describe('EntityRow — protein-complex (+) menu contents', () => {
     })
     expect(screen.queryByRole('menuitem', { name: 'Evidence' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Add Evidence' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Add ISS Evidence' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'ISS' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Remove Evidence' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Clone Evidence' })).toBeNull()
   })

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { TermNode, EvidenceForm } from '../models/formModels'
-import type { Activity, UserContext } from '../models/cam'
+import type { Activity, Evidence, UserContext } from '../models/cam'
 import {
   OperationEntity,
   OperationType,
@@ -655,6 +655,54 @@ export const buildRemoveEvidenceOperations = (
       arguments: { 'model-id': modelId },
     },
   ]
+
+/**
+ * Reconcile an edge's evidence against the edited set from the form: drop
+ * originals the user removed, add new rows, and replace changed ones
+ * (remove + re-add). Evidence rows are matched by uid.
+ */
+export const buildReconcileEdgeEvidenceOperations = (
+  edge: { sourceId: string; targetId: string; id: string },
+  original: Evidence[],
+  submitted: EvidenceForm[],
+  modelId: string,
+  userContext?: UserContext
+): Operation[] => {
+  const origByUid = new Map(original.map(e => [e.uid, e]))
+  const submittedUids = new Set(submitted.map(e => e.uid))
+  const operations: Operation[] = []
+
+  // Remove originals the user dropped from the form (deleted or cleared).
+  for (const orig of original) {
+    if (!submittedUids.has(orig.uid)) {
+      operations.push(...buildRemoveEvidenceOperations(orig.uid, modelId))
+    }
+  }
+
+  // Add new rows; for changed existing rows, replace (remove + re-add).
+  for (const ev of submitted) {
+    const orig = origByUid.get(ev.uid)
+    const unchanged =
+      orig &&
+      orig.evidenceCode?.id === ev.evidenceCode?.id &&
+      (orig.reference ?? '') === ev.reference &&
+      (orig.with ?? '') === ev.withFrom
+    if (unchanged) continue
+    if (orig) operations.push(...buildRemoveEvidenceOperations(orig.uid, modelId))
+    operations.push(
+      ...buildAddEvidenceToEdgeOperations(
+        edge.sourceId,
+        edge.targetId,
+        edge.id,
+        ev,
+        modelId,
+        userContext
+      )
+    )
+  }
+
+  return operations
+}
 
 /**
  * Edit an individual's ontology type in place (remove old type, add new).

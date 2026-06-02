@@ -3,7 +3,8 @@ import { act } from 'react'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
-import type { ReactElement } from 'react'
+import type * as MantineCore from '@mantine/core'
+import type { ReactElement, ReactNode } from 'react'
 import { renderWithProviders } from '@tests/test-utils'
 import AnnotationForm from '@/features/gocam/components/forms/AnnotationForm'
 import { RootTypes } from '@/features/gocam/models/cam'
@@ -92,6 +93,31 @@ vi.mock('@/features/gocam/components/forms/DatabaseField', () => ({
   ),
 }))
 
+// Mantine's Menu uses a Popover + portal + transitions that aren't reliable in
+// jsdom (click-to-open often fails to render the dropdown). Mock the Menu subtree
+// so each row's items render inline as <button role="menuitem">. Everything else
+// from @mantine/core (MantineProvider, Modal, Button, ActionIcon, …) passes
+// through, so the real ConfirmDialog modal still renders.
+vi.mock('@mantine/core', async () => {
+  const actual = await vi.importActual<typeof MantineCore>('@mantine/core')
+
+  type Child = { children?: ReactNode; onClick?: () => void; color?: string; disabled?: boolean }
+
+  const Item = ({ children, onClick, color, disabled }: Child) => (
+    <button type="button" role="menuitem" data-color={color} disabled={disabled} onClick={onClick}>
+      {children}
+    </button>
+  )
+
+  const Menu = Object.assign(({ children }: Child) => <div>{children}</div>, {
+    Target: ({ children }: Child) => <>{children}</>,
+    Dropdown: ({ children }: Child) => <div role="menu">{children}</div>,
+    Item,
+  })
+
+  return { ...actual, Menu }
+})
+
 // ── Helpers ─────────────────────────────────────────────────────────
 
 const renderForm = (ui: ReactElement) =>
@@ -110,6 +136,19 @@ const evidenceReferenceInputs = () =>
   within(evidenceSection()).getAllByLabelText('Reference') as HTMLInputElement[]
 
 const evidenceCount = () => evidenceReferenceInputs().length
+
+/** Evidence-code id text for each row, in DOM (row) order. */
+const evidenceCodeValues = () =>
+  within(evidenceSection())
+    .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
+    .map(el => el.textContent)
+
+/** Per-row ⋮ menu items (one per row, in row order) matching the given name. */
+const menuItems = (name: string | RegExp) =>
+  within(evidenceSection()).getAllByRole('menuitem', { name })
+
+const queryMenuItems = (name: string | RegExp) =>
+  within(evidenceSection()).queryAllByRole('menuitem', { name })
 
 beforeEach(() => {
   pickerSpy.lastProps = null
@@ -141,7 +180,7 @@ describe('AnnotationForm — initial render', () => {
     expect(screen.queryByText('Fill with root term')).toBeNull()
   })
 
-  it('renders the Term section with Fill/ISS buttons when showTerm is true and rootTypes provided', () => {
+  it('renders the Term section with the Fill with root term button when showTerm + rootTypes + aspect', () => {
     renderForm(
       <AnnotationForm
         showTerm
@@ -153,8 +192,8 @@ describe('AnnotationForm — initial render', () => {
     expect(screen.getAllByText('Term').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByTestId('autocomplete-annotation-term')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Fill with root term' })).toBeInTheDocument()
-    // Two "Add ISS" buttons: one in the term section, one in the evidence section
-    expect(screen.getAllByRole('button', { name: 'Add ISS' })).toHaveLength(2)
+    // No header "Add ISS" button anymore — ISS lives in the per-row evidence menu
+    expect(screen.queryByRole('button', { name: 'Add ISS' })).toBeNull()
   })
 
   it('omits "Fill with root term" when termRootTypes is empty', () => {
@@ -168,75 +207,66 @@ describe('AnnotationForm — initial render', () => {
   })
 })
 
-describe('AnnotationForm — evidence section buttons', () => {
-  it('"Add evidence" appends a fresh empty row', async () => {
+describe('AnnotationForm — evidence row menu', () => {
+  it('exposes ISS / ISO / IC / Clear Values / Delete in the row menu when canAddISS is true', () => {
+    renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
+    // "Add evidence" is no longer in the row menu — it's the bottom button
+    expect(queryMenuItems('Add evidence')).toHaveLength(0)
+    expect(menuItems('ISS').length).toBeGreaterThanOrEqual(1)
+    expect(menuItems('ISO').length).toBeGreaterThanOrEqual(1)
+    expect(menuItems('IC').length).toBeGreaterThanOrEqual(1)
+    expect(menuItems('Clear Values').length).toBeGreaterThanOrEqual(1)
+    expect(menuItems('Delete').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('the bottom "Add another evidence" button appends a fresh empty row', async () => {
     const user = userEvent.setup()
     renderForm(<AnnotationForm showTerm={false} />)
     expect(evidenceCount()).toBe(1)
+    // One row already seeded → the button reads "Add another evidence", not "Add evidence"
+    expect(screen.queryByRole('button', { name: 'Add evidence' })).toBeNull()
 
-    await user.click(screen.getByRole('button', { name: /Add evidence/i }))
+    await user.click(screen.getByRole('button', { name: 'Add another evidence' }))
 
     expect(evidenceCount()).toBe(2)
     expect(evidenceReferenceInputs()[1].value).toBe('')
   })
 
-  it('"Add ISS" in the evidence section appends an ISS + GO_REF:0000024 row', async () => {
+  it('"ISS" replaces the current row with ECO:0000250 + GO_REF:0000024 (no new row)', async () => {
     const user = userEvent.setup()
     renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
     expect(evidenceCount()).toBe(1)
 
-    await user.click(screen.getByRole('button', { name: 'Add ISS' }))
+    await user.click(menuItems('ISS')[0])
 
-    expect(evidenceCount()).toBe(2)
-    const refs = evidenceReferenceInputs().map(i => i.value)
-    expect(refs[1]).toBe('GO_REF:0000024')
-
-    const evValues = screen
-      .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
-      .map(el => el.textContent)
-    expect(evValues).toContain('ECO:0000250')
+    expect(evidenceCount()).toBe(1)
+    expect(evidenceReferenceInputs()[0].value).toBe('GO_REF:0000024')
+    expect(evidenceCodeValues()[0]).toBe('ECO:0000250')
   })
 
-  it('"Add ISO" appends an ISO + GO_REF:0000024 row (ECO:0000266)', async () => {
+  it('"ISO" replaces the current row (ECO:0000266 + GO_REF:0000024)', async () => {
     const user = userEvent.setup()
     renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
 
-    await user.click(screen.getByRole('button', { name: 'Add ISO' }))
+    await user.click(menuItems('ISO')[0])
 
-    expect(evidenceCount()).toBe(2)
-    expect(evidenceReferenceInputs()[1].value).toBe('GO_REF:0000024')
-
-    const evValues = screen
-      .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
-      .map(el => el.textContent)
-    expect(evValues).toContain('ECO:0000266')
+    expect(evidenceCount()).toBe(1)
+    expect(evidenceReferenceInputs()[0].value).toBe('GO_REF:0000024')
+    expect(evidenceCodeValues()[0]).toBe('ECO:0000266')
   })
 
-  it('"Add IC" appends an IC + GO_REF:0000036 row (ECO:0000305)', async () => {
+  it('"IC" replaces the current row (ECO:0000305 + GO_REF:0000036)', async () => {
     const user = userEvent.setup()
     renderForm(<AnnotationForm showTerm={false} aspect={'biological_process' as never} />)
 
-    await user.click(screen.getByRole('button', { name: 'Add IC' }))
+    await user.click(menuItems('IC')[0])
 
-    expect(evidenceCount()).toBe(2)
-    expect(evidenceReferenceInputs()[1].value).toBe('GO_REF:0000036')
-
-    const evValues = screen
-      .getAllByTestId(/^autocomplete-value-annotation-evidence-/)
-      .map(el => el.textContent)
-    expect(evValues).toContain('ECO:0000305')
+    expect(evidenceCount()).toBe(1)
+    expect(evidenceReferenceInputs()[0].value).toBe('GO_REF:0000036')
+    expect(evidenceCodeValues()[0]).toBe('ECO:0000305')
   })
 
-  it('omits Add ISS/ISO/IC buttons when aspect is missing (canAddISS=false)', () => {
-    renderForm(<AnnotationForm showTerm={false} />)
-    expect(screen.queryByRole('button', { name: 'Add ISS' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Add ISO' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Add IC' })).toBeNull()
-  })
-})
-
-describe('AnnotationForm — term section buttons', () => {
-  it('"Add ISS" in the term section replaces all evidence with a single ISS + GO_REF row', async () => {
+  it('replaces only the targeted row, leaving sibling rows untouched', async () => {
     const user = userEvent.setup()
     const initial: EvidenceForm[] = [
       { uid: 'a', evidenceCode: { id: 'ECO:0000314', label: 'IDA' }, reference: 'PMID:1', withFrom: '' },
@@ -244,21 +274,57 @@ describe('AnnotationForm — term section buttons', () => {
     ]
     renderForm(
       <AnnotationForm
-        showTerm
-        termRootTypes={[RootTypes.BIOLOGICAL_PROCESS]}
+        showTerm={false}
         initialEvidences={initial}
         aspect={'biological_process' as never}
       />
     )
     expect(evidenceCount()).toBe(2)
 
-    const issButtons = screen.getAllByRole('button', { name: 'Add ISS' })
-    await user.click(issButtons[0])
+    await user.click(menuItems('ISS')[1])
 
-    expect(evidenceCount()).toBe(1)
-    expect(evidenceReferenceInputs()[0].value).toBe('GO_REF:0000024')
+    expect(evidenceCount()).toBe(2)
+    // row 0 untouched
+    expect(evidenceReferenceInputs()[0].value).toBe('PMID:1')
+    expect(evidenceCodeValues()[0]).toBe('ECO:0000314')
+    // row 1 replaced with ISS
+    expect(evidenceReferenceInputs()[1].value).toBe('GO_REF:0000024')
+    expect(evidenceCodeValues()[1]).toBe('ECO:0000250')
   })
 
+  it('"Clear Values" empties the current row', async () => {
+    const user = userEvent.setup()
+    const initial: EvidenceForm[] = [
+      {
+        uid: 'a',
+        evidenceCode: { id: 'ECO:0000250', label: 'ISS' },
+        reference: 'GO_REF:0000024',
+        withFrom: 'UniProtKB:P1',
+      },
+    ]
+    renderForm(<AnnotationForm showTerm={false} initialEvidences={initial} />)
+    expect(evidenceReferenceInputs()[0].value).toBe('GO_REF:0000024')
+
+    await user.click(menuItems('Clear Values')[0])
+
+    expect(evidenceCount()).toBe(1)
+    expect(evidenceReferenceInputs()[0].value).toBe('')
+    expect(evidenceCodeValues()[0]).toBe('')
+  })
+
+  it('omits ISS/ISO/IC menu items when aspect is missing (canAddISS=false)', () => {
+    renderForm(<AnnotationForm showTerm={false} />)
+    expect(queryMenuItems('ISS')).toHaveLength(0)
+    expect(queryMenuItems('ISO')).toHaveLength(0)
+    expect(queryMenuItems('IC')).toHaveLength(0)
+    // The non-ISS actions remain available
+    expect(screen.getByRole('button', { name: 'Add another evidence' })).toBeInTheDocument()
+    expect(menuItems('Clear Values').length).toBeGreaterThanOrEqual(1)
+    expect(menuItems('Delete').length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('AnnotationForm — term section buttons', () => {
   it('"Fill with root term" sets the root term and ND evidence (GO_REF:0000015)', async () => {
     const user = userEvent.setup()
     renderForm(
@@ -288,20 +354,41 @@ describe('AnnotationForm — term section buttons', () => {
   })
 })
 
-describe('AnnotationForm — remove evidence', () => {
-  it('Remove icon is disabled when there is exactly one row, enabled with more', async () => {
+describe('AnnotationForm — remove evidence (Delete menu item)', () => {
+  it('Delete is disabled on the only row, enabled with more, and removes an empty row immediately', async () => {
     const user = userEvent.setup()
     renderForm(<AnnotationForm showTerm={false} />)
     expect(evidenceCount()).toBe(1)
-    expect(screen.getByRole('button', { name: 'Remove evidence' })).toBeDisabled()
+    expect(menuItems('Delete')[0]).toBeDisabled()
 
-    await user.click(screen.getByRole('button', { name: /Add evidence/i }))
+    await user.click(screen.getByRole('button', { name: 'Add another evidence' }))
     expect(evidenceCount()).toBe(2)
-    const removeButtons = screen.getAllByRole('button', { name: 'Remove evidence' })
-    expect(removeButtons[0]).not.toBeDisabled()
+    const deletes = menuItems('Delete')
+    expect(deletes[0]).not.toBeDisabled()
 
-    await user.click(removeButtons[0])
+    // Empty row → removed immediately, no confirmation
+    await user.click(deletes[0])
     expect(evidenceCount()).toBe(1)
+  })
+
+  it('Delete on a row with content asks for confirmation before removing', async () => {
+    const user = userEvent.setup()
+    const initial: EvidenceForm[] = [
+      { uid: 'a', evidenceCode: { id: 'ECO:0000314', label: 'IDA' }, reference: 'PMID:1', withFrom: '' },
+      { uid: 'b', evidenceCode: { id: 'ECO:0000314', label: 'IDA' }, reference: 'PMID:2', withFrom: '' },
+    ]
+    renderForm(<AnnotationForm showTerm={false} initialEvidences={initial} />)
+    expect(evidenceCount()).toBe(2)
+
+    await user.click(menuItems('Delete')[0])
+    // Not removed yet — confirmation pending
+    expect(evidenceCount()).toBe(2)
+    expect(await screen.findByText('Remove Evidence')).toBeInTheDocument()
+
+    await user.click(await screen.findByRole('button', { name: 'Remove' }))
+    expect(evidenceCount()).toBe(1)
+    // row 0 (PMID:1) removed, row 1 (PMID:2) remains
+    expect(evidenceReferenceInputs()[0].value).toBe('PMID:2')
   })
 })
 

@@ -1,7 +1,14 @@
 import { RootTypes, Aspect } from '../models/cam'
 
-/** Valid model lifecycle states */
-export const MODEL_STATES = ['development', 'production', 'review', 'closed', 'delete'] as const
+/** Valid model lifecycle states, matching Angular noctuaFormConfig.modelState */
+export const MODEL_STATES = [
+  { value: 'development', label: 'Development' },
+  { value: 'production', label: 'Production' },
+  { value: 'review', label: 'Review' },
+  { value: 'template', label: 'Template' },
+  { value: 'delete', label: 'Delete' },
+  { value: 'internal_test', label: 'Internal Test' },
+] as const
 
 /** Root GO terms by aspect, matching Angular noctuaFormConfig.rootNode */
 export const ROOT_NODES: Record<string, { id: string; label: string; aspect: string }> = {

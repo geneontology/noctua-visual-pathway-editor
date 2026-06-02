@@ -364,15 +364,9 @@ const EntityRow: React.FC<EntityRowProps> = ({
                   </Menu.Sub.Target>
                   <Menu.Sub.Dropdown>
                     <Menu.Item onClick={handleAddEvidence}>Add Evidence</Menu.Item>
-                    {canAddISS && (
-                      <Menu.Item onClick={handleAddISSEvidence}>Add ISS Evidence</Menu.Item>
-                    )}
-                    {canAddISS && (
-                      <Menu.Item onClick={handleAddISOEvidence}>Add ISO Evidence</Menu.Item>
-                    )}
-                    {canAddISS && (
-                      <Menu.Item onClick={handleAddICEvidence}>Add IC Evidence</Menu.Item>
-                    )}
+                    {canAddISS && <Menu.Item onClick={handleAddISSEvidence}>ISS</Menu.Item>}
+                    {canAddISS && <Menu.Item onClick={handleAddISOEvidence}>ISO</Menu.Item>}
+                    {canAddISS && <Menu.Item onClick={handleAddICEvidence}>IC</Menu.Item>}
                     {evidence.length > 0 && (
                       <Menu.Item onClick={handleRemoveLastEvidence}>Remove Evidence</Menu.Item>
                     )}

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { Aspect, Entity } from './cam'
+import type { Aspect, Entity, Evidence } from './cam'
 import type { DisplayGroup } from '../data/insertMenuConfig'
 import { EVIDENCE_AUTO_POPULATE } from '../data/camConstants'
 
@@ -121,6 +121,14 @@ export const createEvidenceForm = (): EvidenceForm => ({
   evidenceCode: { id: '', label: '' },
   reference: '',
   withFrom: '',
+})
+
+/** Map a model Evidence to the form shape, preserving its uid for reconciliation. */
+export const evidenceToForm = (ev: Evidence): EvidenceForm => ({
+  uid: ev.uid,
+  evidenceCode: ev.evidenceCode,
+  reference: ev.reference ?? '',
+  withFrom: ev.with ?? '',
 })
 
 /** Build an evidence form pre-filled from EVIDENCE_AUTO_POPULATE (e.g. 'nd', 'iss'). */

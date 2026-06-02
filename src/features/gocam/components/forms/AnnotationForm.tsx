@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { ActionIcon, Button } from '@mantine/core'
-import { FaPlus, FaTrash } from 'react-icons/fa'
+import { ActionIcon, Button, Menu } from '@mantine/core'
+import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import { v4 as uuidv4 } from 'uuid'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
@@ -71,18 +71,6 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     setEvidences(prev => [...prev, createEvidenceForm()])
   }, [])
 
-  const addISSEvidence = useCallback(() => {
-    setEvidences(prev => [...prev, createAutoPopulatedEvidence('iss')])
-  }, [])
-
-  const addISOEvidence = useCallback(() => {
-    setEvidences(prev => [...prev, createAutoPopulatedEvidence('iso')])
-  }, [])
-
-  const addICEvidence = useCallback(() => {
-    setEvidences(prev => [...prev, createAutoPopulatedEvidence('ic')])
-  }, [])
-
   const removeEvidenceAt = useCallback((index: number) => {
     setEvidences(prev => prev.filter((_, i) => i !== index))
   }, [])
@@ -112,6 +100,21 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
       setEvidences(prev => prev.map(ev => (ev.uid === uid ? { ...ev, ...patch } : ev)))
     },
     []
+  )
+
+  const fillRow = useCallback(
+    (uid: string, variant: 'iss' | 'iso' | 'ic') => {
+      const { evidenceCode, reference, withFrom } = createAutoPopulatedEvidence(variant)
+      patchEvidence(uid, { evidenceCode, reference, withFrom })
+    },
+    [patchEvidence]
+  )
+
+  const clearRow = useCallback(
+    (uid: string) => {
+      patchEvidence(uid, { evidenceCode: { id: '', label: '' }, reference: '', withFrom: '' })
+    },
+    [patchEvidence]
   )
 
   const handleTermChange = useCallback((value: GOlrResponse | null | string) => {
@@ -155,10 +158,6 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     setTerm({ id, label })
     setEvidences([createAutoPopulatedEvidence('nd')])
   }, [termRootTypes])
-
-  const handleFillISSEvidence = useCallback(() => {
-    setEvidences([createAutoPopulatedEvidence('iss')])
-  }, [])
 
   const handleCancel = useCallback(() => {
     dispatch(closeDialog())
@@ -213,31 +212,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
         )}
 
         <section className="flex min-h-0 flex-1 flex-col bg-white">
-          <SectionHeader
-            title="Evidence"
-            right={
-              <div className="flex items-center gap-1">
-                <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addEvidence}>
-                  Add evidence
-                </Button>
-                {canAddISS && (
-                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISSEvidence}>
-                    Add ISS
-                  </Button>
-                )}
-                {canAddISS && (
-                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addISOEvidence}>
-                    Add ISO
-                  </Button>
-                )}
-                {canAddISS && (
-                  <Button size="compact-xs" variant="subtle" leftSection={<FaPlus size={10} />} onClick={addICEvidence}>
-                    Add IC
-                  </Button>
-                )}
-              </div>
-            }
-          />
+          <SectionHeader title="Evidence" />
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
             {evidences.map((ev, i) => (
               <div
@@ -280,18 +255,39 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                     onChange={value => patchEvidence(ev.uid, { withFrom: value })}
                   />
                 </div>
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  size="md"
-                  onClick={() => requestRemoveEvidenceAt(i)}
-                  disabled={evidences.length === 1}
-                  title="Remove evidence"
-                >
-                  <FaTrash size={12} />
-                </ActionIcon>
+                <Menu shadow="md" position="bottom-end" withinPortal>
+                  <Menu.Target>
+                    <ActionIcon variant="light" color="primary" radius="xl" size="md">
+                      <FaEllipsisV size={12} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    {canAddISS && <Menu.Item onClick={() => fillRow(ev.uid, 'iss')}>ISS</Menu.Item>}
+                    {canAddISS && <Menu.Item onClick={() => fillRow(ev.uid, 'iso')}>ISO</Menu.Item>}
+                    {canAddISS && <Menu.Item onClick={() => fillRow(ev.uid, 'ic')}>IC</Menu.Item>}
+                    <Menu.Item onClick={() => clearRow(ev.uid)}>Clear Values</Menu.Item>
+                    <Menu.Item
+                      color="red"
+                      disabled={evidences.length === 1}
+                      onClick={() => requestRemoveEvidenceAt(i)}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </div>
             ))}
+          </div>
+          <div className="shrink-0 border-t border-gray-200 px-3 py-2">
+            <Button
+              size="compact-sm"
+              variant="light"
+              color="primary"
+              leftSection={<FaPlus size={10} />}
+              onClick={addEvidence}
+            >
+              {evidences.length === 0 ? 'Add evidence' : 'Add another evidence'}
+            </Button>
           </div>
         </section>
       </div>
