@@ -34,7 +34,7 @@ const CamStateForm: React.FC = () => {
           value={state}
           onChange={value => value && setState(value)}
           size="sm"
-          data={MODEL_STATES.map(s => ({ value: s, label: s }))}
+          data={MODEL_STATES.map(s => ({ value: s.value, label: s.label }))}
         />
       </div>
 
