@@ -374,8 +374,8 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
         {/* GP Section */}
         {gpGroups.length > 0 && (
           <div className="flex flex-col items-stretch justify-start">
-            <div className="flex h-9 items-center border-b border-gray-200 bg-gray-50 px-4">
-              <span className="text-sm font-semibold text-gray-700">
+            <div className="flex items-center px-4 py-4">
+              <span className="uppercase font-semibold text-gray-400">
                 {sectionTitles.gp}
               </span>
             </div>
@@ -398,19 +398,19 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
 
         {/* FD Section */}
         <div className="flex flex-col items-stretch justify-start">
-          {/* Header mirrors EntityRow columns: [Term baseTermWidth] [Evidence 40%] [Ref 30%] [With 30%] + menu spacer */}
-          <div className="flex h-9 flex-row items-stretch border-b border-t border-gray-200 bg-gray-50">
+          {/* Header mirrors EntityRow columns: [Term baseTermWidth] [Evidence grow] [Ref] [With] + menu spacer */}
+          <div className="flex flex-row items-stretch">
             <div
-              className="flex shrink items-center p-1"
+              className="flex min-w-0 shrink items-center p-1 py-4"
               style={{ flexBasis: baseTermWidth }}
             >
-              <span className="pl-2 text-sm font-semibold text-gray-700">
+              <span className="pl-2 uppercase font-semibold text-gray-400">
                 {sectionTitles.fd}
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-row items-stretch">
-              <div className="w-2/5 p-1" aria-hidden="true" />
-              <div className="flex w-[30%] items-center justify-center p-1">
+              <div className="grow p-1" aria-hidden="true" />
+              <div className="flex w-1/4 max-w-[180px] items-center justify-start p-1 lg:w-[30%]">
                 <Tooltip
                   label="Allowed Reference DBs"
                   position="bottom"
@@ -428,7 +428,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                   </ActionIcon>
                 </Tooltip>
               </div>
-              <div className="flex w-[30%] items-center justify-center p-1">
+              <div className="flex w-1/4 max-w-[180px] items-center justify-start p-1 lg:w-[30%]">
                 <Tooltip
                   label="Allowed With/From DBs"
                   position="bottom"
@@ -447,8 +447,8 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                 </Tooltip>
               </div>
             </div>
-            {/* Spacer for the row's ellipsis menu (ActionIcon size md + px-2 ≈ 48px) */}
-            <div className="w-12 shrink-0" aria-hidden="true" />
+            {/* Spacer for the row's ellipsis menu (ActionIcon size md 36px + px-2 16px = 52px) */}
+            <div className="w-[52px] shrink-0" aria-hidden="true" />
           </div>
           <div className="flex flex-col items-stretch justify-start">
             {fdGroups.map(([group, rows]) => (
