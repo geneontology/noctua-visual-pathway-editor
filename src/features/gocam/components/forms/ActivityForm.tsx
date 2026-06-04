@@ -102,11 +102,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
     <div className={`flex w-full flex-col items-stretch ${bgClass}`}>
       {rows.map(row => (
         <div key={row.termNode.uid} className="flex flex-row items-stretch">
-          {row.termNode.isComplement && (
-            <div className="flex w-[28px] shrink-0 items-center justify-center bg-gray-200 text-center text-[8px] font-bold tracking-wide text-gray-700">
-              IS NOT
-            </div>
-          )}
+
           <div className="w-full">
             <EntityRow
               node={row.termNode}

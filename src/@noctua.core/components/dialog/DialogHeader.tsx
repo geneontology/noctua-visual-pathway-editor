@@ -8,7 +8,7 @@ interface DialogHeaderProps {
 }
 
 const DialogHeader = ({ title, onClose }: DialogHeaderProps) => (
-  <div className="flex h-14 shrink-0 items-center justify-between border-b-2 border-b-primary-500 bg-white px-4">
+  <div className="flex h-16 shrink-0 items-center justify-between border-b-2 border-b-primary-500 bg-white px-4">
     <span className="text-lg font-semibold tracking-tight text-gray-900">{title}</span>
     <Tooltip label="Close" withArrow position="left">
       <ActionIcon

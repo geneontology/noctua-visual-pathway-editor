@@ -36,11 +36,11 @@ const makeActivity = (
 })
 
 describe('formatConnectorDialogTitle', () => {
-  it('uses enabledBy labels and the create prefix for new connectors', () => {
+  it('uses the molecular-function (rootNode) label and the create prefix, ignoring enabledBy', () => {
     const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', 'BTK Hsap'))
     const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'air-2 Cele'))
     expect(formatConnectorDialogTitle(src, tgt, false)).toBe(
-      'Causal Relation Form: Connect BTK Hsap to air-2 Cele'
+      'Causal Relation Form: Connect Src MF to Tgt MF'
     )
   })
 
@@ -48,19 +48,19 @@ describe('formatConnectorDialogTitle', () => {
     const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', 'BTK Hsap'))
     const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'air-2 Cele'))
     expect(formatConnectorDialogTitle(src, tgt, true)).toBe(
-      'Edit Causal Relation: Connect BTK Hsap to air-2 Cele'
+      'Edit Causal Relation: Connect Src MF to Tgt MF'
     )
   })
 
-  it('falls back to the rootNode label when enabledBy is missing', () => {
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), null)
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), null)
+  it('uses the rootNode label for molecule activities too (MF → Molecule)', () => {
+    const src = makeActivity('s', makeNode('GO:s', 'kinase activity'), null)
+    const tgt = makeActivity('t', makeNode('CHEBI:t', 'ATP'), null)
     expect(formatConnectorDialogTitle(src, tgt, false)).toBe(
-      'Causal Relation Form: Connect Src MF to Tgt MF'
+      'Causal Relation Form: Connect kinase activity to ATP'
     )
   })
 
-  it('falls back to "Unknown" when neither enabledBy nor rootNode supplies a label', () => {
+  it('falls back to "Unknown" when the rootNode has no label', () => {
     const noLabel = { ...makeNode('GO:x', ''), label: undefined } as unknown as GraphNode
     const src = makeActivity('s', noLabel, null)
     const tgt = makeActivity('t', noLabel, null)
@@ -76,8 +76,8 @@ describe('formatConnectorDialogTitle', () => {
 
   it('truncates labels longer than CONNECTOR_TITLE_LABEL_MAX with " ..." suffix', () => {
     const longLabel = 'A'.repeat(80)
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', longLabel))
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'short'))
+    const src = makeActivity('s', makeNode('GO:s', longLabel), null)
+    const tgt = makeActivity('t', makeNode('GO:t', 'short'), null)
     const title = formatConnectorDialogTitle(src, tgt, false)
 
     const truncated = `${'A'.repeat(CONNECTOR_TITLE_LABEL_MAX)} ...`
@@ -85,20 +85,20 @@ describe('formatConnectorDialogTitle', () => {
   })
 
   it('trims a trailing space before appending " ..." so we never get "  ..."', () => {
-    // Label whose 30th char is a space → naive slice would produce
-    // "BTK Hsap verys long genes nam  ..." (double space). trimEnd avoids that.
-    const label = 'BTK Hsap verys long genes nam more text'
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', label))
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'air-2 Cele'))
+    // Label whose 30th char (index 29) is a space → naive slice would produce
+    // "positive regulation of kinase  ..." (double space). trimEnd avoids that.
+    const label = 'positive regulation of kinase activity cascade'
+    const src = makeActivity('s', makeNode('GO:s', label), null)
+    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), null)
     expect(formatConnectorDialogTitle(src, tgt, false)).toBe(
-      'Causal Relation Form: Connect BTK Hsap verys long genes nam ... to air-2 Cele'
+      'Causal Relation Form: Connect positive regulation of kinase ... to Tgt MF'
     )
   })
 
   it('leaves labels of exactly CONNECTOR_TITLE_LABEL_MAX characters untouched', () => {
     const exact = 'B'.repeat(CONNECTOR_TITLE_LABEL_MAX)
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', exact))
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'short'))
+    const src = makeActivity('s', makeNode('GO:s', exact), null)
+    const tgt = makeActivity('t', makeNode('GO:t', 'short'), null)
     expect(formatConnectorDialogTitle(src, tgt, false)).toBe(
       `Causal Relation Form: Connect ${exact} to short`
     )
@@ -111,44 +111,39 @@ describe('renderConnectorDialogTitle (JSX)', () => {
     expect(renderConnectorDialogTitle(null, null, true)).toBe('Edit Causal Relation')
   })
 
-  it('produces the same text as the string variant and accents only the gene labels', () => {
+  it('renders source and target MF labels as boxes joined by an arrow, ignoring enabledBy', () => {
     const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', 'BTK Hsap'))
     const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'air-2 Cele'))
-    const { container, getByText } = render(
+    const { container, getByText, queryByText } = render(
       <>{renderConnectorDialogTitle(src, tgt, false)}</>
     )
 
-    // Surrounding text inherits the dialog-header styling; only the gene
-    // labels live inside their own accent spans.
-    expect(container.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-      'Causal Relation Form: Connect BTK Hsap to air-2 Cele'
-    )
-
-    const source = getByText('BTK Hsap')
-    const target = getByText('air-2 Cele')
-    expect(source.className).toMatch(/italic/)
-    expect(source.className).toMatch(/text-blue-700/)
-    expect(target.className).toMatch(/italic/)
-    expect(target.className).toMatch(/text-blue-700/)
-
-    // The prefix is plain text (no wrapper span of its own).
-    expect(container.querySelectorAll('span.italic')).toHaveLength(2)
+    expect(getByText('Connect')).toBeInTheDocument()
+    expect(getByText('Src MF')).toBeInTheDocument()
+    expect(getByText('Tgt MF')).toBeInTheDocument()
+    // Gene-product labels are never shown.
+    expect(queryByText('BTK Hsap')).toBeNull()
+    expect(queryByText('air-2 Cele')).toBeNull()
+    // An arrow (svg) sits between the two boxes.
+    expect(container.querySelector('svg')).toBeTruthy()
   })
 
-  it('switches the prefix to "Edit Causal Relation:" when editing', () => {
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', 'BTK Hsap'))
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'air-2 Cele'))
-    const { container } = render(<>{renderConnectorDialogTitle(src, tgt, true)}</>)
-    expect(container.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-      'Edit Causal Relation: Connect BTK Hsap to air-2 Cele'
-    )
+  it('renders the same source → target boxes when editing (no sentence prefix in the graph)', () => {
+    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), null)
+    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), null)
+    const { getByText, queryByText } = render(<>{renderConnectorDialogTitle(src, tgt, true)}</>)
+    expect(getByText('Src MF')).toBeInTheDocument()
+    expect(getByText('Tgt MF')).toBeInTheDocument()
+    expect(queryByText(/Causal Relation/)).toBeNull()
   })
 
-  it('still truncates long labels to CONNECTOR_TITLE_LABEL_MAX + " ..."', () => {
+  it('keeps the full MF label (CSS truncates, no " ..." in the string) and exposes it on hover', () => {
     const long = 'A'.repeat(80)
-    const src = makeActivity('s', makeNode('GO:s', 'Src MF'), makeNode('UP:s1', long))
-    const tgt = makeActivity('t', makeNode('GO:t', 'Tgt MF'), makeNode('UP:t1', 'short'))
-    const { getByText } = render(<>{renderConnectorDialogTitle(src, tgt, false)}</>)
-    expect(getByText(`${'A'.repeat(CONNECTOR_TITLE_LABEL_MAX)} ...`)).toBeInTheDocument()
+    const src = makeActivity('s', makeNode('GO:s', long), null)
+    const tgt = makeActivity('t', makeNode('GO:t', 'short'), null)
+    const { getByText, getByTitle } = render(<>{renderConnectorDialogTitle(src, tgt, false)}</>)
+    // Full text is rendered; truncation is visual (CSS), so the string is intact.
+    expect(getByText(long)).toBeInTheDocument()
+    expect(getByTitle(long)).toBeInTheDocument()
   })
 })
