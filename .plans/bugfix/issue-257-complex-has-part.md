@@ -28,4 +28,5 @@ Single shared `getPrimaryRootType(rootTypes)` in `nodeCategories.ts`, most-speci
 - [x] getPrimaryRootType helper in nodeCategories.ts
 - [x] inferCategory uses helper (edit-mode complex → PCC → `+`/`has part` + parts load)
 - [x] ActivityTableNode uses helper (table `+` offers `has part`)
-- [ ] tests — deferred until requested (graphServices.test.ts from earlier turn stays)
+- [x] tests — graphServices.test.ts (4), getPrimaryRootType in nodeCategories.test.ts (7),
+      complex edit-mode in activityTemplates.test.ts (3)

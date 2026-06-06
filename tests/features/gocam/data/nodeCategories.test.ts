@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   getNodeCategory,
+  getPrimaryRootType,
   molecularFunction,
   biologicalProcess,
   cellularComponent,
@@ -68,5 +69,42 @@ describe('excludeClosureIds (closure-exclusion clauses)', () => {
     expect(getNodeCategory(RootTypes.CELLULAR_COMPONENT)?.excludeClosureIds).toEqual([
       RootTypes.PROTEIN_CONTAINING_COMPLEX,
     ])
+  })
+})
+
+describe('getPrimaryRootType (most-specific-first resolution)', () => {
+  it('resolves a protein complex to the complex, not its CC parent', () => {
+    // Minerva tags a complex with both root types, CC listed first.
+    expect(
+      getPrimaryRootType([RootTypes.CELLULAR_COMPONENT, RootTypes.PROTEIN_CONTAINING_COMPLEX])
+    ).toBe(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+  })
+
+  it('is order-independent (resolves the complex regardless of root-type order)', () => {
+    expect(
+      getPrimaryRootType([RootTypes.PROTEIN_CONTAINING_COMPLEX, RootTypes.CELLULAR_COMPONENT])
+    ).toBe(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+  })
+
+  it('resolves a gene product to the gene product, not its chemical-entity parent', () => {
+    expect(getPrimaryRootType([RootTypes.MOLECULAR_ENTITY, RootTypes.CHEMICAL_ENTITY])).toBe(
+      RootTypes.MOLECULAR_ENTITY
+    )
+  })
+
+  it('leaves a plain cellular component as CC', () => {
+    expect(getPrimaryRootType([RootTypes.CELLULAR_COMPONENT])).toBe(RootTypes.CELLULAR_COMPONENT)
+  })
+
+  it('falls back to the first known-category id when no priority type matches', () => {
+    expect(getPrimaryRootType([RootTypes.BIOLOGICAL_PHASE])).toBe(RootTypes.BIOLOGICAL_PHASE)
+  })
+
+  it('falls back to the first id when nothing is a known category', () => {
+    expect(getPrimaryRootType(['XYZ:1', 'XYZ:2'])).toBe('XYZ:1')
+  })
+
+  it('returns null for an empty root-type set', () => {
+    expect(getPrimaryRootType([])).toBeNull()
   })
 })

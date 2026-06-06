@@ -146,3 +146,34 @@ describe('activityToFormTree — converts an Activity into a TermNode tree', () 
     expect(dup).toBe(0)
   })
 })
+
+describe('activityToFormTree — protein-containing complex (issue #257)', () => {
+  // smallBaseline: MF enabled_by a complex (CC + complex root types) that has_part
+  // two gene products. The complex must resolve to the complex category — not its
+  // CC parent — so the edit form shows the `+`/`has part` menu and loads the parts.
+  const complexActivity = smallBaselineModel.activities.find(a =>
+    a.enabledBy?.rootTypes.includes(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+  )!
+
+  it('has a complex-enabled activity in the fixture', () => {
+    expect(complexActivity).toBeTruthy()
+  })
+
+  it('resolves the complex node to the complex category, not its CC parent', () => {
+    const tree = activityToFormTree(complexActivity)
+    const enabledBy = tree.relations.find(r => r.predicate.id === Relations.ENABLED_BY)!
+    expect(enabledBy.target.category).toBe(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+  })
+
+  it('loads the existing gene-product parts under the complex via has_part', () => {
+    const tree = activityToFormTree(complexActivity)
+    const enabledBy = tree.relations.find(r => r.predicate.id === Relations.ENABLED_BY)!
+    const parts = enabledBy.target.relations.filter(r => r.predicate.id === Relations.HAS_PART)
+
+    expect(parts.length).toBeGreaterThanOrEqual(2)
+    for (const rel of parts) {
+      expect(rel.target.category).toBe(RootTypes.MOLECULAR_ENTITY)
+      expect(rel.target.term?.id).toBeTruthy()
+    }
+  })
+})
