@@ -7,28 +7,10 @@ import { store } from "@/app/store/store";
 import { AnnotationKey } from '../models/operations';
 import { buildValidationErrors, emptyValidationErrors } from './violationService';
 import { canInsertEntity } from '../data/insertMenuConfig';
-
-const SUBJECT_TYPE_PRIORITY: string[] = [
-  RootTypes.MOLECULAR_FUNCTION,
-  RootTypes.BIOLOGICAL_PROCESS,
-  RootTypes.CELLULAR_COMPONENT,
-  RootTypes.CELL_TYPE,
-  RootTypes.PROTEIN_CONTAINING_COMPLEX,
-  RootTypes.MOLECULAR_ENTITY,
-  RootTypes.CHEMICAL_ENTITY,
-  RootTypes.ANATOMICAL_ENTITY,
-];
-
-function getSubjectType(node: GraphNode): string | null {
-  const rootTypes = node.rootTypes ?? [];
-  for (const candidate of SUBJECT_TYPE_PRIORITY) {
-    if (rootTypes.includes(candidate)) return candidate;
-  }
-  return null;
-}
+import { getPrimaryRootType } from '../data/nodeCategories';
 
 function isEdgeShapeAllowed(edge: Edge, subject: GraphNode, target: GraphNode): boolean {
-  const subjectType = getSubjectType(subject);
+  const subjectType = getPrimaryRootType(subject.rootTypes ?? []);
   if (!subjectType) return false;
   const allowed = canInsertEntity[subjectType] ?? [];
   for (const entry of allowed) {

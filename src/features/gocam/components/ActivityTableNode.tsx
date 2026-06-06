@@ -21,7 +21,7 @@ import { evidenceToForm } from '../models/formModels'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
 import type { InsertMenuItem } from '../data/insertMenuConfig'
-import { getNodeCategory } from '../data/nodeCategories'
+import { getPrimaryRootType } from '../data/nodeCategories'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
 
@@ -80,12 +80,17 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   const usedEdges = allEdges
     .filter(e => e.sourceId === node.uid)
-    .map(e => {
-      const targetType =
-        e.target?.rootTypes?.find(rt => getNodeCategory(rt)) ?? e.target?.rootTypes?.[0] ?? ''
-      return { predicateId: e.id, targetType }
-    })
-  const insertMenuItems = getInsertMenuItems(node.rootTypes[0] ?? '', usedEdges, edge?.id)
+    .map(e => ({
+      predicateId: e.id,
+      targetType: getPrimaryRootType(e.target?.rootTypes ?? []) ?? '',
+    }))
+  // Most-specific-first: a complex carries both CC and complex root types; resolve
+  // to the complex so its `+` menu offers `has part`, not CC's `part of`.
+  const insertMenuItems = getInsertMenuItems(
+    getPrimaryRootType(node.rootTypes) ?? '',
+    usedEdges,
+    edge?.id
+  )
   const termWidth = 250 - (treeLevel - 1) * 20
   const { aspect } = treeNode
   const treeBorder = aspect ? TREE_BORDER_BY_ASPECT[aspect] : 'border-blue-400'

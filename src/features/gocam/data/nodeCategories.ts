@@ -161,3 +161,34 @@ export const getNodeCategory = (id: string): (AnyCategory & NodeCategory) | unde
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
+// A node's root-type set can contain several categories at once because GO/ChEBI
+// nest specific types under general ones: a protein-containing complex (GO:0032991)
+// is also a cellular component (GO:0005575), and a gene product (CHEBI:33695) is also
+// a chemical entity (CHEBI:24431). Resolve most-specific-first so a complex maps to
+// the complex shape (allows `has part`) rather than CC (`part of`), and a gene product
+// maps to GP rather than chemical.
+const CATEGORY_PRIORITY: string[] = [
+  RootTypes.MOLECULAR_FUNCTION,
+  RootTypes.BIOLOGICAL_PROCESS,
+  RootTypes.PROTEIN_CONTAINING_COMPLEX,
+  RootTypes.CELLULAR_COMPONENT,
+  RootTypes.CELL_TYPE,
+  RootTypes.MOLECULAR_ENTITY,
+  RootTypes.CHEMICAL_ENTITY,
+  RootTypes.ANATOMICAL_ENTITY,
+]
+
+/**
+ * Resolve a node's primary category id from its root-type set, most-specific-first.
+ * Falls back to the first root type with a known category, then the first id, then null.
+ */
+export const getPrimaryRootType = (rootTypes: string[]): string | null => {
+  for (const candidate of CATEGORY_PRIORITY) {
+    if (rootTypes.includes(candidate)) return candidate
+  }
+  for (const id of rootTypes) {
+    if (getNodeCategory(id)) return id
+  }
+  return rootTypes[0] ?? null
+}
+

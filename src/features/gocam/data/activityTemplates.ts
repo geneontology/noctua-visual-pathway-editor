@@ -12,7 +12,7 @@ import type {
 } from '../models/formModels'
 import { createEvidenceForm } from '../models/formModels'
 import { predicate } from './shapeTerms'
-import { getNodeCategory } from './nodeCategories'
+import { getNodeCategory, getPrimaryRootType } from './nodeCategories'
 import {
   molecularFunction as mfCat,
   molecularEntity as gpCat,
@@ -148,10 +148,9 @@ function edgeToEvidenceForms(edge: Edge): EvidenceForm[] {
 }
 
 function inferCategory(node: GraphNode): string {
-  for (const id of node.rootTypes || []) {
-    if (getNodeCategory(id)) return id
-  }
-  return node.rootTypes?.[0] ?? ''
+  // Most-specific-first so a protein complex resolves to the complex category
+  // (offers `has part`) rather than CC, and its parts load in edit mode.
+  return getPrimaryRootType(node.rootTypes ?? []) ?? ''
 }
 
 function inferLabel(category: string, fallback: string): string {
