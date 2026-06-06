@@ -118,9 +118,9 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
       placement="bottom-end"
       className="!bg-accent-50 !shadow-lg !min-w-[400px]"
     >
-      <div className="flex w-full flex-row items-stretch justify-start pb-1 pt-2">
+      <div className="flex w-full flex-row items-center justify-start gap-1 pb-1 pt-2">
         {sections.term && (
-          <div className="w-[250px] p-1">
+          <div className="flex-1 p-1">
             <TermAutocomplete
               label={termLabel}
               name="editor-term"
@@ -136,7 +136,7 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
           </div>
         )}
         {sections.evidence && (
-          <div className="w-[250px] p-1">
+          <div className="flex-1 p-1">
             <TermAutocomplete
               label="Evidence"
               name="editor-evidence"
@@ -152,22 +152,24 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
           </div>
         )}
         {sections.reference && (
-          <div className="w-[150px] p-1">
+          <div className="flex-1 p-1">
             <DatabaseField type="reference" value={reference} onChange={setReference} />
           </div>
         )}
         {sections.with && (
-          <div className="w-[150px] p-1">
+          <div className="flex-1 p-1">
             <DatabaseField type="with" value={withVal} onChange={setWithVal} />
           </div>
         )}
 
-        <ActionIcon variant="subtle" color="gray" size="md" onClick={onClose} title="Cancel" className="!text-red-400">
-          <FaRegCircleXmark size={18} />
-        </ActionIcon>
-        <ActionIcon variant="subtle" color="gray" size="md" onClick={handleSave} title="Save" className="!text-green-600">
-          <FaRegCircleCheck size={18} />
-        </ActionIcon>
+        <div className="flex shrink-0 items-center gap-1">
+          <ActionIcon variant="subtle" color="gray" size="md" onClick={onClose} title="Cancel" className="!text-red-400">
+            <FaRegCircleXmark size={18} />
+          </ActionIcon>
+          <ActionIcon variant="subtle" color="gray" size="md" onClick={handleSave} title="Save" className="!text-green-600">
+            <FaRegCircleCheck size={18} />
+          </ActionIcon>
+        </div>
       </div>
     </AnchoredPopover>
   )

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { ActionIcon, Button, Textarea } from '@mantine/core'
-import { FiPlus, FiX } from 'react-icons/fi'
+import { FaPlus, FaTrash } from 'react-icons/fa'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
@@ -62,15 +62,6 @@ const CamCommentsForm: React.FC = () => {
           <div className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Comments
           </div>
-          <ActionIcon
-            variant="subtle"
-            color="blue"
-            size="sm"
-            onClick={handleAddComment}
-            aria-label="Add comment"
-          >
-            <FiPlus size={14} />
-          </ActionIcon>
         </div>
 
         {comments.length === 0 ? (
@@ -96,12 +87,24 @@ const CamCommentsForm: React.FC = () => {
                   onClick={() => handleRemoveComment(i)}
                   aria-label="Remove comment"
                 >
-                  <FiX size={14} />
+                  <FaTrash size={12} />
                 </ActionIcon>
               </div>
             ))}
           </div>
         )}
+
+        <div className="mt-2">
+          <Button
+            size="compact-sm"
+            variant="light"
+            color="primary"
+            leftSection={<FaPlus size={10} />}
+            onClick={handleAddComment}
+          >
+            {comments.length === 0 ? 'Add comment' : 'Add another comment'}
+          </Button>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
