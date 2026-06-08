@@ -303,12 +303,12 @@ const RelationForm: React.FC<Props> = ({
 
         {/* Suggested Causal Relation */}
         <div
-          className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+          className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
         >
           Suggested Causal Relation
         </div>
         <div className="mb-4 py-2">
-          <span className="pl-[10px] text-xs">
+          <span className="pl-[10px] text-sm">
             {resolvedLabel ?? 'No valid relation'}
           </span>
         </div>
@@ -318,11 +318,12 @@ const RelationForm: React.FC<Props> = ({
           <div
             className="flex items-center gap-3 border-b border-blue-800/70 px-4 py-3"
           >
-            <span className="w-25 shrink-0 text-xs font-medium text-blue-800">
+            <span className="w-25 shrink-0 text-sm font-medium text-blue-800">
               Chemical Intermediate
             </span>
             <Button
               variant="filled"
+              size="sm"
               onClick={handleOpenChemicalConnector}
               className="!bg-green-700 hover:!bg-green-800 !normal-case"
             >
@@ -333,7 +334,7 @@ const RelationForm: React.FC<Props> = ({
 
         {/* Evidence section */}
         <div
-          className="bg-slate-400/30 pl-3 text-xs leading-[30px] text-neutral-600"
+          className="bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
         >
           Evidence
         </div>
@@ -381,10 +382,10 @@ const RelationForm: React.FC<Props> = ({
           ))}
           <Button
             variant="subtle"
-            size="xs"
+            size="compact-sm"
             leftSection={<FiPlus />}
             onClick={() => dispatch(addConnectorEvidence())}
-            className="!text-xs !normal-case"
+            className="!normal-case"
           >
             Add Evidence
           </Button>
@@ -395,14 +396,14 @@ const RelationForm: React.FC<Props> = ({
       <div className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3 shadow-md">
         <div>
           {!relation && (
-            <Button variant="subtle" color="yellow" size="xs">
+            <Button variant="subtle" color="yellow" size="sm">
               Why is the &quot;Save&quot; button disabled?
             </Button>
           )}
           {existingEdgeId && (
             <Button
               variant="outline"
-              size="xs"
+              size="sm"
               color="red"
               onClick={requestDelete}
               disabled={isSaving}
@@ -413,13 +414,13 @@ const RelationForm: React.FC<Props> = ({
         </div>
         <div className="flex gap-2">
           {onClose && (
-            <Button variant="outline" size="xs" onClick={onClose} disabled={isSaving}>
+            <Button variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
               Cancel
             </Button>
           )}
           <Button
             variant="filled"
-            size="xs"
+            size="sm"
             disabled={!relation || isSaving}
             onClick={handleSave}
           >

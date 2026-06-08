@@ -59,7 +59,7 @@ const CamCommentsForm: React.FC = () => {
     <div className="flex flex-col">
       <div className="px-4 py-4">
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <div className="text-lg font-semibold uppercase tracking-wide text-gray-500">
             Comments
           </div>
         </div>

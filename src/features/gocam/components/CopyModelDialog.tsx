@@ -36,10 +36,10 @@ const CopyModelDialog: React.FC = () => {
   return (
     <div className="flex flex-col">
       <div className="border-b border-gray-200 px-4 py-4">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="mb-2 text-lg font-semibold uppercase tracking-wide text-gray-500">
           Source Model
         </div>
-        <div className="flex flex-col gap-1 text-xs">
+        <div className="flex flex-col gap-1 text-sm">
           <div className="flex gap-2">
             <span className="font-medium text-gray-600">ID:</span>
             <span className="break-all text-gray-800">{cam.id}</span>
@@ -68,7 +68,7 @@ const CopyModelDialog: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-3 px-4 py-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="text-lg font-semibold uppercase tracking-wide text-gray-500">
           New Model
         </div>
 

@@ -50,13 +50,13 @@ const CloneEvidenceDialog: React.FC<CloneEvidenceDialogProps> = ({
     <SimpleDialog open={open} onClose={onClose} title="Clone Evidence" size="md">
       <div className="px-4 py-3">
         {evidences.length === 0 ? (
-          <div className="py-4 text-center text-gray-500">
+          <div className="py-4 text-center text-sm text-gray-500">
             No evidence available in this activity
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className="flex items-center border-b border-gray-300 bg-gray-50 py-2 font-medium text-gray-700">
+            <div className="flex items-center border-b border-gray-300 bg-gray-50 py-2 text-sm font-medium text-gray-700">
               <div className="w-10">
                 <Checkbox
                   checked={selected.size === evidences.length && evidences.length > 0}
@@ -104,9 +104,10 @@ const CloneEvidenceDialog: React.FC<CloneEvidenceDialogProps> = ({
         )}
       </div>
       <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
+        <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
         <Button
           variant="filled"
+          size="sm"
           onClick={handleSave}
           disabled={selected.size === 0}
         >

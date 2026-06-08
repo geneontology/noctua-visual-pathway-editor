@@ -375,7 +375,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
         {gpGroups.length > 0 && (
           <div className="flex flex-col items-stretch justify-start">
             <div className="flex items-center px-4 py-4">
-              <span className="uppercase font-semibold text-gray-400">
+              <span className="text-lg uppercase font-semibold text-gray-400">
                 {sectionTitles.gp}
               </span>
             </div>
@@ -404,7 +404,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
               className="flex min-w-0 shrink items-center p-1 py-4"
               style={{ flexBasis: baseTermWidth }}
             >
-              <span className="pl-2 uppercase font-semibold text-gray-400">
+              <span className="pl-2 text-lg uppercase font-semibold text-gray-400">
                 {sectionTitles.fd}
               </span>
             </div>
@@ -479,11 +479,12 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
             Why is the &quot;Save&quot; button disabled?
           </button>
         )}
-        <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+        <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
           Clear
         </Button>
         <Button
           variant="filled"
+          size="sm"
           onClick={handleSave}
           disabled={isSaving || hasErrors}
           leftSection={<FaSave size={12} />}

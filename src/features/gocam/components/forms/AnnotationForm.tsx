@@ -37,7 +37,7 @@ const SectionHeader: React.FC<{ title: React.ReactNode; right?: React.ReactNode 
   right,
 }) => (
   <div className="flex h-9 shrink-0 items-center justify-between border-b border-primary-500/30 bg-white px-3">
-    <div className="text-sm font-semibold text-primary-700">{title}</div>
+    <div className="text-lg font-semibold text-primary-700">{title}</div>
     {right}
   </div>
 )
@@ -294,10 +294,10 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
 
       {/* ── Footer ── */}
       <div className="flex shrink-0 items-center justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
-        <Button variant="outline" onClick={handleCancel}>
+        <Button variant="outline" size="sm" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={saveDisabled} variant="filled">
+        <Button onClick={handleSave} disabled={saveDisabled} variant="filled" size="sm">
           Save
         </Button>
       </div>

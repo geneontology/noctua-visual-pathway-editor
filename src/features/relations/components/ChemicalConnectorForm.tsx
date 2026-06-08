@@ -160,7 +160,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
     return (
       <div className="flex w-full flex-col items-stretch justify-start">
         <div
-          className="flex items-center bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
+          className="flex items-center bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
         >
           {title}
         </div>
@@ -203,7 +203,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
       {/* Body */}
       <div className="flex flex-col items-stretch justify-start">
         {hasNoParticipants ? (
-          <div className="px-2.5 py-8 text-center text-3xl italic text-gray-400">
+          <div className="px-2.5 py-8 text-center text-sm italic text-gray-400">
             No chemical participants found for these molecular functions.
           </div>
         ) : (
@@ -236,7 +236,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
 
             {/* Evidence section */}
             <div
-              className="mt-2 flex items-center bg-slate-400/30 pl-3 text-sm leading-[30px] text-neutral-600"
+              className="mt-2 flex items-center bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
             >
               Evidence
             </div>
@@ -278,10 +278,10 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
               ))}
               <Button
                 variant="subtle"
-                size="xs"
+                size="compact-sm"
                 leftSection={<FiPlus />}
                 onClick={addEvidence}
-                className="!text-xs !normal-case"
+                className="!normal-case"
               >
                 Add Evidence
               </Button>
@@ -294,7 +294,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
       <div className="flex items-center justify-end gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3">
         <Button
           variant="filled"
-          size="xs"
+          size="sm"
           disabled={selectedItems.length === 0 || isSaving}
           onClick={handleSave}
         >

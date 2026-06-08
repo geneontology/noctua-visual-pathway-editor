@@ -80,6 +80,31 @@ function buildDisplayTree(activity: Activity): {
     return result
   }
 
+  // Molecule (chemical) activities have no enabled_by / MF root — the chemical
+  // IS the root. Mirror the create form: the chemical renders in the "Chemical"
+  // (gp) section and its `located in` CC children in the "Location (optional)"
+  // (fd) section. The chemical itself carries no evidence (showEvidence:false),
+  // like the molecule form template.
+  if (activity.type === ActivityType.MOLECULE) {
+    const visited = new Set<string>([activity.rootNode.uid])
+    const locationNodes = buildChildren(activity.rootNode.uid, 2, visited)
+
+    const chemicalNode: DisplayTreeNode = {
+      node: activity.rootNode,
+      edge: null,
+      children: [],
+      treeLevel: 1,
+      canDelete: false,
+      aspect: getAspectFromRootTypes(activity.rootNode.rootTypes),
+      floatingLabel: categoryLabelForRootTypes(activity.rootNode.rootTypes) ?? 'Chemical',
+      showEvidence: false,
+      showMenu: true,
+      showAddButton: false,
+    }
+
+    return { gpTree: [chemicalNode], fdTree: locationNodes }
+  }
+
   // enabled_by edge splits GP tree from FD tree
   const enabledByEdge = edges.find(
     e => e.sourceId === activity.rootNode.uid && e.id === Relations.ENABLED_BY
@@ -166,10 +191,15 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
 
 
   const gpLabel = activity.type === ActivityType.MOLECULE ? 'Chemical' : 'Gene Product'
+  const fdLabel =
+    activity.type === ActivityType.MOLECULE ? 'Location (optional)' : 'Function Description'
 
-  const activityLabel = activity.enabledBy?.label
-    ? activity.enabledBy.label
-    : activity.molecularFunction?.label ?? 'Activity'
+  const activityLabel =
+    activity.type === ActivityType.MOLECULE
+      ? 'Chemical Form'
+      : activity.enabledBy?.label
+        ? activity.enabledBy.label
+        : activity.molecularFunction?.label ?? 'Activity'
 
   return (
     <div className="flex h-full flex-col">
@@ -230,7 +260,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
         <div>
           <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-2 py-2">
             <span className="grow text-xs font-bold uppercase tracking-wider text-primary-700">
-              Function Description
+              {fdLabel}
             </span>
             {/* Mirrors EvidenceRow columns: [Evidence (grow)] [ml-1 Ref 100px] [ml-1 With 100px] + 40px action spacer */}
             <div className="ml-1 flex w-25 shrink-0 items-center justify-center">
@@ -270,6 +300,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
                 userContext={userContext}
                 allEdges={activity.edges}
                 gpNodeId={activity.enabledBy?.id}
+                activityType={activity.type}
               />
             ))}
           </div>
