@@ -73,6 +73,19 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       cardinality: Cardinality.ONE_TO_MANY,
       displayGroup: DisplayGroup.GP,
     },
+    // A complex may also `has part` a nested complex. Not offered in the menu
+    // (insertion defaults to a gene product), but kept here so the edge is
+    // recognized as a valid part of the activity rather than flagged as a violation.
+    {
+      label: 'has part',
+      rangeLabel: 'Protein Complex',
+      targetType: RootTypes.PROTEIN_CONTAINING_COMPLEX,
+      predicate: predicate(Relations.HAS_PART),
+      showInMenu: false,
+      weight: 3,
+      cardinality: Cardinality.ONE_TO_MANY,
+      displayGroup: DisplayGroup.GP,
+    },
   ],
 
   [RootTypes.MOLECULAR_FUNCTION]: [
