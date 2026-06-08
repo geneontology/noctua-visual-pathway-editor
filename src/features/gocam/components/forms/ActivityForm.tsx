@@ -4,6 +4,10 @@ import { ActionIcon, Button, Modal, Tooltip } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
 import DialogHeader from '@/@noctua.core/components/dialog/DialogHeader'
+import SectionHeading, {
+  SECTION_HEADING_BAR,
+  SECTION_HEADING_LABEL,
+} from '@/@noctua.core/components/form/SectionHeading'
 import { FaExclamationCircle, FaInfoCircle, FaSave } from 'react-icons/fa'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
@@ -374,11 +378,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
         {/* GP Section */}
         {gpGroups.length > 0 && (
           <div className="flex flex-col items-stretch justify-start">
-            <div className="flex items-center px-4 py-4">
-              <span className="text-lg uppercase font-semibold text-gray-400">
-                {sectionTitles.gp}
-              </span>
-            </div>
+            <SectionHeading>{sectionTitles.gp}</SectionHeading>
             <div className="flex flex-col items-stretch justify-start">
               {gpGroups.map(([group, rows]) => (
                 <GroupCard
@@ -398,25 +398,18 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
 
         {/* FD Section */}
         <div className="flex flex-col items-stretch justify-start">
-          {/* Header mirrors EntityRow columns: [Term baseTermWidth] [Evidence grow] [Ref] [With] + menu spacer */}
-          <div className="flex flex-row items-stretch">
+          {/* Column header — mirrors EntityRow columns so the Ref/With legends align */}
+          <div className={`flex flex-row items-stretch ${SECTION_HEADING_BAR}`}>
             <div
-              className="flex min-w-0 shrink items-center p-1 py-4"
+              className="flex min-w-0 shrink items-center p-1 py-2.5"
               style={{ flexBasis: baseTermWidth }}
             >
-              <span className="pl-2 text-lg uppercase font-semibold text-gray-400">
-                {sectionTitles.fd}
-              </span>
+              <span className={`pl-2 ${SECTION_HEADING_LABEL}`}>{sectionTitles.fd}</span>
             </div>
             <div className="flex min-w-0 flex-1 flex-row items-stretch">
               <div className="grow p-1" aria-hidden="true" />
               <div className="flex w-1/4 max-w-[180px] items-center justify-start p-1 lg:w-[30%]">
-                <Tooltip
-                  label="Allowed Reference DBs"
-                  position="bottom"
-                  withArrow
-                  openDelay={300}
-                >
+                <Tooltip label="Allowed Reference DBs" position="bottom" withArrow openDelay={300}>
                   <ActionIcon
                     variant="subtle"
                     color="gray"
@@ -429,12 +422,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                 </Tooltip>
               </div>
               <div className="flex w-1/4 max-w-[180px] items-center justify-start p-1 lg:w-[30%]">
-                <Tooltip
-                  label="Allowed With/From DBs"
-                  position="bottom"
-                  withArrow
-                  openDelay={300}
-                >
+                <Tooltip label="Allowed With/From DBs" position="bottom" withArrow openDelay={300}>
                   <ActionIcon
                     variant="subtle"
                     color="gray"

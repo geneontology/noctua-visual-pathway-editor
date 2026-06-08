@@ -43,6 +43,7 @@ import {
 import { selectCamModel, selectModelEvidence } from '@/features/gocam/slices/camSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
+import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 
 interface Props {
   sourceActivity: Activity
@@ -302,11 +303,7 @@ const RelationForm: React.FC<Props> = ({
         )}
 
         {/* Suggested Causal Relation */}
-        <div
-          className="mt-2 border-t border-gray-400 bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
-        >
-          Suggested Causal Relation
-        </div>
+        <SectionHeading className="mt-2">Suggested Causal Relation</SectionHeading>
         <div className="mb-4 py-2">
           <span className="pl-[10px] text-sm">
             {resolvedLabel ?? 'No valid relation'}
@@ -333,11 +330,7 @@ const RelationForm: React.FC<Props> = ({
         )}
 
         {/* Evidence section */}
-        <div
-          className="bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
-        >
-          Evidence
-        </div>
+        <SectionHeading>Evidence</SectionHeading>
         <div className="px-2 py-2">
           {connectorEvidences.map((ev, index) => (
             <div key={ev.uid} className="flex w-full flex-row items-stretch justify-start">

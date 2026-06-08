@@ -19,6 +19,7 @@ import DatabaseField from './DatabaseField'
 import type { AnnotationFormOnSubmit } from '../../hooks/useOpenAnnotationForm'
 import SearchAnnotations from './SearchAnnotations'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 
 interface AnnotationFormProps {
   showTerm: boolean
@@ -31,16 +32,6 @@ interface AnnotationFormProps {
   activityType?: ActivityType | null
   onSubmit?: AnnotationFormOnSubmit
 }
-
-const SectionHeader: React.FC<{ title: React.ReactNode; right?: React.ReactNode }> = ({
-  title,
-  right,
-}) => (
-  <div className="flex h-9 shrink-0 items-center justify-between border-b border-primary-500/30 bg-white px-3">
-    <div className="text-lg font-semibold text-primary-700">{title}</div>
-    {right}
-  </div>
-)
 
 const AnnotationForm: React.FC<AnnotationFormProps> = ({
   showTerm,
@@ -178,8 +169,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {showTerm && (
           <section className="flex shrink-0 flex-col bg-white">
-            <SectionHeader
-              title="Term"
+            <SectionHeading
               right={
                 <div className="flex items-center gap-2">
                   {gpId && aspect && (
@@ -195,7 +185,9 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
 
                 </div>
               }
-            />
+            >
+              Term
+            </SectionHeading>
             <div className="px-3 py-2">
               <TermAutocomplete
                 label={termLabel}
@@ -212,7 +204,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
         )}
 
         <section className="flex min-h-0 flex-1 flex-col bg-white">
-          <SectionHeader title="Evidence" />
+          <SectionHeading>Evidence</SectionHeading>
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
             {evidences.map((ev, i) => (
               <div

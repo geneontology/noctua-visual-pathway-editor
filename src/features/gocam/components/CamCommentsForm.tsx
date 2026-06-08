@@ -7,6 +7,7 @@ import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveModelAnnotationsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 
 const CamCommentsForm: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -57,13 +58,8 @@ const CamCommentsForm: React.FC = () => {
 
   return (
     <div className="flex flex-col">
+      <SectionHeading>Comments</SectionHeading>
       <div className="px-4 py-4">
-        <div className="mb-2 flex items-center justify-between">
-          <div className="text-lg font-semibold uppercase tracking-wide text-gray-500">
-            Comments
-          </div>
-        </div>
-
         {comments.length === 0 ? (
           <div className="py-2 text-sm italic text-gray-400">No comments yet</div>
         ) : (

@@ -263,7 +263,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
               {fdLabel}
             </span>
             {/* Mirrors EvidenceRow columns: [Evidence (grow)] [ml-1 Ref 100px] [ml-1 With 100px] + 40px action spacer */}
-            <div className="ml-1 flex w-25 shrink-0 items-center justify-center">
+            <div className="ml-1 flex w-25 shrink-0 items-center justify-start">
               <Tooltip label="Allowed Reference DBs" position="bottom" withArrow openDelay={300}>
                 <ActionIcon
                   variant="subtle"
@@ -276,7 +276,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
                 </ActionIcon>
               </Tooltip>
             </div>
-            <div className="ml-1 flex w-[100px] shrink-0 items-center justify-center">
+            <div className="ml-1 flex w-[100px] shrink-0 items-center justify-start">
               <Tooltip label="Allowed With/From DBs" position="bottom" withArrow openDelay={300}>
                 <ActionIcon
                   variant="subtle"

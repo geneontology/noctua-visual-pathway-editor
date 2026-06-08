@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
 import { useCopyGraphModelMutation } from '../slices/camApiSlice'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
+import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 
 const CopyModelDialog: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -35,10 +36,8 @@ const CopyModelDialog: React.FC = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="border-b border-gray-200 px-4 py-4">
-        <div className="mb-2 text-lg font-semibold uppercase tracking-wide text-gray-500">
-          Source Model
-        </div>
+      <SectionHeading>Source Model</SectionHeading>
+      <div className="px-4 py-4">
         <div className="flex flex-col gap-1 text-sm">
           <div className="flex gap-2">
             <span className="font-medium text-gray-600">ID:</span>
@@ -67,11 +66,8 @@ const CopyModelDialog: React.FC = () => {
         </div>
       </div>
 
+      <SectionHeading>New Model</SectionHeading>
       <div className="flex flex-col gap-3 px-4 py-4">
-        <div className="text-lg font-semibold uppercase tracking-wide text-gray-500">
-          New Model
-        </div>
-
         <TextInput
           label="Title"
           value={title}

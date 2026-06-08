@@ -23,6 +23,7 @@ import {
   type ChemicalParticipant,
   type CategorizedParticipants,
 } from '../services/chemicalConnectorUtils'
+import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 
 interface Props {
   sourceActivity: Activity
@@ -159,11 +160,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
     if (items.length === 0) return null
     return (
       <div className="flex w-full flex-col items-stretch justify-start">
-        <div
-          className="flex items-center bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
-        >
-          {title}
-        </div>
+        <SectionHeading>{title}</SectionHeading>
         <div className="flex flex-col items-stretch justify-start px-4 py-1">
           {items.map(item => (
             <Checkbox
@@ -235,11 +232,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
               )}
 
             {/* Evidence section */}
-            <div
-              className="mt-2 flex items-center bg-slate-400/30 pl-3 text-lg leading-[34px] text-neutral-600"
-            >
-              Evidence
-            </div>
+            <SectionHeading className="mt-2">Evidence</SectionHeading>
             <div className="px-4 py-2">
               {evidences.map(ev => (
                 <div key={ev.uid} className="mb-2 flex items-center gap-2">
