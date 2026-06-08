@@ -364,7 +364,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col">
       {/* Body */}
-      <div className="min-h-0 flex-1 overflow-y-auto bg-slate-200">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50">
         {activityType === ActivityType.PROTEIN_COMPLEX && (
           <div className="mx-3 mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm italic text-amber-800">
             Note that this should be used rarely, and only in the case where the activity cannot be
@@ -457,7 +457,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
                 group={group}
                 rows={rows}
                 errors={errors}
-                bgClass="bg-slate-200"
+                bgClass="bg-slate-50"
                 displayMenuButton={true}
                 onSearchAnnotations={onSearchAnnotationsForRow}
                 onCloneEvidence={handleCloneEvidence}

@@ -220,7 +220,9 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
             )
           })}
 
-        {/* Term cell */}
+        {/* Term cell — a node with no evidence of its own (the gene product /
+            chemical / protein-containing complex) widens to fill the row; rows
+            that carry evidence keep the fixed term width beside their columns. */}
         <EditableCell
           ref={termCellRef}
           label={treeNode.floatingLabel}
@@ -230,8 +232,8 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
             }
           }}
           onDelete={canDelete ? requestDeleteNode : undefined}
-          className="shrink-0"
-          style={{ flexBasis: termWidth }}
+          className={showEvidence ? 'shrink-0' : 'min-w-0 flex-1'}
+          style={showEvidence ? { flexBasis: termWidth } : undefined}
         >
           {node.label ? (
             <span>
@@ -274,8 +276,6 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
             ) : null}
           </div>
         )}
-
-        {!showEvidence && <span className="grow" />}
 
         {/* Action cell */}
         <div ref={actionCellRef} className="flex w-10 shrink-0 flex-col items-center justify-center p-0">

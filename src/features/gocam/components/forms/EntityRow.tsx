@@ -83,6 +83,12 @@ const EntityRow: React.FC<EntityRowProps> = ({
 
   const evidence = relation?.evidence ?? []
 
+  // The enabled-by entity (gene product / chemical / protein-containing complex)
+  // carries no evidence of its own — its row has no relation. Let its term box
+  // grow to fill the row. Children that carry a relation (has part, part of, …)
+  // keep the fixed term width with their evidence columns beside it.
+  const fillTerm = relation === null
+
   const handleTermChange = useCallback(
     (value: GOlrResponse | null | string) => {
       if (typeof value === 'object') {
@@ -238,8 +244,8 @@ const EntityRow: React.FC<EntityRowProps> = ({
 
       {/* Term field */}
       <div
-        className="min-w-0 shrink p-1"
-        style={{ flexBasis: baseTermWidth - (treeLevel - 1) * 20 }}
+        className={`min-w-0 p-1 ${fillTerm ? 'flex-1' : 'shrink'}`}
+        style={fillTerm ? undefined : { flexBasis: baseTermWidth - (treeLevel - 1) * 20 }}
       >
         <TermAutocomplete
           label={node.label}
@@ -255,7 +261,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
       </div>
 
       {/* Evidence columns */}
-      {node.showEvidence !== false && (
+      {!fillTerm && node.showEvidence !== false && (
         <div className="flex min-w-0 flex-1 flex-col items-stretch justify-start">
           {evidence.map(ev => (
             <div
