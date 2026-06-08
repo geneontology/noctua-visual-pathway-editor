@@ -36,6 +36,7 @@ const TREE_BORDER: Record<DisplayGroup, string> = {
   [DisplayGroup.MF]: 'border-green-400',
   [DisplayGroup.BP]: 'border-orange-400',
   [DisplayGroup.CC]: 'border-purple-400',
+  [DisplayGroup.MF_EXTRA]: 'border-green-400',
 }
 
 interface EntityRowProps {

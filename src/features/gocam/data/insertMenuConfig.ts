@@ -12,6 +12,8 @@ export enum DisplayGroup {
   MF = 'mf',
   BP = 'bp',
   CC = 'cc',
+  /** Function-level relations (has input, happens during) that render after BP/CC */
+  MF_EXTRA = 'mfExtra',
 }
 
 /** Per-section ordering of group cards (lower = renders first) */
@@ -20,6 +22,7 @@ export const GROUP_ORDER: Record<DisplayGroup, number> = {
   [DisplayGroup.MF]: 0,
   [DisplayGroup.BP]: 10,
   [DisplayGroup.CC]: 20,
+  [DisplayGroup.MF_EXTRA]: 30,
 }
 
 /** Default group when a node has no parent edge — derived from its category */
@@ -94,26 +97,6 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       displayGroup: DisplayGroup.GP,
     },
     {
-      label: 'happens during',
-      rangeLabel: 'Biological Phase/Stage',
-      targetType: RootTypes.BIOLOGICAL_PHASE,
-      predicate: predicate(Relations.HAPPENS_DURING),
-      showInMenu: true,
-      weight: 3,
-      cardinality: Cardinality.ONE_TO_ONE,
-      displayGroup: DisplayGroup.MF,
-    },
-    {
-      label: 'has input',
-      rangeLabel: 'Gene Product/Protein Complex',
-      targetType: RootTypes.MOLECULAR_ENTITY,
-      predicate: predicate(Relations.HAS_INPUT),
-      showInMenu: true,
-      weight: 4,
-      cardinality: Cardinality.ONE_TO_MANY,
-      displayGroup: DisplayGroup.MF,
-    },
-    {
       label: 'part of',
       rangeLabel: 'Biological Process',
       targetType: RootTypes.BIOLOGICAL_PROCESS,
@@ -132,6 +115,26 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       weight: 20,
       cardinality: Cardinality.ONE_TO_ONE,
       displayGroup: DisplayGroup.CC,
+    },
+    {
+      label: 'has input',
+      rangeLabel: 'Gene Product/Protein Complex',
+      targetType: RootTypes.MOLECULAR_ENTITY,
+      predicate: predicate(Relations.HAS_INPUT),
+      showInMenu: true,
+      weight: 30,
+      cardinality: Cardinality.ONE_TO_MANY,
+      displayGroup: DisplayGroup.MF_EXTRA,
+    },
+    {
+      label: 'happens during',
+      rangeLabel: 'Biological Phase/Stage',
+      targetType: RootTypes.BIOLOGICAL_PHASE,
+      predicate: predicate(Relations.HAPPENS_DURING),
+      showInMenu: true,
+      weight: 40,
+      cardinality: Cardinality.ONE_TO_ONE,
+      displayGroup: DisplayGroup.MF_EXTRA,
     },
   ],
 
