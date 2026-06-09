@@ -44,15 +44,15 @@ few primitives and every form consumes them, so they look the same.
 ### Drift found (the work)
 
 **1. Footer / action bar** — 6 different recipes:
-| Form | bg | border | padding | layout | button size | labels | extras |
-|------|----|--------|---------|--------|-------------|--------|--------|
-| `SimpleDialog` built-in | `gray-50` | `gray-200` | `px-4 py-3` | end | theme xs | Cancel/Confirm | — |
-| `ConfirmDialog` | `gray-50` | `gray-200` | `px-4 py-3` | end | theme xs | Cancel/Delete | — |
-| `AnnotationForm` | `gray-50` | `gray-200` | `px-4 py-3` | end | theme xs | Cancel/Save | — |
-| `ActivityForm` | **`gray-100`** | **`gray-300`** | **`px-3`, `h-[50px]`** | end | theme xs | **Clear**/Save | "Why disabled?" link (amber, underline) |
-| `RelationForm` | **`gray-100`** | `gray-200` | `px-4 py-3` | **between** | xs | Cancel/Save | **`shadow-md`**, "Why disabled?" yellow button (no onClick), Delete on left |
-| `ChemicalConnectorForm` | **`gray-100`** | `gray-200` | `px-4 py-3` | end | xs | **(no Cancel)**/Save | — |
-| `CamTitle/State/Comments`, `CopyModel` | `gray-50` | `gray-200` | `px-4 py-3` | end | **`sm`** | Cancel/Save(Copy) | — |
+| Form                                   | bg             | border         | padding                | layout      | button size | labels               | extras                                                                      |
+| -------------------------------------- | -------------- | -------------- | ---------------------- | ----------- | ----------- | -------------------- | --------------------------------------------------------------------------- |
+| `SimpleDialog` built-in                | `gray-50`      | `gray-200`     | `px-4 py-3`            | end         | theme xs    | Cancel/Confirm       | —                                                                           |
+| `ConfirmDialog`                        | `gray-50`      | `gray-200`     | `px-4 py-3`            | end         | theme xs    | Cancel/Delete        | —                                                                           |
+| `AnnotationForm`                       | `gray-50`      | `gray-200`     | `px-4 py-3`            | end         | theme xs    | Cancel/Save          | —                                                                           |
+| `ActivityForm`                         | **`gray-100`** | **`gray-300`** | **`px-3`, `h-[50px]`** | end         | theme xs    | **Clear**/Save       | "Why disabled?" link (amber, underline)                                     |
+| `RelationForm`                         | **`gray-100`** | `gray-200`     | `px-4 py-3`            | **between** | xs          | Cancel/Save          | **`shadow-md`**, "Why disabled?" yellow button (no onClick), Delete on left |
+| `ChemicalConnectorForm`                | **`gray-100`** | `gray-200`     | `px-4 py-3`            | end         | xs          | **(no Cancel)**/Save | —                                                                           |
+| `CamTitle/State/Comments`, `CopyModel` | `gray-50`      | `gray-200`     | `px-4 py-3`            | end         | **`sm`**    | Cancel/Save(Copy)    | —                                                                           |
 
 Differences: footer bg `gray-50` vs `gray-100`; border `gray-200` vs `gray-300`; ActivityForm fixed `h-[50px]`+`px-3`; RelationForm `justify-between`+`shadow-md`; button size `xs` vs `sm`; "Clear" vs "Cancel"; ChemicalConnector has no Cancel.
 
@@ -80,7 +80,7 @@ Differences: footer bg `gray-50` vs `gray-100`; border `gray-200` vs `gray-300`;
 
 **5. "Add" buttons:**
 - `AnnotationForm`: `size="compact-sm" variant="light" color="primary"` + `FaPlus` — "Add another evidence"
-- `CamCommentsForm`: `size="compact-sm" variant="light" color="primary"` + `FaPlus` — "Add another comment"
+- `CamCommentsForm`: `size="compact-sm" variant="light" color="primary"` + `FaPlus` — "Add Another Comment"
 - `RelationForm` / `ChemicalConnectorForm`: `variant="subtle" size="xs"` + `FiPlus` + `!text-xs !normal-case` — "Add Evidence"
 - Two visual styles + two icon libs (`FaPlus` vs `FiPlus`) for the same action.
 
@@ -145,9 +145,9 @@ Single source of truth in `src/@noctua.core/components/dialog/`:
 |                |               |      |
 
 ## Files Modified
-| File | Action | Status |
-| ---- | ------ | ------ |
-| `.plans/refactor/dialog-form-ui-uniformity.md` | create plan | done |
+| File                                           | Action      | Status |
+| ---------------------------------------------- | ----------- | ------ |
+| `.plans/refactor/dialog-form-ui-uniformity.md` | create plan | done   |
 
 ## Blockers
 - Needs user decisions on canonical tokens (see Phase 1 last item) before implementation.

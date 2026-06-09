@@ -66,7 +66,7 @@ form (via `insertMenuConfig` grouping + `moleculeActivity` template) shows:
   tsconfig.app.json` clean for this file; `npm run test` = 624 passed / 1
   failed (unchanged from baseline).
 - **The 1 failure** is pre-existing and unrelated: `CamCommentsForm.test.tsx`
-  uses `getByLabelText('Add comment')` but the component renders that as
+  uses `getByLabelText('Add Comment')` but the component renders that as
   button *text* (line 105), not an aria-label — part of the in-progress
   comments-form work (`FloatingTextarea.module.css` already dirty at start),
   no code path to `ActivityTable`.

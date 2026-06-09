@@ -76,20 +76,20 @@ test.describe('Comments dialog (comment icon)', () => {
   test('shows the Comments heading and an Add button', async ({ page }) => {
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByText(/^Comments$/)).toBeVisible()
-    await expect(dialog.getByLabel('Add comment')).toBeVisible()
+    await expect(dialog.getByLabel('Add Comment')).toBeVisible()
   })
 
   test('Add appends an empty comment row', async ({ page }) => {
     const dialog = page.getByRole('dialog')
     const initialTextareaCount = await dialog.locator('textarea').count()
-    await dialog.getByLabel('Add comment').click()
+    await dialog.getByLabel('Add Comment').click()
     await expect(dialog.locator('textarea')).toHaveCount(initialTextareaCount + 1)
   })
 
   test('typing only affects the targeted row', async ({ page }) => {
     const dialog = page.getByRole('dialog')
-    await dialog.getByLabel('Add comment').click()
-    await dialog.getByLabel('Add comment').click()
+    await dialog.getByLabel('Add Comment').click()
+    await dialog.getByLabel('Add Comment').click()
     const textareas = dialog.locator('textarea')
     const total = await textareas.count()
     await textareas.nth(total - 1).fill('Second new comment')

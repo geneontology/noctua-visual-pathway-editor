@@ -60,7 +60,7 @@ describe('CamCommentsForm', () => {
     const { user } = renderForm(buildCamState({ comments: ['one'] }))
     expect(commentInputs()).toHaveLength(1)
 
-    await user.click(screen.getByLabelText('Add comment'))
+    await user.click(screen.getByLabelText('Add Comment'))
 
     const inputs = commentInputs()
     expect(inputs).toHaveLength(2)

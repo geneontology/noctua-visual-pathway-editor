@@ -123,13 +123,19 @@ vi.mock('@mantine/core', async () => {
 const renderForm = (ui: ReactElement) =>
   renderWithProviders(<MantineProvider>{ui}</MantineProvider>)
 
-/** Find the Evidence section by its header. */
+/**
+ * Find the Evidence <section>. Both the section heading and each row's
+ * evidence-code autocomplete carry the text "Evidence", and all of them live
+ * inside the same <section>, so resolving any of them up to its closest
+ * <section> yields the right container regardless of the heading's tag.
+ */
 const evidenceSection = () => {
-  const header = screen
+  const section = screen
     .getAllByText('Evidence')
-    .find(el => el.tagName === 'DIV') as HTMLElement | undefined
-  if (!header) throw new Error('Evidence section header not found')
-  return header.closest('section') as HTMLElement
+    .map(el => el.closest('section'))
+    .find((s): s is HTMLElement => s !== null)
+  if (!section) throw new Error('Evidence section not found')
+  return section
 }
 
 const evidenceReferenceInputs = () =>

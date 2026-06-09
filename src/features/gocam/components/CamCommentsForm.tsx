@@ -97,8 +97,9 @@ const CamCommentsForm: React.FC = () => {
             color="primary"
             leftSection={<FaPlus size={10} />}
             onClick={handleAddComment}
+            aria-label="Add Comment"
           >
-            {comments.length === 0 ? 'Add comment' : 'Add another comment'}
+            {comments.length === 0 ? 'Add Comment' : 'Add Another Comment'}
           </Button>
         </div>
       </div>

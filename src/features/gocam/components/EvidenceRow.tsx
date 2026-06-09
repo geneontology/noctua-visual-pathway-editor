@@ -88,7 +88,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
           {ev.evidenceCode?.label || '—'}
           {ev.evidenceCode?.id && (
             <>
-              <br />
+              {' ('}
               <a
                 href={`${ENVIRONMENT.amigoTermUrl}${ev.evidenceCode.id}`}
                 target="_blank"
@@ -97,6 +97,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
               >
                 {ev.evidenceCode.id}
               </a>
+              {')'}
             </>
           )}
         </span>
@@ -105,7 +106,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
       <EditableCell
         ref={refCellRef}
         label="Reference"
-        className="ml-1 w-[100px] shrink-0"
+        className="ml-1 w-[130px] shrink-0"
         onEdit={() => openEditor(refCellRef, EditorCategory.reference)}
         onDelete={ev.reference ? () => onClearField(ev, AnnotationKey.SOURCE) : undefined}
       >
@@ -121,7 +122,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
       <EditableCell
         ref={withCellRef}
         label="With"
-        className="ml-1 w-[100px] shrink-0"
+        className="ml-1 w-[120px] shrink-0"
         onEdit={() => openEditor(withCellRef, EditorCategory.with)}
         onDelete={ev.with ? () => onClearField(ev, AnnotationKey.WITH) : undefined}
       >

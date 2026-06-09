@@ -46,12 +46,10 @@ const Layout: React.FC<LayoutProps> = ({ rightDrawerContent }) => {
 
         {rightDrawerContent && (
           <div
-            className={`fixed right-0 overflow-hidden border-l border-gray-300 bg-white shadow-lg transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+            className={`absolute inset-y-0 right-0 overflow-hidden border-l border-gray-300 bg-white shadow-lg transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
               }`}
             style={{
-              top: 120,
-              height: 'calc(100vh - 120px)',
-              width: isMobile ? '100%' : 800,
+              width: isMobile ? '100%' : 850,
             }}
           >
             {rightDrawerContent}
