@@ -113,7 +113,7 @@ export const processAnnotationsResponse = (response: any): AnnotationsResponse[]
 const getGroupsFromNames = (names: string[]): Group[] => {
   return names.map(name => ({
     id: name,
-    name: name,
+    label: name,
   }))
 }
 
