@@ -101,27 +101,27 @@ const CamToolbar: React.FC = () => {
 
   return (
     <div className="flex h-10 w-full items-center gap-2 bg-white px-3 text-xs shadow-md">
-      {cam.title && (
-        <Tooltip label={cam.title} withArrow openDelay={500} position="bottom">
-          <div className="flex h-full max-w-[260px] items-center border-r border-gray-200 pr-3">
-            <span
-              data-testid="model-title"
-              className="grow truncate pr-2 text-gray-800"
-            >
-              <span className="mr-1 font-semibold text-gray-900">Title:</span>
-              {cam.title}
-            </span>
-            <button
-              data-testid="edit-model-title"
-              aria-label="Edit model title"
-              className="text-gray-500 hover:text-gray-800 focus:outline-hidden"
-              onClick={openTitleForm}
-            >
-              <FaPen size={12} />
-            </button>
-          </div>
-        </Tooltip>
-      )}
+      <Tooltip
+        label={cam.title || 'Add a title'}
+        withArrow
+        openDelay={500}
+        position="bottom"
+      >
+        <div className="flex h-full max-w-[260px] items-center border-r border-gray-200 pr-3">
+          <span data-testid="model-title" className="grow truncate pr-2 text-gray-800">
+            <span className="mr-1 font-semibold text-gray-900">Title:</span>
+            {cam.title || <span className="italic text-gray-400">Untitled</span>}
+          </span>
+          <button
+            data-testid="edit-model-title"
+            aria-label="Edit model title"
+            className="text-gray-500 hover:text-gray-800 focus:outline-hidden"
+            onClick={openTitleForm}
+          >
+            <FaPen size={12} />
+          </button>
+        </div>
+      </Tooltip>
 
       {totalErrors > 0 && (
         <Chip
