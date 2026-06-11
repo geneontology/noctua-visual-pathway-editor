@@ -10,6 +10,32 @@ export const escapeGOlrValue = (str: string): string => {
   return str.replace(pattern, '\\$1')
 }
 
+export const formatSolrQueryString = (query: string): string => {
+  const alphanumericRegex = /^[a-zA-Z0-9 ]+$/
+  let formattedQuery = query
+  const minimalQueryLength = 3
+
+  if (query && query.length > 0) {
+    const hasCursor = query.slice(-1) !== ' '
+    query = query.trim()
+
+    if (query.length > 0 && alphanumericRegex.test(query) && hasCursor) {
+      const tokens = query.split(/\s+/)
+      const lastToken = tokens[tokens.length - 1]
+
+      if (tokens.length === 1 && lastToken.length >= minimalQueryLength) {
+        tokens[tokens.length - 1] = lastToken + '*'
+      } else if (tokens.length > 1) {
+        tokens[tokens.length - 1] = lastToken + '*'
+      }
+
+      formattedQuery = tokens.join(' ')
+    }
+  }
+
+  return formattedQuery
+}
+
 export const mapGOlrResponse = (response: any): GOlrResponse[] => {
   const docs = response.response.docs
 

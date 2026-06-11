@@ -2,7 +2,7 @@ import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import type { AnnotationsResponse, GOlrResponse } from '../models/search'
 import apiService from '@/app/store/apiService'
 import {
-  escapeGOlrValue,
+  formatSolrQueryString,
   mapGOlrResponse,
   processAnnotationsResponse,
   processHasParticipants,
@@ -65,8 +65,6 @@ const lookupApi = apiService
       >({
         queryFn: async ({ searchText, closureIds, excludeClosureIds }) => {
           try {
-            const escapedQuery = escapeGOlrValue(searchText)
-
             const closureClauses = (closureIds ?? []).map(id => `isa_closure:"${id}"`)
             const excludeClauses = (excludeClosureIds ?? []).map(
               id => `NOT isa_closure:"${id}"`
@@ -77,25 +75,24 @@ const lookupApi = apiService
                 : null
 
             const requestParams = {
-              q: escapedQuery + '*',
+              q: formatSolrQueryString(searchText),
               defType: 'edismax',
-              qt: 'standard',
               indent: 'on',
+              qt: 'standard',
               wt: 'json',
-              rows: '25',
+              rows: '50',
               start: '0',
-              fl: '*,score',
-              facet: 'true',
-              'facet.mincount': '1',
-              'facet.sort': 'count',
-              'facet.limit': '25',
-              'json.nl': 'arrarr',
+              packet: '1',
+              callback_type: 'search',
               fq: ['document_category:"ontology_class"', ...(closureFilter ? [closureFilter] : [])],
               qf: [
                 'annotation_class^3',
                 'annotation_class_label_searchable^5.5',
                 'description_searchable^1',
+                'comment_searchable^0.5',
                 'synonym_searchable^1',
+                'alternate_id^1',
+                'isa_closure^1',
                 'isa_closure_label_searchable^1',
               ],
             }
