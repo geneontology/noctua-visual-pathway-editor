@@ -3,6 +3,7 @@ import * as dagre from 'dagre'
 import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace } from './shapes'
 import { DropPlacement, centerTopLeft } from './dropPlacement'
 import { getEdgeColor } from './edgeDisplayService'
+import { orderActivityEdgesForDisplay } from '@/features/gocam/services/formUtils'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
@@ -475,15 +476,23 @@ export class CamCanvas {
     el.addIcon(this._activityIconUrl(activity))
 
     if (layoutDetail === 'detailed') {
+      const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(activity)
+      // GP card (e.g. "GP part_of complex") renders above the MF, matching the form/table.
+      // depthPrefix prepends em-dashes to the relation label to denote tree depth.
+      for (const { edge, depthPrefix } of gpEdges) {
+        if (edge.id === Relations.ENABLED_BY) continue
+        if (edge.target?.label) {
+          el.addEntity(depthPrefix + (edge.label ?? ''), edge.target.label, !!edge.evidence?.length)
+        }
+      }
       if (activity.molecularFunction) {
         const enabledByEdge = activity.edges?.find(e => e.id === Relations.ENABLED_BY)
         const hasEvidence = !!enabledByEdge?.evidence?.length
         el.addEntity('', activity.molecularFunction.label, hasEvidence)
       }
-      for (const edge of activity.edges ?? []) {
-        if (edge.id === Relations.ENABLED_BY) continue
+      for (const { edge, depthPrefix } of fdEdges) {
         if (edge.target?.label) {
-          el.addEntity(edge.label ?? '', edge.target.label, !!edge.evidence?.length)
+          el.addEntity(depthPrefix + (edge.label ?? ''), edge.target.label, !!edge.evidence?.length)
         }
       }
     } else if (layoutDetail === 'activity') {
