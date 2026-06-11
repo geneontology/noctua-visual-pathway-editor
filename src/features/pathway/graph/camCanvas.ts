@@ -1,6 +1,7 @@
 import * as joint from 'jointjs'
 import * as dagre from 'dagre'
 import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace } from './shapes'
+import { DropPlacement, centerTopLeft } from './dropPlacement'
 import { getEdgeColor } from './edgeDisplayService'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
@@ -29,6 +30,9 @@ export class CamCanvas {
   private _container: HTMLElement
   private _layoutChanged = false
   private _loading = false
+  // Tracks a node being created from a stencil drop so it lands at the drop
+  // point once it arrives from the server. See _handleDrop / addCanvasGraph.
+  private _dropPlacement = new DropPlacement()
   readOnly = false
 
   // Event callbacks — wired by the React component
@@ -39,7 +43,7 @@ export class CamCanvas {
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
-  onStencilDrop?: (type: string, x: number, y: number) => void
+  onStencilDrop?: (type: string) => void
 
   constructor(container: HTMLElement) {
     this._container = container
@@ -237,13 +241,41 @@ export class CamCanvas {
       this.autoLayout(spacing)
     }
 
-    this.paper.scaleContentToFit({
-      minScaleX: 0.3,
-      minScaleY: 0.3,
-      maxScaleX: 1,
-      maxScaleY: 1,
-    })
+    // A node dropped from the stencil should land at the drop point. The new
+    // activity arrives from the server on a post-save re-render (possibly after
+    // intervening renders), so the drop placement finds it by diffing against
+    // the activities seen last render and centers it on the drop. When we place
+    // one we keep the current viewport (skip the re-fit) so the node stays under
+    // the cursor instead of being scrolled away.
+    const activityUids = this.graph
+      .getElements()
+      .map(el => (el.prop('activity') as Activity | undefined)?.uid)
+      .filter((uid): uid is string => !!uid)
+
+    const placement = this._dropPlacement.resolve(activityUids)
+    if (placement) {
+      const el = this.graph.getCell(placement.uid)
+      if (el instanceof joint.dia.Element) {
+        const pos = centerTopLeft(placement.point, el.size())
+        el.position(pos.x, pos.y)
+        this._persistPositions()
+      }
+    }
+
+    if (!placement) {
+      this.paper.scaleContentToFit({
+        minScaleX: 0.3,
+        minScaleY: 0.3,
+        maxScaleX: 1,
+        maxScaleY: 1,
+      })
+    }
     this.paper.unfreeze()
+  }
+
+  /** Discard a pending drop, e.g. when the create form is dismissed. */
+  clearPendingDrop() {
+    this._dropPlacement.clear()
   }
 
   autoLayout(spacing: LayoutSpacing = 'compact') {
@@ -340,11 +372,13 @@ export class CamCanvas {
     e.preventDefault()
     const data = JSON.parse(raw) as { type: string; id: string }
 
-    const rect = this._container.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    // Convert the drop point to graph coordinates (accounts for pan/zoom) and
+    // arm it. The node it creates is positioned there once it comes back from
+    // the server — see addCanvasGraph and DropPlacement.
+    const local = this.paper.clientToLocalPoint(e.clientX, e.clientY)
+    this._dropPlacement.arm({ x: local.x, y: local.y })
 
-    this.onStencilDrop(data.type, x, y)
+    this.onStencilDrop(data.type)
   }
 
   private _initStencilDrop() {

@@ -149,7 +149,7 @@ const PathwayEditor: React.FC = () => {
   )
 
   const handleStencilDrop = useCallback(
-    (type: string, _x: number, _y: number) => {
+    (type: string) => {
       dispatch(resetForm())
       dispatch(initCreateForm(type as ActivityFormType))
       setActivityFormOpen(true)
@@ -274,7 +274,12 @@ const PathwayEditor: React.FC = () => {
       {/* Activity form dialog */}
       <ActivityDialog
         open={activityFormOpen}
-        onClose={() => setActivityFormOpen(false)}
+        onClose={() => {
+          // Dismissing the form (not saving) cancels any armed stencil drop so
+          // the drop point can't leak onto a later-created node.
+          canvas.canvasRef.current?.clearPendingDrop()
+          setActivityFormOpen(false)
+        }}
       >
         <ActivityForm onSaved={() => setActivityFormOpen(false)} />
       </ActivityDialog>

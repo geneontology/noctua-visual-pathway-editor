@@ -14,7 +14,7 @@ interface PathwayGraphProps {
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
-  onStencilDrop?: (type: ActivityType, x: number, y: number) => void
+  onStencilDrop?: (type: ActivityType) => void
   canvasRef?: React.MutableRefObject<CamCanvas | null>
 }
 
