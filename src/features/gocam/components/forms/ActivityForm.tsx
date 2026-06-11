@@ -17,7 +17,6 @@ import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import SearchAnnotations from './SearchAnnotations'
 import {
   initCreateForm,
-  resetForm,
   setErrors,
   setNodeEvidences,
   setRelationEvidences,
@@ -128,10 +127,9 @@ const GroupCard: React.FC<GroupCardProps> = ({
 
 interface ActivityFormProps {
   onSaved?: () => void
-  onCancel?: () => void
 }
 
-const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
+const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
   const dispatch = useAppDispatch()
   const formState = useAppSelector(selectActivityForm)
   const root = useAppSelector(selectFormRoot)
@@ -253,10 +251,12 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
     onSaved?.()
   }, [root, model, mode, existingActivityUid, hasErrors, updateGraphModel, onSaved, userContext])
 
-  const handleCancel = useCallback(() => {
-    dispatch(resetForm())
-    onCancel?.()
-  }, [dispatch, onCancel])
+  // "Clear" resets the form fields to a fresh blank template of the same
+  // activity type, keeping the dialog open. Closing is handled by the dialog
+  // header (X / Escape / backdrop), not this button.
+  const handleClear = useCallback(() => {
+    dispatch(initCreateForm(activityType ?? 'activity'))
+  }, [dispatch, activityType])
 
   // ── Search Annotations picker ─────────────────────────────────────
   // Only enabled for the regular Activity Unit form. Protein-complex and
@@ -370,7 +370,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50">
         {activityType === ActivityType.PROTEIN_COMPLEX && (
-          <div className="mx-3 mt-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm italic text-amber-800">
+          <div className="mx-3 my-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm italic text-amber-800">
             Note that this should be used rarely, and only in the case where the activity cannot be
             ascribed to a single subunit of a complex
           </div>
@@ -467,7 +467,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved, onCancel }) => {
             Why is the &quot;Save&quot; button disabled?
           </button>
         )}
-        <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
+        <Button variant="outline" size="sm" onClick={handleClear} disabled={isSaving}>
           Clear
         </Button>
         <Button

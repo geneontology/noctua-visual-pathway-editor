@@ -276,10 +276,7 @@ const PathwayEditor: React.FC = () => {
         open={activityFormOpen}
         onClose={() => setActivityFormOpen(false)}
       >
-        <ActivityForm
-          onSaved={() => setActivityFormOpen(false)}
-          onCancel={() => setActivityFormOpen(false)}
-        />
+        <ActivityForm onSaved={() => setActivityFormOpen(false)} />
       </ActivityDialog>
     </div>
   )
