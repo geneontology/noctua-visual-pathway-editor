@@ -6,6 +6,7 @@ import {
   rebaseTreeLevels,
   findTargetUidByRelation,
   getAspectBorderClass,
+  orderActivityEdgesForDisplay,
 } from '@/features/gocam/services/formUtils'
 import type {
   FlatRow,
@@ -14,8 +15,10 @@ import type {
   TermNode,
 } from '@/features/gocam/models/formModels'
 import { Aspect, RootTypes } from '@/features/gocam/models/cam'
+import type { Edge, GraphNode } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
 import { DisplayGroup } from '@/features/gocam/data/insertMenuConfig'
+import { buildActivity, buildNode } from '@tests/fixtures/builders'
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -244,5 +247,94 @@ describe('getAspectBorderClass', () => {
 
   it('returns an empty string for null aspect', () => {
     expect(getAspectBorderClass(makeNode({ aspect: null }))).toBe('')
+  })
+})
+
+// ── orderActivityEdgesForDisplay ────────────────────────────────────
+
+const edge = (predicateId: string, label: string, source: GraphNode, target: GraphNode): Edge => ({
+  uid: `e_${source.uid}_${predicateId}_${target.uid}`,
+  id: predicateId,
+  label,
+  sourceId: source.uid,
+  targetId: target.uid,
+  source,
+  target,
+  contributors: [],
+  groups: [],
+  evidence: [],
+})
+
+describe('orderActivityEdgesForDisplay', () => {
+  const mf = buildNode('mf', 'molecular function', [RootTypes.MOLECULAR_FUNCTION])
+  const gp = buildNode('gp', 'gene product', [RootTypes.MOLECULAR_ENTITY])
+  const cx = buildNode('cx', 'lipid tube complex', [RootTypes.PROTEIN_CONTAINING_COMPLEX])
+  const bp = buildNode('bp', 'biological process', [RootTypes.BIOLOGICAL_PROCESS])
+  const cc = buildNode('cc', 'cellular component', [RootTypes.CELLULAR_COMPONENT])
+  const inp = buildNode('inp', 'input', [RootTypes.MOLECULAR_ENTITY])
+
+  // Raw edges deliberately scrambled — sorting must impose display order.
+  const buildScrambled = () =>
+    buildActivity('act', [mf, gp, cx, bp, cc, inp], [
+      edge(Relations.HAS_INPUT, 'has input', mf, inp), // fd, weight 30, depth 2
+      edge(Relations.PART_OF, 'part of', gp, cx), // gp, weight 3, depth 3
+      edge(Relations.OCCURS_IN, 'occurs in', mf, cc), // fd, weight 20, depth 2
+      edge(Relations.ENABLED_BY, 'enabled by', mf, gp), // gp, weight 2, depth 2
+      edge(Relations.PART_OF, 'part of', mf, bp), // fd, weight 10, depth 2
+    ])
+
+  it('splits GP-card edges from function-description edges', () => {
+    const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
+    expect(gpEdges.map(r => r.edge.target.uid)).toEqual([gp.uid, cx.uid])
+    expect(fdEdges.map(r => r.edge.target.uid)).toEqual([bp.uid, cc.uid, inp.uid])
+  })
+
+  it('orders FD edges by weight: part_of(10) → occurs_in(20) → has_input(30)', () => {
+    const { fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
+    expect(fdEdges.map(r => r.edge.id)).toEqual([
+      Relations.PART_OF,
+      Relations.OCCURS_IN,
+      Relations.HAS_INPUT,
+    ])
+  })
+
+  it('places "GP part_of complex" in the GP card, not at the bottom (the bug)', () => {
+    const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
+    expect(gpEdges.some(r => r.edge.target.uid === cx.uid)).toBe(true)
+    expect(fdEdges.some(r => r.edge.target.uid === cx.uid)).toBe(false)
+  })
+
+  it('prefixes one em-dash per level: section roots 0, direct children 1', () => {
+    const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
+    // GP card anchored at the gene product (depth 2): enabled_by row 0 dashes,
+    // GP part_of complex (depth 3) one dash.
+    expect(gpEdges.map(r => r.depthPrefix)).toEqual(['', '—'])
+    // FD card anchored at the MF (depth 1): all direct children one dash.
+    expect(fdEdges.map(r => r.depthPrefix)).toEqual(['—', '—', '—'])
+  })
+
+  it('indents grandchildren with two dashes (CC part_of anatomy under occurs_in CC)', () => {
+    const an = buildNode('an', 'anatomy', [RootTypes.ANATOMICAL_ENTITY])
+    const activity = buildActivity('act', [mf, cc, an], [
+      edge(Relations.PART_OF, 'part of', cc, an), // CC group, depth 3
+      edge(Relations.OCCURS_IN, 'occurs in', mf, cc), // CC group, depth 2
+    ])
+    const { fdEdges } = orderActivityEdgesForDisplay(activity)
+    expect(fdEdges.map(r => [r.edge.target.uid, r.depthPrefix])).toEqual([
+      [cc.uid, '—'],
+      [an.uid, '——'],
+    ])
+  })
+
+  it('does not mutate the activity edges array', () => {
+    const activity = buildScrambled()
+    const before = activity.edges.map(e => e.uid)
+    orderActivityEdgesForDisplay(activity)
+    expect(activity.edges.map(e => e.uid)).toEqual(before)
+  })
+
+  it('returns empty cards for an activity with no edges', () => {
+    const activity = buildActivity('act', [mf], [])
+    expect(orderActivityEdgesForDisplay(activity)).toEqual({ gpEdges: [], fdEdges: [] })
   })
 })
