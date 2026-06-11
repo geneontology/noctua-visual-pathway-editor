@@ -47,11 +47,15 @@ vi.mock('@/features/search/components/Autocomplete', () => ({
     name,
     value,
     onChange,
+    rootTypeIds,
+    excludeRootTypeIds,
   }: {
     label: string
     name: string
     value: { id: string; label: string } | null | string
     onChange: (v: { id: string; label: string }) => void
+    rootTypeIds?: string[]
+    excludeRootTypeIds?: string[]
   }) => {
     const id = typeof value === 'object' && value ? value.id : ''
     const labelText = typeof value === 'object' && value ? value.label : ''
@@ -60,6 +64,11 @@ vi.mock('@/features/search/components/Autocomplete', () => ({
         <span data-testid={`autocomplete-label-${name}`}>{label}</span>
         <span data-testid={`autocomplete-value-${name}`}>{id}</span>
         <span data-testid={`autocomplete-value-label-${name}`}>{labelText}</span>
+        {/* Surface the closure filters so tests can assert what reaches the search query */}
+        <span data-testid={`autocomplete-roottypes-${name}`}>{JSON.stringify(rootTypeIds ?? null)}</span>
+        <span data-testid={`autocomplete-excludes-${name}`}>
+          {JSON.stringify(excludeRootTypeIds ?? null)}
+        </span>
         <button
           type="button"
           onClick={() => onChange({ id: 'ECO:test', label: 'test pick' })}
@@ -576,5 +585,47 @@ describe('AnnotationForm — Search Annotations picker integration', () => {
 
     expect(evidenceCount()).toBe(1)
     expect(evidenceReferenceInputs()[0].value).toBe('')
+  })
+})
+
+// The edit dialog must apply the same closure exclusions as the Activity Form
+// (EntityRow), derived from the category's excludeClosureIds in nodeCategories.ts.
+// Without this, editing a CC term surfaces protein-containing complex and editing
+// a Molecule/Chemical term surfaces information biomacromolecule (gene products).
+describe('AnnotationForm — term search exclusions (match Activity Form rules)', () => {
+  const termExcludes = (): unknown =>
+    JSON.parse(screen.getByTestId('autocomplete-excludes-annotation-term').textContent || 'null')
+
+  const termIncludes = (): unknown =>
+    JSON.parse(screen.getByTestId('autocomplete-roottypes-annotation-term').textContent || 'null')
+
+  it('CC search excludes protein-containing complex (GO:0032991)', () => {
+    renderForm(<AnnotationForm showTerm termRootTypes={[RootTypes.CELLULAR_COMPONENT]} />)
+    expect(termExcludes()).toEqual([RootTypes.PROTEIN_CONTAINING_COMPLEX])
+  })
+
+  it('Molecule/Chemical search excludes information biomacromolecule / gene product (CHEBI:33695)', () => {
+    renderForm(<AnnotationForm showTerm termRootTypes={[RootTypes.CHEMICAL_ENTITY]} />)
+    expect(termExcludes()).toEqual([RootTypes.MOLECULAR_ENTITY])
+  })
+
+  it('passes the include closures through unchanged', () => {
+    renderForm(<AnnotationForm showTerm termRootTypes={[RootTypes.CELLULAR_COMPONENT]} />)
+    expect(termIncludes()).toEqual([RootTypes.CELLULAR_COMPONENT])
+  })
+
+  it('applies no exclusions for a category that defines none (BP)', () => {
+    renderForm(<AnnotationForm showTerm termRootTypes={[RootTypes.BIOLOGICAL_PROCESS]} />)
+    expect(termExcludes()).toBeNull()
+  })
+
+  it('dedupes excludes across multiple root types', () => {
+    renderForm(
+      <AnnotationForm
+        showTerm
+        termRootTypes={[RootTypes.CELLULAR_COMPONENT, RootTypes.CELLULAR_COMPONENT]}
+      />
+    )
+    expect(termExcludes()).toEqual([RootTypes.PROTEIN_CONTAINING_COMPLEX])
   })
 })

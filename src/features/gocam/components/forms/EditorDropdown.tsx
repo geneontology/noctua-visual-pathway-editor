@@ -7,6 +7,7 @@ import { useAppSelector } from '@/app/hooks'
 import { EditorCategory } from '../../models/editorCategory'
 import { RootTypes } from '../../models/cam'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
+import { getNodeCategory } from '../../data/nodeCategories'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
 import type { GOlrResponse } from '@/features/search/models/search'
@@ -79,7 +80,16 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const rootTypes = termRootTypes ?? []
-  const termInitialOptions = useAppSelector(state => selectTerms(state, rootTypes))
+  // Mirror the Activity Form (EntityRow): a category's excludeClosureIds must
+  // narrow the term search too, so the inline editor hides protein-containing
+  // complex from CC and information biomacromolecule from Molecule/Chemical.
+  const excludeRootTypes = useMemo(() => {
+    const ids = (termRootTypes ?? []).flatMap(rt => getNodeCategory(rt)?.excludeClosureIds ?? [])
+    return ids.length > 0 ? Array.from(new Set(ids)) : undefined
+  }, [termRootTypes])
+  const termInitialOptions = useAppSelector(state =>
+    selectTerms(state, rootTypes, excludeRootTypes)
+  )
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
 
   // Field state
@@ -126,6 +136,7 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
               name="editor-term"
               autocompleteType={AutocompleteType.TERM}
               rootTypeIds={termRootTypes ?? []}
+              excludeRootTypeIds={excludeRootTypes}
               value={term}
               onChange={val => {
                 if (val && typeof val === 'object') setTerm(val)

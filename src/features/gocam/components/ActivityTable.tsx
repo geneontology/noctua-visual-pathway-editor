@@ -5,7 +5,7 @@ import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { FaEllipsisV, FaInfoCircle } from 'react-icons/fa'
 import { FiX } from 'react-icons/fi'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../data/allowedDatabases'
-import AllowedDatabasesPopover from './forms/AllowedDatabasesPopover'
+import AllowedDatabasesDialog from './forms/AllowedDatabasesDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
 import { selectCamModel } from '../slices/camSlice'
@@ -169,8 +169,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
   const [updateGraphModel] = useUpdateGraphModelMutation()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [refInfoAnchor, setRefInfoAnchor] = useState<HTMLElement | null>(null)
-  const [withInfoAnchor, setWithInfoAnchor] = useState<HTMLElement | null>(null)
+  const [refDbsOpen, setRefDbsOpen] = useState(false)
+  const [withDbsOpen, setWithDbsOpen] = useState(false)
 
   const modelId = model?.id ?? ''
   const { gpTree, fdTree } = useMemo(() => buildDisplayTree(activity), [activity])
@@ -270,7 +270,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
                   color="gray"
                   size="sm"
                   aria-label="View allowed Reference DBs"
-                  onClick={e => setRefInfoAnchor(e.currentTarget)}
+                  onClick={() => setRefDbsOpen(true)}
                 >
                   <FaInfoCircle size={12} />
                 </ActionIcon>
@@ -283,7 +283,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
                   color="gray"
                   size="sm"
                   aria-label="View allowed With/From DBs"
-                  onClick={e => setWithInfoAnchor(e.currentTarget)}
+                  onClick={() => setWithDbsOpen(true)}
                 >
                   <FaInfoCircle size={12} />
                 </ActionIcon>
@@ -316,16 +316,16 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
         message="Are you sure you want to delete this activity? This cannot be undone."
       />
 
-      {/* ── Allowed-database popovers ── */}
-      <AllowedDatabasesPopover
-        anchorEl={refInfoAnchor}
-        onClose={() => setRefInfoAnchor(null)}
+      {/* ── Allowed-database dialogs ── */}
+      <AllowedDatabasesDialog
+        open={refDbsOpen}
+        onClose={() => setRefDbsOpen(false)}
         title="Allowed Reference Databases"
         databases={referenceAllowedDBs}
       />
-      <AllowedDatabasesPopover
-        anchorEl={withInfoAnchor}
-        onClose={() => setWithInfoAnchor(null)}
+      <AllowedDatabasesDialog
+        open={withDbsOpen}
+        onClose={() => setWithDbsOpen(false)}
         title="Allowed With/From Databases"
         databases={withFromAllowedDBs}
       />

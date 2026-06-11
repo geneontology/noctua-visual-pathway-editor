@@ -13,6 +13,7 @@ import { RootTypes } from '../../models/cam'
 import type { EvidenceForm } from '../../models/formModels'
 import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/formModels'
 import { ROOT_NODES } from '../../data/camConstants'
+import { getNodeCategory } from '../../data/nodeCategories'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import { canAddISSEvidence } from '../../services/annotationRules'
 import DatabaseField from './DatabaseField'
@@ -54,8 +55,18 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
 
+  // Mirror the Activity Form (EntityRow): a category's excludeClosureIds must
+  // narrow the term search too, so the edit dialog hides protein-containing
+  // complex from CC and information biomacromolecule from Molecule/Chemical.
+  const termExcludeRootTypes = useMemo(() => {
+    const ids = termRootTypes.flatMap(rt => getNodeCategory(rt)?.excludeClosureIds ?? [])
+    return ids.length > 0 ? Array.from(new Set(ids)) : undefined
+  }, [termRootTypes])
+
   const selectTerms = useMemo(makeSelectModelTerms, [])
-  const termInitialOptions = useAppSelector(state => selectTerms(state, termRootTypes))
+  const termInitialOptions = useAppSelector(state =>
+    selectTerms(state, termRootTypes, termExcludeRootTypes)
+  )
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
 
   const addEvidence = useCallback(() => {
@@ -194,6 +205,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                 name="annotation-term"
                 autocompleteType={AutocompleteType.TERM}
                 rootTypeIds={termRootTypes}
+                excludeRootTypeIds={termExcludeRootTypes}
                 value={term}
                 onChange={handleTermChange}
                 variant="outlined"

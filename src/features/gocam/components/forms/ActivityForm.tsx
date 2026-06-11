@@ -42,7 +42,7 @@ import type { Aspect, Entity, Evidence } from '../../models/cam'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../../data/allowedDatabases'
 import EntityRow from './EntityRow'
 import CloneEvidenceDialog from './CloneEvidenceDialog'
-import AllowedDatabasesPopover from './AllowedDatabasesPopover'
+import AllowedDatabasesDialog from './AllowedDatabasesDialog'
 import { v4 as uuidv4 } from 'uuid'
 import {
   buildGroupedRows,
@@ -148,8 +148,8 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     open: boolean
     relationUid: string
   }>({ open: false, relationUid: '' })
-  const [refInfoAnchor, setRefInfoAnchor] = useState<HTMLElement | null>(null)
-  const [withInfoAnchor, setWithInfoAnchor] = useState<HTMLElement | null>(null)
+  const [refDbsOpen, setRefDbsOpen] = useState(false)
+  const [withDbsOpen, setWithDbsOpen] = useState(false)
   const [pickerState, setPickerState] = useState<{
     open: boolean
     gpId: string
@@ -415,7 +415,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                     color="gray"
                     size="sm"
                     aria-label="View allowed Reference DBs"
-                    onClick={e => setRefInfoAnchor(e.currentTarget)}
+                    onClick={() => setRefDbsOpen(true)}
                   >
                     <FaInfoCircle size={12} />
                   </ActionIcon>
@@ -428,7 +428,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                     color="gray"
                     size="sm"
                     aria-label="View allowed With/From DBs"
-                    onClick={e => setWithInfoAnchor(e.currentTarget)}
+                    onClick={() => setWithDbsOpen(true)}
                   >
                     <FaInfoCircle size={12} />
                   </ActionIcon>
@@ -528,16 +528,16 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
         />
       )}
 
-      {/* Info popovers */}
-      <AllowedDatabasesPopover
-        anchorEl={refInfoAnchor}
-        onClose={() => setRefInfoAnchor(null)}
+      {/* Allowed-database dialogs */}
+      <AllowedDatabasesDialog
+        open={refDbsOpen}
+        onClose={() => setRefDbsOpen(false)}
         title="Allowed Reference Databases"
         databases={referenceAllowedDBs}
       />
-      <AllowedDatabasesPopover
-        anchorEl={withInfoAnchor}
-        onClose={() => setWithInfoAnchor(null)}
+      <AllowedDatabasesDialog
+        open={withDbsOpen}
+        onClose={() => setWithDbsOpen(false)}
         title="Allowed With/From Databases"
         databases={withFromAllowedDBs}
       />
