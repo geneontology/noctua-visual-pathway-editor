@@ -603,7 +603,7 @@ describe('buildAddNodeOperations', () => {
 describe('buildDeleteNodeOperations', () => {
   it('removes every edge then the node then STOREs', () => {
     const ops = buildDeleteNodeOperations(
-      'target-uid',
+      ['target-uid'],
       [
         { sourceId: 'parent', targetId: 'target-uid', predicateId: 'BFO:0000050' },
         { sourceId: 'target-uid', targetId: 'child', predicateId: 'BFO:0000051' },
@@ -619,7 +619,7 @@ describe('buildDeleteNodeOperations', () => {
   })
 
   it('handles no incident edges (just REMOVE individual + STORE)', () => {
-    const ops = buildDeleteNodeOperations('lonely-uid', [], MODEL_ID)
+    const ops = buildDeleteNodeOperations(['lonely-uid'], [], MODEL_ID)
     expect(ops).toHaveLength(2)
     expect(ops[0].operation).toBe(OperationType.REMOVE)
     expect(ops[0].arguments.individual).toBe('lonely-uid')
@@ -628,7 +628,7 @@ describe('buildDeleteNodeOperations', () => {
 
   it('passes predicateId through to the edge REMOVE', () => {
     const ops = buildDeleteNodeOperations(
-      'tgt',
+      ['tgt'],
       [{ sourceId: 's', targetId: 'tgt', predicateId: 'BFO:0000050' }],
       MODEL_ID
     )

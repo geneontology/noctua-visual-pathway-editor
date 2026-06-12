@@ -485,10 +485,15 @@ export const buildAddNodeOperations = (
 }
 
 /**
- * Delete a node and all its edges.
+ * Delete one or more nodes and all the given edges.
+ *
+ * Callers pass the full set of individuals to remove — for a nested annotation
+ * that means the clicked node plus its descendant subtree, so deleting e.g. a
+ * BP that is `part_of` another BP removes both individuals instead of leaving
+ * the deeper one orphaned in the model.
  */
 export const buildDeleteNodeOperations = (
-  nodeUid: string,
+  nodeUids: string[],
   edges: { sourceId: string; targetId: string; predicateId: string }[],
   modelId: string
 ): Operation[] => {
@@ -507,11 +512,13 @@ export const buildDeleteNodeOperations = (
     })
   }
 
-  operations.push({
-    entity: OperationEntity.INDIVIDUAL,
-    operation: OperationType.REMOVE,
-    arguments: { individual: nodeUid, 'model-id': modelId },
-  })
+  for (const nodeUid of nodeUids) {
+    operations.push({
+      entity: OperationEntity.INDIVIDUAL,
+      operation: OperationType.REMOVE,
+      arguments: { individual: nodeUid, 'model-id': modelId },
+    })
+  }
 
   operations.push({
     entity: OperationEntity.MODEL,

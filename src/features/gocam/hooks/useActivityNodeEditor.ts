@@ -52,10 +52,26 @@ export function useActivityNodeEditor({
   )
 
   const handleDeleteNode = useCallback(async () => {
+    // Collect the node plus its descendant subtree (children reached via
+    // outgoing edges — part_of/occurs_in nesting), mirroring the old Angular
+    // createActivityNodeDelete -> descendants(node). Without this, deleting a
+    // nested BP/CC leaves the deeper term orphaned in the model.
+    const subtreeUids = new Set<string>([nodeUid])
+    const queue = [nodeUid]
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      for (const e of allEdges) {
+        if (e.sourceId === current && !subtreeUids.has(e.targetId)) {
+          subtreeUids.add(e.targetId)
+          queue.push(e.targetId)
+        }
+      }
+    }
+
     const nodeEdges = allEdges
-      .filter(e => e.sourceId === nodeUid || e.targetId === nodeUid)
+      .filter(e => subtreeUids.has(e.sourceId) || subtreeUids.has(e.targetId))
       .map(e => ({ sourceId: e.sourceId, targetId: e.targetId, predicateId: e.id }))
-    await updateGraphModel(buildDeleteNodeOperations(nodeUid, nodeEdges, modelId))
+    await updateGraphModel(buildDeleteNodeOperations([...subtreeUids], nodeEdges, modelId))
     onNodeDeleted?.()
   }, [nodeUid, allEdges, modelId, updateGraphModel, onNodeDeleted])
 

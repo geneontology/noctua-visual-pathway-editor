@@ -27,6 +27,7 @@ import {
   buildConnectorOperations,
   buildConnectorDeleteOperations,
   isReverseLinkConnector,
+  getDefaultConnectorEvidence,
 } from '../services/connectorServices'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
@@ -121,6 +122,18 @@ const RelationForm: React.FC<Props> = ({
           }))
           dispatch(setConnectorEvidences(evForms))
         }
+      }
+    } else {
+      // New connection: seed the evidence box from the upstream activity's
+      // enabled_by edge. When it has none, keep the empty row from
+      // resetSelection so the user can still add evidence with [+].
+      const seedForms = getDefaultConnectorEvidence(
+        sourceActivity,
+        targetActivity,
+        model?.edges ?? []
+      )
+      if (seedForms.length > 0) {
+        dispatch(setConnectorEvidences(seedForms))
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { Activity, GraphNode, UserContext } from '@/features/gocam/models/cam'
+import type { Activity, Edge, GraphNode, UserContext } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
 import type { EvidenceForm } from '@/features/gocam/models/formModels'
+import { evidenceToForm } from '@/features/gocam/models/formModels'
 import {
   OperationEntity,
   OperationType,
@@ -21,6 +22,31 @@ export const isReverseLinkConnector = (
   sourceActivity: Activity
 ): boolean =>
   relationId === Relations.HAS_INPUT && sourceActivity.type === ActivityType.MOLECULE
+
+/**
+ * Default connector evidence: the evidence on the upstream activity's
+ * enabled_by edge (molecular function → gene product). When the source side is
+ * a molecule (which has no enabled_by edge), the evidence is taken from the
+ * target activity instead. Returns [] when there is no such evidence, so the
+ * caller can fall back to a single empty evidence row.
+ */
+export const getDefaultConnectorEvidence = (
+  sourceActivity: Activity,
+  targetActivity: Activity,
+  edges: Edge[]
+): EvidenceForm[] => {
+  const evidenceActivity =
+    sourceActivity.type === ActivityType.MOLECULE ? targetActivity : sourceActivity
+
+  const mfUid = evidenceActivity.molecularFunction?.uid
+  if (!mfUid) return []
+
+  const enabledByEdge = edges.find(
+    edge => edge.id === Relations.ENABLED_BY && edge.sourceId === mfUid
+  )
+
+  return (enabledByEdge?.evidence ?? []).map(evidenceToForm)
+}
 
 /**
  * Build Barista API operations to create a causal relation between two activities.
