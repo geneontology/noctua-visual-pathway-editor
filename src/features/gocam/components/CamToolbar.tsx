@@ -148,7 +148,7 @@ const CamToolbar: React.FC = () => {
           circleClass="border-green-300 bg-green-200 text-green-700"
           onClick={openCamErrors}
         >
-          No Errors
+          {totalErrors} Error(s) Found
         </Chip>
       )}
 

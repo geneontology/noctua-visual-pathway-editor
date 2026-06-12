@@ -13,6 +13,7 @@ interface PathwayGraphProps {
   onDeleteClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
+  onDuplicateLink?: () => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
   onStencilDrop?: (type: ActivityType) => void
   canvasRef?: React.MutableRefObject<CamCanvas | null>
@@ -28,6 +29,7 @@ export default function PathwayGraph({
   onDeleteClick,
   onLinkClick,
   onLinkCreated,
+  onDuplicateLink,
   onUpdateLocations,
   onStencilDrop,
   canvasRef: externalCanvasRef,
@@ -60,6 +62,7 @@ export default function PathwayGraph({
     canvas.onDeleteClick = onDeleteClick
     canvas.onLinkClick = onLinkClick
     canvas.onLinkCreated = onLinkCreated
+    canvas.onDuplicateLink = onDuplicateLink
     canvas.onUpdateLocations = onUpdateLocations
     canvas.onStencilDrop = onStencilDrop as CamCanvas['onStencilDrop']
   }, [
@@ -69,6 +72,7 @@ export default function PathwayGraph({
     onDeleteClick,
     onLinkClick,
     onLinkCreated,
+    onDuplicateLink,
     onUpdateLocations,
     onStencilDrop,
     canvasRef,

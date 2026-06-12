@@ -51,6 +51,9 @@ const closedConnector: ConnectorDialog = {
   edge: null,
 }
 
+const DUPLICATE_LINK_MESSAGE =
+  "These two activities are already connected. Use the 'Edit relation' function or delete the relation before creating a new one."
+
 const PathwayEditor: React.FC = () => {
   const dispatch = useAppDispatch()
   const [searchParams] = useSearchParams()
@@ -64,6 +67,7 @@ const PathwayEditor: React.FC = () => {
   const canvas = usePathwayCanvas(isLoggedIn)
   const [activityFormOpen, setActivityFormOpen] = useState(false)
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
+  const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
 
   const {
     data: graphModel,
@@ -132,6 +136,10 @@ const PathwayEditor: React.FC = () => {
     },
     [graphModel, checkGroup]
   )
+
+  const handleDuplicateLink = useCallback(() => {
+    setDuplicateLinkOpen(true)
+  }, [])
 
   const handleDuplicateActivity = useCallback(
     (activityId: string) => {
@@ -218,6 +226,7 @@ const PathwayEditor: React.FC = () => {
             onDeleteClick={del.requestDelete}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
+            onDuplicateLink={handleDuplicateLink}
             onStencilDrop={handleStencilDrop}
             onUpdateLocations={handleUpdateLocations}
           />
@@ -275,6 +284,21 @@ const PathwayEditor: React.FC = () => {
             onSaved={() => setConnector(closedConnector)}
           />
         )}
+      </SimpleDialog>
+
+      {/* Duplicate connection warning */}
+      <SimpleDialog
+        open={duplicateLinkOpen}
+        onClose={() => setDuplicateLinkOpen(false)}
+        title="Activities Already Connected"
+        size="xs"
+      >
+        <div className="px-4 py-4 text-sm text-gray-700">{DUPLICATE_LINK_MESSAGE}</div>
+        <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
+          <Button onClick={() => setDuplicateLinkOpen(false)} variant="filled">
+            OK
+          </Button>
+        </div>
       </SimpleDialog>
 
       {/* Activity form dialog */}

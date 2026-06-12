@@ -43,6 +43,7 @@ export class CamCanvas {
   onDeleteClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
+  onDuplicateLink?: () => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
   onStencilDrop?: (type: string) => void
 
@@ -61,7 +62,9 @@ export class CamCanvas {
       width: '100%',
       model: this.graph,
       restrictTranslate: true,
-      multiLinks: false,
+      // Allow the duplicate drag to commit so onDuplicateLink can surface a
+      // popup; the change:source/target handler removes the extra link itself.
+      multiLinks: true,
       markAvailable: true,
       validateConnection(cellViewS, _magnetS, cellViewT) {
         if (cellViewS === cellViewT) return false
@@ -178,9 +181,26 @@ export class CamCanvas {
       if (this._loading) return
       const sourceId = link.get('source')?.id as string | undefined
       const targetId = link.get('target')?.id as string | undefined
-      if (sourceId && targetId) {
-        this.onLinkCreated?.(sourceId, targetId)
+      if (!sourceId || !targetId) return
+
+      // Two activities may only have one connection. The existing connection is
+      // still drawn, so if any other link already joins this pair (either
+      // direction) remove the just-dragged duplicate and surface the popup
+      // instead of opening the connector form.
+      const alreadyConnected = this.graph.getLinks().some(existing => {
+        if (existing.id === link.id) return false
+        const s = existing.get('source')?.id as string | undefined
+        const t = existing.get('target')?.id as string | undefined
+        return (s === sourceId && t === targetId) || (s === targetId && t === sourceId)
+      })
+
+      if (alreadyConnected) {
+        link.remove()
+        this.onDuplicateLink?.()
+        return
       }
+
+      this.onLinkCreated?.(sourceId, targetId)
     })
 
     // ── Position tracking ──

@@ -38,18 +38,17 @@ const renderToolbar = (totalErrors = 0) =>
   )
 
 describe('CamToolbar error chip', () => {
-  it('shows a green "No Errors" chip when there are 0 errors', () => {
+  it('shows a green "0 Error(s) Found" chip when there are 0 errors', () => {
     renderToolbar(0)
-    const chip = screen.getByRole('button', { name: 'No Errors' })
+    const chip = screen.getByRole('button', { name: '0 Error(s) Found' })
     expect(chip.className).toContain('bg-green-100')
-    expect(screen.queryByRole('button', { name: /Found/ })).toBeNull()
   })
 
   it('shows a red singular "1 Error Found" chip for one error', () => {
     renderToolbar(1)
     const chip = screen.getByRole('button', { name: '1 Error Found' })
     expect(chip.className).toContain('bg-red-100')
-    expect(screen.queryByRole('button', { name: 'No Errors' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '0 Error(s) Found' })).toBeNull()
   })
 
   it('pluralizes the chip label when there is more than one error', () => {
@@ -60,7 +59,7 @@ describe('CamToolbar error chip', () => {
 
   it('opens the CAM errors panel when the green chip is clicked', async () => {
     const { user, store } = renderToolbar(0)
-    await user.click(screen.getByRole('button', { name: 'No Errors' }))
+    await user.click(screen.getByRole('button', { name: '0 Error(s) Found' }))
 
     expect(store.getState().drawer.rightDrawerOpen).toBe(true)
     expect(store.getState().drawer.rightPanelTab).toBe(RightPanelTab.CAM_ERRORS)
