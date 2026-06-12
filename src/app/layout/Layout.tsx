@@ -8,6 +8,7 @@ import { initGA, trackPageView } from '@/analytics'
 import { useEffect } from 'react'
 import { useMediaQuery } from '@mantine/hooks'
 import CamToolbar from '@/features/gocam/components/CamToolbar'
+import GroupGuardProvider from '@/features/gocam/components/GroupGuardProvider'
 import LoadingOverlay from '@/@noctua.core/components/loading-overlay/LoadingOverlay'
 
 interface LayoutProps {
@@ -28,35 +29,36 @@ const Layout: React.FC<LayoutProps> = ({ rightDrawerContent }) => {
   }, [location])
 
   return (
-    <div className="flex h-screen w-full flex-col bg-gray-300">
-      <LoadingOverlay />
-      <div className="fixed left-0 top-0 z-50 h-12 w-full border-b-2 border-b-primary-500">
-        <Toolbar />
-      </div>
-      <div className="fixed z-40 flex w-full flex-1" style={{ top: 50 }}>
-        <CamToolbar />
-      </div>
-
-      <div className="fixed flex w-full flex-1" style={{ top: 94, bottom: 0 }}>
-
-        <div className="flex-1 overflow-auto">
-          <Outlet />
-          <Footer />
+    <GroupGuardProvider>
+      <div className="flex h-screen w-full flex-col bg-gray-300">
+        <LoadingOverlay />
+        <div className="fixed left-0 top-0 z-50 h-12 w-full border-b-2 border-b-primary-500">
+          <Toolbar />
+        </div>
+        <div className="fixed z-40 flex w-full flex-1" style={{ top: 50 }}>
+          <CamToolbar />
         </div>
 
-        {rightDrawerContent && (
-          <div
-            className={`absolute inset-y-0 right-0 overflow-hidden border-l border-gray-300 bg-white shadow-lg transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-              }`}
-            style={{
-              width: isMobile ? '100%' : 850,
-            }}
-          >
-            {rightDrawerContent}
+        <div className="fixed flex w-full flex-1" style={{ top: 94, bottom: 0 }}>
+          <div className="flex-1 overflow-auto">
+            <Outlet />
+            <Footer />
           </div>
-        )}
+
+          {rightDrawerContent && (
+            <div
+              className={`absolute inset-y-0 right-0 overflow-hidden border-l border-gray-300 bg-white shadow-lg transition-transform duration-300 ease-out ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+                }`}
+              style={{
+                width: isMobile ? '100%' : 850,
+              }}
+            >
+              {rightDrawerContent}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </GroupGuardProvider>
   )
 }
 

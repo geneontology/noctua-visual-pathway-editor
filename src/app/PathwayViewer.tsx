@@ -32,6 +32,7 @@ import ActivityForm from '@/features/gocam/components/forms/ActivityForm'
 import ConnectorForm from '@/features/relations/components/ConnectorForm'
 import { renderConnectorDialogTitle } from '@/features/relations/services/connectorTitle'
 import { selectAuthUser, selectBaristaToken } from '@/features/auth/slices/authSlice'
+import { useGroupGuard } from '@/features/gocam/components/GroupGuardProvider'
 import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
@@ -58,6 +59,7 @@ const PathwayEditor: React.FC = () => {
   const user = useAppSelector(selectAuthUser)
   const baristaToken = useAppSelector(selectBaristaToken)
   const isLoggedIn = !!user
+  const checkGroup = useGroupGuard()
 
   const canvas = usePathwayCanvas(isLoggedIn)
   const [activityFormOpen, setActivityFormOpen] = useState(false)
@@ -115,9 +117,9 @@ const PathwayEditor: React.FC = () => {
             c.targetId === source.rootNode?.uid)
       )
       if (!edge) return
-      setConnector({ open: true, source, target, edge })
+      checkGroup(() => setConnector({ open: true, source, target, edge }))
     },
-    [graphModel]
+    [graphModel, checkGroup]
   )
 
   const handleLinkCreated = useCallback(
@@ -125,10 +127,10 @@ const PathwayEditor: React.FC = () => {
       const source = graphModel?.data?.activities.find(a => a.uid === sourceId)
       const target = graphModel?.data?.activities.find(a => a.uid === targetId)
       if (source && target) {
-        setConnector({ open: true, source, target, edge: null })
+        checkGroup(() => setConnector({ open: true, source, target, edge: null }))
       }
     },
-    [graphModel]
+    [graphModel, checkGroup]
   )
 
   const handleDuplicateActivity = useCallback(
@@ -141,20 +143,24 @@ const PathwayEditor: React.FC = () => {
           : activity.type === ActivityType.PROTEIN_COMPLEX
             ? 'proteinComplex'
             : 'activity'
-      dispatch(resetForm())
-      dispatch(initDuplicateForm({ activity, activityType }))
-      setActivityFormOpen(true)
+      checkGroup(() => {
+        dispatch(resetForm())
+        dispatch(initDuplicateForm({ activity, activityType }))
+        setActivityFormOpen(true)
+      })
     },
-    [graphModel, dispatch]
+    [graphModel, dispatch, checkGroup]
   )
 
   const handleStencilDrop = useCallback(
     (type: string) => {
-      dispatch(resetForm())
-      dispatch(initCreateForm(type as ActivityFormType))
-      setActivityFormOpen(true)
+      checkGroup(() => {
+        dispatch(resetForm())
+        dispatch(initCreateForm(type as ActivityFormType))
+        setActivityFormOpen(true)
+      })
     },
-    [dispatch]
+    [dispatch, checkGroup]
   )
 
   const handleUpdateLocations = useCallback(

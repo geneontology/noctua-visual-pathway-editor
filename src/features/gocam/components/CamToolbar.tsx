@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { ActionIcon, Tooltip } from '@mantine/core'
 import {
   FaCalendarDay,
+  FaCheck,
   FaComment,
   FaClone,
   FaExclamationTriangle,
@@ -19,6 +20,7 @@ import {
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import Chip from '@/@noctua.core/components/chip/Chip'
+import { useGroupGuard } from './GroupGuardProvider'
 import { useModelUrls } from '../hooks/useModelUrls'
 import { getStateColor } from '../data/stateColors'
 import ContributorChips from './ContributorChips'
@@ -29,34 +31,41 @@ const CamToolbar: React.FC = () => {
   const cam = useAppSelector(selectCamModel)
   const baristaToken = useAppSelector(selectBaristaToken)
   const urls = useModelUrls(cam?.id, baristaToken)
+  const checkGroup = useGroupGuard()
 
   const openTitleForm = () => {
-    dispatch(
-      openDialog({
-        component: DialogComponent.CAM_TITLE_FORM,
-        title: 'Edit Title',
-        size: 'sm',
-      })
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.CAM_TITLE_FORM,
+          title: 'Edit Title',
+          size: 'sm',
+        })
+      )
     )
   }
 
   const openStateForm = () => {
-    dispatch(
-      openDialog({
-        component: DialogComponent.CAM_STATE_FORM,
-        title: 'Change State',
-        size: 'xs',
-      })
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.CAM_STATE_FORM,
+          title: 'Change State',
+          size: 'xs',
+        })
+      )
     )
   }
 
   const openCommentsForm = () => {
-    dispatch(
-      openDialog({
-        component: DialogComponent.CAM_COMMENTS_FORM,
-        title: 'Comments',
-        size: 'sm',
-      })
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.CAM_COMMENTS_FORM,
+          title: 'Comments',
+          size: 'sm',
+        })
+      )
     )
   }
 
@@ -123,7 +132,7 @@ const CamToolbar: React.FC = () => {
         </div>
       </Tooltip>
 
-      {totalErrors > 0 && (
+      {totalErrors > 0 ? (
         <Chip
           icon={<FaExclamationTriangle size={12} />}
           chipClass="border-red-300 bg-red-100 text-red-900"
@@ -131,6 +140,15 @@ const CamToolbar: React.FC = () => {
           onClick={openCamErrors}
         >
           {totalErrors} Error{totalErrors > 1 ? 's' : ''} Found
+        </Chip>
+      ) : (
+        <Chip
+          icon={<FaCheck size={12} />}
+          chipClass="border-green-300 bg-green-100 text-green-900"
+          circleClass="border-green-300 bg-green-200 text-green-700"
+          onClick={openCamErrors}
+        >
+          No Errors
         </Chip>
       )}
 

@@ -12,6 +12,7 @@ import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
+import { useGroupGuard } from './GroupGuardProvider'
 import {
   buildAddNodeOperations,
   buildEditIndividualTypeOperations,
@@ -96,6 +97,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const treeBorder = aspect ? TREE_BORDER_BY_ASPECT[aspect] : 'border-blue-400'
 
   const openAnnotationForm = useOpenAnnotationForm()
+  const checkGroup = useGroupGuard()
 
   const handleEditorSave = useCallback(
     async (values: EditorDropdownValues) => {
@@ -153,55 +155,59 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const handleInsertNode = useCallback(
     (item: InsertMenuItem) => {
       const targetAspect = getAspectFromRootTypes([item.targetType])
-      openAnnotationForm({
-        showTerm: true,
-        title: `Add ${item.label}`,
-        termLabel: item.label,
-        termRootTypes: [item.targetType],
-        gpId: gpNodeId,
-        aspect: targetAspect,
-        activityType,
-        onSubmit: async ({ term, evidences }) => {
-          if (!term) return
-          await updateGraphModel(
-            buildAddNodeOperations(
-              node.uid,
-              item.predicate.id,
-              item.targetType,
-              modelId,
-              resolvedUserContext,
-              { termId: term.id, evidences }
+      checkGroup(() =>
+        openAnnotationForm({
+          showTerm: true,
+          title: `Add ${item.label}`,
+          termLabel: item.label,
+          termRootTypes: [item.targetType],
+          gpId: gpNodeId,
+          aspect: targetAspect,
+          activityType,
+          onSubmit: async ({ term, evidences }) => {
+            if (!term) return
+            await updateGraphModel(
+              buildAddNodeOperations(
+                node.uid,
+                item.predicate.id,
+                item.targetType,
+                modelId,
+                resolvedUserContext,
+                { termId: term.id, evidences }
+              )
             )
-          )
-        },
-      })
+          },
+        })
+      )
     },
-    [openAnnotationForm, gpNodeId, activityType, node.uid, modelId, resolvedUserContext, updateGraphModel]
+    [checkGroup, openAnnotationForm, gpNodeId, activityType, node.uid, modelId, resolvedUserContext, updateGraphModel]
   )
 
   const handleAddEvidence = useCallback(() => {
     if (!edge) return
     const existing = edge.evidence ?? []
-    openAnnotationForm({
-      showTerm: false,
-      title: existing.length > 0 ? 'Edit Evidence' : 'Add Evidence',
-      // Pre-load every existing evidence row so the form shows them all.
-      initialEvidences: existing.map(evidenceToForm),
-      gpId: gpNodeId,
-      aspect,
-      activityType,
-      onSubmit: async ({ evidences }) => {
-        const ops = buildReconcileEdgeEvidenceOperations(
-          edge,
-          existing,
-          evidences,
-          modelId,
-          resolvedUserContext
-        )
-        if (ops.length > 0) await updateGraphModel(ops)
-      },
-    })
-  }, [edge, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
+    checkGroup(() =>
+      openAnnotationForm({
+        showTerm: false,
+        title: existing.length > 0 ? 'Edit Evidence' : 'Add Evidence',
+        // Pre-load every existing evidence row so the form shows them all.
+        initialEvidences: existing.map(evidenceToForm),
+        gpId: gpNodeId,
+        aspect,
+        activityType,
+        onSubmit: async ({ evidences }) => {
+          const ops = buildReconcileEdgeEvidenceOperations(
+            edge,
+            existing,
+            evidences,
+            modelId,
+            resolvedUserContext
+          )
+          if (ops.length > 0) await updateGraphModel(ops)
+        },
+      })
+    )
+  }, [edge, checkGroup, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
   return (
     <>
@@ -227,9 +233,11 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           ref={termCellRef}
           label={treeNode.floatingLabel}
           onEdit={() => {
-            if (termCellRef.current) {
-              editor.open(termCellRef.current, { category: EditorCategory.term })
-            }
+            checkGroup(() => {
+              if (termCellRef.current) {
+                editor.open(termCellRef.current, { category: EditorCategory.term })
+              }
+            })
           }}
           onDelete={canDelete ? requestDeleteNode : undefined}
           className={showEvidence ? 'shrink-0' : 'min-w-0 flex-1'}

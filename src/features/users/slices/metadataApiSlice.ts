@@ -39,8 +39,9 @@ export const noctuaDataApi = apiService
             }))
 
             const groups: Group[] = groupsResponse.data.map((item: any) => ({
-              name: item.label,
-              url: item.id
+              id: item.id,
+              label: item.label,
+              shorthand: item.shorthand,
             }))
 
 

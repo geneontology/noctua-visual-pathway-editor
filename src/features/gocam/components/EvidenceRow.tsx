@@ -12,6 +12,7 @@ import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
+import { useGroupGuard } from './GroupGuardProvider'
 
 interface EvidenceRowProps {
   ev: Evidence
@@ -29,6 +30,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
   onClearField,
 }) => {
   const [updateGraphModel] = useUpdateGraphModelMutation()
+  const checkGroup = useGroupGuard()
   const evCellRef = useRef<HTMLDivElement>(null)
   const refCellRef = useRef<HTMLDivElement>(null)
   const withCellRef = useRef<HTMLDivElement>(null)
@@ -37,8 +39,10 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
   const [editorCategory, setEditorCategory] = useState<EditorCategory>(EditorCategory.evidence)
 
   const openEditor = (ref: React.RefObject<HTMLDivElement | null>, cat: EditorCategory) => {
-    setEditorCategory(cat)
-    setEditorAnchor(ref.current)
+    checkGroup(() => {
+      setEditorCategory(cat)
+      setEditorAnchor(ref.current)
+    })
   }
 
   const handleEditorSave = useCallback(
