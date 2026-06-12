@@ -38,48 +38,14 @@ import {
 import { FormMode } from '../../models/formModels'
 import type { TermNode, RelationNode, ValidationError } from '../../models/formModels'
 import { ActivityType } from '../../models/cam'
-import type { Aspect, Entity, Evidence } from '../../models/cam'
+import type { Aspect, Entity } from '../../models/cam'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../../data/allowedDatabases'
 import EntityRow from './EntityRow'
-import CloneEvidenceDialog from './CloneEvidenceDialog'
 import AllowedDatabasesDialog from './AllowedDatabasesDialog'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  buildGroupedRows,
-  findTargetUidByRelation,
-} from '../../services/formUtils'
+import { buildGroupedRows } from '../../services/formUtils'
 import { DisplayGroup, GROUP_ORDER } from '../../data/insertMenuConfig'
 import type { GroupedRow } from '../../models/formModels'
-
-/** Collect all unique evidences from the current activity (for clone evidence) */
-function collectUniqueEvidences(root: TermNode): Evidence[] {
-  const seen = new Set<string>()
-  const result: Evidence[] = []
-
-  function walk(node: TermNode) {
-    for (const rel of node.relations) {
-      for (const ev of rel.evidence) {
-        if (!ev.evidenceCode?.id) continue
-        const key = `${ev.evidenceCode.id}|${ev.reference}|${ev.withFrom}`
-        if (seen.has(key)) continue
-        seen.add(key)
-        result.push({
-          uid: ev.uid,
-          evidenceCode: ev.evidenceCode,
-          reference: ev.reference,
-          referenceUrl: '',
-          with: ev.withFrom,
-          groups: [],
-          contributors: [],
-        })
-      }
-      walk(rel.target)
-    }
-  }
-
-  walk(root)
-  return result
-}
 
 interface GroupCardProps {
   group: DisplayGroup
@@ -88,7 +54,6 @@ interface GroupCardProps {
   bgClass: string
   displayMenuButton: boolean
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
-  onCloneEvidence?: (relationUid: string) => void
 }
 
 const GroupCard: React.FC<GroupCardProps> = ({
@@ -98,7 +63,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
   bgClass,
   displayMenuButton,
   onSearchAnnotations,
-  onCloneEvidence,
 }) => {
   if (rows.length === 0) return null
   return (
@@ -116,7 +80,6 @@ const GroupCard: React.FC<GroupCardProps> = ({
               errors={errors}
               displayMenuButton={displayMenuButton}
               onSearchAnnotations={onSearchAnnotations}
-              onCloneEvidence={onCloneEvidence}
             />
           </div>
         </div>
@@ -144,10 +107,6 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
   const baseTermWidth = isLargeScreen ? 300 : 250
 
   const [showErrorsDialog, setShowErrorsDialog] = useState(false)
-  const [cloneEvidenceState, setCloneEvidenceState] = useState<{
-    open: boolean
-    relationUid: string
-  }>({ open: false, relationUid: '' })
   const [refDbsOpen, setRefDbsOpen] = useState(false)
   const [withDbsOpen, setWithDbsOpen] = useState(false)
   const [pickerState, setPickerState] = useState<{
@@ -330,37 +289,6 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     ? handleSearchAnnotations
     : undefined
 
-  const handleCloneEvidence = useCallback((relationUid: string) => {
-    setCloneEvidenceState({ open: true, relationUid })
-  }, [])
-
-  const handleCloneEvidenceSelect = useCallback(
-    (selected: Evidence[]) => {
-      if (!cloneEvidenceState.relationUid) return
-      // Find the relation's target node uid to set evidences
-      // We use the relation uid to find the right target
-      const evidenceForms = selected.map(ev => ({
-        uid: uuidv4(),
-        evidenceCode: { id: ev.evidenceCode.id, label: ev.evidenceCode.label },
-        reference: ev.reference || '',
-        withFrom: ev.with || '',
-      }))
-
-      // Find target uid from relation uid by walking tree
-      if (!root) return
-      const targetUid = findTargetUidByRelation(root, cloneEvidenceState.relationUid)
-      if (targetUid) {
-        dispatch(setNodeEvidences({ uid: targetUid, evidences: evidenceForms }))
-      }
-    },
-    [dispatch, root, cloneEvidenceState.relationUid]
-  )
-
-  const uniqueEvidences = useMemo(() => {
-    if (!root) return []
-    return collectUniqueEvidences(root)
-  }, [root])
-
   if (!root) {
     return <div className="p-4 text-gray-500">Loading form...</div>
   }
@@ -389,7 +317,6 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                   bgClass=""
                   displayMenuButton
                   onSearchAnnotations={onSearchAnnotationsForRow}
-                  onCloneEvidence={handleCloneEvidence}
                 />
               ))}
             </div>
@@ -448,7 +375,6 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                 bgClass="bg-slate-50"
                 displayMenuButton={true}
                 onSearchAnnotations={onSearchAnnotationsForRow}
-                onCloneEvidence={handleCloneEvidence}
               />
             ))}
           </div>
@@ -508,14 +434,6 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
           <Button variant="outline" onClick={() => setShowErrorsDialog(false)}>Close</Button>
         </div>
       </Modal>
-
-      {/* Clone evidence dialog */}
-      <CloneEvidenceDialog
-        open={cloneEvidenceState.open}
-        evidences={uniqueEvidences}
-        onClose={() => setCloneEvidenceState({ open: false, relationUid: '' })}
-        onSelect={handleCloneEvidenceSelect}
-      />
 
       {/* Locally-rendered Search Annotations picker */}
       {searchAnnotationsEnabled && (

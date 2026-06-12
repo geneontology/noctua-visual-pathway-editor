@@ -9,14 +9,12 @@ interface NestedNodeGroupsProps {
   root: TermNode
   errors: ValidationError[]
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
-  onCloneEvidence: (relationUid: string) => void
 }
 
 const NestedNodeGroups: React.FC<NestedNodeGroupsProps> = ({
   root,
   errors,
   onSearchAnnotations,
-  onCloneEvidence,
 }) => {
   const rows = useMemo(() => {
     const result: FlatRow[] = []
@@ -53,7 +51,6 @@ const NestedNodeGroups: React.FC<NestedNodeGroupsProps> = ({
               errors={errors}
               displayMenuButton={true}
               onSearchAnnotations={onSearchAnnotations}
-              onCloneEvidence={onCloneEvidence}
             />
           </div>
         </div>

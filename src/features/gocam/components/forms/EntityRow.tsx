@@ -55,7 +55,6 @@ interface EntityRowProps {
    * doesn't render in that case.
    */
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
-  onCloneEvidence?: (relationUid: string) => void
 }
 
 const EntityRow: React.FC<EntityRowProps> = ({
@@ -67,7 +66,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
   errors: _errors,
   displayMenuButton = true,
   onSearchAnnotations,
-  onCloneEvidence,
 }) => {
   const treeBorder = displayGroup ? TREE_BORDER[displayGroup] : 'border-gray-400'
   const dispatch = useAppDispatch()
@@ -189,12 +187,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
   const handleAddICEvidence = () => {
     if (relation) {
       dispatch(addICEvidence({ relationUid: relation.uid }))
-    }
-  }
-
-  const handleCloneEvidence = () => {
-    if (relation && onCloneEvidence) {
-      onCloneEvidence(relation.uid)
     }
   }
 
@@ -376,9 +368,6 @@ const EntityRow: React.FC<EntityRowProps> = ({
                     {canAddISS && <Menu.Item onClick={handleAddICEvidence}>IC</Menu.Item>}
                     {evidence.length > 0 && (
                       <Menu.Item onClick={handleRemoveLastEvidence}>Remove Evidence</Menu.Item>
-                    )}
-                    {onCloneEvidence && (
-                      <Menu.Item onClick={handleCloneEvidence}>Clone Evidence</Menu.Item>
                     )}
                   </Menu.Sub.Dropdown>
                 </Menu.Sub>

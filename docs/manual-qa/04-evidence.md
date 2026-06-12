@@ -73,17 +73,6 @@ in the activity.
 
 ---
 
-## TC 4.6 — Clone evidence from elsewhere in the activity
-
-1. [ ] Make sure at least one row already has a complete evidence.
-2. [ ] On a **different** row's **⋮** menu → **Evidence** → **Clone Evidence**.
-3. [ ] A dialog lists the unique evidences already used in this activity.
-4. [ ] Tick one (or more) and confirm → those evidences are copied onto the current row.
-
-**Result:**  ☐ Pass   ☐ Fail   **Notes:** ______________________________________
-
----
-
 ## TC 4.7 — Remove evidence
 
 1. [ ] On a row that has evidence, use **⋮** → **Evidence** → **Remove Evidence**

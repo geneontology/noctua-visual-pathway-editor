@@ -357,19 +357,6 @@ describe('EntityRow — non-complex ellipsis menu contents', () => {
     expect(screen.queryByRole('menuitem', { name: 'Remove Evidence' })).toBeNull()
   })
 
-  it('shows "Clone Evidence" only when onCloneEvidence callback is provided', () => {
-    renderRow({ onCloneEvidence: vi.fn() })
-    expect(screen.getByRole('menuitem', { name: 'Clone Evidence' })).toBeInTheDocument()
-
-    // re-render without the callback
-    screen.unmount?.()
-  })
-
-  it('omits "Clone Evidence" when no onCloneEvidence callback', () => {
-    renderRow({ onCloneEvidence: undefined })
-    expect(screen.queryByRole('menuitem', { name: 'Clone Evidence' })).toBeNull()
-  })
-
   it('shows "Fill with root term" when canAddISS and a relation are present', () => {
     renderRow()
     expect(
@@ -447,7 +434,7 @@ describe('EntityRow — protein-complex (+) menu contents', () => {
     ).toBeNull()
   })
 
-  it('omits the Evidence submenu (Add Evidence / ISS / Remove Evidence / Clone Evidence)', () => {
+  it('omits the Evidence submenu (Add Evidence / ISS / Remove Evidence)', () => {
     renderRow({
       node: complexNode,
       relation: makeRelation({
@@ -455,13 +442,11 @@ describe('EntityRow — protein-complex (+) menu contents', () => {
           { uid: 'ev-x', evidenceCode: { id: 'ECO:1', label: 'IDA' }, reference: '', withFrom: '' },
         ],
       }),
-      onCloneEvidence: vi.fn(),
     })
     expect(screen.queryByRole('menuitem', { name: 'Evidence' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Add Evidence' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'ISS' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Remove Evidence' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Clone Evidence' })).toBeNull()
   })
 
   it('omits "Fill with root term" and "Remove"', () => {
