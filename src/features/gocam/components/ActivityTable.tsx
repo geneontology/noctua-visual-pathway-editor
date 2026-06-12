@@ -16,7 +16,8 @@ import { setSelectedActivity } from '../slices/camSlice'
 import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildDeleteActivityOperations } from '../services/activityOperations'
-import { getNodeCategory } from '../data/nodeCategories'
+import { getNodeCategory, getPrimaryRootType } from '../data/nodeCategories'
+import { getInsertWeight } from '../data/insertMenuConfig'
 import ActivityTableNode, {
   getAspectFromRootTypes,
 } from './ActivityTableNode'
@@ -37,12 +38,16 @@ function buildDisplayTree(activity: Activity): {
 } {
   const { edges } = activity
 
-  // Build adjacency: sourceId → child edges
+  // Build adjacency: sourceId → child edges, plus a uid → node lookup so a
+  // parent's category can be resolved when sorting its child edges.
   const childEdgesMap = new Map<string, Edge[]>()
+  const nodeByUid = new Map<string, (typeof activity.rootNode)>()
+  nodeByUid.set(activity.rootNode.uid, activity.rootNode)
   for (const edge of edges) {
     const list = childEdgesMap.get(edge.sourceId) ?? []
     list.push(edge)
     childEdgesMap.set(edge.sourceId, list)
+    if (edge.target) nodeByUid.set(edge.target.uid, edge.target)
   }
 
   function buildChildren(
@@ -50,7 +55,19 @@ function buildDisplayTree(activity: Activity): {
     level: number,
     visited: Set<string>
   ): DisplayTreeNode[] {
-    const childEdges = childEdgesMap.get(parentUid) ?? []
+    // Sort siblings by canInsertEntity weight (e.g. part_of before occurs_in),
+    // mirroring sortRelationsByWeight in the ActivityForm. Without this the rows
+    // render in raw server order. Array.sort is stable, so equal-weight edges
+    // keep their server order.
+    const parentCategory = getPrimaryRootType(nodeByUid.get(parentUid)?.rootTypes ?? [])
+    const childEdges = [...(childEdgesMap.get(parentUid) ?? [])]
+    if (parentCategory) {
+      childEdges.sort(
+        (a, b) =>
+          getInsertWeight(parentCategory, a.id, getPrimaryRootType(a.target?.rootTypes ?? []) ?? '') -
+          getInsertWeight(parentCategory, b.id, getPrimaryRootType(b.target?.rootTypes ?? []) ?? '')
+      )
+    }
     const result: DisplayTreeNode[] = []
 
     for (const edge of childEdges) {
