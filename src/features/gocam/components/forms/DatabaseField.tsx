@@ -1,5 +1,6 @@
 import type React from 'react'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useLayoutEffect } from 'react'
+import { Portal } from '@mantine/core'
 import { FaFileMedical } from 'react-icons/fa'
 import FloatingTextarea from '@/@noctua.core/components/textarea/FloatingTextarea'
 import ReferenceDropdown from './ReferenceDropdown'
@@ -22,6 +23,12 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [open, setOpen] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number
+    left: number
+    width: number
+  } | null>(null)
 
   const Dropdown = type === 'reference' ? ReferenceDropdown : WithDropdown
   const label = type === 'reference' ? 'Reference' : 'With/From'
@@ -45,6 +52,27 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
 
   useEffect(() => {
     if (!open) setHighlightedIndex(-1)
+  }, [open])
+
+  // Track the anchor's viewport rect so the portaled suggestion list can
+  // position itself with fixed coordinates and escape the Annotation dialog's
+  // overflow-clipped scroll containers. Recompute on scroll/resize.
+  useLayoutEffect(() => {
+    if (!open || !anchorRef.current) return
+    const update = () => {
+      const rect = anchorRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const width = Math.max(rect.width, 400)
+      const left = Math.min(rect.left, window.innerWidth - width - 4)
+      setDropdownPos({ top: rect.bottom, left: Math.max(4, left), width })
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
   }, [open])
 
   const handleSelect = (val: string) => {
@@ -78,7 +106,7 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
 
   return (
     <>
-      <div className="w-full" onKeyDown={handleKeyDown}>
+      <div ref={anchorRef} className="w-full" onKeyDown={handleKeyDown}>
         <FloatingTextarea
           size="xs"
           label={label}
@@ -110,9 +138,18 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
           }
         />
 
-        {open && filtered.length > 0 && (
-          <div className="relative">
-            <div className="!bg-accent-50 absolute left-0 top-0 z-[1300] max-h-60 w-[400px] overflow-y-auto rounded-md bg-white shadow-lg">
+        {open && filtered.length > 0 && dropdownPos && (
+          <Portal>
+            <div
+              className="!bg-accent-50 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg"
+              style={{
+                position: 'fixed',
+                top: dropdownPos.top + 4,
+                left: dropdownPos.left,
+                width: dropdownPos.width,
+                zIndex: 1300,
+              }}
+            >
               {filtered.map((option, index) => (
                 <div
                   key={option}
@@ -125,7 +162,7 @@ const DatabaseField: React.FC<DatabaseFieldProps> = ({
                 </div>
               ))}
             </div>
-          </div>
+          </Portal>
         )}
       </div>
 
