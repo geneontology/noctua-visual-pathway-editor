@@ -43,7 +43,7 @@ comment-count badge reflects the number of comments.
 ## TC 9.4 — Removing a written comment asks for confirmation
 
 1. [ ] Open Comments and click the **trash** icon next to a comment that has text.
-2. [ ] A confirmation appears: **"Remove this comment? You'll lose what you've typed."**
+2. [ ] A confirmation appears: **"Remove this comment? This cannot be undone."**
 3. [ ] Confirm → the comment is removed.
 4. [ ] Removing an **empty** comment box removes it immediately, with **no** confirmation.
 

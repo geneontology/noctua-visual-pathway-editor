@@ -56,7 +56,7 @@ Checklist,Test,What to do & what you should see,Result (Pass/Partial/Fail),Notes
 09 Comments,TC 9.1 Open the Comments dialog,"Click the comment icon in the top toolbar; a Comments dialog opens. With none yet it shows 'No comments yet'.",,,
 09 Comments,TC 9.2 Add comments,"Click Add Comment; a text box appears. The button becomes 'Add Another Comment'; add a second. Save closes the dialog. The comment icon shows a count badge.",,,
 09 Comments,TC 9.3 Blank comments not saved,"Add a box but leave it empty (or spaces only) and Save; the blank comment is dropped and not counted.",,,
-09 Comments,TC 9.4 Removing a written comment confirms,"Click the trash icon next to a comment with text; a confirmation 'Remove this comment? You'll lose what you've typed.' appears; confirm to remove. Removing an empty box removes it immediately (no confirmation).",,,
+09 Comments,TC 9.4 Removing a written comment confirms,"Click the trash icon next to a comment with text; a confirmation 'Remove this comment? This cannot be undone.' appears; confirm to remove. Removing an empty box removes it immediately (no confirmation).",,,
 09 Comments,TC 9.5 Comments persist,"After saving, reopen the dialog (or reload the model); your comments are still there.",,,
 10 Title & State,TC 10.1 Untitled model can be named,"Toolbar shows 'Untitled' (grey italics) when there is no title. Click the pencil next to the title; an Edit Title dialog opens. Save is disabled while empty. Type a title; Save activates; click Save; the toolbar shows your title.",,,
 10 Title & State,TC 10.2 Change the title,"Click the title pencil again, change the text, Save; the toolbar updates. Open again and Cancel; the title is unchanged.",,,

@@ -123,7 +123,7 @@ const CamCommentsForm: React.FC = () => {
         onClose={() => setPendingRemoveIndex(null)}
         onConfirm={confirmRemoveComment}
         title="Remove Comment"
-        message="Remove this comment? You'll lose what you've typed."
+        message="Remove this comment? This cannot be undone."
         confirmLabel="Remove"
       />
     </div>
