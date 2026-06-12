@@ -4,10 +4,12 @@ import {
   buildConnectorDeleteOperations,
   buildChemicalParticipantOperations,
   isReverseLinkConnector,
+  getDefaultConnectorEvidence,
 } from '@/features/relations/services/connectorServices'
 import {
   ActivityType,
   type Activity,
+  type Edge,
   type GraphNode,
   type UserContext,
 } from '@/features/gocam/models/cam'
@@ -18,7 +20,7 @@ import {
 } from '@/features/gocam/models/operations'
 import { Relations } from '@/@noctua.core/models/relations'
 import type { EvidenceForm } from '@/features/gocam/models/formModels'
-import { buildActivity, buildNode } from '@tests/fixtures/builders'
+import { buildActivity, buildEdgeWithEvidence, buildNode } from '@tests/fixtures/builders'
 
 const MODEL_ID = 'gomodel:test'
 const USER: UserContext = {
@@ -165,6 +167,112 @@ describe('buildConnectorOperations', () => {
     const ops = buildConnectorOperations(molecule, downstream, Relations.PART_OF, [], MODEL_ID)
     expect(ops[0].arguments.subject).toBe('chem_root_uid')
     expect(ops[0].arguments.object).toBe('downstream_root_uid')
+  })
+})
+
+describe('getDefaultConnectorEvidence', () => {
+  // An activity whose molecular-function node carries the given uid, so an
+  // enabled_by edge can target it via sourceId.
+  const activityWithMf = (uid: string, type: ActivityType = ActivityType.ACTIVITY): Activity => {
+    const mf: GraphNode = { ...buildNode('GO:0003674', 'molecular_function'), uid: `${uid}_mf` }
+    return { ...buildActivity(uid, [mf]), type, molecularFunction: mf }
+  }
+
+  const moleculeActivity = (uid: string): Activity => ({
+    ...buildActivity(uid, [buildNode('CHEBI:1', 'chemical')]),
+    type: ActivityType.MOLECULE,
+  })
+
+  // enabled_by edge sourced from the given MF uid, carrying the given evidence.
+  const enabledByEdge = (
+    mfUid: string,
+    evidenceCodes: { id: string; label: string }[]
+  ): Edge => ({
+    ...buildEdgeWithEvidence(Relations.ENABLED_BY, evidenceCodes),
+    sourceId: mfUid,
+  })
+
+  it('seeds from the source activity enabled_by edge evidence', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+    const edges = [enabledByEdge('a_mf', [{ id: 'ECO:0000314', label: 'IDA' }])]
+
+    const forms = getDefaultConnectorEvidence(src, tgt, edges)
+    expect(forms).toHaveLength(1)
+    expect(forms[0]).toMatchObject({
+      evidenceCode: { id: 'ECO:0000314', label: 'IDA' },
+      reference: 'PMID:1',
+      withFrom: '',
+    })
+  })
+
+  it('copies every evidence row on the enabled_by edge', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+    const edges = [
+      enabledByEdge('a_mf', [
+        { id: 'ECO:0000314', label: 'IDA' },
+        { id: 'ECO:0000353', label: 'IPI' },
+      ]),
+    ]
+
+    const forms = getDefaultConnectorEvidence(src, tgt, edges)
+    expect(forms.map(f => f.evidenceCode.id)).toEqual(['ECO:0000314', 'ECO:0000353'])
+  })
+
+  it('returns [] when the source activity has no enabled_by edge', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+    // an enabled_by edge exists, but only for a different activity's MF
+    const edges = [enabledByEdge('b_mf', [{ id: 'ECO:0000314', label: 'IDA' }])]
+
+    expect(getDefaultConnectorEvidence(src, tgt, edges)).toEqual([])
+  })
+
+  it('returns [] when the enabled_by edge carries no evidence', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+
+    expect(getDefaultConnectorEvidence(src, tgt, [enabledByEdge('a_mf', [])])).toEqual([])
+  })
+
+  it('ignores non-enabled_by edges that share the MF source id', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+    const otherEdge: Edge = {
+      ...buildEdgeWithEvidence(Relations.HAS_INPUT, [{ id: 'ECO:0000314', label: 'IDA' }]),
+      sourceId: 'a_mf',
+    }
+
+    expect(getDefaultConnectorEvidence(src, tgt, [otherEdge])).toEqual([])
+  })
+
+  it('pulls from the target activity when the source is a molecule', () => {
+    const molecule = moleculeActivity('chem')
+    const downstream = activityWithMf('downstream')
+    const edges = [enabledByEdge('downstream_mf', [{ id: 'ECO:0000314', label: 'IDA' }])]
+
+    const forms = getDefaultConnectorEvidence(molecule, downstream, edges)
+    expect(forms).toHaveLength(1)
+    expect(forms[0].evidenceCode.id).toBe('ECO:0000314')
+  })
+
+  it('returns [] when the chosen activity has no molecular function node', () => {
+    const molecule = moleculeActivity('chem')
+    const targetMolecule = moleculeActivity('chem2')
+
+    expect(getDefaultConnectorEvidence(molecule, targetMolecule, [])).toEqual([])
+  })
+
+  it('preserves the source evidence uid and maps with → withFrom', () => {
+    const src = activityWithMf('a')
+    const tgt = activityWithMf('b')
+    const edge = enabledByEdge('a_mf', [{ id: 'ECO:0000314', label: 'IDA' }])
+    edge.evidence![0].with = 'UniProtKB:P12345'
+
+    const forms = getDefaultConnectorEvidence(src, tgt, [edge])
+    expect(forms[0].uid).toBe(`ev_${Relations.ENABLED_BY}_0`)
+    expect(forms[0].withFrom).toBe('UniProtKB:P12345')
   })
 })
 

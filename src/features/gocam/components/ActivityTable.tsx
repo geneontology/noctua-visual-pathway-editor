@@ -32,7 +32,7 @@ function categoryLabelForRootTypes(rootTypes: string[]): string | undefined {
 
 // ── Build display trees from Activity model ─────────────────────────
 
-function buildDisplayTree(activity: Activity): {
+export function buildDisplayTree(activity: Activity): {
   gpTree: DisplayTreeNode[]
   fdTree: DisplayTreeNode[]
 } {
