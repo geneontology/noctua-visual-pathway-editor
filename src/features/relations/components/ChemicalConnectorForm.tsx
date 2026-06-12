@@ -28,9 +28,11 @@ import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 interface Props {
   sourceActivity: Activity
   targetActivity: Activity
+  /** Called after a successful save to also close the parent connector dialog. */
+  onSaved?: () => void
 }
 
-const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity }) => {
+const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity, onSaved }) => {
   const dispatch = useAppDispatch()
   const model = useAppSelector(selectCamModel)
   const userContext = useUserContext()
@@ -145,6 +147,7 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
     await updateGraphModel(ops).unwrap()
     dispatch(showToast({ message: 'Chemical Reactions created.' }))
     dispatch(closeDialog())
+    onSaved?.()
   }, [
     model,
     sourceActivity,
@@ -153,24 +156,38 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
     userContext,
     updateGraphModel,
     dispatch,
+    onSaved,
   ])
 
   // Render helpers
   const renderSection = (title: string, items: ChemicalParticipant[]) => {
     if (items.length === 0) return null
+    const selectedCount = items.filter(item => item.selected).length
     return (
       <div className="flex w-full flex-col items-stretch justify-start">
-        <SectionHeading>{title}</SectionHeading>
-        <div className="flex flex-col items-stretch justify-start px-4 py-1">
+        <SectionHeading
+          right={
+            selectedCount > 0 ? (
+              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-700">
+                {selectedCount} selected
+              </span>
+            ) : null
+          }
+        >
+          {title}
+        </SectionHeading>
+        <div className="flex flex-col items-stretch justify-start py-1">
           {items.map(item => (
             <Checkbox
               key={item.id}
               checked={item.selected}
               onChange={() => toggleItem(item.id)}
               size="sm"
+              className="cursor-pointer border-b border-gray-100 px-4 py-2.5 transition-colors last:border-b-0 hover:bg-gray-50"
               label={
-                <span className="text-sm">
-                  {item.label} ({item.id})
+                <span className="flex items-baseline gap-2">
+                  <span className="text-sm font-medium text-gray-800">{item.label}</span>
+                  <span className="text-xs text-gray-400">{item.id}</span>
                 </span>
               }
             />

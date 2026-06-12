@@ -135,10 +135,13 @@ const RelationForm: React.FC<Props> = ({
         customProps: {
           sourceActivity,
           targetActivity,
+          // Once the chemical intermediate is saved, close this relationship
+          // form too rather than revealing it again behind the chemical dialog.
+          onSaved: onSaved ?? onClose,
         },
       })
     )
-  }, [dispatch, sourceActivity, targetActivity])
+  }, [dispatch, sourceActivity, targetActivity, onSaved, onClose])
 
   const onRadioChange =
     (field: 'relationshipId' | 'directionId' | 'directnessId') => (value: string) => {
