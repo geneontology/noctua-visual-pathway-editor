@@ -1,0 +1,70 @@
+{
+  "modified-p": true,
+  "validation-results": {
+    "is-conformant": false,
+    "owl-validation": {
+      "id": "OWL_REASONER",
+      "is-conformant": true,
+      "tracker": "https://github.com/geneontology/helpdesk/issues",
+      "rule-file": "https://github.com/geneontology/go-ontology"
+    },
+    "shex-validation": {
+      "node-matched-shapes": {},
+      "is-conformant": false,
+      "tracker": "https://github.com/geneontology/go-shapes/issues",
+      "rule-file": "https://github.com/geneontology/go-shapes/blob/master/shapes/go-cam-shapes.shex",
+      "violations": [
+        {
+          "explanations": [
+            {
+              "shape": "obo:go/shapes/GoCamModel",
+              "constraints": [
+                {
+                  "object": "owl:Ontology",
+                  "property": "rdf:type",
+                  "node_types": [
+                    "owl:Ontology"
+                  ],
+                  "object_types": [],
+                  "nobjects": 0,
+                  "matched_range_shapes": [],
+                  "intended-range-shapes": [
+                    "owl:Ontology"
+                  ]
+                },
+                {
+                  "property": "dc11:title",
+                  "cardinality": "[1; 1]",
+                  "nobjects": 0
+                },
+                {
+                  "property": "http://purl.org/pav/providedBy",
+                  "cardinality": "[1; *]",
+                  "nobjects": 0
+                }
+              ]
+            }
+          ],
+          "node": "gomodel:6a10d98e00000001"
+        }
+      ]
+    }
+  },
+  "id": "gomodel:6a10d98e00000001",
+  "individuals": [],
+  "facts": [],
+  "annotations": [
+    {
+      "key": "state",
+      "value": "development"
+    },
+    {
+      "key": "contributor",
+      "value": "https://orcid.org/0000-0002-2874-6934"
+    },
+    {
+      "key": "date",
+      "value": "2026-05-26"
+    }
+  ]
+}

@@ -4,215 +4,85 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Noctua Visual Pathway Editor is an Angular 18 application for visualizing and editing biological pathway models (CAMs - Causal Activity Models) as part of the Gene Ontology project. This is a **generated repo from Noctua Form Base** - modifications may be overwritten.
+Noctua Visual Pathway Editor — a React 19 + TypeScript SPA for visually editing Gene Ontology (GO) biological annotations and Causal Activity Models (CAMs). Built with Vite, Tailwind CSS v4, Redux Toolkit, and Mantine v9.
 
-## Build Commands
+## Commands
 
-```bash
-npm start                    # Dev server on http://localhost:4202
-npm run build                # Production build (requires 6GB memory)
-npm test                     # Unit tests (Karma/Jasmine)
-npm run lint                 # TSLint
-npm run e2e                  # E2E tests (Protractor - legacy/deprecated)
-npm run build-stats          # Bundle analysis
-```
+- `npm run dev` — Start dev server on port **4208** (port set in `vite.config.ts`)
+- `npm run start` — Start dev server on port **4202**, host `0.0.0.0`, `development` mode (variants: `start:development`, `start:staging`, `start:production`)
+- `npm run build` — Clean `workbenches/noctua-visual-pathway-editor/public`, run `tsc`, then `vite build --mode production`
+- `npm run build:beta-test` — Same flow against the `noctua-visual-pathway-editor-beta` workbench in `staging` mode
+- `npm run test` — Vitest run (looks for `tests/**/*.test.{ts,tsx}` only — files outside `tests/` are ignored)
+- Run a single test file: `npx vitest run tests/features/gocam/slices/camSlice.test.ts`
+- Watch a single test: `npx vitest tests/features/gocam/slices/camSlice.test.ts`
+- `npm run test:e2e` — Playwright e2e (`test:e2e:ui`, `test:e2e:headed` variants)
+- `npm run lint` / `lint:fix` — ESLint
+- `npm run format` — Prettier
+- `npm run type-check` — `tsc --noEmit`
+
+Environment modes: `development`, `staging`, `production` (via `--mode`). Env files: `.env.development`, `.env.staging`, `.env.production`. All runtime vars must be prefixed with `VITE_`. `VITE_OUTPUT_PATH` controls the build output directory; the build plugin renames the emitted `index.html` to `inject.tmpl` so the workbench host can inline it.
 
 ## Architecture
 
-### Module Structure
+### Source Layout
 
-- `src/@noctua/` - Core shared module (services, components, directives, pipes, animations)
-- `src/@noctua.form/` - Form/data services and domain models (aliased as `@geneontology/noctua-form-base`)
-- `src/@noctua.graph/` - Graph visualization using JointJS + Dagre + GraphLib
-- `src/@noctua.common/` - Shared data services and UI models (panel enums, toolbar options)
-- `src/@noctua.editor/` - Inline editing components (dropdowns, references, with fields)
-- `src/@noctua.curie/` - CURIE utilities and services
-- `src/app/main/apps/` - Main application modules (noctua-form, noctua-graph)
+- `src/@noctua.core/` — Shared library: reusable components (Dialog, Drawer, Toast, LoadingOverlay, Popover, Menu), theme, constants, utility functions. Several of these own their own Redux slices (e.g. `drawerSlice`, `dialogSlice`, `toastSlice`, `loadingOverlaySlice`) and live alongside their components.
+- `src/app/` — App shell: store setup (`src/app/store/store.ts`), typed hooks (`src/app/hooks.ts`), layout (Layout, Toolbar, Drawers, Footer), `PathwayViewer` (top-level editor surface that wires dialogs to feature forms).
+- `src/features/` — Self-contained feature modules (models, components, services, hooks, slices):
+  - `gocam/` — Core: CAM graph model, activity editing, activity/annotation forms, graph services
+  - `pathway/` — Pathway-level graph rendering (e.g. `GraphToolbar`)
+  - `relations/` — Decision-tree UI for activity-to-activity relations (connector type → relationship → effect → directness → RO ID)
+  - `search/` — GOlr-based term search and autocomplete
+  - `auth/` — Barista token authentication
+  - `users/` — User metadata, contributors, groups, splash screen
+- `tests/` — Vitest specs mirroring `src/` paths; fixtures + builders in `tests/fixtures/`; shared `renderWithProviders` in `tests/test-utils.tsx`; jsdom setup (incl. `matchMedia` stub for Mantine) in `tests/setup.ts`.
 
-### Key Services
+### State Management
 
-- **GraphService** (`@noctua.form/services/graph.service.ts`) - CAM graph state management
-- **CamService** (`@noctua.form/services/cam.service.ts`) - CAM CRUD operations via Minerva backend
-- **LookupService** (`@noctua.form/services/lookup.service.ts`) - Ontology term autocomplete
-- **ActivityConnectorService** - Manages activity relationships
-- **NoctuaFormMenuService** (`@noctua.form/services/noctua-form-menu.service.ts`) - Panel/menu management
-- **NoctuaFormDialogService** (`src/app/main/apps/noctua-form/services/dialog.service.ts`) - Dialog management
+Redux Toolkit with `combineSlices`. RTK Query API caching via `src/app/store/apiService.ts`.
 
-### Domain Models (in `@noctua.form/models/activity/`)
+Active reducers (see `store.ts`): `auth`, `metadata`, `activityForm`, `cam`, `relation`, `drawer`, `dialog`, `toast`, `loadingOverlay`, plus the RTK Query reducer.
 
-- **CAM** - Root model for causal activity models
-- **Activity** - Individual activity/annotation
-- **Entity** - Biological entities (proteins, etc.)
-- **Evidence** - Supporting evidence for annotations
-- **Predicate** - Relationships between entities
-- **Triple** - RDF triples
+Notable store config: `dialog/openDialog` actions and the `dialog.customProps` path are excluded from the serializable-state check, because entry-point dialogs pass callbacks (e.g. `AnnotationForm.onSubmit`) through `customProps`. Don't try to "fix" this by stringifying callbacks — read the comment in `store.ts` first.
 
-### Panel System
+Custom middleware: `loadingOverlayMiddleware` ties RTK Query lifecycle to the global overlay slice.
 
-Enum-based panel selection in `src/@noctua.common/models/menu-panels.ts`:
+### API Layer
 
-- **LeftPanel**: camForm, copyModel, activityForm
-- **MiddlePanel**: camGraph, camTable
-- **RightPanel**: camForm, camTable, activityTable, camErrors, activityConnectorTable, termDetail
+- **Barista/Minerva** — m3Batch endpoints for reading/updating CAM graph models. Requires a Barista token sourced from the `?barista_token=` query param.
+- **GOlr** — Solr-based search for GO terms, evidence codes, references.
+- RTK Query slices: `camApiSlice`, `lookupApiSlice`, `authApiSlice`, `metadataApiSlice`.
 
-### External Backend Services
+### Core Domain Model
 
-- **Minerva** - Annotation backend (bbop-manager-minerva)
-- **GOLr** - Solr-based ontology search
-- **Barista** - GO web services (default: http://localhost:3400)
+`GraphModel` contains `Activity[]` (biological activities with nodes/edges), `GraphNode[]`, `Edge[]`, and `activityConnections` (activity-to-activity relations). Activities have a `rootNode`, optional `molecularFunction`, `enabledBy` (protein), and typed edges with evidence.
 
-## Key Dependencies
+### Build / Bundling
 
-- **Angular**: 18.2.13
-- **Angular Material**: 16.2.0 (older than Angular - uses legacy components)
-- **TypeScript**: 5.5
-- **RxJS**: 7.5.5
-- **JointJS**: 3.5.5 (graph visualization)
-- **Dagre**: 0.8.5 (graph layout)
-- **jQuery**: 3.6.0 + jQuery UI 1.13.1 (legacy support)
-- **BBOP libraries**: minerva, barista, graph, response (backend integration)
+`vite.config.ts` defines a `manualChunks` strategy that splits heavy vendors (`@mantine`, `framer-motion`, `jointjs`, `reactflow`, `@apollo`, `graphql`, redux, react-router, dagre/graphlib, socket.io, react-hook-form) into named chunks. Assets are emitted under `assets/<extType>/[name]-[hash][extname]`. After build, `rollup-plugin-visualizer` writes `stats-treemap.html`, `stats-sunburst.html`, and `stats-network.html` into the output dir. The `workbenchInjectTmpl` plugin renames `index.html` to `inject.tmpl` for workbench embedding and injects a `<base href>` when `VITE_BASE_URL` is set.
 
-## Code Style
+## Enforced Patterns
 
-- Max line length: 140 characters
-- Single quotes, semicolons required
-- TypeScript path alias: `@geneontology/noctua-form-base` → `@noctua.form/`
-- Component pattern: NgModule-based (not standalone)
-- State management: BehaviorSubject with `takeUntil` cleanup pattern
+- **Typed Redux hooks only** — import `useAppDispatch`/`useAppSelector` from `src/app/hooks.ts`. Direct `useSelector`/`useDispatch`/`useStore` from `react-redux` are lint errors.
+- **`import type`** for type-only imports (`@typescript-eslint/consistent-type-imports`).
+- **Path alias** — use `@/*` for `src/*` (and `@tests/*` for `tests/*`). Configured in `tsconfig` and `vite.config.ts`.
+- **UI library** — Mantine v9 for complex components (Modals, Buttons, Inputs); Tailwind for utility/layout styling. The shared dialog wrappers in `src/@noctua.core/components/dialog/` (e.g. `SimpleDialog`, `DialogHeader`, `ConfirmDialog`) are the preferred entry points — prefer them over raw `<Modal>` so sizing/scrolling behavior stays consistent.
+- **Unused parameters** — prefix with `_` to satisfy ESLint.
 
-## SCSS & Theming
+## Conventions
 
-### Location
-
-- Main styles: `src/@noctua/scss/noctua.scss`
-- Theming: `src/@noctua/scss/theming.scss`
-- Mixins: `src/@noctua/scss/mixins/`
-- Partials: `src/@noctua/scss/partials/`
-
-### Color Palette
-
-- Primary: `#3b5998` (Noctua blue)
-- Primary accent: `#8b9dc3`
-- Secondary: `#995014`
-- Molecular function: `#7cd488` (green)
-- Biological process: `#f4c89c` (tan)
-- Cellular component: `#d3b5f5` (purple)
-
-### Useful Mixins
-
-- `deep-width()`, `deep-height()` - Set width/height/min/max together
-- `noc-icon-size()` - Icon sizing
-- `noc-chip-color()` - Chip styling
-
-## Environment Configuration
-
-Backend URLs configured in `src/environments/environment.ts`:
-
-- `globalBaristaLocation` - Barista service URL
-- `globalGolrServer` - GOLr Solr server
-- `globalMinervaDefinitionName` - Minerva backend name
-
-Environment files:
-
-- `environment.ts` - Development
-- `environment.prod.ts` - Production
-- `environment.beta-test.ts` - Beta testing
-
-## Common Tasks
-
-### Adding a Dialog
-
-1. Create folder: `src/app/main/apps/noctua-form/dialogs/<dialog-name>/`
-2. Create component files (`.ts`, `.html`, `.scss`)
-3. Register in module
-4. Add dialog styles in `src/@noctua/scss/noctua.scss` with class `.noc-<dialog-name>-dialog`
-5. Call via `NoctuaFormDialogService`
-
-### Adding Menu Items
-
-1. Update editor dropdown: `src/@noctua.editor/inline-editor/editor-dropdown/editor-dropdown.component.html`
-2. For panel menus, update `NoctuaFormMenuService`
-
-### Adding Autocomplete Fields
-
-- Use `LookupService` for ontology term autocomplete
-- See existing implementations in activity form components
-
-### Adding Services
-
-1. Place in appropriate module (`@noctua.form/services/` for core logic)
-2. Use `providedIn: 'root'`
-3. Export from `index.ts`
-4. Use BehaviorSubject for observable state
-
-### Adding Evidence/Reference Types
-
-- Reference databases: `src/@noctua.form/data/reference-dbs.ts`
-- WithFrom databases: `src/@noctua.form/data/withfrom-dbs.ts`
-- Evidence model: `src/@noctua.form/models/activity/evidence.ts`
+- Prettier: no semicolons, single quotes, 2-space indent, trailing comma `es5`, 100-char width, `arrowParens: avoid`. Tailwind classes are auto-sorted by `prettier-plugin-tailwindcss`.
+- Naming: PascalCase for components, camelCase for hooks and utilities.
 
 ## Testing
 
-- **Unit tests**: Karma 6.3 + Jasmine 4.1
-- **E2E tests**: Protractor 7.0 (deprecated)
-- **Coverage output**: `./coverage` directory
-- **Test entry point**: `src/test.ts`
-- Manual UI testing on http://localhost:4202
-- Test against CAM models in the workbench
+Vitest + React Testing Library + jsdom. Use `renderWithProviders` from `tests/test-utils.tsx` to render with an isolated Redux store (accepts optional `preloadedState` and `store`). Fixture builders live in `tests/fixtures/builders.ts` and `tests/fixtures/models.ts` — prefer these over hand-rolled graph models in tests.
 
-## Branch Naming
+## Task Management
 
-- Feature: `issue-<number>-<short-description>`
-- Bug fix: `fix-<number>-<short-description>`
-
-## Commit Messages
-
-- Keep concise, describe what changed
-- Reference issue numbers when applicable
-
-## Related Repositories
-
-- **noctua-form-base**: Source library (this repo is generated from it)
-- **noctua**: Main Noctua repository - https://github.com/geneontology/noctua
-
-## Reviewers
-
-@pgaudet @vanaukenk @kltm @thomaspd
-
-## Gotchas
-
-- Angular Material 16 with Angular 18 - version mismatch, uses legacy components
-- Material design patches and overrides are in `src/@noctua/scss/`
-- Some components are repeated across modules (not DRY)
-- Production builds require 6GB memory
-- Custom webpack config (`webpack.extra.js`) for Node module fallbacks (url, querystring)
-- jQuery/Backbone still used for some legacy integrations
-
-## PR Template
-
-When creating PRs, use this format:
-
-```
-### Issues
-
-- <link to related issue>
-
-### Changes
-
-- <description of changes>
-
-### Tests
-
-- [ ] <manual test steps>
-
-cc @pgaudet @vanaukenk @kltm @thomaspd
-```
+Create and maintain plan files in `.plans/<category>/<task-name>.md` for non-trivial work. See [.plans/template.md](.plans/template.md) for the full template, recovery-checkpoint convention, and category folders (`bugfix`, `feature`, `refactor`, `config`, `docs`, `testing`, `misc`).
 
 ## Git Commits
 
-- Do NOT include the `Co-Authored-By` line in commit messages.
-
-## Task Plans
-
-- Always create and maintain task plans using the [.plans/template.md](.plans/template.md) system.
-- On context resume, check `.plans/` for ACTIVE plans before doing anything else.
+- **Never** add `Co-Authored-By: Claude ...` trailers (or any Claude attribution) to commit messages.
+- Keep messages short: a one-line subject plus a few brief bullets, not paragraphs.
