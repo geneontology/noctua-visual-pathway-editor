@@ -1,0 +1,280 @@
+import { ENVIRONMENT } from '@/@noctua.core/data/constants'
+import type { AnnotationsResponse, GOlrResponse } from '../models/search'
+import apiService from '@/app/store/apiService'
+import {
+  formatSolrQueryString,
+  mapGOlrResponse,
+  processAnnotationsResponse,
+  processHasParticipants,
+} from '../services/lookupServices'
+import type { Aspect } from '@/features/gocam/models/cam'
+
+let jsonpCounter = 0
+
+function createJsonpScript(url: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const callbackName = `jsonp_callback_${Date.now()}_${++jsonpCounter}`
+    const jsonpUrl = `${url}${url.includes('?') ? '&' : '?'}json.wrf=${callbackName}`
+    const script = document.createElement('script')
+    let called = false
+
+    const cleanup = () => {
+      if (script.parentNode) script.parentNode.removeChild(script)
+      delete (window as any)[callbackName]
+    }
+
+    ;(window as any)[callbackName] = (data: any) => {
+      called = true
+      cleanup()
+      resolve(data)
+    }
+
+    script.onload = () => {
+      setTimeout(() => {
+        if (!called) {
+          console.warn(`JSONP: script loaded but callback ${callbackName} never invoked`, jsonpUrl)
+          cleanup()
+          reject(new Error(`JSONP callback ${callbackName} was never invoked`))
+        }
+      }, 0)
+    }
+
+    script.onerror = () => {
+      console.warn('JSONP: script load error', jsonpUrl)
+      cleanup()
+      reject(new Error('JSONP request failed'))
+    }
+
+    script.async = true
+    script.src = jsonpUrl
+    document.body.appendChild(script)
+  })
+}
+
+const addTagTypes = ['search'] as const
+
+const lookupApi = apiService
+  .enhanceEndpoints({
+    addTagTypes,
+  })
+  .injectEndpoints({
+    endpoints: builder => ({
+      searchTerms: builder.query<
+        GOlrResponse[],
+        { searchText: string; closureIds: string[]; excludeClosureIds?: string[] }
+      >({
+        queryFn: async ({ searchText, closureIds, excludeClosureIds }) => {
+          try {
+            const closureClauses = (closureIds ?? []).map(id => `isa_closure:"${id}"`)
+            const excludeClauses = (excludeClosureIds ?? []).map(
+              id => `NOT isa_closure:"${id}"`
+            )
+            const closureFilter =
+              closureClauses.length + excludeClauses.length > 0
+                ? [...closureClauses, ...excludeClauses].join(' OR ')
+                : null
+
+            const requestParams = {
+              q: formatSolrQueryString(searchText),
+              defType: 'edismax',
+              indent: 'on',
+              qt: 'standard',
+              wt: 'json',
+              rows: '50',
+              start: '0',
+              packet: '1',
+              callback_type: 'search',
+              fq: ['document_category:"ontology_class"', ...(closureFilter ? [closureFilter] : [])],
+              qf: [
+                'annotation_class^3',
+                'annotation_class_label_searchable^5.5',
+                'description_searchable^1',
+                'comment_searchable^0.5',
+                'synonym_searchable^1',
+                'alternate_id^1',
+                'isa_closure^1',
+                'isa_closure_label_searchable^1',
+              ],
+            }
+
+            const params = new URLSearchParams()
+
+            for (const [key, value] of Object.entries(requestParams)) {
+              if (Array.isArray(value)) {
+                value.forEach(v => params.append(key, v))
+              } else {
+                params.append(key, value)
+              }
+            }
+
+            const url = `${ENVIRONMENT.globalGolrNeoServer}select?${params.toString()}`
+
+            const response = await createJsonpScript(url)
+
+            return {
+              data: mapGOlrResponse(response),
+            }
+          } catch (error) {
+            return {
+              error: { status: 'CUSTOM_ERROR', error: error?.message },
+            }
+          }
+        },
+      }),
+      getChemicalParticipants: builder.query<Array<{ id: string; label: string }>, string>({
+        queryFn: async termId => {
+          try {
+            const requestParams = {
+              q: termId,
+              defType: 'edismax',
+              indent: 'on',
+              qt: 'standard',
+              wt: 'json',
+              rows: '2',
+              start: '0',
+              fl: '*,score',
+              facet: 'true',
+              'facet.mincount': '1',
+              'facet.sort': 'count',
+              'facet.limit': '25',
+              'json.nl': 'arrarr',
+              packet: '1',
+              callback_type: 'search',
+              fq: ['document_category:"ontology_class"'],
+              qf: ['annotation_class^3', 'isa_closure^1'],
+            }
+
+            const params = new URLSearchParams()
+            for (const [key, value] of Object.entries(requestParams)) {
+              if (Array.isArray(value)) {
+                value.forEach(v => params.append(key, v))
+              } else {
+                params.append(key, value)
+              }
+            }
+
+            const url = `${ENVIRONMENT.globalGolrNeoServer}select?${params.toString()}`
+            const response = await createJsonpScript(url)
+            const results = mapGOlrResponse(response)
+
+            if (results.length > 0 && results[0].neighborhoodGraphJson) {
+              return { data: processHasParticipants(results[0].neighborhoodGraphJson) }
+            }
+
+            return { data: [] }
+          } catch (error) {
+            return {
+              error: { status: 'CUSTOM_ERROR', error: (error as Error)?.message },
+            }
+          }
+        },
+      }),
+
+      searchAnnotations: builder.query<
+        AnnotationsResponse[],
+        { gpId: string; aspect: Aspect; term?: string; evidence?: string }
+      >({
+        queryFn: async ({ gpId, aspect, term, evidence }) => {
+          try {
+            const fqFilters: string[] = [
+              'document_category: "annotation"',
+              '-qualifier:"not"',
+              `bioentity: "${gpId}"`,
+            ]
+
+            if (aspect === 'C') {
+              fqFilters.push('isa_partof_closure:"GO:0005575"')
+              fqFilters.push('-isa_partof_closure:"GO:0032991"')
+            } else {
+              fqFilters.push(`aspect: "${aspect}"`)
+            }
+
+            if (term) {
+              fqFilters.push(`annotation_class:"${term}"`)
+            }
+
+            if (evidence) {
+              fqFilters.push(`evidence:"${evidence}"`)
+            }
+
+            const requestParams = {
+              defType: 'edismax',
+              qt: 'standard',
+              indent: 'on',
+              wt: 'json',
+              sort: 'annotation_class_label asc',
+              rows: '2000',
+              start: '0',
+              fl: '*,score',
+              facet: 'true',
+              'facet.mincount': '1',
+              'facet.sort': 'count',
+              'json.nl': 'arrarr',
+              'facet.limit': '2000',
+              fq: fqFilters,
+              'facet.field': [
+                'source',
+                'assigned_by',
+                'aspect',
+                'evidence_type_closure',
+                'isa_partof_closure_label',
+                'annotation_class_label',
+              ],
+              q: '*:*',
+            }
+
+            const params = new URLSearchParams()
+            for (const [key, value] of Object.entries(requestParams)) {
+              if (Array.isArray(value)) {
+                value.forEach(v => params.append(key, v))
+              } else {
+                params.append(key, value as string)
+              }
+            }
+
+            const url = `${ENVIRONMENT.globalGolrServer}select?${params.toString()}`
+            const response = await createJsonpScript(url)
+
+            return {
+              data: processAnnotationsResponse(response),
+            }
+          } catch (error) {
+            return {
+              error: { status: 'CUSTOM_ERROR', error: error?.message },
+            }
+          }
+        },
+      }),
+
+      getPubmedInfo: builder.query<
+        { title: string; authors: string; date: string } | null,
+        string
+      >({
+        queryFn: async pmid => {
+          try {
+            const url = `${ENVIRONMENT.pubmedApiUrl}${encodeURIComponent(pmid)}`
+            const res = await fetch(url)
+            if (!res.ok) return { data: null }
+            const data = await res.json()
+            const entry = data?.result?.[pmid]
+            if (!entry) return { data: null }
+            const title = entry.title || ''
+            const authors = Array.isArray(entry.authors)
+              ? entry.authors.map((a: { name?: string }) => a.name).filter(Boolean).join(', ')
+              : ''
+            const date = entry.pubdate || ''
+            return { data: { title, authors, date } }
+          } catch {
+            return { data: null }
+          }
+        },
+      }),
+    }),
+  })
+
+export const {
+  useSearchTermsQuery,
+  useSearchAnnotationsQuery,
+  useLazyGetChemicalParticipantsQuery,
+  useLazyGetPubmedInfoQuery,
+} = lookupApi
