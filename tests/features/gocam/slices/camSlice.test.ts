@@ -10,6 +10,7 @@ import camReducer, {
   makeSelectModelTerms,
 } from '@/features/gocam/slices/camSlice'
 import type { Edge, Evidence, GraphModel } from '@/features/gocam/models/cam'
+import { RootTypes } from '@/features/gocam/models/cam'
 import {
   buildActivity,
   buildEdgeWithEvidence,
@@ -320,5 +321,53 @@ describe('camSlice makeSelectModelTerms', () => {
     const select1 = makeSelectModelTerms()
     const select2 = makeSelectModelTerms()
     expect(select1).not.toBe(select2)
+  })
+})
+
+describe('camSlice makeSelectModelTerms — phase/stage do-not-annotate handling', () => {
+  it('marks ordinary model terms annotatable (notAnnotatable=true) in a non-phase field', () => {
+    const bp = buildNode('GO:0008151', 'cell death', [RootTypes.BIOLOGICAL_PROCESS])
+    const a = buildActivity('act-1', [bp])
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+
+    const [opt] = makeSelectModelTerms()(state, [RootTypes.BIOLOGICAL_PROCESS])
+    expect(opt.id).toBe('GO:0008151')
+    expect(opt.notAnnotatable).toBe(true)
+  })
+
+  it('keeps a phase term annotatable when the field range is a phase (happens during)', () => {
+    const phase = buildNode('GO:0044849', 'M phase', [RootTypes.BIOLOGICAL_PHASE])
+    const a = buildActivity('act-1', [phase])
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+
+    const [opt] = makeSelectModelTerms()(state, [RootTypes.BIOLOGICAL_PHASE])
+    expect(opt.id).toBe('GO:0044849')
+    expect(opt.notAnnotatable).toBe(true)
+  })
+
+  it('blocks a phase term (notAnnotatable=false) when it surfaces in a non-phase field', () => {
+    // A phase term is_a biological_process, so its rootTypes include BP and it can
+    // pass the BP-field filter — but it must stay do-not-annotate there.
+    const phaseUnderBp = buildNode('GO:0044849', 'M phase', [
+      RootTypes.BIOLOGICAL_PHASE,
+      RootTypes.BIOLOGICAL_PROCESS,
+    ])
+    const a = buildActivity('act-1', [phaseUnderBp])
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+
+    const [opt] = makeSelectModelTerms()(state, [RootTypes.BIOLOGICAL_PROCESS])
+    expect(opt.id).toBe('GO:0044849')
+    expect(opt.notAnnotatable).toBe(false)
+  })
+
+  it('unlocks for uberon stage and plant stage field ranges too', () => {
+    const uberon = buildNode('UBERON:0000113', 'post-juvenile', [RootTypes.UBERON_STAGE])
+    const plant = buildNode('PO:0007134', 'sporophyte stage', [RootTypes.PLANT_STAGE])
+    const a = buildActivity('act-1', [uberon, plant])
+    const state = { cam: { ...initial, model: buildModel([a]) } }
+
+    const select = makeSelectModelTerms()
+    expect(select(state, [RootTypes.UBERON_STAGE]).find(o => o.id === 'UBERON:0000113')?.notAnnotatable).toBe(true)
+    expect(select(state, [RootTypes.PLANT_STAGE]).find(o => o.id === 'PO:0007134')?.notAnnotatable).toBe(true)
   })
 })
