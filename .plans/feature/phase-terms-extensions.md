@@ -79,6 +79,8 @@ The bypass keys on the **field's** `closureIds`, not on the term. A phase term `
 | `src/features/search/services/lookupServices.ts` | `mapGOlrResponse` closureIds + allowNotAnnotatable | Done |
 | `src/features/search/slices/lookupApiSlice.ts` | Pass `closureIds` to `mapGOlrResponse` | Done |
 | `src/features/gocam/slices/camSlice.ts` | `makeSelectModelTerms`/`nodeToOption` notAnnotatable logic | Done |
+| `tests/features/search/services/lookupServices.test.ts` | +5 tests: phase/stage bypass in `mapGOlrResponse` | Done |
+| `tests/features/gocam/slices/camSlice.test.ts` | +4 tests: phase/stage bypass in `makeSelectModelTerms` | Done |
 
 ## Blockers
 - None currently
@@ -87,7 +89,7 @@ The bypass keys on the **field's** `closureIds`, not on the term. A phase term `
 - `notAnnotatable` has inverted-sounding logic: `true` = annotatable, `false` = do-not-annotate. Autocomplete: `doNotAnnotate = option.notAnnotatable === false`.
 - The `happens during` insert-menu item only targets `BIOLOGICAL_PHASE`, so an inserted node's `searchClosureIds` = `['GO:0044848']`. The other two stage types matter mainly for the prelookup `isPhase` check on model nodes loaded from the backend.
 - Angular's `existence_overlaps` / `existence_starts_and_ends_during` relations **do not exist** in this repo (only `happens_during`), so there's nothing to port for them.
-- No tests added unless requested.
+- Tests added (on request): cover both paths — type-ahead (`mapGOlrResponse`) and prelookup (`makeSelectModelTerms`) — including the key "phase term stays blocked in a non-phase field" case and all three stage types.
 
 ## Additional Context (Claude)
 - The two consumers share the same category context (`closureIds`/`rootTypeIds`) that's already threaded from `EntityRow` → `TermAutocomplete`; the entire change is making those two functions read the phase category. No new props or plumbing.
