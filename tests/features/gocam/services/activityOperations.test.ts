@@ -21,7 +21,7 @@ import {
 import type { Operation } from '@/features/gocam/models/operations'
 import type { TermNode, EvidenceForm } from '@/features/gocam/models/formModels'
 import type { Activity, Edge, GraphNode, UserContext } from '@/features/gocam/models/cam'
-import { ActivityType } from '@/features/gocam/models/cam'
+import { ActivityType, RootTypes } from '@/features/gocam/models/cam'
 
 const MODEL_ID = 'gomodel:test'
 
@@ -360,6 +360,102 @@ describe('buildCreateActivityOperations', () => {
   })
 })
 
+// ── buildCreateActivityOperations: auto model title ────────────────
+// Ports the old VPE addActivity behavior: when the model has no title, derive
+// "enabled by <GP>" from the first activity's gene product (`if (!cam.title)`).
+
+describe('buildCreateActivityOperations — auto model title', () => {
+  const titleOps = (ops: Operation[]) =>
+    ops.filter(
+      o =>
+        o.entity === OperationEntity.MODEL &&
+        o.operation === OperationType.ADD_ANNOTATION &&
+        Array.isArray(o.arguments.values) &&
+        (o.arguments.values as Array<{ key: AnnotationKey }>)[0].key === AnnotationKey.TITLE
+    )
+
+  const titleValue = (ops: Operation[]) =>
+    (titleOps(ops)[0].arguments.values as Array<{ key: AnnotationKey; value: string }>)[0].value
+
+  // MF root --enabled by--> GP (molecular entity)
+  const makeGpTree = (gpLabel = 'CDK1', gpTermId: string | null = 'UniProtKB:P06493') => {
+    const gp = makeTerm('gp-1', gpTermId, gpLabel, [], {
+      category: RootTypes.MOLECULAR_ENTITY,
+    })
+    return makeTerm('root-1', 'GO:0003674', 'kinase activity', [
+      makeRelation('rel-1', 'RO:0002333', gp),
+    ])
+  }
+
+  it('adds an "enabled by <GP>" model title when the model has no title', () => {
+    const ops = buildCreateActivityOperations(makeGpTree(), MODEL_ID)
+    expect(titleOps(ops)).toHaveLength(1)
+    expect(titleValue(ops)).toBe('enabled by CDK1')
+    expect(titleOps(ops)[0].arguments['model-id']).toBe(MODEL_ID)
+  })
+
+  it('emits the title annotation before the trailing STORE', () => {
+    const ops = buildCreateActivityOperations(makeGpTree(), MODEL_ID)
+    const titleIdx = ops.findIndex(
+      o => o.entity === OperationEntity.MODEL && o.operation === OperationType.ADD_ANNOTATION
+    )
+    const storeIdx = ops.findIndex(
+      o => o.entity === OperationEntity.MODEL && o.operation === OperationType.STORE
+    )
+    expect(titleIdx).toBeGreaterThanOrEqual(0)
+    expect(titleIdx).toBeLessThan(storeIdx)
+    expect(lastOp(ops).operation).toBe(OperationType.STORE)
+  })
+
+  it('does not add a title when the model already has one', () => {
+    const ops = buildCreateActivityOperations(makeGpTree(), MODEL_ID, undefined, 'My model')
+    expect(titleOps(ops)).toHaveLength(0)
+  })
+
+  it('treats a blank/whitespace model title as "no title"', () => {
+    const ops = buildCreateActivityOperations(makeGpTree(), MODEL_ID, undefined, '   ')
+    expect(titleOps(ops)).toHaveLength(1)
+  })
+
+  it('finds a gene product nested under a protein complex (has part)', () => {
+    const gp = makeTerm('gp-1', 'UniProtKB:P24941', 'CDK2', [], {
+      category: RootTypes.MOLECULAR_ENTITY,
+    })
+    const complex = makeTerm(
+      'cx-1',
+      'GO:0032991',
+      'cyclin-CDK complex',
+      [makeRelation('rel-2', 'BFO:0000051', gp)],
+      { category: RootTypes.PROTEIN_CONTAINING_COMPLEX }
+    )
+    const root = makeTerm('root-1', 'GO:0003674', 'kinase activity', [
+      makeRelation('rel-1', 'RO:0002333', complex),
+    ])
+    const ops = buildCreateActivityOperations(root, MODEL_ID)
+    expect(titleValue(ops)).toBe('enabled by CDK2')
+  })
+
+  it('adds no title when the tree has no gene product (e.g. molecule activity)', () => {
+    const cc = makeTerm('cc-1', 'GO:0005634', 'nucleus', [], {
+      category: RootTypes.CELLULAR_COMPONENT,
+    })
+    const root = makeTerm(
+      'chem-1',
+      'CHEBI:15422',
+      'ATP',
+      [makeRelation('rel-1', 'RO:0001025', cc)],
+      { category: RootTypes.CHEMICAL_ENTITY }
+    )
+    const ops = buildCreateActivityOperations(root, MODEL_ID)
+    expect(titleOps(ops)).toHaveLength(0)
+  })
+
+  it('adds no title when the gene product has no term selected yet', () => {
+    const ops = buildCreateActivityOperations(makeGpTree('', null), MODEL_ID)
+    expect(titleOps(ops)).toHaveLength(0)
+  })
+})
+
 // ── buildEditActivityOperations ────────────────────────────────────
 
 describe('buildEditActivityOperations', () => {
@@ -478,6 +574,22 @@ describe('buildEditActivityOperations', () => {
     const existing = makeActivity([makeNode('shared-uid', 'GO:0003674')])
     const ops = buildEditActivityOperations(root, existing, MODEL_ID)
     expect(lastOp(ops).operation).toBe(OperationType.STORE)
+  })
+
+  it('never auto-adds a model title, even on the full-replace path with a GP', () => {
+    // All form UIDs are new -> full-replace; editing must not invent a title.
+    const gp = makeTerm('gp-1', 'UniProtKB:P06493', 'CDK1', [], {
+      category: RootTypes.MOLECULAR_ENTITY,
+    })
+    const root = makeTerm('new-root', 'GO:0003674', 'mf', [
+      makeRelation('rel-1', 'RO:0002333', gp),
+    ])
+    const existing = makeActivity([makeNode('old-root', 'GO:0003674')])
+    const ops = buildEditActivityOperations(root, existing, MODEL_ID)
+    const modelAnnotationAdds = ops.filter(
+      o => o.entity === OperationEntity.MODEL && o.operation === OperationType.ADD_ANNOTATION
+    )
+    expect(modelAnnotationAdds).toHaveLength(0)
   })
 })
 

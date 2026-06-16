@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { TermNode, EvidenceForm } from '../models/formModels'
 import type { Activity, Evidence, UserContext } from '../models/cam'
+import { RootTypes } from '../models/cam'
 import {
   OperationEntity,
   OperationType,
@@ -10,13 +11,41 @@ import {
 import type { Operation } from '../models/operations'
 
 /**
- * Build Barista API operations to create a new activity from a TermNode tree.
+ * Find the gene product (molecular entity) label anywhere in the form tree.
+ * Mirrors the old VPE `getNode(GoMolecularEntity)` lookup: the GP can sit
+ * directly under `enabled by` (regular activity) or nested under a protein
+ * complex via `has part`.
  */
-export const buildCreateActivityOperations = (
+function findGeneProductLabel(node: TermNode): string | undefined {
+  if (node.category === RootTypes.MOLECULAR_ENTITY && node.term?.label) {
+    return node.term.label
+  }
+  for (const rel of node.relations) {
+    const found = findGeneProductLabel(rel.target)
+    if (found) return found
+  }
+  return undefined
+}
+
+/**
+ * Default model title derived from the gene product, mirroring the old VPE
+ * `activity.createSave().title` ("enabled by <GP>"). Returns undefined when the
+ * tree has no gene product to name (e.g. molecule activities).
+ */
+const buildDefaultModelTitle = (root: TermNode): string | undefined => {
+  const gpLabel = findGeneProductLabel(root)
+  return gpLabel ? `enabled by ${gpLabel}` : undefined
+}
+
+/**
+ * Emit the INDIVIDUAL + EDGE (+ evidence) operations for a TermNode tree.
+ * No trailing STORE — callers append it after any model-level annotations.
+ */
+function buildActivityGraphOperations(
   root: TermNode,
   modelId: string,
   userContext?: UserContext
-): Operation[] => {
+): Operation[] {
   const operations: Operation[] = []
   const termVarIds = new Map<string, string>()
 
@@ -71,6 +100,37 @@ export const buildCreateActivityOperations = (
   }
 
   walkTerm(root)
+  return operations
+}
+
+/**
+ * Build Barista API operations to create a new activity from a TermNode tree.
+ *
+ * When the model has no title yet, a default "enabled by <GP>" title is added
+ * (ported from the old VPE `addActivity`, which set the model title from the
+ * first activity's gene product when `!cam.title`).
+ */
+export const buildCreateActivityOperations = (
+  root: TermNode,
+  modelId: string,
+  userContext?: UserContext,
+  currentModelTitle?: string
+): Operation[] => {
+  const operations = buildActivityGraphOperations(root, modelId, userContext)
+
+  if (!currentModelTitle?.trim()) {
+    const title = buildDefaultModelTitle(root)
+    if (title) {
+      operations.push({
+        entity: OperationEntity.MODEL,
+        operation: OperationType.ADD_ANNOTATION,
+        arguments: {
+          'model-id': modelId,
+          values: [{ key: AnnotationKey.TITLE, value: title }],
+        },
+      })
+    }
+  }
 
   operations.push({
     entity: OperationEntity.MODEL,
@@ -359,11 +419,9 @@ const buildFullReplaceOperations = (
     })
   }
 
-  const createOps = buildCreateActivityOperations(root, modelId, userContext)
-  const withoutStore = createOps.filter(
-    op => !(op.entity === OperationEntity.MODEL && op.operation === OperationType.STORE)
-  )
-  operations.push(...withoutStore)
+  // Recreate the graph only — no auto-title here; editing an existing activity
+  // must not overwrite (or invent) the model title.
+  operations.push(...buildActivityGraphOperations(root, modelId, userContext))
 
   operations.push({
     entity: OperationEntity.MODEL,
