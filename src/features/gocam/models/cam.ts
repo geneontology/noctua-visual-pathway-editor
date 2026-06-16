@@ -38,6 +38,17 @@ export enum NodeType {
   PROTEIN_CONTAINING_COMPLEX = RootTypes.PROTEIN_CONTAINING_COMPLEX,
 }
 
+/**
+ * Phase/stage root types. Terms under these are marked `gocheck_do_not_annotate`
+ * but are allowed in extension fields whose range is a phase/stage (e.g. `happens during`).
+ * When a field's closure context includes one of these, do-not-annotate filtering is bypassed.
+ */
+export const PHASE_CATEGORIES = new Set<string>([
+  RootTypes.BIOLOGICAL_PHASE,
+  RootTypes.UBERON_STAGE,
+  RootTypes.PLANT_STAGE,
+])
+
 export enum Aspect {
   MOLECULAR_FUNCTION = 'F',
   BIOLOGICAL_PROCESS = 'P',

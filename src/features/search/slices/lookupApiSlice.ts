@@ -112,7 +112,7 @@ const lookupApi = apiService
             const response = await createJsonpScript(url)
 
             return {
-              data: mapGOlrResponse(response),
+              data: mapGOlrResponse(response, closureIds),
             }
           } catch (error) {
             return {
