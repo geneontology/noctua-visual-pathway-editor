@@ -198,7 +198,7 @@ export const getPrimaryRootType = (rootTypes: string[]): string | null => {
  * inferred type set, so a gene product carries both MOLECULAR_ENTITY (CHEBI:33695)
  * and its parent CHEMICAL_ENTITY (CHEBI:24431). Searching the raw set would include
  * chemicals; scoping to the primary category (gene product → search CHEBI:33695 only)
- * matches the activity-form template path and the legacy single-category behavior.
+ * matches the activity-form template path, which searches a single category.
  * Falls back to the raw root types when the primary type has no known category.
  */
 export const getSearchClosures = (
