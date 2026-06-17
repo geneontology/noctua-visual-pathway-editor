@@ -35,14 +35,17 @@ with/from is **multi-value**: groups separated by `,`, entities within a group b
 
 ## Steps
 
-### Phase 1: Add namespace validation
-- [ ] In `formValidation.ts`, add an `isValidWithFrom`-style check mirroring `isValidReference`, but iterating the multi-value structure: split on `,` then `|`, and for each non-empty entity confirm `prefix ∈ withFromAllowedDBs`.
-- [ ] Emit a clear error naming the offending namespace, e.g. `With/from "TAIR:…" uses a namespace that is not allowed for IBA support` (field `withFrom`, with `uid`/evidence position like the existing messages).
-- [ ] Keep the existing colon/format check (or fold it into the new one).
+### Phase 1: Add namespace validation — DONE
+- [x] In `formValidation.ts`, added `validateWithFrom(input)` — ported verbatim from the old VPE `DataUtils.validateDatabaseIdentifiers`: split on `[,|]`, and for each non-empty entry check `DB:accession` format + that the (case-insensitive) prefix is in `withFromAllowedDBs`. Returns the old messages (`Invalid database prefix: "TAIR" is not part of allowed entities`, etc.).
+- [x] Replaced the old colon-only check in `walkTerm` with `validateWithFrom`, wrapped as `With/from for "<label>" on evidence(<n>): <error>` (field `withFrom`, with `uid`/position like the existing messages). Runs in `validateActivityForm`, so the form blocks submit on it.
 
-### Phase 2: Cover both entry points
-- [ ] Confirm the **form path** (`AnnotationForm`/`ActivityForm`) runs `validateActivityForm` and blocks submit on the new error (it does for references — verify with/from now blocks too).
-- [ ] Check the **inline path** (`EvidenceRow` → `EditorDropdown` → `buildEditEvidenceAnnotationOperations`). If it bypasses `validateActivityForm`, add the same namespace check there (or refactor the check into a shared helper both call) so inline edits can't sneak a TAIR value through.
+### Phase 2: Cover both entry points — DONE
+- [x] **Form path** (`ActivityForm`): `validateActivityForm` runs on every form change and `handleSave` blocks on `hasErrors` — with/from now blocks too.
+- [x] **Inline path** (`EvidenceRow` → `EditorDropdown`): exported `validateWithFrom` and guarded the inline `with` save — invalid value shows an error toast and is not submitted. (Note: `WithDropdown`'s DB `<Select>` only offers allowed DBs, so the only way TAIR/Dicty persists is legacy data being re-saved; both the form and inline now catch that.)
+
+### Phase 2b: MF (first row) evidence was being skipped — DONE
+- [x] **Root cause:** the MF's evidence lives on the `enabled_by` relation, whose target (the gene product) is `skipEvidenceCheck: true` (`activityTemplates.ts`). `walkTerm` gated the *entire* evidence block on `!skipEvidenceCheck`, so the MF's reference/with-from were never validated ("the first MF not getting checked").
+- [x] **Fix:** in `walkTerm`, `skipEvidenceCheck` now only skips the *"evidence is required"* rule; the per-evidence field checks (reference format, with/from namespace) run for any relation whose target has a term. Empty evidence forms trigger nothing, so no false positives on GP/complex/chemical nodes. Updated 2 `ActivityTable.test.ts` assertions that still encoded the pre-#264 has_input order (missed earlier). Full gocam suite: 382/382 green.
 
 ### Phase 3: Verify (manual, user)
 - [ ] `TAIR:AT1G01010` → error, submit blocked (both form and inline).
@@ -55,16 +58,16 @@ with/from is **multi-value**: groups separated by `,`, entities within a group b
 
 > **⚠ UPDATE THIS AFTER EVERY CHANGE**
 
-- **Last completed action:** Plan written; gap confirmed at `formValidation.ts:83-90`; allow-list verified against canonical YAML.
-- **Next immediate action:** Add the with/from namespace check in `formValidation.ts`.
-- **Uncommitted changes:** none yet.
+- **Last completed action:** Ported old `validateDatabaseIdentifiers` into `formValidation.ts` as `validateWithFrom`; wired form-path (walkTerm) + inline-path (`EvidenceRow` with-save) guards. type-check + lint clean.
+- **Next immediate action:** User runs Phase 3 manual checks.
+- **Uncommitted changes:** `formValidation.ts`, `EvidenceRow.tsx`.
 
-## Files Modified (planned)
+## Files Modified
 
 | File | Action | Status |
 | ---- | ------ | ------ |
-| `src/features/gocam/services/formValidation.ts` | Add with/from namespace validation (multi-value aware) | Pending |
-| inline edit path (`EvidenceRow.tsx`/`EditorDropdown.tsx` or shared helper) | Ensure inline edits run the same check | Pending (verify first) |
+| `src/features/gocam/services/formValidation.ts` | Added/exported `validateWithFrom` (multi-value, case-insensitive, allowed-namespace); replaced colon-only check | Done |
+| `src/features/gocam/components/EvidenceRow.tsx` | Inline `with` save validates via `validateWithFrom`; error toast, no submit | Done |
 
 ## Notes
 - #253 is CLOSED but its intent ("remove DBs that can't support IBA") is satisfied by rejecting the non-allowed namespaces — no separate allow-the-DBs work.

@@ -8,7 +8,10 @@ import {
   buildEditIndividualTypeOperations,
   buildEditEvidenceAnnotationOperations,
 } from '../services/activityOperations'
-import { ENVIRONMENT } from '@/@noctua.core/data/constants'
+import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker'
+import { validateWithFrom } from '../services/formValidation'
+import { showToast } from '@/@noctua.core/components/toast/toastSlice'
+import { useAppDispatch } from '@/app/hooks'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
@@ -30,6 +33,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
   onClearField,
 }) => {
   const [updateGraphModel] = useUpdateGraphModelMutation()
+  const dispatch = useAppDispatch()
   const checkGroup = useGroupGuard()
   const evCellRef = useRef<HTMLDivElement>(null)
   const refCellRef = useRef<HTMLDivElement>(null)
@@ -66,6 +70,11 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         }
         case EditorCategory.with: {
           if (values.with === undefined) break
+          const withError = validateWithFrom(values.with)
+          if (withError) {
+            dispatch(showToast({ message: withError, severity: 'error' }))
+            break
+          }
           await updateGraphModel(
             buildEditEvidenceAnnotationOperations(
               ev.uid, AnnotationKey.WITH, ev.with || '', values.with, modelId, userContext
@@ -76,7 +85,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
       }
       setEditorAnchor(null)
     },
-    [editorCategory, ev, modelId, userContext, updateGraphModel]
+    [editorCategory, ev, modelId, userContext, updateGraphModel, dispatch]
   )
 
   return (
@@ -93,14 +102,21 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
           {ev.evidenceCode?.id && (
             <>
               {' ('}
-              <a
-                href={`${ENVIRONMENT.amigoTermUrl}${ev.evidenceCode.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                {ev.evidenceCode.id}
-              </a>
+              {(() => {
+                const url = getEntityUrl(ev.evidenceCode.id)
+                return url ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {ev.evidenceCode.id}
+                  </a>
+                ) : (
+                  <span>{ev.evidenceCode.id}</span>
+                )
+              })()}
               {')'}
             </>
           )}
@@ -114,12 +130,32 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         onEdit={() => openEditor(refCellRef, EditorCategory.reference)}
         onDelete={ev.reference ? () => onClearField(ev, AnnotationKey.SOURCE) : undefined}
       >
-        {ev.referenceUrl ? (
-          <a href={ev.referenceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-            {ev.reference}
-          </a>
+        {ev.reference ? (
+          <span>
+            {ev.reference.split('|').map((part, i) => {
+              const src = part.trim()
+              const url = getEntityUrl(src)
+              return (
+                <span key={`${src}-${i}`}>
+                  {i > 0 && ', '}
+                  {url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {src}
+                    </a>
+                  ) : (
+                    src
+                  )}
+                </span>
+              )
+            })}
+          </span>
         ) : (
-          <span>{ev.reference || '—'}</span>
+          <span>—</span>
         )}
       </EditableCell>
 
