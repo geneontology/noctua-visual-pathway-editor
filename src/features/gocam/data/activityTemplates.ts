@@ -6,13 +6,12 @@ import type {
   ActivityFormType,
   TermNode,
   EvidenceForm,
-  NodeCategory,
   TermDescriptor,
-  RelationDescriptor,
 } from '../models/formModels'
 import { createEvidenceForm } from '../models/formModels'
 import { predicate } from './shapeTerms'
 import { getNodeCategory, getPrimaryRootType } from './nodeCategories'
+import { getRelationRowLabel } from './insertMenuConfig'
 import {
   molecularFunction as mfCat,
   molecularEntity as gpCat,
@@ -189,10 +188,17 @@ export function activityToFormTree(activity: Activity): TermNode {
       relations: outEdges.map(edge => {
         const targetNode =
           activity.nodes.find(n => n.uid === edge.targetId) ?? edge.target
+        const target = buildNode(targetNode, false)
+        // Relation rows are labeled by their edge + object (e.g. "part of (BP)"),
+        // not just the target type — keeps a `has input` Gene Product row distinct
+        // from the `enabled by` Gene Product row. The enabler itself has no edge-led
+        // label, so it keeps its Gene Product / Chemical section label.
+        const rowLabel = getRelationRowLabel(category, edge.id, target.category)
+        if (rowLabel) target.label = rowLabel
         return {
           uid: uuidv4(),
           predicate: { id: edge.id, label: edge.label },
-          target: buildNode(targetNode, false),
+          target,
           evidence: edgeToEvidenceForms(edge),
         }
       }),

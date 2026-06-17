@@ -8,6 +8,7 @@ import { AnnotationKey } from '../models/operations';
 import { buildValidationErrors, emptyValidationErrors } from './violationService';
 import { canInsertEntity } from '../data/insertMenuConfig';
 import { getPrimaryRootType } from '../data/nodeCategories';
+import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker';
 
 function isEdgeShapeAllowed(edge: Edge, subject: GraphNode, target: GraphNode): boolean {
   const subjectType = getPrimaryRootType(subject.rootTypes ?? []);
@@ -191,7 +192,7 @@ export function extractEvidence(evidenceId: string, nodes: GraphNode[]): Evidenc
       label: evidenceNode.label
     },
     reference,
-    referenceUrl: reference,
+    referenceUrl: getEntityUrl(reference) ?? '',
     with: evidenceNode.with || '',
     groups: evidenceNode.groups,
     contributors: evidenceNode.contributors,

@@ -7,7 +7,7 @@ import { useAppSelector } from '@/app/hooks'
 import { EditorCategory } from '../../models/editorCategory'
 import { RootTypes } from '../../models/cam'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
-import { getNodeCategory } from '../../data/nodeCategories'
+import { getSearchClosures } from '../../data/nodeCategories'
 import TermAutocomplete from '@/features/search/components/Autocomplete'
 import { AutocompleteType } from '@/features/search/models/search'
 import type { GOlrResponse } from '@/features/search/models/search'
@@ -79,14 +79,15 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
   const sections = getDisplaySections(category)
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
-  const rootTypes = termRootTypes ?? []
-  // Mirror the Activity Form (EntityRow): a category's excludeClosureIds must
-  // narrow the term search too, so the inline editor hides protein-containing
-  // complex from CC and information biomacromolecule from Molecule/Chemical.
-  const excludeRootTypes = useMemo(() => {
-    const ids = (termRootTypes ?? []).flatMap(rt => getNodeCategory(rt)?.excludeClosureIds ?? [])
-    return ids.length > 0 ? Array.from(new Set(ids)) : undefined
-  }, [termRootTypes])
+  // Scope the term search to the node's *primary* category, not its raw root-type
+  // set. Minerva returns a gene product as [MOLECULAR_ENTITY, CHEMICAL_ENTITY], so
+  // searching the raw set would include CHEBI chemicals. getSearchClosures resolves
+  // the primary category (gene product → search CHEBI:33695, no exclusion) and keeps
+  // the exclusion for chemical/CC (e.g. Chemical excludes gene products). (#267)
+  const { closureIds: rootTypes, excludeClosureIds: excludeRootTypes } = useMemo(
+    () => getSearchClosures(termRootTypes ?? []),
+    [termRootTypes]
+  )
   const termInitialOptions = useAppSelector(state =>
     selectTerms(state, rootTypes, excludeRootTypes)
   )
@@ -135,7 +136,7 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
               label={termLabel}
               name="editor-term"
               autocompleteType={AutocompleteType.TERM}
-              rootTypeIds={termRootTypes ?? []}
+              rootTypeIds={rootTypes}
               excludeRootTypeIds={excludeRootTypes}
               value={term}
               onChange={val => {

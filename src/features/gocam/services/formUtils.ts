@@ -67,10 +67,32 @@ export function orderActivityEdgesForDisplay(activity: Activity): OrderedActivit
     }
   }
 
-  const groupOf = (e: Edge): DisplayGroup => {
-    const sourceCat = getPrimaryRootType(e.source?.rootTypes ?? []) ?? ''
-    const targetCat = getPrimaryRootType(e.target?.rootTypes ?? []) ?? ''
-    return getDisplayGroup(sourceCat, e.id, targetCat) ?? DisplayGroup.MF
+  // Incoming edge per node (tree: one parent each) so a nested edge can inherit
+  // its parent's section.
+  const incomingEdge = new Map<string, Edge>()
+  for (const e of edges) incomingEdge.set(e.targetId, e)
+
+  // Only top-level edges (off the activity root) anchor a section; nested edges
+  // inherit their parent's group so a subtree stays in one section — e.g. a
+  // `has input` GP's `part of (complex)` must not jump into the GP card above the MF.
+  const groupCache = new Map<string, DisplayGroup>()
+  const groupOf = (e: Edge, seen: Set<string> = new Set()): DisplayGroup => {
+    const cached = groupCache.get(e.targetId)
+    if (cached) return cached
+    if (seen.has(e.targetId)) return DisplayGroup.MF // cycle guard
+    seen.add(e.targetId)
+
+    let group: DisplayGroup
+    if (e.sourceId === rootUid) {
+      const sourceCat = getPrimaryRootType(e.source?.rootTypes ?? []) ?? ''
+      const targetCat = getPrimaryRootType(e.target?.rootTypes ?? []) ?? ''
+      group = getDisplayGroup(sourceCat, e.id, targetCat) ?? DisplayGroup.MF
+    } else {
+      const parentEdge = incomingEdge.get(e.sourceId)
+      group = parentEdge ? groupOf(parentEdge, seen) : DisplayGroup.MF
+    }
+    groupCache.set(e.targetId, group)
+    return group
   }
 
   const keyFor = (e: Edge) => {
@@ -133,12 +155,20 @@ export function buildGroupedRows(root: TermNode): GroupedRow[] {
     node: TermNode,
     parent: TermNode | null,
     relation: RelationNode | null,
-    treeLevel: number
+    treeLevel: number,
+    parentGroup: DisplayGroup | null
   ) {
+    // Only the root and its direct relations anchor a section (enabled_by → GP,
+    // has_input → MF_INPUT, …). Nested nodes inherit their parent's group so a
+    // subtree never splits across sections — otherwise a `has input` GP's
+    // `part of (complex)` would re-derive to GP and jump into the Gene Product card.
+    const dg =
+      parent && parent !== root
+        ? (parentGroup ?? DisplayGroup.MF)
+        : (getDisplayGroup(parent?.category ?? null, relation?.predicate.id ?? null, node.category) ??
+          DisplayGroup.MF)
+
     if (node.visible !== false) {
-      const dg =
-        getDisplayGroup(parent?.category ?? null, relation?.predicate.id ?? null, node.category) ??
-        DisplayGroup.MF
       const weight =
         parent && relation
           ? getInsertWeight(parent.category, relation.predicate.id, node.category)
@@ -154,11 +184,11 @@ export function buildGroupedRows(root: TermNode): GroupedRow[] {
     }
     const sortedChildren = sortRelationsByWeight(node.category, node.relations)
     for (const rel of sortedChildren) {
-      walk(rel.target, node, rel, treeLevel + 1)
+      walk(rel.target, node, rel, treeLevel + 1, dg)
     }
   }
 
-  walk(root, null, null, 1)
+  walk(root, null, null, 1, null)
   return rows
 }
 

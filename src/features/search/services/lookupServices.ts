@@ -3,7 +3,7 @@ import type { Entity, Evidence } from '@/features/gocam/models/cam'
 import { PHASE_CATEGORIES } from '@/features/gocam/models/cam'
 import type { Group } from '@/features/users/models/contributor'
 import type { GOlrResponse, AnnotationsResponse } from '../models/search'
-import { ENVIRONMENT } from '@/@noctua.core/data/constants'
+import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker'
 
 // Helper function to escape special characters in Golr queries
 export const escapeGOlrValue = (str: string): string => {
@@ -175,16 +175,5 @@ export const processHasParticipants = (
 }
 
 function getTermURL(id: string): string {
-  if (id.startsWith('ECO')) {
-    return ENVIRONMENT.evidenceOntologyUrl + id
-  } else if (id.startsWith('PMID')) {
-    const idAccession = id.split(':')
-    if (idAccession.length > 1) {
-      return ENVIRONMENT.pubmedUrl + idAccession[1].trim()
-    } else {
-      return null
-    }
-  } else {
-    return `${ENVIRONMENT.amigoTermUrl}${id}`
-  }
+  return getEntityUrl(id) ?? ''
 }

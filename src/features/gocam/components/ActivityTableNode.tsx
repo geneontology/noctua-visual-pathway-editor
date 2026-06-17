@@ -8,7 +8,7 @@ import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam
 import { ActivityType, RootTypes, Aspect } from '../models/cam'
 import { AnnotationKey } from '../models/operations'
 import { EditorCategory } from '../models/editorCategory'
-import { ENVIRONMENT } from '@/@noctua.core/data/constants'
+import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
@@ -247,14 +247,21 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
             <span>
               {node.label}
               <br />
-              <a
-                href={`${ENVIRONMENT.amigoTermUrl}${node.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                {node.id}
-              </a>
+              {(() => {
+                const url = getEntityUrl(node.id)
+                return url ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {node.id}
+                  </a>
+                ) : (
+                  <span className="text-gray-600">{node.id}</span>
+                )
+              })()}
             </span>
           ) : (
             <span className="italic text-gray-400">—</span>

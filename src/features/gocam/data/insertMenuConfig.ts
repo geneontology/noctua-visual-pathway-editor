@@ -10,9 +10,11 @@ export enum Cardinality {
 export enum DisplayGroup {
   GP = 'gp',
   MF = 'mf',
+  /** has input — renders directly below the molecular function, before BP/CC */
+  MF_INPUT = 'mfInput',
   BP = 'bp',
   CC = 'cc',
-  /** Function-level relations (has input, happens during) that render after BP/CC */
+  /** Function-level relations (happens during) that render after BP/CC */
   MF_EXTRA = 'mfExtra',
 }
 
@@ -20,6 +22,7 @@ export enum DisplayGroup {
 export const GROUP_ORDER: Record<DisplayGroup, number> = {
   [DisplayGroup.GP]: 0,
   [DisplayGroup.MF]: 0,
+  [DisplayGroup.MF_INPUT]: 5,
   [DisplayGroup.BP]: 10,
   [DisplayGroup.CC]: 20,
   [DisplayGroup.MF_EXTRA]: 30,
@@ -38,7 +41,16 @@ const ROOT_GROUP_BY_CATEGORY: Record<string, DisplayGroup> = {
 }
 
 export interface InsertMenuItem {
+  /** Edge label shown in the insert menu (e.g. "part of"). */
   label: string
+  /**
+   * Edge-led row title for the form (e.g. "part of (BP)"). A relation row reads by
+   * its edge + object, not just its target type — otherwise a `has input` Gene
+   * Product row is indistinguishable from the `enabled by` Gene Product row.
+   * Omitted for the `enabled by` enabler, which keeps its Gene Product / Chemical
+   * section label.
+   */
+  nodeLabel?: string
   rangeLabel: string
   targetType: string
   predicate: { id: string; label: string }
@@ -52,6 +64,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.MOLECULAR_ENTITY]: [
     {
       label: 'part of',
+      nodeLabel: '(GP) part of (Protein Complex)',
       rangeLabel: 'Protein Complex',
       targetType: RootTypes.PROTEIN_CONTAINING_COMPLEX,
       predicate: predicate(Relations.PART_OF),
@@ -65,6 +78,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.PROTEIN_CONTAINING_COMPLEX]: [
     {
       label: 'has part',
+      nodeLabel: '(Protein Complex) has part (GP)',
       rangeLabel: 'Gene Product',
       targetType: RootTypes.MOLECULAR_ENTITY,
       predicate: predicate(Relations.HAS_PART),
@@ -78,6 +92,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
     // recognized as a valid part of the activity rather than flagged as a violation.
     {
       label: 'has part',
+      nodeLabel: '(Protein Complex) has part (Protein Complex)',
       rangeLabel: 'Protein Complex',
       targetType: RootTypes.PROTEIN_CONTAINING_COMPLEX,
       predicate: predicate(Relations.HAS_PART),
@@ -111,6 +126,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
     },
     {
       label: 'part of',
+      nodeLabel: '(MF) part of (BP)',
       rangeLabel: 'Biological Process',
       targetType: RootTypes.BIOLOGICAL_PROCESS,
       predicate: predicate(Relations.PART_OF),
@@ -121,6 +137,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
     },
     {
       label: 'occurs in',
+      nodeLabel: '(MF) occurs in (CC)',
       rangeLabel: 'Cellular Component',
       targetType: RootTypes.CELLULAR_COMPONENT,
       predicate: predicate(Relations.OCCURS_IN),
@@ -131,16 +148,18 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
     },
     {
       label: 'has input',
+      nodeLabel: 'has input (Gene Product/Protein Complex)',
       rangeLabel: 'Gene Product/Protein Complex',
       targetType: RootTypes.MOLECULAR_ENTITY,
       predicate: predicate(Relations.HAS_INPUT),
       showInMenu: true,
-      weight: 30,
+      weight: 5,
       cardinality: Cardinality.ONE_TO_MANY,
-      displayGroup: DisplayGroup.MF_EXTRA,
+      displayGroup: DisplayGroup.MF_INPUT,
     },
     {
       label: 'happens during',
+      nodeLabel: 'happens during (Biological Phase/Stage/Plant Stage)',
       rangeLabel: 'Biological Phase/Stage',
       targetType: RootTypes.BIOLOGICAL_PHASE,
       predicate: predicate(Relations.HAPPENS_DURING),
@@ -154,6 +173,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.BIOLOGICAL_PROCESS]: [
     {
       label: 'part of',
+      nodeLabel: 'part of (BP)',
       rangeLabel: 'Biological Process',
       targetType: RootTypes.BIOLOGICAL_PROCESS,
       predicate: predicate(Relations.PART_OF),
@@ -167,6 +187,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.CELLULAR_COMPONENT]: [
     {
       label: 'part of',
+      nodeLabel: 'part of (CC/Cell/Anatomy/Organism)',
       rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
@@ -180,6 +201,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.CELL_TYPE]: [
     {
       label: 'part of',
+      nodeLabel: 'part of (CC/Cell/Anatomy/Organism)',
       rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
@@ -193,6 +215,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.ANATOMICAL_ENTITY]: [
     {
       label: 'part of',
+      nodeLabel: 'part of (CC/Cell/Anatomy/Organism)',
       rangeLabel: 'Cell/Anatomy/Organism',
       targetType: RootTypes.ANATOMICAL_ENTITY,
       predicate: predicate(Relations.PART_OF),
@@ -206,6 +229,7 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
   [RootTypes.CHEMICAL_ENTITY]: [
     {
       label: 'located in',
+      nodeLabel: 'located in (CC)',
       rangeLabel: 'Cellular Component',
       targetType: RootTypes.CELLULAR_COMPONENT,
       predicate: predicate(Relations.LOCATED_IN),
@@ -215,6 +239,25 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       displayGroup: DisplayGroup.CC,
     },
   ],
+}
+
+/**
+ * Edge-led row title for a relation, resolved by (parent, predicate, target).
+ * Returns undefined for relations without a configured nodeLabel (e.g. the
+ * `enabled by` enabler), so the caller falls back to the target/category label.
+ */
+export function getRelationRowLabel(
+  parentType: string,
+  predicateId: string,
+  targetType: string
+): string | undefined {
+  const items = canInsertEntity[parentType] ?? []
+  const exact = items.find(i => i.predicate.id === predicateId && i.targetType === targetType)
+  if (exact?.nodeLabel) return exact.nodeLabel
+  // Fall back to a predicate-only match within the parent — covers targets that
+  // resolve to a sibling type not listed as the canonical menu target (e.g.
+  // happens during → uberon/plant stage, has input → protein complex).
+  return items.find(i => i.predicate.id === predicateId)?.nodeLabel
 }
 
 export interface UsedEdge {

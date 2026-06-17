@@ -192,3 +192,23 @@ export const getPrimaryRootType = (rootTypes: string[]): string | null => {
   return rootTypes[0] ?? null
 }
 
+/**
+ * Resolve the term-search closure filter (include + exclude) for a node from its
+ * *primary* category — never the raw root-type set. Minerva returns a node's full
+ * inferred type set, so a gene product carries both MOLECULAR_ENTITY (CHEBI:33695)
+ * and its parent CHEMICAL_ENTITY (CHEBI:24431). Searching the raw set would include
+ * chemicals; scoping to the primary category (gene product → search CHEBI:33695 only)
+ * matches the activity-form template path, which searches a single category.
+ * Falls back to the raw root types when the primary type has no known category.
+ */
+export const getSearchClosures = (
+  rootTypes: string[]
+): { closureIds: string[]; excludeClosureIds?: string[] } => {
+  const primary = getPrimaryRootType(rootTypes)
+  const category = primary ? getNodeCategory(primary) : undefined
+  return {
+    closureIds: category?.searchClosureIds ?? rootTypes,
+    excludeClosureIds: category?.excludeClosureIds,
+  }
+}
+
