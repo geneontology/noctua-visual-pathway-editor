@@ -10,9 +10,11 @@ export enum Cardinality {
 export enum DisplayGroup {
   GP = 'gp',
   MF = 'mf',
+  /** has input — renders directly below the molecular function, before BP/CC */
+  MF_INPUT = 'mfInput',
   BP = 'bp',
   CC = 'cc',
-  /** Function-level relations (has input, happens during) that render after BP/CC */
+  /** Function-level relations (happens during) that render after BP/CC */
   MF_EXTRA = 'mfExtra',
 }
 
@@ -20,6 +22,7 @@ export enum DisplayGroup {
 export const GROUP_ORDER: Record<DisplayGroup, number> = {
   [DisplayGroup.GP]: 0,
   [DisplayGroup.MF]: 0,
+  [DisplayGroup.MF_INPUT]: 5,
   [DisplayGroup.BP]: 10,
   [DisplayGroup.CC]: 20,
   [DisplayGroup.MF_EXTRA]: 30,
@@ -135,9 +138,9 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       targetType: RootTypes.MOLECULAR_ENTITY,
       predicate: predicate(Relations.HAS_INPUT),
       showInMenu: true,
-      weight: 30,
+      weight: 5,
       cardinality: Cardinality.ONE_TO_MANY,
-      displayGroup: DisplayGroup.MF_EXTRA,
+      displayGroup: DisplayGroup.MF_INPUT,
     },
     {
       label: 'happens during',

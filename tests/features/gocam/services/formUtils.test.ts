@@ -276,7 +276,7 @@ describe('orderActivityEdgesForDisplay', () => {
   // Raw edges deliberately scrambled — sorting must impose display order.
   const buildScrambled = () =>
     buildActivity('act', [mf, gp, cx, bp, cc, inp], [
-      edge(Relations.HAS_INPUT, 'has input', mf, inp), // fd, weight 30, depth 2
+      edge(Relations.HAS_INPUT, 'has input', mf, inp), // fd (MF_INPUT), weight 5, depth 2 — renders first, just below MF
       edge(Relations.PART_OF, 'part of', gp, cx), // gp, weight 3, depth 3
       edge(Relations.OCCURS_IN, 'occurs in', mf, cc), // fd, weight 20, depth 2
       edge(Relations.ENABLED_BY, 'enabled by', mf, gp), // gp, weight 2, depth 2
@@ -286,15 +286,15 @@ describe('orderActivityEdgesForDisplay', () => {
   it('splits GP-card edges from function-description edges', () => {
     const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
     expect(gpEdges.map(r => r.edge.target.uid)).toEqual([gp.uid, cx.uid])
-    expect(fdEdges.map(r => r.edge.target.uid)).toEqual([bp.uid, cc.uid, inp.uid])
+    expect(fdEdges.map(r => r.edge.target.uid)).toEqual([inp.uid, bp.uid, cc.uid])
   })
 
-  it('orders FD edges by weight: part_of(10) → occurs_in(20) → has_input(30)', () => {
+  it('orders FD edges has_input first (just below MF), then part_of(10) → occurs_in(20)', () => {
     const { fdEdges } = orderActivityEdgesForDisplay(buildScrambled())
     expect(fdEdges.map(r => r.edge.id)).toEqual([
+      Relations.HAS_INPUT,
       Relations.PART_OF,
       Relations.OCCURS_IN,
-      Relations.HAS_INPUT,
     ])
   })
 
