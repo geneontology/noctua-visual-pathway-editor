@@ -11,7 +11,7 @@ export const referenceAllowedDBs = ['PMID', 'DOI', 'GO_REF'] as const
 export const withFromAllowedDBs = [
   'AGI_LocusCode',
   'dictyBase',
-  'CGD'
+  'CGD',
   'EcoCyc',
   'Ensembl',
   'FB',
