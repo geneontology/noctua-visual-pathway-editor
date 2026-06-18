@@ -26,7 +26,7 @@ import {
 } from '../../slices/activityFormSlice'
 import { canAddISSEvidence } from '../../services/annotationRules'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
-import { getNodeCategory } from '../../data/nodeCategories'
+import { getNodeCategory, getSearchClosures } from '../../data/nodeCategories'
 import { getInsertMenuItems, DisplayGroup } from '../../data/insertMenuConfig'
 import type { InsertMenuItem } from '../../data/insertMenuConfig'
 import DatabaseField from './DatabaseField'
@@ -74,8 +74,16 @@ const EntityRow: React.FC<EntityRowProps> = ({
   const isLargeScreen = useMediaQuery('(min-width: 1024px)')
   const baseTermWidth = isLargeScreen ? 300 : 250
   const selectTerms = useMemo(makeSelectModelTerms, [])
+  // Scope the term search to the node's primary category, not its raw root-type set.
+  // Existing nodes loaded from Minerva carry the full inferred type set (a gene product
+  // is [MOLECULAR_ENTITY, CHEMICAL_ENTITY]), which would otherwise surface chemicals in
+  // an enabler search. (#267)
+  const { closureIds: searchRootTypes, excludeClosureIds: searchExcludeRootTypes } = useMemo(
+    () => getSearchClosures(node.rootTypes),
+    [node.rootTypes]
+  )
   const termInitialOptions = useAppSelector(state =>
-    selectTerms(state, node.rootTypes, node.excludeRootTypes)
+    selectTerms(state, searchRootTypes, searchExcludeRootTypes)
   )
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
 
@@ -211,7 +219,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
         parentTermUid: node.uid,
         predicate: item.predicate,
         nodeType: item.targetType,
-        label: targetCategory?.label ?? item.targetType,
+        label: item.nodeLabel ?? targetCategory?.label ?? item.targetType,
         rootTypes: targetCategory?.searchClosureIds ?? [item.targetType],
         aspect: targetCategory?.aspect ?? null,
       })
@@ -243,8 +251,8 @@ const EntityRow: React.FC<EntityRowProps> = ({
           label={node.label}
           name={`term-${node.uid}`}
           autocompleteType={AutocompleteType.TERM}
-          rootTypeIds={node.rootTypes}
-          excludeRootTypeIds={node.excludeRootTypes}
+          rootTypeIds={searchRootTypes}
+          excludeRootTypeIds={searchExcludeRootTypes}
           value={node.term}
           onChange={handleTermChange}
           variant="outlined"

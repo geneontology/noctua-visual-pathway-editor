@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Entity, Evidence } from '@/features/gocam/models/cam'
+import { PHASE_CATEGORIES } from '@/features/gocam/models/cam'
 import type { Group } from '@/features/users/models/contributor'
 import type { GOlrResponse, AnnotationsResponse } from '../models/search'
-import { ENVIRONMENT } from '@/@noctua.core/data/constants'
+import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker'
 
 // Helper function to escape special characters in Golr queries
 export const escapeGOlrValue = (str: string): string => {
@@ -36,8 +37,11 @@ export const formatSolrQueryString = (query: string): string => {
   return formattedQuery
 }
 
-export const mapGOlrResponse = (response: any): GOlrResponse[] => {
+export const mapGOlrResponse = (response: any, closureIds?: string[]): GOlrResponse[] => {
   const docs = response.response.docs
+  // When the search field's range is a phase/stage (e.g. `happens during`), allow
+  // do-not-annotate terms — they are valid extension targets there.
+  const allowNotAnnotatable = closureIds?.some(id => PHASE_CATEGORIES.has(id))
 
   return docs.map((item: any) => {
     let xref
@@ -56,7 +60,7 @@ export const mapGOlrResponse = (response: any): GOlrResponse[] => {
       rootTypes: makeEntitiesArray(item.isa_closure, item.isa_closure_label),
       xref: xref,
       neighborhoodGraphJson: item.neighborhood_graph_json,
-      notAnnotatable: !item.subset?.includes('gocheck_do_not_annotate'),
+      notAnnotatable: allowNotAnnotatable || !item.subset?.includes('gocheck_do_not_annotate'),
     } as GOlrResponse
   })
 }
@@ -171,16 +175,5 @@ export const processHasParticipants = (
 }
 
 function getTermURL(id: string): string {
-  if (id.startsWith('ECO')) {
-    return ENVIRONMENT.evidenceOntologyUrl + id
-  } else if (id.startsWith('PMID')) {
-    const idAccession = id.split(':')
-    if (idAccession.length > 1) {
-      return ENVIRONMENT.pubmedUrl + idAccession[1].trim()
-    } else {
-      return null
-    }
-  } else {
-    return `${ENVIRONMENT.amigoTermUrl}${id}`
-  }
+  return getEntityUrl(id) ?? ''
 }

@@ -5,6 +5,7 @@ import {
   processAnnotationsResponse,
   processHasParticipants,
 } from '@/features/search/services/lookupServices'
+import { RootTypes } from '@/features/gocam/models/cam'
 
 import searchMfFixture from '@tests/fixtures/raw/golr/search-mf.json'
 import searchBpFixture from '@tests/fixtures/raw/golr/search-bp.json'
@@ -104,6 +105,66 @@ describe('mapGOlrResponse', () => {
     for (const r of results) {
       expect(typeof r.notAnnotatable).toBe('boolean')
     }
+  })
+})
+
+// ─── mapGOlrResponse: phase/stage do-not-annotate handling ──────────
+//
+// Phase/stage terms carry `gocheck_do_not_annotate` but are valid extension
+// targets in fields whose range is a phase/stage (e.g. `happens during`). The
+// bypass keys on the *field's* closure context, never on the term itself.
+
+const golrDoc = (id: string, opts: { doNotAnnotate?: boolean } = {}) => ({
+  annotation_class: id,
+  annotation_class_label: `label ${id}`,
+  subset: opts.doNotAnnotate ? ['gocheck_do_not_annotate'] : [],
+  isa_closure: [id],
+  isa_closure_label: [`label ${id}`],
+})
+
+const golrResponse = (docs: ReturnType<typeof golrDoc>[]) => ({ response: { docs } })
+
+describe('mapGOlrResponse — phase/stage do-not-annotate handling', () => {
+  it('marks a do-not-annotate term notAnnotatable=false with no closure context', () => {
+    const [r] = mapGOlrResponse(golrResponse([golrDoc('GO:0044849', { doNotAnnotate: true })]))
+    expect(r.notAnnotatable).toBe(false)
+  })
+
+  it('keeps a do-not-annotate term blocked in a non-phase field (closureIds = BP)', () => {
+    const [r] = mapGOlrResponse(
+      golrResponse([golrDoc('GO:0044849', { doNotAnnotate: true })]),
+      [RootTypes.BIOLOGICAL_PROCESS]
+    )
+    expect(r.notAnnotatable).toBe(false)
+  })
+
+  it('unlocks do-not-annotate terms when closureIds include biological phase (GO:0044848)', () => {
+    const [r] = mapGOlrResponse(
+      golrResponse([golrDoc('GO:0044849', { doNotAnnotate: true })]),
+      [RootTypes.BIOLOGICAL_PHASE]
+    )
+    expect(r.notAnnotatable).toBe(true)
+  })
+
+  it('unlocks for uberon stage and plant stage closures too', () => {
+    const [uberon] = mapGOlrResponse(
+      golrResponse([golrDoc('UBERON:0000113', { doNotAnnotate: true })]),
+      [RootTypes.UBERON_STAGE]
+    )
+    const [plant] = mapGOlrResponse(
+      golrResponse([golrDoc('PO:0007134', { doNotAnnotate: true })]),
+      [RootTypes.PLANT_STAGE]
+    )
+    expect(uberon.notAnnotatable).toBe(true)
+    expect(plant.notAnnotatable).toBe(true)
+  })
+
+  it('leaves ordinary (annotatable) terms notAnnotatable=true even in a phase field', () => {
+    const [r] = mapGOlrResponse(
+      golrResponse([golrDoc('GO:0007049')]),
+      [RootTypes.BIOLOGICAL_PHASE]
+    )
+    expect(r.notAnnotatable).toBe(true)
   })
 })
 

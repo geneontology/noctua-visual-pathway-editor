@@ -35,23 +35,23 @@ describe('buildDisplayTree — child ordering', () => {
   const phase = buildNode('phase', 'phase', [RootTypes.BIOLOGICAL_PHASE])
 
   // MF children deliberately in non-canonical server order — occurs_in (20)
-  // before part_of (10), happens_during (40) before has_input (30).
+  // before part_of (10), happens_during (40) before has_input (5).
   const buildScrambled = () =>
     buildActivity('act', [mf, gp, bp, cc, inp, phase], [
       edge(Relations.OCCURS_IN, 'occurs in', mf, cc), // weight 20
       edge(Relations.HAPPENS_DURING, 'happens during', mf, phase), // weight 40
       edge(Relations.PART_OF, 'part of', mf, bp), // weight 10
-      edge(Relations.HAS_INPUT, 'has input', mf, inp), // weight 30
+      edge(Relations.HAS_INPUT, 'has input', mf, inp), // weight 5
       edge(Relations.ENABLED_BY, 'enabled by', mf, gp), // weight 2 → GP tree
     ])
 
-  it('orders MF children by insert weight: part_of(10) → occurs_in(20) → has_input(30) → happens_during(40)', () => {
+  it('orders MF children by insert weight: has_input(5) → part_of(10) → occurs_in(20) → happens_during(40)', () => {
     const { fdTree } = buildDisplayTree(buildScrambled())
     expect(fdTree[0].node.uid).toBe(mf.uid)
     expect(fdTree[0].children.map(c => c.edge?.id)).toEqual([
+      Relations.HAS_INPUT,
       Relations.PART_OF,
       Relations.OCCURS_IN,
-      Relations.HAS_INPUT,
       Relations.HAPPENS_DURING,
     ])
   })
@@ -78,8 +78,8 @@ describe('buildDisplayTree — child ordering', () => {
     ])
 
     const { fdTree } = buildDisplayTree(activity)
-    // part_of(10) first, then the two has_input(30) in their original server order.
-    expect(fdTree[0].children.map(c => c.edge?.targetId)).toEqual([bp.uid, inp2.uid, inp1.uid])
+    // has_input(5) first (the two keep their original server order), then part_of(10).
+    expect(fdTree[0].children.map(c => c.edge?.targetId)).toEqual([inp2.uid, inp1.uid, bp.uid])
   })
 
   it('does not mutate the activity edges array', () => {

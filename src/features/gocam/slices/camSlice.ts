@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, createSelector } from '@reduxjs/toolkit'
 import type { GraphModel, Activity } from '../models/cam'
+import { PHASE_CATEGORIES } from '../models/cam'
 import type { GOlrResponse } from '@/features/search/models/search'
 
 interface CamState {
@@ -64,6 +65,9 @@ export const makeSelectModelTerms = () =>
     ],
     (model, rootTypeIds, excludeRootTypeIds): GOlrResponse[] => {
       if (!model) return []
+      // When the field's range is a phase/stage (e.g. `happens during`), allow
+      // do-not-annotate terms; otherwise phase terms stay blocked outside their fields.
+      const allowNotAnnotatable = rootTypeIds.some(id => PHASE_CATEGORIES.has(id))
       const seen = new Set<string>()
       const results: GOlrResponse[] = []
       for (const activity of model.activities) {
@@ -81,7 +85,8 @@ export const makeSelectModelTerms = () =>
           )
             continue
           seen.add(node.id)
-          results.push(nodeToOption(node))
+          const isPhase = node.rootTypes.some(rt => PHASE_CATEGORIES.has(rt))
+          results.push(nodeToOption(node, allowNotAnnotatable || !isPhase))
         }
       }
       return results
@@ -156,7 +161,10 @@ export const selectModelWiths = createSelector(
   }
 )
 
-function nodeToOption(node: { id: string; label: string }): GOlrResponse {
+function nodeToOption(
+  node: { id: string; label: string },
+  notAnnotatable = true
+): GOlrResponse {
   return {
     id: node.id,
     label: node.label,
@@ -166,7 +174,7 @@ function nodeToOption(node: { id: string; label: string }): GOlrResponse {
     replacedBy: '',
     rootTypes: [],
     xref: '',
-    notAnnotatable: true,
+    notAnnotatable,
     neighborhoodGraphJson: '',
   }
 }

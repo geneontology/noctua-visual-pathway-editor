@@ -3,7 +3,7 @@ import type {
   TermNode,
   ValidationError,
 } from '../models/formModels'
-import { referenceAllowedDBs } from '../data/allowedDatabases'
+import { referenceAllowedDBs, withFromAllowedDBs } from '../data/allowedDatabases'
 
 /**
  * Validate reference format — must be in DB:accession format
@@ -16,6 +16,34 @@ const isValidReference = (ref: string): boolean => {
   if (colonIdx === -1) return false
   const prefix = trimmed.slice(0, colonIdx)
   return referenceAllowedDBs.some(db => db === prefix)
+}
+
+const allowedWithFromLower = new Set(withFromAllowedDBs.map(db => db.toLowerCase()))
+
+/**
+ * Validate a with/from value. It may hold several identifiers separated by ','
+ * or '|'; each must be DB:accession with DB in the allowed with/from namespaces
+ * (matched case-insensitively). Returns an error message for the first offending
+ * entry, or null when every entry is valid.
+ */
+export const validateWithFrom = (input: string): string | null => {
+  for (const identifier of input.split(/[,|]/)) {
+    const trimmed = identifier.trim()
+    if (!trimmed) continue
+    const colonIdx = trimmed.indexOf(':')
+    if (colonIdx === -1) {
+      return `Invalid format: "${trimmed}" - expected format is "DATABASE:accession"`
+    }
+    const dbPrefix = trimmed.slice(0, colonIdx)
+    const accession = trimmed.slice(colonIdx + 1).trim()
+    if (!accession) {
+      return `Invalid format: "${trimmed}" - accession cannot be empty`
+    }
+    if (!allowedWithFromLower.has(dbPrefix.toLowerCase())) {
+      return `Invalid database prefix: "${dbPrefix}" is not part of allowed entities`
+    }
+  }
+  return null
 }
 
 /**
@@ -48,9 +76,12 @@ export const validateActivityForm = (
     }
 
     for (const rel of node.relations) {
-      // If the target has a value, validate evidence (skip if target has skipEvidenceCheck)
-      if (rel.target.term && !rel.target.skipEvidenceCheck) {
-        if (rel.evidence.length === 0) {
+      if (rel.target.term) {
+        // skipEvidenceCheck only relaxes the "evidence is required" rule (e.g. the
+        // enabled_by gene product). The fields of any evidence that IS present —
+        // such as the molecular function's enabled_by evidence — must still be
+        // validated, so the with/from / reference checks below run regardless.
+        if (!rel.target.skipEvidenceCheck && rel.evidence.length === 0) {
           errors.push({
             uid: rel.uid,
             field: 'evidence',
@@ -80,13 +111,16 @@ export const validateActivityForm = (
             })
           }
 
-          // With field provided but not in DB:accession format
-          if (ev.withFrom && !ev.withFrom.includes(':')) {
-            errors.push({
-              uid: ev.uid,
-              field: 'withFrom',
-              message: `Use DB:accession format for with/from "${rel.target.label}" on evidence(${evPosition})`,
-            })
+          // With/from provided — every identifier must use an allowed namespace
+          if (ev.withFrom) {
+            const withFromError = validateWithFrom(ev.withFrom)
+            if (withFromError) {
+              errors.push({
+                uid: ev.uid,
+                field: 'withFrom',
+                message: `With/from for "${rel.target.label}" on evidence(${evPosition}): ${withFromError}`,
+              })
+            }
           }
         }
       }

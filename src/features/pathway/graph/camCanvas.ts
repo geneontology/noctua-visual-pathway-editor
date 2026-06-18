@@ -200,6 +200,12 @@ export class CamCanvas {
         return
       }
 
+      // The dragged link is a transient drawing artifact, not a persisted edge.
+      // Remove it immediately and let the connector form drive creation: on save,
+      // the model refetch redraws the real edge; on cancel nothing is left behind.
+      // (Previously a cancelled draw stranded an "empty" link that couldn't be
+      // edited or deleted and falsely blocked re-drawing via alreadyConnected.)
+      link.remove()
       this.onLinkCreated?.(sourceId, targetId)
     })
 

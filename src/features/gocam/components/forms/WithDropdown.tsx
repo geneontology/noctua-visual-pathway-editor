@@ -14,7 +14,14 @@ interface WithDropdownProps {
   onClose: () => void
   onSave: (value: string) => void
 }
-const dbOptions = [DB_NONE, ...withFromAllowedDBs.slice().sort()]
+// Case-insensitive sort so lowercase-initial prefixes (e.g. "dictyBase") aren't
+// pushed past the uppercase ones; DB_NONE stays pinned first.
+const dbOptions = [
+  DB_NONE,
+  ...withFromAllowedDBs
+    .slice()
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+]
 
 /** Parse existing with/from value into groups */
 function parseWithValue(value: string): WithGroup[] {

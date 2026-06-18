@@ -4,10 +4,15 @@ export const DB_NONE = 'None'
 /** Allowed reference database prefixes for evidence */
 export const referenceAllowedDBs = ['PMID', 'DOI', 'GO_REF'] as const
 
-/** Allowed with/from database prefixes */
+/**
+ * Allowed with/from database prefixes.
+ * Source: geneontology/noctua metadata/with-from-allowed-namespaces.yaml
+ */
 export const withFromAllowedDBs = [
   'AGI_LocusCode',
+  'dictyBase',
   'EcoCyc',
+  'Ensembl',
   'FB',
   'GO',
   'MGI',
@@ -16,6 +21,7 @@ export const withFromAllowedDBs = [
   'RGD',
   'RNAcentral',
   'SGD',
+  'TAIR',
   'UniProtKB',
   'WB',
   'Xenbase',

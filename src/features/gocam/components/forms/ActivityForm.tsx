@@ -203,7 +203,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
       if (!existingActivity) return
       operations = buildEditActivityOperations(root, existingActivity, model.id, userContext)
     } else {
-      operations = buildCreateActivityOperations(root, model.id, userContext)
+      operations = buildCreateActivityOperations(root, model.id, userContext, model.title)
     }
 
     await updateGraphModel(operations)

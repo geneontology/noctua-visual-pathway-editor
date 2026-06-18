@@ -13,7 +13,7 @@ import { RootTypes } from '../../models/cam'
 import type { EvidenceForm } from '../../models/formModels'
 import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/formModels'
 import { ROOT_NODES } from '../../data/camConstants'
-import { getNodeCategory } from '../../data/nodeCategories'
+import { getSearchClosures } from '../../data/nodeCategories'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
 import { canAddISSEvidence } from '../../services/annotationRules'
 import DatabaseField from './DatabaseField'
@@ -55,17 +55,17 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
 
-  // Mirror the Activity Form (EntityRow): a category's excludeClosureIds must
-  // narrow the term search too, so the edit dialog hides protein-containing
-  // complex from CC and information biomacromolecule from Molecule/Chemical.
-  const termExcludeRootTypes = useMemo(() => {
-    const ids = termRootTypes.flatMap(rt => getNodeCategory(rt)?.excludeClosureIds ?? [])
-    return ids.length > 0 ? Array.from(new Set(ids)) : undefined
-  }, [termRootTypes])
+  // Scope the term search to the node's primary category (include + exclude), not its
+  // raw root-type set, so an enabler search returns gene products rather than chemicals
+  // and a Chemical/CC search still hides gene products / protein-containing complex. (#267)
+  const { closureIds: searchRootTypes, excludeClosureIds: termExcludeRootTypes } = useMemo(
+    () => getSearchClosures(termRootTypes),
+    [termRootTypes]
+  )
 
   const selectTerms = useMemo(makeSelectModelTerms, [])
   const termInitialOptions = useAppSelector(state =>
-    selectTerms(state, termRootTypes, termExcludeRootTypes)
+    selectTerms(state, searchRootTypes, termExcludeRootTypes)
   )
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
 
@@ -204,7 +204,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
                 label={termLabel}
                 name="annotation-term"
                 autocompleteType={AutocompleteType.TERM}
-                rootTypeIds={termRootTypes}
+                rootTypeIds={searchRootTypes}
                 excludeRootTypeIds={termExcludeRootTypes}
                 value={term}
                 onChange={handleTermChange}

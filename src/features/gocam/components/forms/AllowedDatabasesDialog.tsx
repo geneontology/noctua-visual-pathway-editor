@@ -10,7 +10,12 @@ interface AllowedDatabasesDialogProps {
 }
 
 const AllowedDatabasesDialog = ({ open, onClose, title, databases }: AllowedDatabasesDialogProps) => {
-  const sortedDatabases = useMemo(() => [...databases].sort(), [databases])
+  // Case-insensitive sort — default Array.sort() orders uppercase before lowercase
+  // (ASCII), which pushes lowercase-initial prefixes like "dictyBase" to the end.
+  const sortedDatabases = useMemo(
+    () => [...databases].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+    [databases]
+  )
 
   return (
     <SimpleDialog open={open} onClose={onClose} title={title} size="xs">
