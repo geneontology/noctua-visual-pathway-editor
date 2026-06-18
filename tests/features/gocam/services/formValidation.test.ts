@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validateActivityForm } from '@/features/gocam/services/formValidation'
+import { validateActivityForm, validateWithFrom } from '@/features/gocam/services/formValidation'
+import { withFromAllowedDBs } from '@/features/gocam/data/allowedDatabases'
 import { FormMode } from '@/features/gocam/models/formModels'
 import type {
   ActivityFormState,
@@ -202,6 +203,104 @@ describe('validateActivityForm — withFrom format', () => {
     const rel = makeRelation({ target, evidence: [makeEvidence({ withFrom: '' })] })
     const root = makeNode({ term: makeTerm(), relations: [rel] })
     expect(validateActivityForm(wrap(root))).toEqual([])
+  })
+})
+
+describe('validateWithFrom — allowed namespaces', () => {
+  it('accepts a DB:accession for every allowed namespace', () => {
+    for (const db of withFromAllowedDBs) {
+      expect(validateWithFrom(`${db}:ACC123`)).toBeNull()
+    }
+  })
+
+  it('accepts the namespaces added from the YAML', () => {
+    expect(validateWithFrom('dictyBase:DDB_G0277859')).toBeNull()
+    expect(validateWithFrom('Ensembl:ENSG00000139618')).toBeNull()
+    expect(validateWithFrom('TAIR:AT1G01010')).toBeNull()
+  })
+
+  it('matches the prefix case-insensitively', () => {
+    expect(validateWithFrom('uniprotkb:P12345')).toBeNull()
+    expect(validateWithFrom('DICTYBASE:DDB_G0277859')).toBeNull()
+    expect(validateWithFrom('Ensembl:x')).toBeNull()
+  })
+
+  it('accepts several identifiers separated by "," or "|"', () => {
+    expect(validateWithFrom('UniProtKB:P12345,MGI:1234')).toBeNull()
+    expect(validateWithFrom('FB:FBgn0001|SGD:S000001')).toBeNull()
+  })
+
+  it('ignores empty entries and surrounding whitespace', () => {
+    expect(validateWithFrom('')).toBeNull()
+    expect(validateWithFrom('  ')).toBeNull()
+    expect(validateWithFrom(' UniProtKB:P12345 , ')).toBeNull()
+  })
+
+  it('rejects an unknown database prefix', () => {
+    const error = validateWithFrom('BOGUS:1')
+    expect(error).toContain('BOGUS')
+    expect(error).toContain('not part of allowed entities')
+  })
+
+  it('reports the first offending entry among several', () => {
+    const error = validateWithFrom('UniProtKB:P12345|BOGUS:1')
+    expect(error).toContain('BOGUS')
+  })
+
+  it('rejects an entry without a colon', () => {
+    expect(validateWithFrom('P12345')).toContain('DATABASE:accession')
+  })
+
+  it('rejects an entry with an empty accession', () => {
+    expect(validateWithFrom('UniProtKB:')).toContain('accession cannot be empty')
+  })
+})
+
+describe('validateActivityForm — skipEvidenceCheck only relaxes the "required" rule', () => {
+  // The molecular function's evidence lives on the enabled_by relation, whose
+  // target (the gene product) is skipEvidenceCheck. skipEvidenceCheck must NOT
+  // skip validating evidence that is actually present — otherwise the first MF's
+  // reference / with-from go unchecked.
+  const skipTarget = () =>
+    makeNode({ uid: 'gp', label: 'GP', term: makeTerm('UniProtKB:P1', 'Gene'), skipEvidenceCheck: true })
+
+  it('does not require evidence on a skipEvidenceCheck target', () => {
+    const rel = makeRelation({ target: skipTarget(), evidence: [] })
+    const root = makeNode({ term: makeTerm(), relations: [rel] })
+    expect(validateActivityForm(wrap(root))).toEqual([])
+  })
+
+  it('does not flag an empty evidence form on a skipEvidenceCheck target', () => {
+    const rel = makeRelation({
+      target: skipTarget(),
+      evidence: [makeEvidence({ uid: 'ev-empty', evidenceCode: { id: '', label: '' }, reference: '', withFrom: '' })],
+    })
+    const root = makeNode({ term: makeTerm(), relations: [rel] })
+    expect(validateActivityForm(wrap(root))).toEqual([])
+  })
+
+  it('still flags a disallowed with/from on present MF evidence (skipEvidenceCheck target)', () => {
+    const rel = makeRelation({
+      target: skipTarget(),
+      evidence: [makeEvidence({ uid: 'ev-mf', withFrom: 'NOTADB:1' })],
+    })
+    const root = makeNode({ term: makeTerm(), relations: [rel] })
+    const errors = validateActivityForm(wrap(root))
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toMatchObject({ uid: 'ev-mf', field: 'withFrom' })
+    expect(errors[0].message).toContain('not part of allowed entities')
+  })
+
+  it('still flags a bad reference on present MF evidence (skipEvidenceCheck target)', () => {
+    const rel = makeRelation({
+      target: skipTarget(),
+      evidence: [makeEvidence({ uid: 'ev-mf', reference: 'BAD:1' })],
+    })
+    const root = makeNode({ term: makeTerm(), relations: [rel] })
+    const errors = validateActivityForm(wrap(root))
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toMatchObject({ uid: 'ev-mf', field: 'reference' })
+    expect(errors[0].message).toContain('DB:accession')
   })
 })
 
