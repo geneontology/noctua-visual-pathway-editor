@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   getNodeCategory,
   getPrimaryRootType,
+  getSearchClosures,
   molecularFunction,
   biologicalProcess,
   cellularComponent,
@@ -106,5 +107,60 @@ describe('getPrimaryRootType (most-specific-first resolution)', () => {
 
   it('returns null for an empty root-type set', () => {
     expect(getPrimaryRootType([])).toBeNull()
+  })
+})
+
+describe('getSearchClosures (term-search closure resolution)', () => {
+  it('unions gene product + protein complex for a has-input target (#270)', () => {
+    const { closureIds, excludeClosureIds } = getSearchClosures([
+      RootTypes.MOLECULAR_ENTITY,
+      RootTypes.PROTEIN_CONTAINING_COMPLEX,
+    ])
+    // Neither category excludes the other, so both closures are searched (OR'd downstream).
+    expect(new Set(closureIds)).toEqual(
+      new Set([RootTypes.MOLECULAR_ENTITY, RootTypes.PROTEIN_CONTAINING_COMPLEX])
+    )
+    expect(closureIds).toHaveLength(2)
+    expect(excludeClosureIds).toBeUndefined()
+  })
+
+  it('narrows a Minerva gene-product set to gene product only, dropping the parent chemical (#267)', () => {
+    const { closureIds, excludeClosureIds } = getSearchClosures([
+      RootTypes.MOLECULAR_ENTITY,
+      RootTypes.CHEMICAL_ENTITY,
+    ])
+    expect(closureIds).toEqual([RootTypes.MOLECULAR_ENTITY])
+    expect(excludeClosureIds).toBeUndefined()
+  })
+
+  it('excludes gene products from a bare chemical search', () => {
+    const { closureIds, excludeClosureIds } = getSearchClosures([RootTypes.CHEMICAL_ENTITY])
+    expect(closureIds).toEqual([RootTypes.CHEMICAL_ENTITY])
+    expect(excludeClosureIds).toEqual([RootTypes.MOLECULAR_ENTITY])
+  })
+
+  it('narrows a Minerva complex set to complex only, dropping the parent cellular component', () => {
+    const { closureIds } = getSearchClosures([
+      RootTypes.PROTEIN_CONTAINING_COMPLEX,
+      RootTypes.CELLULAR_COMPONENT,
+    ])
+    expect(closureIds).toEqual([RootTypes.PROTEIN_CONTAINING_COMPLEX])
+  })
+
+  it('excludes protein complexes from a bare cellular-component search', () => {
+    const { closureIds, excludeClosureIds } = getSearchClosures([RootTypes.CELLULAR_COMPONENT])
+    expect(closureIds).toEqual([RootTypes.CELLULAR_COMPONENT])
+    expect(excludeClosureIds).toEqual([RootTypes.PROTEIN_CONTAINING_COMPLEX])
+  })
+
+  it('returns a single-category closure unchanged', () => {
+    const { closureIds, excludeClosureIds } = getSearchClosures([RootTypes.MOLECULAR_ENTITY])
+    expect(closureIds).toEqual([RootTypes.MOLECULAR_ENTITY])
+    expect(excludeClosureIds).toBeUndefined()
+  })
+
+  it('falls back to the raw root types when none map to a known category', () => {
+    const { closureIds } = getSearchClosures(['XYZ:999'])
+    expect(closureIds).toEqual(['XYZ:999'])
   })
 })
