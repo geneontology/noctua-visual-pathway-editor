@@ -194,21 +194,37 @@ export const getPrimaryRootType = (rootTypes: string[]): string | null => {
 
 /**
  * Resolve the term-search closure filter (include + exclude) for a node from its
- * *primary* category — never the raw root-type set. Minerva returns a node's full
- * inferred type set, so a gene product carries both MOLECULAR_ENTITY (CHEBI:33695)
- * and its parent CHEMICAL_ENTITY (CHEBI:24431). Searching the raw set would include
- * chemicals; scoping to the primary category (gene product → search CHEBI:33695 only)
- * matches the activity-form template path, which searches a single category.
- * Falls back to the raw root types when the primary type has no known category.
+ * categories — never the raw root-type set. Minerva returns a node's full inferred
+ * type set, so a gene product carries both MOLECULAR_ENTITY (CHEBI:33695) and its
+ * parent CHEMICAL_ENTITY (CHEBI:24431); searching the raw set would surface chemicals.
+ *
+ * A category declares which broader sibling it supersedes via `excludeClosureIds`
+ * (chemical excludes gene product, cellular component excludes protein complex). We
+ * drop any present category that another present category excludes — that leaves the
+ * most-specific one(s). Usually that's a single category. For a curated union range
+ * like `has input` (gene product OR protein complex), it's several disjoint siblings,
+ * and all their closures are searched together (OR'd downstream). Falls back to the
+ * raw root types when none resolve to a known category. (#267, #270)
  */
 export const getSearchClosures = (
   rootTypes: string[]
 ): { closureIds: string[]; excludeClosureIds?: string[] } => {
-  const primary = getPrimaryRootType(rootTypes)
-  const category = primary ? getNodeCategory(primary) : undefined
+  const categories = rootTypes
+    .map(getNodeCategory)
+    .filter((c): c is AnyCategory & NodeCategory => Boolean(c))
+  if (categories.length === 0) return { closureIds: rootTypes }
+
+  const presentIds = new Set(categories.map(c => c.id))
+  const specific = categories.filter(
+    c => !(c.excludeClosureIds ?? []).some(id => presentIds.has(id))
+  )
+  const chosen = specific.length > 0 ? specific : categories
+
+  const closureIds = [...new Set(chosen.flatMap(c => c.searchClosureIds))]
+  const excludeClosureIds = [...new Set(chosen.flatMap(c => c.excludeClosureIds ?? []))]
   return {
-    closureIds: category?.searchClosureIds ?? rootTypes,
-    excludeClosureIds: category?.excludeClosureIds,
+    closureIds,
+    excludeClosureIds: excludeClosureIds.length > 0 ? excludeClosureIds : undefined,
   }
 }
 
