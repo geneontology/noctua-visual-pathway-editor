@@ -24,6 +24,14 @@ the two closures. The insert menu also passes only `targetType` (Gene Product).
    together. `lookupApiSlice` ORs closure ids, so both surface. Node creation is
    unchanged: the selected term's class wins.
 
+4. `insertMenuConfig.ts` — added a hidden (`showInMenu: false`) twin has-input item
+   targeting `PROTEIN_CONTAINING_COMPLEX`. The display resolvers (`getDisplayGroup`,
+   `getInsertWeight`, `getRelationRowLabel`) key on `(parent, predicate, targetType)`;
+   a complex input resolves its target to the complex category, which the single
+   Gene-Product item didn't match — so it fell back to the GP card instead of the
+   has-input group (didn't render as an input). The twin groups/weights/labels it as a
+   has input. Mirrors the `enabled by` GP/complex pair. Menu still shows one item.
+
 ## Files
 - src/features/gocam/data/nodeCategories.ts
 - src/features/gocam/data/insertMenuConfig.ts

@@ -164,6 +164,21 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       cardinality: Cardinality.ONE_TO_MANY,
       displayGroup: DisplayGroup.MF_INPUT,
     },
+    // A has input value may be a protein complex. The menu shows the single item above
+    // (whose search spans both); this hidden twin exists so a complex input is grouped,
+    // weighted and labelled as a has input — its target resolves to the complex category,
+    // which the display resolvers key on. Mirrors the enabled by GP/complex pair.
+    {
+      label: 'has input',
+      nodeLabel: 'has input (Gene Product/Protein Complex)',
+      rangeLabel: 'Gene Product/Protein Complex',
+      targetType: RootTypes.PROTEIN_CONTAINING_COMPLEX,
+      predicate: predicate(Relations.HAS_INPUT),
+      showInMenu: false,
+      weight: 5,
+      cardinality: Cardinality.ONE_TO_MANY,
+      displayGroup: DisplayGroup.MF_INPUT,
+    },
     {
       label: 'happens during',
       nodeLabel: 'happens during (Biological Phase/Stage/Plant Stage)',
