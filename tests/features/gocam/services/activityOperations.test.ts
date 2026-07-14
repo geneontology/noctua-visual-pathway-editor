@@ -6,6 +6,7 @@ import {
   buildAddNodeOperations,
   buildDeleteNodeOperations,
   buildSaveModelAnnotationsOperations,
+  buildSaveEdgeCommentsOperations,
   buildAddEvidenceToEdgeOperations,
   buildRemoveEvidenceOperations,
   buildEditIndividualTypeOperations,
@@ -207,6 +208,68 @@ describe('buildSaveModelAnnotationsOperations', () => {
     )
     expect(titleAdd).toBeTruthy()
     expect(stateAdd).toBeTruthy()
+  })
+})
+
+// ── buildSaveEdgeCommentsOperations ────────────────────────────────
+
+describe('buildSaveEdgeCommentsOperations', () => {
+  const edgeWithComments = (comments: string[]): Edge => ({
+    ...makeEdge('subj', 'obj', 'RO:0002333'),
+    comments,
+  })
+
+  const commentOps = (ops: Operation[], op: OperationType) =>
+    ops.filter(
+      o =>
+        o.entity === OperationEntity.EDGE &&
+        o.operation === op &&
+        Array.isArray(o.arguments.values) &&
+        (o.arguments.values as Array<{ key: AnnotationKey }>)[0].key === AnnotationKey.COMMENT
+    )
+
+  it('removes every existing comment, adds every new one, then STOREs', () => {
+    const edge = edgeWithComments(['old one', 'old two'])
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, ['General: new'])
+
+    expect(commentOps(ops, OperationType.REMOVE_ANNOTATION)).toHaveLength(2)
+    expect(commentOps(ops, OperationType.ADD_ANNOTATION)).toHaveLength(1)
+    expect(lastOp(ops)).toEqual({
+      entity: OperationEntity.MODEL,
+      operation: OperationType.STORE,
+      arguments: { 'model-id': MODEL_ID },
+    })
+  })
+
+  it('targets the edge by subject/object/predicate and tags the model-id', () => {
+    const edge = edgeWithComments([])
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, ['General: hi'])
+    const add = commentOps(ops, OperationType.ADD_ANNOTATION)[0]
+
+    expect(add.arguments.subject).toBe(edge.sourceId)
+    expect(add.arguments.object).toBe(edge.targetId)
+    expect(add.arguments.predicate).toBe(edge.id)
+    expect(add.arguments['model-id']).toBe(MODEL_ID)
+    expect((add.arguments.values as Array<{ key: AnnotationKey; value: string }>)[0]).toEqual({
+      key: AnnotationKey.COMMENT,
+      value: 'General: hi',
+    })
+  })
+
+  it('emits no add ops when clearing all comments (only removes + STORE)', () => {
+    const edge = edgeWithComments(['a', 'b'])
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, [])
+
+    expect(commentOps(ops, OperationType.REMOVE_ANNOTATION)).toHaveLength(2)
+    expect(commentOps(ops, OperationType.ADD_ANNOTATION)).toHaveLength(0)
+    expect(lastOp(ops).operation).toBe(OperationType.STORE)
+  })
+
+  it('emits only the STORE op for an edge with no comments and nothing new', () => {
+    const edge = edgeWithComments([])
+    const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, [])
+    expect(ops).toHaveLength(1)
+    expect(ops[0].operation).toBe(OperationType.STORE)
   })
 })
 

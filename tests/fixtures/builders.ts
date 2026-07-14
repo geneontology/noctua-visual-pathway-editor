@@ -18,7 +18,8 @@ export const buildNode = (
 
 export const buildEdgeWithEvidence = (
   id: string,
-  evidenceCodes: { id: string; label: string }[]
+  evidenceCodes: { id: string; label: string }[],
+  comments: string[] = []
 ): Edge => ({
   uid: `edge_${id}`,
   id,
@@ -29,6 +30,7 @@ export const buildEdgeWithEvidence = (
   target: buildNode('tgt', 'Target'),
   contributors: [],
   groups: [],
+  comments,
   evidence: evidenceCodes.map((ec, i) => ({
     uid: `ev_${id}_${i}`,
     evidenceCode: ec,

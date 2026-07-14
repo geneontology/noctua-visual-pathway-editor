@@ -68,7 +68,7 @@ its activity on the canvas.
 | Side panel | New `RightPanelTab.COMMENTS`. Section A = model comments (Edit → existing `CAM_COMMENTS_FORM`). Section B = statements with comments, grouped by parent activity; each comment row is clickable → selects + centers the activity. |
 | Toolbar icon | Comment icon now **opens the panel** (not the model dialog); badge = model comments + all edge comments. |
 | Canvas | Clicking a panel comment drives `canvas.selectActivity(uid)` to highlight + center. |
-| Tests | **Not** included unless you ask. `comments-tryouts` has test files (`EdgeCommentsForm.test.tsx`, `CommentsPanel.test.tsx`) that can be ported + adapted to structured format on request. |
+| Tests | **Done** (user requested). See "Tests" section below. Full suite green: 778 passed / 0 failed. |
 
 ## Steps
 
@@ -124,6 +124,23 @@ its activity on the canvas.
       confirm the category+text card UI; save; reopen — round-trips; menu label shows `Comments (N)`;
       toolbar icon opens the panel; panel lists model + per-statement comments; clicking a
       statement comment selects + centers the activity and switches to the Activity table.
+
+## Tests (done)
+- `tests/features/gocam/data/commentCategories.test.ts` — `parseComment` / `formatComment`
+  round-trip, blank-option for unknown/legacy prefixes, badge-class mapping.
+- `tests/features/gocam/services/activityOperations.test.ts` — new `buildSaveEdgeCommentsOperations`
+  block (remove-all + add-all + STORE; subject/object/predicate/model-id; clear; no-op → STORE only).
+- `tests/features/gocam/components/CamCommentsForm.test.tsx` — **rewritten** for the structured UI
+  (category picker before textarea, parse of existing/legacy comments, remove/confirm, save formats
+  as `Category: text`, whitespace dropped).
+- `tests/features/gocam/components/EdgeCommentsForm.test.tsx` — NEW (statement header, existing
+  comments, EDGE save ops + close, cancel, edge-not-found → null).
+- `tests/features/gocam/components/CommentsPanel.test.tsx` — NEW (model + statement grouping, count,
+  click-to-select + tab switch, model/edge edit dialogs w/ `edgeUid`, empty states).
+- `tests/fixtures/builders.ts` — `buildEdgeWithEvidence` gained an optional `comments` arg + field.
+- Combobox note: didn't drive the Mantine `Select` dropdown (jsdom lacks `scrollIntoView`); category
+  behavior is covered via seeded state instead. `getAllByDisplayValue` used since `Select` renders a
+  visible + hidden input.
 
 ## Recovery Checkpoint
 - **Last completed action:** Phases 1-7 implemented; `npm run type-check` + `eslint` clean on all touched files; full suite 745 pass / 5 fail.
