@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { TermNode, EvidenceForm } from '../models/formModels'
-import type { Activity, Evidence, UserContext } from '../models/cam'
+import type { Activity, Edge, Evidence, UserContext } from '../models/cam'
 import { RootTypes } from '../models/cam'
 import {
   OperationEntity,
@@ -657,6 +657,54 @@ export const buildSaveModelAnnotationsOperations = (
       arguments: {
         'model-id': modelId,
         values: [{ key: AnnotationKey.COMMENT, value: comment }],
+      },
+    })
+  }
+
+  operations.push({
+    entity: OperationEntity.MODEL,
+    operation: OperationType.STORE,
+    arguments: { 'model-id': modelId },
+  })
+
+  return operations
+}
+
+/**
+ * Save comments on a single statement (edge/fact). Remove-all then add-all so
+ * the new set is exactly what ends up on the edge.
+ */
+export const buildSaveEdgeCommentsOperations = (
+  edge: Edge,
+  modelId: string,
+  newComments: string[]
+): Operation[] => {
+  const operations: Operation[] = []
+
+  for (const oldComment of edge.comments ?? []) {
+    operations.push({
+      entity: OperationEntity.EDGE,
+      operation: OperationType.REMOVE_ANNOTATION,
+      arguments: {
+        subject: edge.sourceId,
+        object: edge.targetId,
+        predicate: edge.id,
+        values: [{ key: AnnotationKey.COMMENT, value: oldComment }],
+        'model-id': modelId,
+      },
+    })
+  }
+
+  for (const newComment of newComments) {
+    operations.push({
+      entity: OperationEntity.EDGE,
+      operation: OperationType.ADD_ANNOTATION,
+      arguments: {
+        subject: edge.sourceId,
+        object: edge.targetId,
+        predicate: edge.id,
+        values: [{ key: AnnotationKey.COMMENT, value: newComment }],
+        'model-id': modelId,
       },
     })
   }

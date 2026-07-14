@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from './hooks'
 import {
   setModel,
   setSelectedActivity,
+  selectSelectedActivityId,
 } from '@/features/gocam/slices/camSlice'
 import { useSearchParams } from 'react-router-dom'
 import PathwayGraph from '@/features/pathway/components/PathwayGraph'
@@ -61,6 +62,7 @@ const PathwayEditor: React.FC = () => {
 
   const user = useAppSelector(selectAuthUser)
   const baristaToken = useAppSelector(selectBaristaToken)
+  const selectedActivityId = useAppSelector(selectSelectedActivityId)
   const isLoggedIn = !!user
   const checkGroup = useGroupGuard()
 
@@ -94,6 +96,10 @@ const PathwayEditor: React.FC = () => {
       dispatch(setModel(graphModel.data))
     }
   }, [graphModel, isSuccess, dispatch])
+
+  useEffect(() => {
+    canvas.canvasRef.current?.selectActivity(selectedActivityId)
+  }, [selectedActivityId, canvas.canvasRef])
 
   // ── Canvas callbacks ──────────────────────────────────────────
 

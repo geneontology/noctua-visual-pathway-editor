@@ -609,6 +609,28 @@ export class CamCanvas {
     }
   }
 
+  /**
+   * Public selection API used to drive the canvas from outside (e.g. clicking
+   * a comment in the side panel). Highlights the activity without moving the
+   * viewport — auto-panning shifted the rest of the graph off-screen.
+   */
+  selectActivity(uid: string | null) {
+    if (!uid) {
+      this._unselectAll()
+      return
+    }
+
+    for (const element of this.graph.getElements()) {
+      const activity = element.prop('activity') as Activity | undefined
+      if (activity?.uid === uid) {
+        if (element instanceof NodeCellList) {
+          this._selectNode(element)
+        }
+        return
+      }
+    }
+  }
+
   // ── Coordinate transform ──────────────────────────────────────
 
   private _offsetToLocalPoint(x: number, y: number): { x: number; y: number } {

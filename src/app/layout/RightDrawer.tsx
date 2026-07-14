@@ -12,12 +12,17 @@ import {
 } from '@/features/gocam/slices/camSlice'
 import ActivityTable from '@/features/gocam/components/ActivityTable'
 import CamErrors from '@/features/gocam/components/CamErrors'
+import CommentsPanel from '@/features/gocam/components/CommentsPanel'
 
 const RightDrawerContent: React.FC = () => {
   const dispatch = useAppDispatch()
   const activity = useAppSelector(selectSelectedActivity)
   const model = useAppSelector(selectCamModel)
   const activeTab = useAppSelector(selectRightPanelTab)
+
+  if (activeTab === RightPanelTab.COMMENTS && model) {
+    return <CommentsPanel model={model} />
+  }
 
   if (activeTab === RightPanelTab.CAM_ERRORS && model) {
     return <CamErrors model={model} />

@@ -97,6 +97,7 @@ export interface Edge {
   contributors: Contributor[];
   groups: Group[];
   date?: string;
+  comments: string[];
   isReverseLink?: boolean;
   reverseLinkLabel?: string;
 }

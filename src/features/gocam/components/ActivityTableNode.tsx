@@ -1,9 +1,11 @@
 import type React from 'react'
 import { useCallback, useRef, useState } from 'react'
-import { ActionIcon, Menu } from '@mantine/core'
+import { ActionIcon, Indicator, Menu, Tooltip } from '@mantine/core'
+import { useAppDispatch } from '@/app/hooks'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
-import { FaEllipsisV, FaPlus } from 'react-icons/fa'
+import { FaComment, FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
 import { ActivityType, RootTypes, Aspect } from '../models/cam'
 import { AnnotationKey } from '../models/operations'
@@ -66,6 +68,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     treeNode
   const evidence = edge?.evidence ?? []
 
+  const dispatch = useAppDispatch()
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
   // EditorDropdown is now only used for single-field term edits on this row.
@@ -209,6 +212,20 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     )
   }, [edge, checkGroup, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
+  const handleAddComment = useCallback(() => {
+    if (!edge) return
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.EDGE_COMMENTS_FORM,
+          title: 'Comments',
+          size: 'sm',
+          customProps: { edgeUid: edge.uid },
+        })
+      )
+    )
+  }, [edge, checkGroup, dispatch])
+
   return (
     <>
       <div className="mb-2 flex w-full flex-row items-stretch justify-start">
@@ -289,6 +306,43 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 no evidence present.
               </div>
             ) : null}
+          </div>
+        )}
+
+        {/* Comment cell — sits just before the action (…) menu */}
+        {edge && (
+          <div className="flex w-10 shrink-0 flex-col items-center justify-center p-0">
+            <Tooltip
+              label={
+                edge.comments?.length
+                  ? `${edge.comments.length} comment${edge.comments.length > 1 ? 's' : ''}`
+                  : 'Add comment'
+              }
+              position="top"
+              withArrow
+              openDelay={400}
+            >
+              <Indicator
+                label={edge.comments?.length ?? 0}
+                size={15}
+                color="green"
+                offset={4}
+                disabled={!edge.comments?.length}
+                aria-label={
+                  edge.comments?.length ? `Comments (${edge.comments.length})` : 'Add comment'
+                }
+              >
+                <ActionIcon
+                  variant="subtle"
+                  color={edge.comments?.length ? 'green' : 'gray'}
+                  radius="xl"
+                  size="md"
+                  onClick={handleAddComment}
+                >
+                  <FaComment size={12} />
+                </ActionIcon>
+              </Indicator>
+            </Tooltip>
           </div>
         )}
 
