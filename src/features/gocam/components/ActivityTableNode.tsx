@@ -228,7 +228,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
   return (
     <>
-      <div className="mb-2 flex w-full flex-row items-stretch justify-start">
+      <div className="group mb-2 flex w-full flex-row items-stretch justify-start">
         {/* Tree connector lines */}
         {treeLevel > 1 &&
           Array.from({ length: treeLevel - 1 }, (_, i) => {
@@ -311,16 +311,29 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
         {/* Comment cell — sits just before the action (…) menu */}
         {edge && (
-          <div className="flex w-10 shrink-0 flex-col items-center justify-center p-0">
+          <div
+            className={`flex w-10 shrink-0 flex-col items-center justify-center p-0 transition-opacity ${
+              edge.comments?.length ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
+            }`}
+          >
             <Tooltip
               label={
-                edge.comments?.length
-                  ? `${edge.comments.length} comment${edge.comments.length > 1 ? 's' : ''}`
-                  : 'Add comment'
+                edge.comments?.length ? (
+                  <div className="flex flex-col gap-1">
+                    {edge.comments.map((c, idx) => (
+                      <div key={idx} className="text-xs">
+                        {c}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  'Add comment'
+                )
               }
               position="top"
               withArrow
               openDelay={400}
+              w={280}
             >
               <Indicator
                 label={edge.comments?.length ?? 0}

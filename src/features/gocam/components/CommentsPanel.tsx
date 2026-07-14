@@ -11,7 +11,7 @@ import {
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import { setSelectedActivity } from '../slices/camSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
-import { parseComment } from '../data/commentCategories'
+import { getCommentCategoryBadgeClass, parseComment } from '../data/commentCategories'
 
 interface CommentsPanelProps {
   model: GraphModel
@@ -37,7 +37,9 @@ const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
   return (
     <span className="whitespace-pre-wrap break-words">
       {option && (
-        <span className="mr-1 rounded-sm bg-slate-200 px-1 py-0.5 text-2xs font-semibold uppercase tracking-wide text-slate-700">
+        <span
+          className={`mr-1 rounded-sm px-1 py-0.5 text-2xs font-semibold uppercase tracking-wide ${getCommentCategoryBadgeClass(option)}`}
+        >
           {option}
         </span>
       )}

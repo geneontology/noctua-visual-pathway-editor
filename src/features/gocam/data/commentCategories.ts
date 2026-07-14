@@ -13,6 +13,17 @@ export interface StructuredComment {
   text: string
 }
 
+/** Badge color classes per category, for quick visual scanning. */
+const COMMENT_CATEGORY_BADGE_CLASSES: Record<string, string> = {
+  General: 'bg-blue-100 text-blue-800',
+  'Not suitable for annotation': 'bg-amber-100 text-amber-800',
+  'Annotation dispute': 'bg-red-100 text-red-800',
+  Other: 'bg-gray-200 text-gray-700',
+}
+
+export const getCommentCategoryBadgeClass = (option: string): string =>
+  COMMENT_CATEGORY_BADGE_CLASSES[option] ?? 'bg-slate-200 text-slate-700'
+
 const SEPARATOR = ': '
 
 /**

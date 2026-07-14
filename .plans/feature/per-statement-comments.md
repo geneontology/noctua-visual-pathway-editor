@@ -151,6 +151,16 @@ its activity on the canvas.
 | `src/app/PathwayViewer.tsx` | 7 | selection → canvas effect |
 
 ## Notes
+- **UI polish (done):**
+  - Row comment icon is **green** (with a green count `Indicator` badge) when a statement has
+    comments, gray otherwise; badge no longer clipped (Mantine `Indicator`, `w-10` cell).
+  - Empty (no-comment) icon is **hidden until row hover** (`group` + `group-hover`/`focus-within`)
+    to declutter the table; icon stays visible when comments exist.
+  - Row icon **tooltip previews the actual comment text** (one per line), not just a count.
+  - **Category color-coding** (`getCommentCategoryBadgeClass` in `commentCategories.ts`): General=blue,
+    Not-suitable=amber, Annotation-dispute=red, Other=gray — used on the panel badges.
+  - **Shared `StructuredCommentsEditor`** component now backs both `CamCommentsForm` and
+    `EdgeCommentsForm` (removed the duplicated card UI).
 - **Comment affordance (updated):** per the Angular reference
   (`noctua-standard-annotations/.../table/annotation-node`), each statement row now shows a
   **comment icon in its own cell just before the `…` menu** (count badge when comments exist,
