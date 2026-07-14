@@ -98,4 +98,24 @@ describe('has input — Gene Product or Protein Complex (#270)', () => {
       )
     ).toBe('has input (Gene Product/Protein Complex)')
   })
+
+  // pgaudet on #270: proteins and protein complexes are allowed, not chemicals
+  // (chemicals go via the chemical form); inputs cannot be nested.
+  it('never targets a chemical — its search spans only proteins and complexes', () => {
+    const hasInput = getInsertMenuItems(RootTypes.MOLECULAR_FUNCTION).filter(
+      i => i.predicate.id === Relations.HAS_INPUT
+    )
+    for (const item of hasInput) {
+      const roots = item.searchRootTypes ?? [item.targetType]
+      expect(roots).not.toContain(RootTypes.CHEMICAL_ENTITY)
+      expect(roots).toEqual([RootTypes.MOLECULAR_ENTITY, RootTypes.PROTEIN_CONTAINING_COMPLEX])
+    }
+  })
+
+  it('does not let a has input value (protein or complex) take another has input — inputs cannot be nested', () => {
+    const fromGeneProduct = getInsertMenuItems(RootTypes.MOLECULAR_ENTITY)
+    const fromComplex = getInsertMenuItems(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+    expect(fromGeneProduct.some(i => i.predicate.id === Relations.HAS_INPUT)).toBe(false)
+    expect(fromComplex.some(i => i.predicate.id === Relations.HAS_INPUT)).toBe(false)
+  })
 })

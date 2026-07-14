@@ -164,3 +164,27 @@ describe('getSearchClosures (term-search closure resolution)', () => {
     expect(closureIds).toEqual(['XYZ:999'])
   })
 })
+
+describe('has input range — proteins and protein complexes, not chemicals (#270)', () => {
+  // pgaudet on #270: "Proteins and protein complexes are allowed, not chemicals, these
+  // should be added via the chemical form" and "there can be multiple inputs".
+  it('accepts a gene product (a protein, not a complex) and a protein complex, but not a chemical', () => {
+    const range = molecularFunction.hasInput.range
+    expect(range).toContain(RootTypes.MOLECULAR_ENTITY) // gene product = a protein, not a complex
+    expect(range).toContain(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+    expect(range).not.toContain(RootTypes.CHEMICAL_ENTITY)
+  })
+
+  it('allows multiple inputs (multivalued, not nested)', () => {
+    expect(molecularFunction.hasInput.multivalued).toBe(true)
+  })
+
+  it('search spans the protein closure (non-complex) and the complex closure, never chemicals', () => {
+    const { closureIds } = getSearchClosures(molecularFunction.hasInput.range)
+    // a protein that is NOT a protein complex still resolves — gene products are searchable
+    expect(closureIds).toContain(RootTypes.MOLECULAR_ENTITY)
+    expect(closureIds).toContain(RootTypes.PROTEIN_CONTAINING_COMPLEX)
+    // chemicals are added via the chemical form, so they must never be in the has-input search
+    expect(closureIds).not.toContain(RootTypes.CHEMICAL_ENTITY)
+  })
+})

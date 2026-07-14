@@ -82,13 +82,10 @@ describe('createActivityTemplate("proteinComplex")', () => {
     )
   })
 
-  it('the enabled_by target is a ProteinComplex with a has_part GP child', () => {
+  it('the enabled_by target is a ProteinComplex with no default part — all parts added via + (#275)', () => {
     const enabledBy = root.relations.find(r => r.predicate.id === Relations.ENABLED_BY)!
     expect(enabledBy.target.category).toBe(RootTypes.PROTEIN_CONTAINING_COMPLEX)
-    expect(enabledBy.target.relations).toHaveLength(1)
-    expect(enabledBy.target.relations[0].predicate.id).toBe(Relations.HAS_PART)
-    expect(enabledBy.target.relations[0].target.category).toBe(RootTypes.MOLECULAR_ENTITY)
-    expect(enabledBy.target.relations[0].target.canDelete).toBe(true)
+    expect(enabledBy.target.relations).toHaveLength(0)
   })
 })
 

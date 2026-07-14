@@ -65,9 +65,10 @@ const proteinComplexActivity: TermDescriptor = {
         category: complexCat,
         required: true,
         skipEvidenceCheck: true,
-        relations: [
-          { predicateId: Relations.HAS_PART, target: { category: gpCat, canDelete: true } },
-        ],
+        // No default gene product — every part is added via the row's `+` menu, so all
+        // parts render with the same `(Protein Complex) has part (GP)` label instead of
+        // the lone default part looking different from the rest. (#275)
+        relations: [],
       },
     },
     {
