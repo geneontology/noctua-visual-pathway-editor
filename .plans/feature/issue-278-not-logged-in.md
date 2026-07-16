@@ -94,6 +94,12 @@ and the "Not Logged In" banner is made more prominent.
 | `src/features/gocam/components/ActivityTableNode.tsx` | Gate row menu / add / edit / delete | Done |
 | `src/features/gocam/components/EvidenceRow.tsx` | Gate cell edit/delete | Done |
 | `src/features/gocam/components/forms/AnnotationForm.tsx` | Gate Save (Cancel→Close) | Done |
+| `src/features/gocam/components/StructuredCommentsEditor.tsx` | New `readOnly` prop gates add/remove/inputs (post-merge) | Done |
+| `src/features/gocam/components/EdgeCommentsForm.tsx` | Gate Save + readOnly editor (post-merge) | Done |
+| `src/features/gocam/components/CommentsPanel.tsx` | Hide model/edge edit affordances when logged out (post-merge) | Done |
+
+## Merge resolution (branch merged into `dev`)
+`dev` had refactored comments (shared `StructuredCommentsEditor`, model `CamCommentsForm` + new `EdgeCommentsForm` dialogs, right-drawer `CommentsPanel`, per-row edge-comment icon, edge comment counts in `CamToolbar`). Only `CamCommentsForm.tsx` textually conflicted. Resolved by keeping the `StructuredCommentsEditor` refactor and layering the #278 read-only gating on the shared editor + both comment dialogs + the panel + the per-row comment icon (shown view-only when comments exist, hidden as an "Add" affordance when logged out). Merge is staged, NOT committed (awaiting user).
 
 ## Blockers
 - None.
