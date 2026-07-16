@@ -48,6 +48,9 @@ export class CamCanvas {
   onStencilDrop?: (type: string) => void
 
   constructor(container: HTMLElement) {
+    // Captured so the paper's validate* callbacks (where `this` is the paper)
+    // can read the canvas read-only state at drag time.
+    const self = this
     this._container = container
     this._wrapper = document.createElement('div')
     this._wrapper.style.width = '100%'
@@ -67,11 +70,12 @@ export class CamCanvas {
       multiLinks: true,
       markAvailable: true,
       validateConnection(cellViewS, _magnetS, cellViewT) {
+        if (self.readOnly) return false
         if (cellViewS === cellViewT) return false
         return true
       },
       validateMagnet() {
-        return true
+        return !self.readOnly
       },
       defaultConnectionPoint: { name: 'boundary', args: { sticky: true } },
       defaultConnector: { name: 'smooth' },
@@ -113,11 +117,13 @@ export class CamCanvas {
     // ── Element hover: highlight + show edit/delete icons ──
     this.paper.on('element:mouseover', (cellView: joint.dia.CellView) => {
       const element = cellView.model
+      // Read-only (not logged in) keeps the hover highlight but hides the
+      // edit/duplicate/delete action icons.
       if (element instanceof NodeCellList) {
-        element.hover(true)
+        element.hover(true, !this.readOnly)
         this._highlightSuccessorNodes(element)
       } else if (element instanceof NodeCellMolecule) {
-        element.hover(true)
+        element.hover(true, !this.readOnly)
       }
     })
 
@@ -129,6 +135,13 @@ export class CamCanvas {
       } else if (element instanceof NodeCellMolecule) {
         element.hover(false)
       }
+    })
+
+    // ── View icon click (read-only affordance): open the activity table ──
+    this.paper.on('element:view:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+      evt.stopPropagation()
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (activity) this.onActivityClick?.(activity.uid)
     })
 
     // ── Edit/delete icon clicks (from shape markup events) ──
@@ -392,6 +405,7 @@ export class CamCanvas {
   }
 
   private _handleDrop = (e: DragEvent) => {
+    if (this.readOnly) return
     if (!e.dataTransfer) return
     const raw = e.dataTransfer.getData('application/noctua-stencil')
     if (!raw || !this.onStencilDrop) return

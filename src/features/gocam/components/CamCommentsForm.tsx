@@ -3,6 +3,7 @@ import { ActionIcon, Button, Textarea } from '@mantine/core'
 import { FaPlus, FaTrash } from 'react-icons/fa'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveModelAnnotationsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
@@ -12,6 +13,7 @@ import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 const CamCommentsForm: React.FC = () => {
   const dispatch = useAppDispatch()
   const cam = useAppSelector(selectCamModel)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const [updateGraphModel, { isLoading }] = useUpdateGraphModelMutation()
   const [comments, setComments] = useState<string[]>(cam?.comments ?? [])
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
@@ -75,47 +77,54 @@ const CamCommentsForm: React.FC = () => {
                   maxRows={8}
                   className="flex-1"
                   placeholder="Comment"
+                  readOnly={!isLoggedIn}
                 />
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="sm"
-                  onClick={() => handleRemoveComment(i)}
-                  aria-label="Remove comment"
-                >
-                  <FaTrash size={12} />
-                </ActionIcon>
+                {isLoggedIn && (
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    onClick={() => handleRemoveComment(i)}
+                    aria-label="Remove comment"
+                  >
+                    <FaTrash size={12} />
+                  </ActionIcon>
+                )}
               </div>
             ))}
           </div>
         )}
 
-        <div className="mt-2">
-          <Button
-            size="compact-sm"
-            variant="light"
-            color="primary"
-            leftSection={<FaPlus size={10} />}
-            onClick={handleAddComment}
-            aria-label="Add Comment"
-          >
-            {comments.length === 0 ? 'Add Comment' : 'Add Another Comment'}
-          </Button>
-        </div>
+        {isLoggedIn && (
+          <div className="mt-2">
+            <Button
+              size="compact-sm"
+              variant="light"
+              color="primary"
+              leftSection={<FaPlus size={10} />}
+              onClick={handleAddComment}
+              aria-label="Add Comment"
+            >
+              {comments.length === 0 ? 'Add Comment' : 'Add Another Comment'}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
         <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
-          Cancel
+          {isLoggedIn ? 'Cancel' : 'Close'}
         </Button>
-        <Button
-          variant="filled"
-          size="sm"
-          onClick={handleSave}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Saving...' : 'Save'}
-        </Button>
+        {isLoggedIn && (
+          <Button
+            variant="filled"
+            size="sm"
+            onClick={handleSave}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
+        )}
       </div>
 
       <ConfirmDialog

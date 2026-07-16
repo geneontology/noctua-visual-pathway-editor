@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
-import { selectBaristaToken } from '@/features/auth/slices/authSlice'
+import { selectBaristaToken, selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import {
   setRightDrawerOpen,
@@ -30,6 +30,7 @@ const CamToolbar: React.FC = () => {
   const dispatch = useAppDispatch()
   const cam = useAppSelector(selectCamModel)
   const baristaToken = useAppSelector(selectBaristaToken)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const urls = useModelUrls(cam?.id, baristaToken)
   const checkGroup = useGroupGuard()
 
@@ -174,17 +175,19 @@ const CamToolbar: React.FC = () => {
           </ActionIcon>
         </Tooltip>
 
-        <Tooltip label="Make a copy of this model" position="bottom" withArrow>
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="lg"
-            className="text-gray-600 hover:text-gray-900"
-            onClick={openCopyDialog}
-          >
-            <FaClone size={16} />
-          </ActionIcon>
-        </Tooltip>
+        {isLoggedIn && (
+          <Tooltip label="Make a copy of this model" position="bottom" withArrow>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="lg"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={openCopyDialog}
+            >
+              <FaClone size={16} />
+            </ActionIcon>
+          </Tooltip>
+        )}
       </div>
 
       {cam.state && (

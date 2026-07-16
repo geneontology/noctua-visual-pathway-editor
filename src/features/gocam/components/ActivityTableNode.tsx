@@ -13,6 +13,8 @@ import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
 import { useGroupGuard } from './GroupGuardProvider'
+import { useAppSelector } from '@/app/hooks'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import {
   buildAddNodeOperations,
   buildEditIndividualTypeOperations,
@@ -65,6 +67,9 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const { node, edge, children, treeLevel, canDelete, showEvidence, showMenu, showAddButton } =
     treeNode
   const evidence = edge?.evidence ?? []
+  // Not logged in → the table is view-only: no row menus, no add buttons, no
+  // inline edit/delete affordances (#278).
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
 
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
@@ -232,14 +237,18 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         <EditableCell
           ref={termCellRef}
           label={treeNode.floatingLabel}
-          onEdit={() => {
-            checkGroup(() => {
-              if (termCellRef.current) {
-                editor.open(termCellRef.current, { category: EditorCategory.term })
-              }
-            })
-          }}
-          onDelete={canDelete ? requestDeleteNode : undefined}
+          onEdit={
+            isLoggedIn
+              ? () => {
+                  checkGroup(() => {
+                    if (termCellRef.current) {
+                      editor.open(termCellRef.current, { category: EditorCategory.term })
+                    }
+                  })
+                }
+              : undefined
+          }
+          onDelete={canDelete && isLoggedIn ? requestDeleteNode : undefined}
           className={showEvidence ? 'shrink-0' : 'min-w-0 flex-1'}
           style={showEvidence ? { flexBasis: termWidth } : undefined}
         >
@@ -294,7 +303,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
         {/* Action cell */}
         <div ref={actionCellRef} className="flex w-10 shrink-0 flex-col items-center justify-center p-0">
-          {showMenu && (
+          {showMenu && isLoggedIn && (
             <Menu shadow="md" position="bottom-end" withinPortal>
               <Menu.Target>
                 <ActionIcon variant="light" color="primary" radius="xl" size="md">
@@ -331,7 +340,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
               </Menu.Dropdown>
             </Menu>
           )}
-          {showAddButton && insertMenuItems.length > 0 && (
+          {showAddButton && isLoggedIn && insertMenuItems.length > 0 && (
             <Menu shadow="md" position="bottom-start" withinPortal>
               <Menu.Target>
                 <ActionIcon variant="light" color="primary" radius="xl" size="md">
