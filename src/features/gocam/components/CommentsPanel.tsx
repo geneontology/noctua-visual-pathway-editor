@@ -3,13 +3,14 @@ import { useCallback, useMemo } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
 import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
 import type { Activity, Edge, GraphModel } from '../models/cam'
-import { useAppDispatch } from '@/app/hooks'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import {
   setRightDrawerOpen,
   setRightPanelTab,
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import { setSelectedActivity } from '../slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import { getCommentCategoryBadgeClass, parseComment } from '../data/commentCategories'
 
@@ -55,6 +56,7 @@ interface ActivityEdgesWithComments {
 
 const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const dispatch = useAppDispatch()
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
 
   const modelComments = model.comments ?? []
 
@@ -152,22 +154,24 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                 {modelComments.length}
               </span>
             )}
-            <Tooltip
-              label={modelComments.length > 0 ? 'Edit model comments' : 'Add model comment'}
-              position="bottom"
-              withArrow
-              openDelay={300}
-            >
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size="sm"
-                onClick={handleEditModelComments}
-                aria-label="Edit model comments"
+            {isLoggedIn && (
+              <Tooltip
+                label={modelComments.length > 0 ? 'Edit model comments' : 'Add model comment'}
+                position="bottom"
+                withArrow
+                openDelay={300}
               >
-                {modelComments.length > 0 ? <FaPen size={11} /> : <FaPlus size={11} />}
-              </ActionIcon>
-            </Tooltip>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  onClick={handleEditModelComments}
+                  aria-label="Edit model comments"
+                >
+                  {modelComments.length > 0 ? <FaPen size={11} /> : <FaPlus size={11} />}
+                </ActionIcon>
+              </Tooltip>
+            )}
           </div>
           {modelComments.length === 0 ? (
             <div className="px-3 py-2 text-xs italic text-gray-400">No model comments yet</div>
@@ -223,17 +227,19 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                           >
                             {edgeLabel(edge)}
                           </span>
-                          <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
-                            <ActionIcon
-                              variant="subtle"
-                              color="gray"
-                              size="xs"
-                              onClick={() => handleEditEdgeComments(edge, activity)}
-                              aria-label={`Edit comments on ${edgeLabel(edge)}`}
-                            >
-                              <FaPen size={9} />
-                            </ActionIcon>
-                          </Tooltip>
+                          {isLoggedIn && (
+                            <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                size="xs"
+                                onClick={() => handleEditEdgeComments(edge, activity)}
+                                aria-label={`Edit comments on ${edgeLabel(edge)}`}
+                              >
+                                <FaPen size={9} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
                         </div>
                         <div className="flex flex-col gap-1">
                           {edge.comments.map((comment, i) => (

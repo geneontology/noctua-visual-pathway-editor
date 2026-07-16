@@ -8,6 +8,7 @@ import { useUserContext } from '@/app/hooks/useUserContext'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import type { Activity, GraphNode } from '@/features/gocam/models/cam'
 import { RootTypes } from '@/features/gocam/models/cam'
 import type { EvidenceForm } from '@/features/gocam/models/formModels'
@@ -35,6 +36,7 @@ interface Props {
 const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity, onSaved }) => {
   const dispatch = useAppDispatch()
   const model = useAppSelector(selectCamModel)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const userContext = useUserContext()
   const [updateGraphModel, { isLoading: isSaving }] = useUpdateGraphModelMutation()
 
@@ -301,16 +303,18 @@ const ChemicalConnectorForm: React.FC<Props> = ({ sourceActivity, targetActivity
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3">
-        <Button
-          variant="filled"
-          size="sm"
-          disabled={selectedItems.length === 0 || isSaving}
-          onClick={handleSave}
-        >
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
+      {isLoggedIn && (
+        <div className="flex items-center justify-end gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3">
+          <Button
+            variant="filled"
+            size="sm"
+            disabled={selectedItems.length === 0 || isSaving}
+            onClick={handleSave}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

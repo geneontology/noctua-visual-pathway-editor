@@ -9,6 +9,8 @@ import { COMMENT_CATEGORIES, type StructuredComment } from '../data/commentCateg
 interface StructuredCommentsEditorProps {
   comments: StructuredComment[]
   onChange: (next: StructuredComment[]) => void
+  /** View-only (not logged in): render comments but hide add/remove/edit affordances (#278). */
+  readOnly?: boolean
 }
 
 /**
@@ -18,6 +20,7 @@ interface StructuredCommentsEditorProps {
 const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
   comments,
   onChange,
+  readOnly = false,
 }) => {
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
 
@@ -78,16 +81,19 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
                   placeholder="Select a category"
                   aria-label="Comment category"
                   className="flex-1"
+                  readOnly={readOnly}
                 />
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  size="lg"
-                  onClick={() => handleRemove(i)}
-                  aria-label="Remove comment"
-                >
-                  <FaTrash size={14} />
-                </ActionIcon>
+                {!readOnly && (
+                  <ActionIcon
+                    variant="subtle"
+                    color="red"
+                    size="lg"
+                    onClick={() => handleRemove(i)}
+                    aria-label="Remove comment"
+                  >
+                    <FaTrash size={14} />
+                  </ActionIcon>
+                )}
               </div>
               {(comment.option || comment.text) && (
                 <Textarea
@@ -99,6 +105,7 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
                   minRows={3}
                   maxRows={8}
                   placeholder="Write your comment..."
+                  readOnly={readOnly}
                 />
               )}
             </div>
@@ -106,18 +113,20 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
         </div>
       )}
 
-      <div className="mt-2">
-        <Button
-          size="compact-sm"
-          variant="light"
-          color="primary"
-          leftSection={<FiPlus size={12} />}
-          onClick={handleAdd}
-          aria-label="Add Comment"
-        >
-          {comments.length === 0 ? 'Add Comment' : 'Add Another Comment'}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="mt-2">
+          <Button
+            size="compact-sm"
+            variant="light"
+            color="primary"
+            leftSection={<FiPlus size={12} />}
+            onClick={handleAdd}
+            aria-label="Add Comment"
+          >
+            {comments.length === 0 ? 'Add Comment' : 'Add Another Comment'}
+          </Button>
+        </div>
+      )}
 
       <ConfirmDialog
         open={pendingRemoveIndex !== null}

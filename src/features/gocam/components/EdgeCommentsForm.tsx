@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Button } from '@mantine/core'
 import { useAppSelector, useAppDispatch } from '@/app/hooks'
 import { selectCamModel } from '@/features/gocam/slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveEdgeCommentsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
@@ -15,6 +16,7 @@ interface EdgeCommentsFormProps {
 const EdgeCommentsForm: React.FC<EdgeCommentsFormProps> = ({ edgeUid }) => {
   const dispatch = useAppDispatch()
   const cam = useAppSelector(selectCamModel)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const [updateGraphModel, { isLoading }] = useUpdateGraphModelMutation()
 
   const edge = useMemo(() => {
@@ -53,16 +55,22 @@ const EdgeCommentsForm: React.FC<EdgeCommentsFormProps> = ({ edgeUid }) => {
       </div>
 
       <div className="px-4 py-4">
-        <StructuredCommentsEditor comments={comments} onChange={setComments} />
+        <StructuredCommentsEditor
+          comments={comments}
+          onChange={setComments}
+          readOnly={!isLoggedIn}
+        />
       </div>
 
       <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
         <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
-          Cancel
+          {isLoggedIn ? 'Cancel' : 'Close'}
         </Button>
-        <Button variant="filled" size="sm" onClick={handleSave} disabled={isLoading}>
-          {isLoading ? 'Saving...' : 'Save'}
-        </Button>
+        {isLoggedIn && (
+          <Button variant="filled" size="sm" onClick={handleSave} disabled={isLoading}>
+            {isLoading ? 'Saving...' : 'Save'}
+          </Button>
+        )}
       </div>
     </div>
   )

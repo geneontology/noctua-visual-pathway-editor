@@ -42,6 +42,7 @@ import {
   selectConnectorEvidences,
 } from '../slices/relationSlice'
 import { selectCamModel, selectModelEvidence } from '@/features/gocam/slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
@@ -76,6 +77,7 @@ const RelationForm: React.FC<Props> = ({
   const connectorEvidences = useAppSelector(selectConnectorEvidences)
   const model = useAppSelector(selectCamModel)
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const userContext = useUserContext()
   const [updateGraphModel, { isLoading: isSaving }] = useUpdateGraphModelMutation()
 
@@ -326,8 +328,9 @@ const RelationForm: React.FC<Props> = ({
           </span>
         </div>
 
-        {/* Chemical Intermediate section */}
-        {shouldShowChemicalIntermediate && (
+        {/* Chemical Intermediate section — opens its own save path, so hide it
+            entirely when not logged in (#278) */}
+        {isLoggedIn && shouldShowChemicalIntermediate && (
           <div
             className="flex items-center gap-3 border-b border-blue-800/70 px-4 py-3"
           >
@@ -401,42 +404,44 @@ const RelationForm: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3 shadow-md">
-        <div>
-          {!relation && (
-            <Button variant="subtle" color="yellow" size="sm">
-              Why is the &quot;Save&quot; button disabled?
-            </Button>
-          )}
-          {existingEdgeId && (
+      {/* Footer — hidden when not logged in so the form is view-only (#278) */}
+      {isLoggedIn && (
+        <div className="flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 bg-gray-100 px-4 py-3 shadow-md">
+          <div>
+            {!relation && (
+              <Button variant="subtle" color="yellow" size="sm">
+                Why is the &quot;Save&quot; button disabled?
+              </Button>
+            )}
+            {existingEdgeId && (
+              <Button
+                variant="outline"
+                size="sm"
+                color="red"
+                onClick={requestDelete}
+                disabled={isSaving}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {onClose && (
+              <Button variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
+                Cancel
+              </Button>
+            )}
             <Button
-              variant="outline"
+              variant="filled"
               size="sm"
-              color="red"
-              onClick={requestDelete}
-              disabled={isSaving}
+              disabled={!relation || isSaving}
+              onClick={handleSave}
             >
-              Delete
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
-          )}
+          </div>
         </div>
-        <div className="flex gap-2">
-          {onClose && (
-            <Button variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
-              Cancel
-            </Button>
-          )}
-          <Button
-            variant="filled"
-            size="sm"
-            disabled={!relation || isSaving}
-            onClick={handleSave}
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-        </div>
-      </div>
+      )}
 
       <ConfirmDialog
         open={deleteConfirmOpen}

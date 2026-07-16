@@ -25,6 +25,7 @@ import {
   initDuplicateForm,
 } from '@/features/gocam/slices/activityFormSlice'
 import { Button, Modal } from '@mantine/core'
+import { FaExclamationTriangle } from 'react-icons/fa'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
 import SimpleDialog from '@/@noctua.core/components/dialog/SimpleDialog'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
@@ -192,8 +193,9 @@ const PathwayEditor: React.FC = () => {
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col">
       {!isLoggedIn && (
-        <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-          <span className="font-medium">Not Logged In:</span>
+        <div className="flex items-center justify-center gap-2 border-b-2 border-amber-400 bg-amber-100 px-4 py-3 text-base text-amber-900 shadow-sm">
+          <FaExclamationTriangle className="shrink-0 text-amber-500" size={18} />
+          <span className="font-bold">Not Logged In:</span>
           You can only view existing annotations. Log in to edit.
         </div>
       )}
@@ -209,7 +211,7 @@ const PathwayEditor: React.FC = () => {
         onZoomReset={canvas.onZoomReset}
       />
       <div className="flex min-h-0 flex-1 flex-row">
-        <StencilPalette />
+        {isLoggedIn && <StencilPalette />}
         <div className="relative flex-1">
           {isLoading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">

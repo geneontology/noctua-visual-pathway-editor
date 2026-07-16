@@ -99,6 +99,7 @@ const headerMarkup = [
   { tagName: 'rect', selector: 'body' },
   { tagName: 'text', selector: 'label' },
   { tagName: 'image', selector: 'icon' },
+  { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
   { tagName: 'image', selector: 'duplicateIcon' },
   { tagName: 'image', selector: 'deleteIcon' },
@@ -142,6 +143,21 @@ const headerAttributes = {
       text: 'Label',
       textWrap: { width: '90%', maxLineCount: 1, ellipsis: true },
       textVerticalAnchor: 'top',
+    },
+    // Read-only affordance: shown on hover only when not logged in, opens the
+    // activity table for viewing (#278). Sits where the edit icon would be
+    // (edit is hidden in read-only, so no overlap).
+    viewIcon: {
+      event: 'element:view:pointerdown',
+      xlinkHref: './assets/icons/info.svg',
+      ref: 'wrapper',
+      refX: '100%',
+      refX2: 5,
+      y: 0,
+      width: 20,
+      height: 20,
+      cursor: 'pointer',
+      visibility: 'hidden',
     },
     editIcon: {
       event: 'element:edit:pointerdown',
@@ -281,11 +297,14 @@ export class NodeCellList extends joint.dia.Element {
     return this
   }
 
-  hover(on: boolean): this {
+  hover(on: boolean, interactive = true): this {
     this.attr('wrapper/strokeWidth', on ? 40 : 0)
-    this.attr('editIcon/visibility', on ? 'visible' : 'hidden')
-    this.attr('duplicateIcon/visibility', on ? 'visible' : 'hidden')
-    this.attr('deleteIcon/visibility', on ? 'visible' : 'hidden')
+    const iconVis = on && interactive ? 'visible' : 'hidden'
+    this.attr('editIcon/visibility', iconVis)
+    this.attr('duplicateIcon/visibility', iconVis)
+    this.attr('deleteIcon/visibility', iconVis)
+    // Read-only: only the view icon appears on hover.
+    this.attr('viewIcon/visibility', on && !interactive ? 'visible' : 'hidden')
     return this
   }
 }
@@ -318,6 +337,18 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         fontSize: 12,
         fill: LABEL_TEXT_FILL,
         textWrap: { ellipsis: false, width: '95%' },
+      },
+      '.view': {
+        event: 'element:view:pointerdown',
+        'xlink:href': './assets/icons/info.svg',
+        ref: '.wrapper',
+        refX: '100%',
+        refX2: -10,
+        y: 0,
+        height: 20,
+        width: 20,
+        cursor: 'pointer',
+        visibility: 'hidden',
       },
       '.edit': {
         event: 'element:edit:pointerdown',
@@ -365,6 +396,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '<circle class="circle"/>',
       '</g>',
       '<text class="label"/>',
+      '<image class="view"/>',
       '<image class="edit"/>',
       '<image class="duplicate"/>',
       '<image class="delete"/>',
@@ -387,11 +419,14 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
     return this
   }
 
-  hover(on: boolean): this {
+  hover(on: boolean, interactive = true): this {
     this.attr('.wrapper/strokeWidth', on ? 40 : 0)
-    this.attr('.edit/visibility', on ? 'visible' : 'hidden')
-    this.attr('.duplicate/visibility', on ? 'visible' : 'hidden')
-    this.attr('.delete/visibility', on ? 'visible' : 'hidden')
+    const iconVis = on && interactive ? 'visible' : 'hidden'
+    this.attr('.edit/visibility', iconVis)
+    this.attr('.duplicate/visibility', iconVis)
+    this.attr('.delete/visibility', iconVis)
+    // Read-only: only the view icon appears on hover.
+    this.attr('.view/visibility', on && !interactive ? 'visible' : 'hidden')
     return this
   }
 }
