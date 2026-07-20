@@ -10,6 +10,7 @@ import {
   buildAddEvidenceToEdgeOperations,
   buildRemoveEvidenceOperations,
   buildEditIndividualTypeOperations,
+  buildEditNodeAnnotationOperations,
   buildEditEvidenceAnnotationOperations,
   buildClearEvidenceAnnotationOperations,
 } from '@/features/gocam/services/activityOperations'
@@ -21,7 +22,7 @@ import {
 } from '@/features/gocam/models/operations'
 import type { Operation } from '@/features/gocam/models/operations'
 import type { TermNode, EvidenceForm } from '@/features/gocam/models/formModels'
-import type { Activity, Edge, GraphNode, UserContext } from '@/features/gocam/models/cam'
+import type { Activity, Edge, Evidence, GraphNode, UserContext } from '@/features/gocam/models/cam'
 import { ActivityType, RootTypes } from '@/features/gocam/models/cam'
 
 const MODEL_ID = 'gomodel:test'
@@ -1048,5 +1049,219 @@ describe('buildClearEvidenceAnnotationOperations', () => {
     const values = contribAdd.arguments.values as Array<{ key: AnnotationKey; value: string }>
     expect(values.find(v => v.key === AnnotationKey.CONTRIBUTOR)?.value).toBe(USER_CTX.orcid)
     expect(values.find(v => v.key === AnnotationKey.PROVIDED_BY)?.value).toBe(USER_CTX.groupUrl)
+  })
+})
+
+// ── buildEditNodeAnnotationOperations ──────────────────────────────
+// The Search Annotations / edit-in-place flow for an existing activity's aspect
+// rows (#255): swap the node's term (only when changed) + reconcile the edge's
+// evidence, all in ONE batch with a single trailing STORE.
+
+describe('buildEditNodeAnnotationOperations', () => {
+  const NODE = { uid: 'mf-uid', id: 'GO:0003674' }
+  // MF row's evidence lives on its enabled_by edge (MF --RO:0002333--> GP).
+  const EDGE = { sourceId: 'mf-uid', targetId: 'gp-uid', id: 'RO:0002333' }
+
+  const makeEvidence = (overrides: Partial<Evidence> = {}): Evidence => ({
+    uid: 'ev-1',
+    evidenceCode: { id: 'ECO:0000314', label: 'IDA' },
+    reference: 'PMID:1',
+    referenceUrl: '',
+    with: '',
+    groups: [],
+    contributors: [],
+    ...overrides,
+  })
+
+  const individualOps = (ops: Operation[], op: OperationType) =>
+    ops.filter(o => o.entity === OperationEntity.INDIVIDUAL && o.operation === op)
+
+  it('swaps the node type in place when the term changed (REMOVE_TYPE old + ADD_TYPE new)', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0016301', label: 'kinase activity' },
+      [],
+      [],
+      MODEL_ID
+    )
+    const removeType = findOp(ops, o => o.operation === OperationType.REMOVE_TYPE)
+    const addType = findOp(ops, o => o.operation === OperationType.ADD_TYPE)
+    expect(removeType.arguments.individual).toBe('mf-uid')
+    expect((removeType.arguments.expressions as Array<{ id: string }>)[0].id).toBe('GO:0003674')
+    expect(addType.arguments.individual).toBe('mf-uid')
+    expect((addType.arguments.expressions as Array<{ id: string }>)[0].id).toBe('GO:0016301')
+  })
+
+  it('omits the type swap when the picked term equals the current node term', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: 'molecular_function' },
+      [],
+      [],
+      MODEL_ID
+    )
+    expect(individualOps(ops, OperationType.REMOVE_TYPE)).toHaveLength(0)
+    expect(individualOps(ops, OperationType.ADD_TYPE)).toHaveLength(0)
+  })
+
+  it('removes an original evidence row that is not in the submitted set', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [makeEvidence({ uid: 'gone-ev' })],
+      [],
+      MODEL_ID
+    )
+    const removes = individualOps(ops, OperationType.REMOVE).filter(
+      o => o.arguments.individual === 'gone-ev'
+    )
+    expect(removes).toHaveLength(1)
+  })
+
+  it('adds a brand-new submitted evidence row (evidence individual + edge annotation on the right edge)', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [],
+      [makeEvidenceForm({ uid: 'new-ev', evidenceCode: { id: 'ECO:0000353', label: 'IPI' } })],
+      MODEL_ID
+    )
+    const evIndividual = findOp(
+      ops,
+      o =>
+        o.entity === OperationEntity.INDIVIDUAL &&
+        o.operation === OperationType.ADD &&
+        (o.arguments.expressions as Array<{ id: string }>)[0].id === 'ECO:0000353'
+    )
+    expect(evIndividual).toBeTruthy()
+    const edgeAnnotation = findOp(
+      ops,
+      o => o.entity === OperationEntity.EDGE && o.operation === OperationType.ADD_ANNOTATION
+    )
+    expect(edgeAnnotation.arguments.subject).toBe('mf-uid')
+    expect(edgeAnnotation.arguments.object).toBe('gp-uid')
+    expect(edgeAnnotation.arguments.predicate).toBe('RO:0002333')
+  })
+
+  it('leaves an unchanged evidence row alone — only the trailing STORE is emitted', () => {
+    const orig = makeEvidence({ uid: 'keep-ev', reference: 'PMID:1', with: '' })
+    const submitted = makeEvidenceForm({
+      uid: 'keep-ev',
+      evidenceCode: { id: 'ECO:0000314', label: 'IDA' },
+      reference: 'PMID:1',
+      withFrom: '',
+    })
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [orig],
+      [submitted],
+      MODEL_ID
+    )
+    expect(ops).toHaveLength(1)
+    expect(ops[0].operation).toBe(OperationType.STORE)
+  })
+
+  it('replaces a changed evidence row (REMOVE original + ADD new)', () => {
+    const orig = makeEvidence({ uid: 'ev-x', evidenceCode: { id: 'ECO:0000314', label: 'IDA' } })
+    const submitted = makeEvidenceForm({
+      uid: 'ev-x',
+      evidenceCode: { id: 'ECO:0000353', label: 'IPI' },
+    })
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [orig],
+      [submitted],
+      MODEL_ID
+    )
+    expect(
+      individualOps(ops, OperationType.REMOVE).some(o => o.arguments.individual === 'ev-x')
+    ).toBe(true)
+    const evAdd = findOp(
+      ops,
+      o =>
+        o.entity === OperationEntity.INDIVIDUAL &&
+        o.operation === OperationType.ADD &&
+        (o.arguments.expressions as Array<{ id: string }>)[0].id === 'ECO:0000353'
+    )
+    expect(evAdd).toBeTruthy()
+  })
+
+  it('emits exactly one STORE (last op) even when swapping term AND reconciling evidence', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0016301', label: 'kinase activity' },
+      [makeEvidence({ uid: 'old-ev' })],
+      [makeEvidenceForm({ uid: 'new-ev' })],
+      MODEL_ID,
+      USER_CTX
+    )
+    const stores = ops.filter(o => o.operation === OperationType.STORE)
+    expect(stores).toHaveLength(1)
+    expect(lastOp(ops).operation).toBe(OperationType.STORE)
+    // Both halves of the edit are present in the single batch.
+    expect(ops.some(o => o.operation === OperationType.ADD_TYPE)).toBe(true)
+    expect(
+      individualOps(ops, OperationType.REMOVE).some(o => o.arguments.individual === 'old-ev')
+    ).toBe(true)
+  })
+
+  it('attaches contributor + providedBy to added evidence when userContext is given', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [],
+      [makeEvidenceForm({ uid: 'new-ev' })],
+      MODEL_ID,
+      USER_CTX
+    )
+    const annotation = findOp(
+      ops,
+      o =>
+        o.entity === OperationEntity.INDIVIDUAL &&
+        o.operation === OperationType.ADD_ANNOTATION &&
+        Array.isArray(o.arguments.values) &&
+        (o.arguments.values as Array<{ key: AnnotationKey }>).some(
+          v => v.key === AnnotationKey.CONTRIBUTOR
+        )
+    )
+    const values = annotation.arguments.values as Array<{ key: AnnotationKey; value: string }>
+    expect(values.find(v => v.key === AnnotationKey.CONTRIBUTOR)?.value).toBe(USER_CTX.orcid)
+    expect(values.find(v => v.key === AnnotationKey.PROVIDED_BY)?.value).toBe(USER_CTX.groupUrl)
+  })
+
+  it('skips submitted evidence rows with no evidenceCode.id (no individual added)', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0003674', label: '' },
+      [],
+      [makeEvidenceForm({ uid: 'empty', evidenceCode: { id: '', label: '' } })],
+      MODEL_ID
+    )
+    expect(ops).toHaveLength(1)
+    expect(ops[0].operation).toBe(OperationType.STORE)
+  })
+
+  it('tags every op with the model-id', () => {
+    const ops = buildEditNodeAnnotationOperations(
+      NODE,
+      EDGE,
+      { id: 'GO:0016301', label: 'kinase activity' },
+      [makeEvidence({ uid: 'old-ev' })],
+      [makeEvidenceForm({ uid: 'new-ev' })],
+      MODEL_ID,
+      USER_CTX
+    )
+    for (const op of ops) expect(op.arguments['model-id']).toBe(MODEL_ID)
   })
 })

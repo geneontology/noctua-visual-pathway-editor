@@ -81,8 +81,9 @@ On submit `{ term, evidences }`:
 ## Files Modified
 | File | Action | Status |
 | ---- | ------ | ------ |
-| src/features/gocam/services/activityOperations.ts | add combined edit builder | pending |
-| src/features/gocam/components/ActivityTableNode.tsx | add Search Annotations menu item + handler | pending |
+| src/features/gocam/services/activityOperations.ts | add combined edit builder | done |
+| src/features/gocam/components/ActivityTableNode.tsx | add Search Annotations menu item + handler | done |
+| tests/features/gocam/services/activityOperations.test.ts | add 10 tests for buildEditNodeAnnotationOperations | done |
 
 ## Notes
 - ISS/ISO/IC for existing activities already works via `Add Evidence` (AnnotationForm passes `aspect`/`activityType`).
