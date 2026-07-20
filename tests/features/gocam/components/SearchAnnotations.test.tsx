@@ -235,3 +235,97 @@ describe('SearchAnnotations — controlled-component contract', () => {
     expect(screen.getByText('No terms found')).toBeInTheDocument()
   })
 })
+
+// ── Preselect the currently-edited term (#255) ──────────────────────
+
+describe('SearchAnnotations — preselect current term', () => {
+  it('highlights the annotation matching preselectTermId by default (Done enabled, its evidence shown)', async () => {
+    renderModal(
+      <SearchAnnotations
+        open
+        onClose={() => {}}
+        onApply={() => {}}
+        gpId="UniProtKB:P12345"
+        aspect={'F' as never}
+        preselectTermId="GO:0006468"
+      />
+    )
+    // The matching term's evidence appears in the right panel => it is selected.
+    expect(await screen.findByText('PMID:111')).toBeInTheDocument()
+    expect(screen.queryByText('Please select a term to view evidence')).toBeNull()
+    // With a term auto-selected, Done is enabled without any click.
+    expect(screen.getByRole('button', { name: 'Done' })).not.toBeDisabled()
+  })
+
+  it('applies the preselected term without a manual click, with no auto-selected evidence', async () => {
+    const onApply = vi.fn()
+    const user = userEvent.setup()
+    renderModal(
+      <SearchAnnotations
+        open
+        onClose={() => {}}
+        onApply={onApply}
+        gpId="UniProtKB:P12345"
+        aspect={'F' as never}
+        preselectTermId="GO:0006468"
+      />
+    )
+    await screen.findByText('PMID:111') // wait for the preselect effect to settle
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+
+    expect(onApply).toHaveBeenCalledTimes(1)
+    expect(onApply.mock.calls[0][0].term).toEqual({
+      id: 'GO:0006468',
+      label: 'protein phosphorylation',
+    })
+    // Only the term is highlighted by default — evidence stays unchecked.
+    expect(onApply.mock.calls[0][0].evidences).toEqual([])
+  })
+
+  it('does not preselect when preselectTermId matches no returned annotation', () => {
+    renderModal(
+      <SearchAnnotations
+        open
+        onClose={() => {}}
+        onApply={() => {}}
+        gpId="UniProtKB:P12345"
+        aspect={'F' as never}
+        preselectTermId="GO:9999999"
+      />
+    )
+    expect(screen.getByText('Please select a term to view evidence')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Done' })).toBeDisabled()
+  })
+
+  it('does not preselect anything when preselectTermId is omitted', () => {
+    renderModal(
+      <SearchAnnotations
+        open
+        onClose={() => {}}
+        onApply={() => {}}
+        gpId="UniProtKB:P12345"
+        aspect={'F' as never}
+      />
+    )
+    expect(screen.getByText('Please select a term to view evidence')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Done' })).toBeDisabled()
+  })
+
+  it('lets a manual pick replace the preselected term', async () => {
+    const user = userEvent.setup()
+    renderModal(
+      <SearchAnnotations
+        open
+        onClose={() => {}}
+        onApply={() => {}}
+        gpId="UniProtKB:P12345"
+        aspect={'F' as never}
+        preselectTermId="GO:0006468"
+      />
+    )
+    await screen.findByText('PMID:111') // GO:0006468 preselected
+    await user.click(screen.getByText('other process')) // switch to the term with no evidence
+    expect(screen.getByText('No evidence available for this term')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Done' })).not.toBeDisabled()
+  })
+})

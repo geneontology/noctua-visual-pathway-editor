@@ -27,6 +27,7 @@ const buildCamState = (overrides: Partial<{ title: string; state: string; commen
       error: null,
       selectedActivityId: null,
     },
+    auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
   }
 }
 

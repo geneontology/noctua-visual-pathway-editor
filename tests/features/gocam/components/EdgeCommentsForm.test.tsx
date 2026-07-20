@@ -25,6 +25,7 @@ const buildCamState = (comments: string[] = []) => {
       error: null,
       selectedActivityId: null,
     },
+    auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
   }
 }
 

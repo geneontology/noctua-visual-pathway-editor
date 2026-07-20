@@ -95,6 +95,7 @@ by default in the "Select Term" list if it is among the results.
 | src/features/gocam/components/forms/AnnotationForm.tsx | pass preselectTermId | done |
 | src/features/gocam/components/forms/ActivityForm.tsx | thread node term id to picker | done |
 | tests/features/gocam/services/activityOperations.test.ts | add 10 tests for buildEditNodeAnnotationOperations | done |
+| tests/features/gocam/components/SearchAnnotations.test.tsx | add 5 tests for preselect-current-term | done |
 
 ## Notes — pre-existing test failures (NOT from this work)
 `npm run test` shows 27 failing tests across ActivityForm/AnnotationForm/CamCommentsForm/

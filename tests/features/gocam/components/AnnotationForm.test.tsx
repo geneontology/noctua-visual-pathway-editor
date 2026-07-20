@@ -130,7 +130,11 @@ vi.mock('@mantine/core', async () => {
 // ── Helpers ─────────────────────────────────────────────────────────
 
 const renderForm = (ui: ReactElement) =>
-  renderWithProviders(<MantineProvider>{ui}</MantineProvider>)
+  renderWithProviders(<MantineProvider>{ui}</MantineProvider>, {
+    preloadedState: {
+      auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
+    },
+  })
 
 /**
  * Find the Evidence <section>. Both the section heading and each row's

@@ -19,7 +19,12 @@ const renderPanel = (model = buildTestModel()) =>
   renderWithProviders(
     <MantineProvider>
       <CommentsPanel model={model} />
-    </MantineProvider>
+    </MantineProvider>,
+    {
+      preloadedState: {
+        auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
+      },
+    }
   )
 
 describe('CommentsPanel', () => {
