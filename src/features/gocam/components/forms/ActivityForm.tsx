@@ -38,7 +38,7 @@ import {
 } from '../../services/activityOperations'
 import { FormMode } from '../../models/formModels'
 import type { TermNode, RelationNode, ValidationError } from '../../models/formModels'
-import { ActivityType } from '../../models/cam'
+import { ActivityType, RootTypes } from '../../models/cam'
 import type { Aspect, Entity } from '../../models/cam'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../../data/allowedDatabases'
 import EntityRow from './EntityRow'
@@ -54,6 +54,7 @@ interface GroupCardProps {
   errors: ValidationError[]
   bgClass: string
   displayMenuButton: boolean
+  enablerNodeUid?: string
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
 }
 
@@ -63,6 +64,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
   errors,
   bgClass,
   displayMenuButton,
+  enablerNodeUid,
   onSearchAnnotations,
 }) => {
   if (rows.length === 0) return null
@@ -80,6 +82,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
               displayGroup={group}
               errors={errors}
               displayMenuButton={displayMenuButton}
+              enablerNodeUid={enablerNodeUid}
               onSearchAnnotations={onSearchAnnotations}
             />
           </div>
@@ -234,6 +237,12 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     return enabledByRel?.target ?? null
   }, [root])
 
+  // Only the gene-product enabler gets the "fill with unknown enabler" quick-fill —
+  // it autofills the generic protein PR:000000001. A protein-complex enabler is a
+  // complex (and renders an insert-only menu), so it's excluded. (#279)
+  const enablerNodeUid =
+    gpNode?.category === RootTypes.MOLECULAR_ENTITY ? gpNode.uid : undefined
+
   const handleSearchAnnotations = useCallback(
     (node: TermNode, relation: RelationNode | null) => {
       const gpId = gpNode?.term?.id
@@ -320,6 +329,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                   errors={errors}
                   bgClass=""
                   displayMenuButton
+                  enablerNodeUid={enablerNodeUid}
                   onSearchAnnotations={onSearchAnnotationsForRow}
                 />
               ))}
@@ -378,6 +388,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                 errors={errors}
                 bgClass="bg-slate-50"
                 displayMenuButton={true}
+                enablerNodeUid={enablerNodeUid}
                 onSearchAnnotations={onSearchAnnotationsForRow}
               />
             ))}
