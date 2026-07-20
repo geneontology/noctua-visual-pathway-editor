@@ -160,7 +160,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           showTerm: true,
           title: `Add ${item.label}`,
           termLabel: item.label,
-          termRootTypes: [item.targetType],
+          termRootTypes: item.searchRootTypes ?? [item.targetType],
           gpId: gpNodeId,
           aspect: targetAspect,
           activityType,

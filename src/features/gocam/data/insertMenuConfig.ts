@@ -53,6 +53,12 @@ export interface InsertMenuItem {
   nodeLabel?: string
   rangeLabel: string
   targetType: string
+  /**
+   * Root-type closures the term search should span, when the relation accepts more
+   * than the single `targetType`. `has input` accepts a Gene Product OR a Protein
+   * Complex, so its search unions both closures. Defaults to `[targetType]`.
+   */
+  searchRootTypes?: string[]
   predicate: { id: string; label: string }
   showInMenu: boolean
   weight: number
@@ -151,8 +157,24 @@ export const canInsertEntity: Record<string, InsertMenuItem[]> = {
       nodeLabel: 'has input (Gene Product/Protein Complex)',
       rangeLabel: 'Gene Product/Protein Complex',
       targetType: RootTypes.MOLECULAR_ENTITY,
+      searchRootTypes: [RootTypes.MOLECULAR_ENTITY, RootTypes.PROTEIN_CONTAINING_COMPLEX],
       predicate: predicate(Relations.HAS_INPUT),
       showInMenu: true,
+      weight: 5,
+      cardinality: Cardinality.ONE_TO_MANY,
+      displayGroup: DisplayGroup.MF_INPUT,
+    },
+    // A has input value may be a protein complex. The menu shows the single item above
+    // (whose search spans both); this hidden twin exists so a complex input is grouped,
+    // weighted and labelled as a has input — its target resolves to the complex category,
+    // which the display resolvers key on. Mirrors the enabled by GP/complex pair.
+    {
+      label: 'has input',
+      nodeLabel: 'has input (Gene Product/Protein Complex)',
+      rangeLabel: 'Gene Product/Protein Complex',
+      targetType: RootTypes.PROTEIN_CONTAINING_COMPLEX,
+      predicate: predicate(Relations.HAS_INPUT),
+      showInMenu: false,
       weight: 5,
       cardinality: Cardinality.ONE_TO_MANY,
       displayGroup: DisplayGroup.MF_INPUT,

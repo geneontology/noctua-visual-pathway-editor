@@ -220,7 +220,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
         predicate: item.predicate,
         nodeType: item.targetType,
         label: item.nodeLabel ?? targetCategory?.label ?? item.targetType,
-        rootTypes: targetCategory?.searchClosureIds ?? [item.targetType],
+        rootTypes: item.searchRootTypes ?? targetCategory?.searchClosureIds ?? [item.targetType],
         aspect: targetCategory?.aspect ?? null,
       })
     )
