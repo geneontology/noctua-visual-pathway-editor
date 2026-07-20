@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { TermNode, EvidenceForm } from '../models/formModels'
-import type { Activity, Edge, Evidence, UserContext } from '../models/cam'
+import type { Activity, Edge, Entity, Evidence, UserContext } from '../models/cam'
 import { RootTypes } from '../models/cam'
 import {
   OperationEntity,
@@ -813,6 +813,92 @@ export const buildReconcileEdgeEvidenceOperations = (
       )
     )
   }
+
+  return operations
+}
+
+/**
+ * Edit an existing activity node's annotation in place, in a single batch: swap
+ * the node's ontology type (only when it changed) and reconcile the evidence on
+ * its incoming edge. Powers the Search Annotations / edit flow on an existing
+ * activity's MF (and other aspect) rows (#255), mirroring how the create form's
+ * Search Annotations replaces a row's term + evidence.
+ */
+export const buildEditNodeAnnotationOperations = (
+  node: { uid: string; id: string },
+  edge: { sourceId: string; targetId: string; id: string },
+  newTerm: Entity,
+  originalEvidence: Evidence[],
+  submittedEvidence: EvidenceForm[],
+  modelId: string,
+  userContext?: UserContext
+): Operation[] => {
+  const operations: Operation[] = []
+
+  // Type swap in place (only when the term actually changed).
+  if (newTerm.id !== node.id) {
+    operations.push({
+      entity: OperationEntity.INDIVIDUAL,
+      operation: OperationType.REMOVE_TYPE,
+      arguments: {
+        individual: node.uid,
+        expressions: [{ type: ExpressionType.CLASS, id: node.id }],
+        'model-id': modelId,
+      },
+    })
+    operations.push({
+      entity: OperationEntity.INDIVIDUAL,
+      operation: OperationType.ADD_TYPE,
+      arguments: {
+        individual: node.uid,
+        expressions: [{ type: ExpressionType.CLASS, id: newTerm.id }],
+        'model-id': modelId,
+      },
+    })
+  }
+
+  // Reconcile edge evidence: drop removed rows, re-add new/changed ones. Matches
+  // buildReconcileEdgeEvidenceOperations semantics but STORE-free so the whole
+  // edit persists in one trailing STORE.
+  const origByUid = new Map(originalEvidence.map(e => [e.uid, e]))
+  const submittedUids = new Set(submittedEvidence.map(e => e.uid))
+
+  for (const orig of originalEvidence) {
+    if (!submittedUids.has(orig.uid)) {
+      operations.push({
+        entity: OperationEntity.INDIVIDUAL,
+        operation: OperationType.REMOVE,
+        arguments: { individual: orig.uid, 'model-id': modelId },
+      })
+    }
+  }
+
+  const toAdd: EvidenceForm[] = []
+  for (const ev of submittedEvidence) {
+    const orig = origByUid.get(ev.uid)
+    const unchanged =
+      orig &&
+      orig.evidenceCode?.id === ev.evidenceCode?.id &&
+      (orig.reference ?? '') === ev.reference &&
+      (orig.with ?? '') === ev.withFrom
+    if (unchanged) continue
+    if (orig) {
+      operations.push({
+        entity: OperationEntity.INDIVIDUAL,
+        operation: OperationType.REMOVE,
+        arguments: { individual: orig.uid, 'model-id': modelId },
+      })
+    }
+    toAdd.push(ev)
+  }
+
+  addEvidenceOperations(operations, edge.sourceId, edge.targetId, edge.id, toAdd, modelId, userContext)
+
+  operations.push({
+    entity: OperationEntity.MODEL,
+    operation: OperationType.STORE,
+    arguments: { 'model-id': modelId },
+  })
 
   return operations
 }

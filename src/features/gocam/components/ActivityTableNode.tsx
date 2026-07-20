@@ -20,8 +20,10 @@ import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import {
   buildAddNodeOperations,
   buildEditIndividualTypeOperations,
+  buildEditNodeAnnotationOperations,
   buildReconcileEdgeEvidenceOperations,
 } from '../services/activityOperations'
+import { isSearchAnnotationsEnabledFor } from '../services/annotationRules'
 import { evidenceToForm } from '../models/formModels'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
@@ -217,6 +219,45 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     )
   }, [edge, checkGroup, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
+  // Search Annotations on an existing activity's aspect row (#255): opens the
+  // same term+evidence form used when creating, pre-filled with this row's
+  // current term/evidence, and applies the pick in place (term swap + evidence
+  // reconcile in one save). Needs the gene product (search is scoped to it) and
+  // is suppressed for Molecule / Protein-Complex, matching the create form.
+  const searchAnnotationsEnabled =
+    !!edge && !!aspect && !!gpNodeId && isSearchAnnotationsEnabledFor(activityType)
+
+  const handleSearchAnnotations = useCallback(() => {
+    if (!edge) return
+    const existing = edge.evidence ?? []
+    checkGroup(() =>
+      openAnnotationForm({
+        showTerm: true,
+        title: `Edit ${node.label || treeNode.floatingLabel}`,
+        termLabel: treeNode.floatingLabel,
+        termRootTypes: node.rootTypes,
+        initialTerm: node.id ? { id: node.id, label: node.label } : null,
+        initialEvidences: existing.map(evidenceToForm),
+        gpId: gpNodeId,
+        aspect,
+        activityType,
+        onSubmit: async ({ term, evidences }) => {
+          if (!term) return
+          const ops = buildEditNodeAnnotationOperations(
+            { uid: node.uid, id: node.id },
+            edge,
+            term,
+            existing,
+            evidences,
+            modelId,
+            resolvedUserContext
+          )
+          if (ops.length > 0) await updateGraphModel(ops)
+        },
+      })
+    )
+  }, [edge, checkGroup, openAnnotationForm, node.label, node.id, node.uid, node.rootTypes, treeNode.floatingLabel, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
+
   const handleAddComment = useCallback(() => {
     if (!edge) return
     checkGroup(() =>
@@ -379,6 +420,9 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
+                {searchAnnotationsEnabled && (
+                  <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
+                )}
                 {insertMenuItems.length > 0 && (
                   <Menu.Sub position="left-start">
                     <Menu.Sub.Target>
