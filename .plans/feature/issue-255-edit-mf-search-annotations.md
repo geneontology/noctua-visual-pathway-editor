@@ -78,12 +78,29 @@ On submit `{ term, evidences }`:
 | -------------- | ------------- | ---- |
 | Rewire `onEditClick` → open full `ActivityForm` in `FormMode.EDIT` (dispatch `initEditForm`) | User wants a targeted "enable edit on MF" in the existing right‑drawer surface, not a switch to the modal full-form edit UX | 2026-07-20 |
 
+## Follow-up: preselect edited term in the picker
+When opening Search Annotations on a row that already has a term, highlight that term
+by default in the "Select Term" list if it is among the results.
+- `SearchAnnotations.tsx`: added `preselectTermId?` prop + effect that fills an empty
+  `selectedTerm` with the matching annotation once results load (manual pick still wins).
+- `AnnotationForm.tsx`: passes `preselectTermId={term?.id}`.
+- `ActivityForm.tsx`: threads the node's current term id via `pickerState.termId`.
+
 ## Files Modified
 | File | Action | Status |
 | ---- | ------ | ------ |
 | src/features/gocam/services/activityOperations.ts | add combined edit builder | done |
 | src/features/gocam/components/ActivityTableNode.tsx | add Search Annotations menu item + handler | done |
+| src/features/gocam/components/forms/SearchAnnotations.tsx | preselect current term (highlight by default) | done |
+| src/features/gocam/components/forms/AnnotationForm.tsx | pass preselectTermId | done |
+| src/features/gocam/components/forms/ActivityForm.tsx | thread node term id to picker | done |
 | tests/features/gocam/services/activityOperations.test.ts | add 10 tests for buildEditNodeAnnotationOperations | done |
+
+## Notes — pre-existing test failures (NOT from this work)
+`npm run test` shows 27 failing tests across ActivityForm/AnnotationForm/CamCommentsForm/
+CamStateForm/CamTitleForm/CommentsPanel/EdgeCommentsForm — all footer Save/Cancel buttons
+gated behind login by #278, with tests that never log a user in. Five of these files were
+untouched by this task. Out of scope here; flag separately.
 
 ## Notes
 - ISS/ISO/IC for existing activities already works via `Add Evidence` (AnnotationForm passes `aspect`/`activityType`).

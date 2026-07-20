@@ -318,6 +318,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
           onApply={handlePickerApply}
           gpId={gpId}
           aspect={aspect}
+          preselectTermId={term?.id}
         />
       )}
 

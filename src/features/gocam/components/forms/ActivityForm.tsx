@@ -117,6 +117,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     aspect: Aspect | undefined
     nodeUid: string
     relationUid: string | null
+    termId?: string
   }>({ open: false, gpId: '', aspect: undefined, nodeUid: '', relationUid: null })
 
   useEffect(() => {
@@ -252,6 +253,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
         aspect: node.aspect,
         nodeUid: node.uid,
         relationUid: relation?.uid ?? null,
+        termId: node.term?.id,
       })
     },
     [gpNode, dispatch]
@@ -447,6 +449,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
           onApply={handlePickerApply}
           gpId={pickerState.gpId}
           aspect={pickerState.aspect}
+          preselectTermId={pickerState.termId}
         />
       )}
 
