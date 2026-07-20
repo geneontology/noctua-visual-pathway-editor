@@ -54,6 +54,14 @@ easier (an enabler is a protein, never a ChEBI chemical).
 - [x] `npm run type-check` clean
 - [x] Existing `EntityRow` (36) + `activityFormSlice` (35) tests pass
 
+### Phase 4: Tests — DONE
+- [x] `activityFormSlice.test.ts`: `fillUnknownEnabler` sets PR:000000001 on the
+      enabler + flips dirty; unknown uid is a no-op (35 → 37 tests)
+- [x] `EntityRow.test.tsx`: "Fill with unknown enabler" present on the enabler
+      row, absent without/with-mismatched `enablerNodeUid`, absent on complex
+      rows, and click dispatches `fillUnknownEnabler` (36 → 41 tests)
+- [x] Full suite: 800 tests pass
+
 ## Recovery Checkpoint
 
 > ✅ TASK COMPLETE
@@ -90,5 +98,5 @@ and `UNKNOWN_ENABLER` constant. Scoped to the GP enabler; complex/molecule forms
 excluded. Type-check and existing tests pass.
 
 ## Follow-up (optional, not done — user to confirm)
-- Tests for the new reducer and the menu item (memory: no unsolicited tests).
 - Manual QA in the running app.
+- Commit (branch `issue-279-unknown-enabler`).
