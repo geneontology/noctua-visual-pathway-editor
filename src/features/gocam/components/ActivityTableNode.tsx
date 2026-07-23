@@ -28,6 +28,7 @@ import { evidenceToForm } from '../models/formModels'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
 import type { InsertMenuItem } from '../data/insertMenuConfig'
+import { INDIVIDUAL_COMMENT_CATEGORIES } from '../data/commentCategories'
 import { getPrimaryRootType } from '../data/nodeCategories'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
@@ -71,6 +72,14 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
   const { node, edge, children, treeLevel, canDelete, showEvidence, showMenu, showAddButton } =
     treeNode
   const evidence = edge?.evidence ?? []
+
+  // Row-level "all comments" rollup: individual (node) + statement (edge) +
+  // references (evidence individuals). Icon shows the total; click edits the
+  // statement comment (the only scope without its own in-cell icon) — #231.
+  const individualCommentCount = node.comments?.length ?? 0
+  const statementCommentCount = edge?.comments?.length ?? 0
+  const referenceCommentCount = evidence.reduce((s, ev) => s + (ev.comments?.length ?? 0), 0)
+  const allCommentsCount = individualCommentCount + statementCommentCount + referenceCommentCount
   // Not logged in → the table is view-only: no row menus, no add buttons, no
   // inline edit/delete affordances (#278).
   const isLoggedIn = !!useAppSelector(selectAuthUser)
@@ -272,6 +281,25 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     )
   }, [edge, checkGroup, dispatch])
 
+  // Comment on the individual (GO term / input) itself — distinct from the
+  // statement (edge) comment above (#231).
+  const handleAddIndividualComment = useCallback(() => {
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Individual Comments',
+          size: 'sm',
+          customProps: {
+            individualUid: node.uid,
+            categories: INDIVIDUAL_COMMENT_CATEGORIES,
+            subjectLabel: node.label || node.id,
+          },
+        })
+      )
+    )
+  }, [node.uid, node.label, node.id, checkGroup, dispatch])
+
   return (
     <>
       <div className="group mb-2 flex w-full flex-row items-stretch justify-start">
@@ -307,6 +335,12 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
               : undefined
           }
           onDelete={canDelete && isLoggedIn ? requestDeleteNode : undefined}
+          onComment={
+            isLoggedIn || (node.comments?.length ?? 0) > 0
+              ? handleAddIndividualComment
+              : undefined
+          }
+          commentCount={node.comments?.length ?? 0}
           className={showEvidence ? 'shrink-0' : 'min-w-0 flex-1'}
           style={showEvidence ? { flexBasis: termWidth } : undefined}
         >
@@ -359,26 +393,61 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
           </div>
         )}
 
-        {/* Comment cell — sits just before the action (…) menu. When logged out,
-            shown only if comments already exist (view-only), never as "Add". */}
-        {edge && (isLoggedIn || !!edge.comments?.length) && (
+        {/* All-comments rollup cell — sits just before the action (…) menu. Counts
+            every comment on the row (individual + statement + references); click
+            edits the statement (edge) comment. When logged out, shown only if
+            comments already exist (view-only), never as "Add". */}
+        {edge && (isLoggedIn || allCommentsCount > 0) && (
           <div
             className={`flex w-10 shrink-0 flex-col items-center justify-center p-0 transition-opacity ${
-              edge.comments?.length ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
+              allCommentsCount ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
             }`}
           >
             <Tooltip
               label={
-                edge.comments?.length ? (
-                  <div className="flex flex-col gap-1">
-                    {edge.comments.map((c, idx) => (
-                      <div key={idx} className="text-xs">
-                        {c}
+                allCommentsCount ? (
+                  <div className="flex flex-col gap-1.5">
+                    {individualCommentCount > 0 && (
+                      <div>
+                        <div className="text-2xs font-semibold uppercase tracking-wide text-purple-300">
+                          Individual
+                        </div>
+                        {node.comments!.map((c, idx) => (
+                          <div key={`n-${idx}`} className="text-xs">
+                            {c}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+                    {statementCommentCount > 0 && (
+                      <div>
+                        <div className="text-2xs font-semibold uppercase tracking-wide text-amber-300">
+                          Statement
+                        </div>
+                        {edge.comments.map((c, idx) => (
+                          <div key={`e-${idx}`} className="text-xs">
+                            {c}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {referenceCommentCount > 0 && (
+                      <div>
+                        <div className="text-2xs font-semibold uppercase tracking-wide text-teal-300">
+                          References
+                        </div>
+                        {evidence
+                          .flatMap(ev => ev.comments ?? [])
+                          .map((c, idx) => (
+                            <div key={`r-${idx}`} className="text-xs">
+                              {c}
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  'Add comment'
+                  'Add statement comment'
                 )
               }
               position="top"
@@ -387,18 +456,20 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
               w={280}
             >
               <Indicator
-                label={edge.comments?.length ?? 0}
+                label={allCommentsCount}
                 size={15}
                 color="green"
                 offset={4}
-                disabled={!edge.comments?.length}
+                disabled={allCommentsCount === 0}
                 aria-label={
-                  edge.comments?.length ? `Comments (${edge.comments.length})` : 'Add comment'
+                  allCommentsCount > 0
+                    ? `All comments (${allCommentsCount})`
+                    : 'Add statement comment'
                 }
               >
                 <ActionIcon
                   variant="subtle"
-                  color={edge.comments?.length ? 'green' : 'gray'}
+                  color={allCommentsCount > 0 ? 'green' : 'gray'}
                   radius="xl"
                   size="md"
                   onClick={handleAddComment}

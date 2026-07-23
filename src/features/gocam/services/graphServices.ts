@@ -196,7 +196,8 @@ export function extractEvidence(evidenceId: string, nodes: GraphNode[]): Evidenc
     with: evidenceNode.with || '',
     groups: evidenceNode.groups,
     contributors: evidenceNode.contributors,
-    date: evidenceNode.date
+    date: evidenceNode.date,
+    comments: evidenceNode.comments ?? []
   };
 
   return evidence;
@@ -263,6 +264,7 @@ export const transformGraphData = (data: any): GraphModel => {
         contributors: [],
         groups: [],
         sources: [],
+        comments: [],
       };
 
       if (individual.annotations && Array.isArray(individual.annotations)) {
@@ -277,6 +279,8 @@ export const transformGraphData = (data: any): GraphModel => {
             nodeData.sources.push(annotation.value);
           } else if (annotation.key === AnnotationKey.WITH) {
             nodeData.with = annotation.value;
+          } else if (annotation.key === AnnotationKey.COMMENT) {
+            nodeData.comments!.push(annotation.value);
           }
         });
       }

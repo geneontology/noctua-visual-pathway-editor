@@ -72,6 +72,8 @@ export interface GraphNode {
   groups: Group[];
   sources: string[];
   with?: string;
+  /** Free-text comments (key `comment`) annotated directly on this individual (#231). */
+  comments?: string[];
 }
 
 export interface Evidence {
@@ -83,6 +85,8 @@ export interface Evidence {
   groups: Group[];
   contributors: Contributor[];
   date?: string;
+  /** Comments annotated on the evidence individual — i.e. reference comments (#231). */
+  comments?: string[];
 }
 
 export interface Edge {

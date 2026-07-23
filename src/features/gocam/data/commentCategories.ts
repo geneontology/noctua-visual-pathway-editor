@@ -6,6 +6,19 @@ export const COMMENT_CATEGORIES = [
   'Other',
 ] as const
 
+/** Categories for comments on an individual (GO term / input) — #231. */
+export const INDIVIDUAL_COMMENT_CATEGORIES = ['General', 'GO term pending'] as const
+
+/** Categories for comments on a reference (evidence individual) — #231. */
+export const REFERENCE_COMMENT_CATEGORIES = ['General', 'Figure/Table'] as const
+
+/** Every known category across all scopes — used to detect a category prefix on parse. */
+const ALL_COMMENT_CATEGORIES: readonly string[] = [
+  ...COMMENT_CATEGORIES,
+  ...INDIVIDUAL_COMMENT_CATEGORIES,
+  ...REFERENCE_COMMENT_CATEGORIES,
+]
+
 export type CommentCategory = (typeof COMMENT_CATEGORIES)[number]
 
 export interface StructuredComment {
@@ -19,6 +32,8 @@ const COMMENT_CATEGORY_BADGE_CLASSES: Record<string, string> = {
   'Not suitable for annotation': 'bg-amber-100 text-amber-800',
   'Annotation dispute': 'bg-red-100 text-red-800',
   Other: 'bg-gray-200 text-gray-700',
+  'GO term pending': 'bg-purple-100 text-purple-800',
+  'Figure/Table': 'bg-teal-100 text-teal-800',
 }
 
 export const getCommentCategoryBadgeClass = (option: string): string =>
@@ -35,7 +50,7 @@ export const parseComment = (comment: string): StructuredComment => {
   const idx = comment.indexOf(SEPARATOR)
   if (idx > 0) {
     const prefix = comment.slice(0, idx)
-    if ((COMMENT_CATEGORIES as readonly string[]).includes(prefix)) {
+    if (ALL_COMMENT_CATEGORIES.includes(prefix)) {
       return { option: prefix, text: comment.slice(idx + SEPARATOR.length) }
     }
   }

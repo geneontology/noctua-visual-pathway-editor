@@ -9,17 +9,20 @@ import { COMMENT_CATEGORIES, type StructuredComment } from '../data/commentCateg
 interface StructuredCommentsEditorProps {
   comments: StructuredComment[]
   onChange: (next: StructuredComment[]) => void
+  /** Selectable categories for the Category dropdown. Defaults to model comment categories. */
+  categories?: readonly string[]
   /** View-only (not logged in): render comments but hide add/remove/edit affordances (#278). */
   readOnly?: boolean
 }
 
 /**
  * Controlled editor for a list of structured (Category + text) comments.
- * Shared by the model-level and per-statement comment forms.
+ * Shared by the model-level, per-statement, individual, and reference comment forms.
  */
 const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
   comments,
   onChange,
+  categories = COMMENT_CATEGORIES,
   readOnly = false,
 }) => {
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
@@ -76,7 +79,7 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
                   label="Category"
                   value={comment.option || null}
                   onChange={value => handleOptionChange(i, value)}
-                  data={COMMENT_CATEGORIES as unknown as string[]}
+                  data={categories as unknown as string[]}
                   size="sm"
                   placeholder="Select a category"
                   aria-label="Comment category"

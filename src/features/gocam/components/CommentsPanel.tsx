@@ -2,7 +2,7 @@ import type React from 'react'
 import { useCallback, useMemo } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
 import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
-import type { Activity, Edge, GraphModel } from '../models/cam'
+import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import {
   setRightDrawerOpen,
@@ -12,7 +12,12 @@ import {
 import { setSelectedActivity } from '../slices/camSlice'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
-import { getCommentCategoryBadgeClass, parseComment } from '../data/commentCategories'
+import {
+  getCommentCategoryBadgeClass,
+  parseComment,
+  INDIVIDUAL_COMMENT_CATEGORIES,
+  REFERENCE_COMMENT_CATEGORIES,
+} from '../data/commentCategories'
 
 interface CommentsPanelProps {
   model: GraphModel
@@ -49,9 +54,27 @@ const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
   )
 }
 
+function nodeLabel(node: GraphNode): string {
+  return node.label || node.id || 'Individual'
+}
+
+function referenceLabel(ev: Evidence): string {
+  return ev.reference || ev.evidenceCode?.label || 'Reference'
+}
+
 interface ActivityEdgesWithComments {
   activity: Activity
   edges: Edge[]
+}
+
+interface ActivityNodesWithComments {
+  activity: Activity
+  nodes: GraphNode[]
+}
+
+interface ActivityEvidenceWithComments {
+  activity: Activity
+  evidences: Evidence[]
 }
 
 const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
@@ -80,7 +103,53 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
     [activitiesWithCommentedEdges]
   )
 
-  const totalCount = modelComments.length + totalEdgeComments
+  const activitiesWithCommentedNodes = useMemo<ActivityNodesWithComments[]>(
+    () =>
+      model.activities
+        .map(activity => ({
+          activity,
+          nodes: activity.nodes.filter(n => n.comments && n.comments.length > 0),
+        }))
+        .filter(a => a.nodes.length > 0),
+    [model.activities]
+  )
+
+  const activitiesWithCommentedEvidence = useMemo<ActivityEvidenceWithComments[]>(
+    () =>
+      model.activities
+        .map(activity => {
+          const evidences: Evidence[] = []
+          activity.edges.forEach(edge => {
+            ;(edge.evidence ?? []).forEach(ev => {
+              if (ev.comments && ev.comments.length > 0) evidences.push(ev)
+            })
+          })
+          return { activity, evidences }
+        })
+        .filter(a => a.evidences.length > 0),
+    [model.activities]
+  )
+
+  const totalNodeComments = useMemo(
+    () =>
+      activitiesWithCommentedNodes.reduce(
+        (sum, a) => sum + a.nodes.reduce((s, n) => s + (n.comments?.length ?? 0), 0),
+        0
+      ),
+    [activitiesWithCommentedNodes]
+  )
+
+  const totalEvidenceComments = useMemo(
+    () =>
+      activitiesWithCommentedEvidence.reduce(
+        (sum, a) => sum + a.evidences.reduce((s, ev) => s + (ev.comments?.length ?? 0), 0),
+        0
+      ),
+    [activitiesWithCommentedEvidence]
+  )
+
+  const totalCount =
+    modelComments.length + totalEdgeComments + totalNodeComments + totalEvidenceComments
 
   const handleClose = useCallback(() => {
     dispatch(setRightDrawerOpen(false))
@@ -105,6 +174,44 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           title: 'Comments',
           size: 'sm',
           customProps: { edgeUid: edge.uid },
+        })
+      )
+    },
+    [dispatch]
+  )
+
+  const handleEditNodeComments = useCallback(
+    (node: GraphNode, activity: Activity) => {
+      dispatch(setSelectedActivity(activity.uid))
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Individual Comments',
+          size: 'sm',
+          customProps: {
+            individualUid: node.uid,
+            categories: INDIVIDUAL_COMMENT_CATEGORIES,
+            subjectLabel: nodeLabel(node),
+          },
+        })
+      )
+    },
+    [dispatch]
+  )
+
+  const handleEditEvidenceComments = useCallback(
+    (ev: Evidence, activity: Activity) => {
+      dispatch(setSelectedActivity(activity.uid))
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Reference Comments',
+          size: 'sm',
+          customProps: {
+            individualUid: ev.uid,
+            categories: REFERENCE_COMMENT_CATEGORIES,
+            subjectLabel: referenceLabel(ev),
+          },
         })
       )
     },
@@ -248,6 +355,153 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                               type="button"
                               onClick={() => handleSelectEdgeComment(activity)}
                               className="cursor-pointer rounded-sm border-l-2 border-amber-300 bg-amber-50/50 px-2 py-1 text-left text-xs text-gray-700 transition-colors hover:bg-amber-100"
+                              aria-label={`Select activity ${activityLabel(activity)}`}
+                            >
+                              <CommentText comment={comment} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── Section C: Individual (GO term / input) comments grouped by activity ── */}
+        <section>
+          <div className="flex items-center border-l-4 border-purple-500 bg-purple-50 px-3 py-2">
+            <span className="grow text-xs font-bold uppercase tracking-wider text-purple-800">
+              Individuals
+            </span>
+            {totalNodeComments > 0 && (
+              <span className="rounded-md bg-purple-200 px-1.5 py-0.5 text-2xs font-semibold text-purple-900">
+                {totalNodeComments}
+              </span>
+            )}
+          </div>
+
+          {activitiesWithCommentedNodes.length === 0 ? (
+            <div className="px-3 py-2 text-xs italic text-gray-400">
+              No individual comments yet. Open an activity and use "Comment on individual" in a
+              row's menu to add one.
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {activitiesWithCommentedNodes.map(({ activity, nodes }) => (
+                <div key={activity.uid} className="border-b border-slate-100 px-3 py-2">
+                  <div
+                    className="mb-1 truncate text-xs font-semibold text-gray-800"
+                    title={activityLabel(activity)}
+                  >
+                    {activityLabel(activity)}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {nodes.map(node => (
+                      <div key={node.uid}>
+                        <div className="mb-0.5 flex items-center gap-1">
+                          <span
+                            className="grow truncate font-mono text-2xs text-gray-500"
+                            title={nodeLabel(node)}
+                          >
+                            {nodeLabel(node)}
+                          </span>
+                          {isLoggedIn && (
+                            <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                size="xs"
+                                onClick={() => handleEditNodeComments(node, activity)}
+                                aria-label={`Edit comments on ${nodeLabel(node)}`}
+                              >
+                                <FaPen size={9} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {node.comments!.map((comment, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => handleSelectEdgeComment(activity)}
+                              className="cursor-pointer rounded-sm border-l-2 border-purple-300 bg-purple-50/50 px-2 py-1 text-left text-xs text-gray-700 transition-colors hover:bg-purple-100"
+                              aria-label={`Select activity ${activityLabel(activity)}`}
+                            >
+                              <CommentText comment={comment} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── Section D: Reference (evidence individual) comments grouped by activity ── */}
+        <section>
+          <div className="flex items-center border-l-4 border-teal-500 bg-teal-50 px-3 py-2">
+            <span className="grow text-xs font-bold uppercase tracking-wider text-teal-800">
+              References
+            </span>
+            {totalEvidenceComments > 0 && (
+              <span className="rounded-md bg-teal-200 px-1.5 py-0.5 text-2xs font-semibold text-teal-900">
+                {totalEvidenceComments}
+              </span>
+            )}
+          </div>
+
+          {activitiesWithCommentedEvidence.length === 0 ? (
+            <div className="px-3 py-2 text-xs italic text-gray-400">
+              No reference comments yet. Use the comment icon on an evidence row to add one.
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {activitiesWithCommentedEvidence.map(({ activity, evidences }) => (
+                <div key={activity.uid} className="border-b border-slate-100 px-3 py-2">
+                  <div
+                    className="mb-1 truncate text-xs font-semibold text-gray-800"
+                    title={activityLabel(activity)}
+                  >
+                    {activityLabel(activity)}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {evidences.map(ev => (
+                      <div key={ev.uid}>
+                        <div className="mb-0.5 flex items-center gap-1">
+                          <span
+                            className="grow truncate font-mono text-2xs text-gray-500"
+                            title={referenceLabel(ev)}
+                          >
+                            {referenceLabel(ev)}
+                          </span>
+                          {isLoggedIn && (
+                            <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                size="xs"
+                                onClick={() => handleEditEvidenceComments(ev, activity)}
+                                aria-label={`Edit comments on ${referenceLabel(ev)}`}
+                              >
+                                <FaPen size={9} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {ev.comments!.map((comment, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => handleSelectEdgeComment(activity)}
+                              className="cursor-pointer rounded-sm border-l-2 border-teal-300 bg-teal-50/50 px-2 py-1 text-left text-xs text-gray-700 transition-colors hover:bg-teal-100"
                               aria-label={`Select activity ${activityLabel(activity)}`}
                             >
                               <CommentText comment={comment} />

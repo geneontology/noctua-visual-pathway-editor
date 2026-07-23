@@ -13,6 +13,8 @@ import { validateWithFrom } from '../services/formValidation'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
+import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
+import { REFERENCE_COMMENT_CATEGORIES } from '../data/commentCategories'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
@@ -50,6 +52,26 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
       setEditorAnchor(ref.current)
     })
   }
+
+  // Comment on the reference — stored on the evidence individual (#231).
+  const handleReferenceComment = useCallback(() => {
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Reference Comments',
+          size: 'sm',
+          customProps: {
+            individualUid: ev.uid,
+            categories: REFERENCE_COMMENT_CATEGORIES,
+            subjectLabel: ev.reference || ev.evidenceCode?.label || 'Reference',
+          },
+        })
+      )
+    )
+  }, [ev.uid, ev.reference, ev.evidenceCode, checkGroup, dispatch])
+
+  const commentCount = ev.comments?.length ?? 0
 
   const handleEditorSave = useCallback(
     async (values: EditorDropdownValues) => {
@@ -133,6 +155,8 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         onDelete={
           isLoggedIn && ev.reference ? () => onClearField(ev, AnnotationKey.SOURCE) : undefined
         }
+        onComment={isLoggedIn || commentCount > 0 ? handleReferenceComment : undefined}
+        commentCount={commentCount}
       >
         {ev.reference ? (
           <span>

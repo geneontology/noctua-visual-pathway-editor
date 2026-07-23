@@ -719,6 +719,52 @@ export const buildSaveEdgeCommentsOperations = (
 }
 
 /**
+ * Save comments on a single individual (a GO term / input node, or an evidence
+ * individual for reference comments — #231). Remove-all then add-all so the new
+ * set is exactly what ends up on the individual.
+ */
+export const buildSaveIndividualCommentsOperations = (
+  individualUid: string,
+  modelId: string,
+  oldComments: string[],
+  newComments: string[]
+): Operation[] => {
+  const operations: Operation[] = []
+
+  for (const oldComment of oldComments) {
+    operations.push({
+      entity: OperationEntity.INDIVIDUAL,
+      operation: OperationType.REMOVE_ANNOTATION,
+      arguments: {
+        individual: individualUid,
+        values: [{ key: AnnotationKey.COMMENT, value: oldComment }],
+        'model-id': modelId,
+      },
+    })
+  }
+
+  for (const newComment of newComments) {
+    operations.push({
+      entity: OperationEntity.INDIVIDUAL,
+      operation: OperationType.ADD_ANNOTATION,
+      arguments: {
+        individual: individualUid,
+        values: [{ key: AnnotationKey.COMMENT, value: newComment }],
+        'model-id': modelId,
+      },
+    })
+  }
+
+  operations.push({
+    entity: OperationEntity.MODEL,
+    operation: OperationType.STORE,
+    arguments: { 'model-id': modelId },
+  })
+
+  return operations
+}
+
+/**
  * Add evidence to an existing edge (fact).
  */
 export const buildAddEvidenceToEdgeOperations = (

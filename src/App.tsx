@@ -16,6 +16,7 @@ import CamTitleForm from './features/gocam/components/CamTitleForm'
 import CamStateForm from './features/gocam/components/CamStateForm'
 import CamCommentsForm from './features/gocam/components/CamCommentsForm'
 import EdgeCommentsForm from './features/gocam/components/EdgeCommentsForm'
+import IndividualCommentsForm from './features/gocam/components/IndividualCommentsForm'
 import CopyModelDialog from './features/gocam/components/CopyModelDialog'
 import ChemicalConnectorForm from './features/relations/components/ChemicalConnectorForm'
 
@@ -25,6 +26,7 @@ const DIALOG_COMPONENTS: Partial<Record<DialogComponent, React.ComponentType<any
   [DialogComponent.CAM_STATE_FORM]: CamStateForm,
   [DialogComponent.CAM_COMMENTS_FORM]: CamCommentsForm,
   [DialogComponent.EDGE_COMMENTS_FORM]: EdgeCommentsForm,
+  [DialogComponent.INDIVIDUAL_COMMENTS_FORM]: IndividualCommentsForm,
   [DialogComponent.COPY_MODEL_DIALOG]: CopyModelDialog,
   [DialogComponent.CHEMICAL_CONNECTOR_FORM]: ChemicalConnectorForm,
 }
