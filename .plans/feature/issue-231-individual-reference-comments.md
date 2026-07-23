@@ -67,7 +67,7 @@
 - [x] `EditableCell`: new `onComment` + `commentCount` props render a comment icon **just above the edit (pencil) icon** in the cell; green with a count when comments exist, gray-on-hover to add.
 - [x] `ActivityTableNode`: **individual** comment icon lives in the term box (`EditableCell onComment`), count from `node.comments`. The **row-level** icon (before the `…` menu) is now an **all-comments rollup**: count = individual + statement(edge) + references; tooltip groups all three; click opens the statement (edge) comment editor.
 - [x] `EvidenceRow`: **reference** comment icon lives in the Reference box (`EditableCell onComment`), count from `ev.comments`; opens `INDIVIDUAL_COMMENTS_FORM` with `REFERENCE_COMMENT_CATEGORIES`.
-- [x] `CommentsPanel`: keep **Model** and **Statements** sections; ADD **Individuals** and **References** sections (group by activity), reading `node.comments` and `evidence.comments`.
+- [x] `CommentsPanel`: **Model** stays as its own top section; below it, **one section per activity**, and inside each activity the comments are split by type sub-groups (Statement / Individual / References). Grouped by activity first, then by type.
 
 ### Phase 6: Verify
 - [ ] `npm run type-check`, `npm run lint`.
