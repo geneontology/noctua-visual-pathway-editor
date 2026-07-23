@@ -77,8 +77,9 @@ const CommentTypeGroup: React.FC<{
   itemClass: string
   subjects: CommentSubject[]
   isLoggedIn: boolean
+  activityName: string
   onSelectActivity: () => void
-}> = ({ title, titleClass, itemClass, subjects, isLoggedIn, onSelectActivity }) => {
+}> = ({ title, titleClass, itemClass, subjects, isLoggedIn, activityName, onSelectActivity }) => {
   if (subjects.length === 0) return null
   return (
     <div className="mb-2 last:mb-0">
@@ -111,7 +112,7 @@ const CommentTypeGroup: React.FC<{
                   type="button"
                   onClick={onSelectActivity}
                   className={`cursor-pointer rounded-sm border-l-2 px-2 py-1 text-left text-xs text-gray-700 transition-colors ${itemClass}`}
-                  aria-label="Select activity"
+                  aria-label={`Select activity ${activityName}`}
                 >
                   <CommentText comment={comment} />
                 </button>
@@ -339,6 +340,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                   titleClass="text-amber-800"
                   itemClass="border-amber-300 bg-amber-50/50 hover:bg-amber-100"
                   isLoggedIn={isLoggedIn}
+                  activityName={activityLabel(activity)}
                   onSelectActivity={() => handleSelectActivity(activity)}
                   subjects={edges.map(edge => ({
                     key: edge.uid,
@@ -352,6 +354,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                   titleClass="text-purple-800"
                   itemClass="border-purple-300 bg-purple-50/50 hover:bg-purple-100"
                   isLoggedIn={isLoggedIn}
+                  activityName={activityLabel(activity)}
                   onSelectActivity={() => handleSelectActivity(activity)}
                   subjects={nodes.map(node => ({
                     key: node.uid,
@@ -365,6 +368,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                   titleClass="text-teal-800"
                   itemClass="border-teal-300 bg-teal-50/50 hover:bg-teal-100"
                   isLoggedIn={isLoggedIn}
+                  activityName={activityLabel(activity)}
                   onSelectActivity={() => handleSelectActivity(activity)}
                   subjects={evidences.map(ev => ({
                     key: ev.uid,

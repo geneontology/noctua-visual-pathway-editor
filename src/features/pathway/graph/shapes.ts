@@ -99,6 +99,7 @@ const headerMarkup = [
   { tagName: 'rect', selector: 'body' },
   { tagName: 'text', selector: 'label' },
   { tagName: 'image', selector: 'icon' },
+  { tagName: 'image', selector: 'commentIcon' },
   { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
   { tagName: 'image', selector: 'duplicateIcon' },
@@ -132,6 +133,20 @@ const headerAttributes = {
       height: HEADER_ICON_SIZE,
       x: 5,
       y: (HEADER_HEIGHT - HEADER_ICON_SIZE) / 2,
+    },
+    // "Has comments" badge on the top-left corner. Always visible (not hover-
+    // gated) when the activity has comments; click opens the Comments panel (#231).
+    commentIcon: {
+      event: 'element:comment:pointerdown',
+      xlinkHref: './assets/icons/comment.svg',
+      ref: 'wrapper',
+      refX: 0,
+      x: -9,
+      y: -9,
+      width: 18,
+      height: 18,
+      cursor: 'pointer',
+      visibility: 'hidden',
     },
     label: {
       x: 40,
@@ -286,6 +301,11 @@ export class NodeCellList extends joint.dia.Element {
     return this
   }
 
+  setHasComments(has: boolean): this {
+    this.attr('commentIcon/visibility', has ? 'visible' : 'hidden')
+    return this
+  }
+
   setBorder(colorKey: string, hue?: number): this {
     const deep = getColor(colorKey, hue ?? 500)
     if (deep) this.attr('highlighter/stroke', deep)
@@ -337,6 +357,18 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         fontSize: 12,
         fill: LABEL_TEXT_FILL,
         textWrap: { ellipsis: false, width: '95%' },
+      },
+      '.comment': {
+        event: 'element:comment:pointerdown',
+        'xlink:href': './assets/icons/comment.svg',
+        ref: '.wrapper',
+        refX: 0,
+        x: -4,
+        y: -4,
+        height: 18,
+        width: 18,
+        cursor: 'pointer',
+        visibility: 'hidden',
       },
       '.view': {
         event: 'element:view:pointerdown',
@@ -396,6 +428,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '<circle class="circle"/>',
       '</g>',
       '<text class="label"/>',
+      '<image class="comment"/>',
       '<image class="view"/>',
       '<image class="edit"/>',
       '<image class="duplicate"/>',
@@ -416,6 +449,11 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
 
   setText(text: string): this {
     this.attr('.label/text', text)
+    return this
+  }
+
+  setHasComments(has: boolean): this {
+    this.attr('.comment/visibility', has ? 'visible' : 'hidden')
     return this
   }
 

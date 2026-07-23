@@ -78,6 +78,6 @@ describe('CommentsPanel', () => {
   it('shows empty-state copy when there are no comments anywhere', () => {
     renderPanel(buildModel([buildActivity('act', [buildNode('n', 'My Activity')])]))
     expect(screen.getByText('No model comments yet')).toBeInTheDocument()
-    expect(screen.getByText(/No statement comments yet/)).toBeInTheDocument()
+    expect(screen.getByText(/No annotation comments yet/)).toBeInTheDocument()
   })
 })

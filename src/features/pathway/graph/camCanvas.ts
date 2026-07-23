@@ -24,6 +24,19 @@ function activityColorKey(activity: Activity): string {
   }
 }
 
+// Whether an activity carries any comment (on an individual, a statement/edge,
+// or a reference/evidence individual) — drives the node's comment badge (#231).
+function activityHasComments(activity: Activity): boolean {
+  if (activity.nodes.some(n => (n.comments?.length ?? 0) > 0)) return true
+  for (const edge of activity.edges) {
+    if ((edge.comments?.length ?? 0) > 0) return true
+    for (const ev of edge.evidence ?? []) {
+      if ((ev.comments?.length ?? 0) > 0) return true
+    }
+  }
+  return false
+}
+
 export class CamCanvas {
   paper: joint.dia.Paper
   graph: joint.dia.Graph
@@ -41,6 +54,7 @@ export class CamCanvas {
   onEditClick?: (activityId: string) => void
   onDuplicateClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
+  onCommentClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -161,6 +175,13 @@ export class CamCanvas {
       evt.stopPropagation()
       const activity = cellView.model.prop('activity') as Activity | undefined
       if (activity) this.onDeleteClick?.(activity.uid)
+    })
+
+    // ── Comment badge click: open the Comments panel for this activity ──
+    this.paper.on('element:comment:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+      evt.stopPropagation()
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (activity) this.onCommentClick?.(activity.uid)
     })
 
     // ── Link hover ──
@@ -545,6 +566,7 @@ export class CamCanvas {
     // 'simple' layout: header only, no entity rows
 
     el.setColor(colorKey)
+    el.setHasComments(activityHasComments(activity))
     el.set({
       activity,
       colorKey,
@@ -569,6 +591,7 @@ export class CamCanvas {
 
     el.setText(label)
     el.setColor(colorKey)
+    el.setHasComments(activityHasComments(activity))
     el.resize(120, 120)
     el.set({
       activity,

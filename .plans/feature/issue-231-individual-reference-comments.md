@@ -101,7 +101,13 @@
 | `src/@noctua.core/components/cell/EditableCell.tsx` | `onComment`/`commentCount` in-cell icon | done |
 | `src/features/gocam/components/ActivityTableNode.tsx` | individual icon in term box; row icon = all-comments rollup | done |
 | `src/features/gocam/components/EvidenceRow.tsx` | reference comment icon in Reference box | done |
-| `src/features/gocam/components/CommentsPanel.tsx` | Individuals + References sections | done |
+| `src/features/gocam/components/CommentsPanel.tsx` | grouped by activity, then by type | done |
+| `public/assets/icons/comment.svg` | new comment badge icon | done |
+| `src/features/pathway/graph/shapes.ts` | comment badge on NodeCellList + NodeCellMolecule (top-left) | done |
+| `src/features/pathway/graph/camCanvas.ts` | `activityHasComments`, badge toggle, `onCommentClick` event | done |
+| `src/features/pathway/components/PathwayGraph.tsx` | `onCommentClick` prop wiring | done |
+| `src/app/PathwayViewer.tsx` | `handleShowComments` → opens Comments panel | done |
+| `tests/features/gocam/components/CommentsPanel.test.tsx` | updated empty-state copy assertion (broken by restructure) | done |
 
 ## Notes
 - No new tests unless explicitly requested (per standing preference).

@@ -11,6 +11,7 @@ interface PathwayGraphProps {
   onEditClick?: (activityId: string) => void
   onDuplicateClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
+  onCommentClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -27,6 +28,7 @@ export default function PathwayGraph({
   onEditClick,
   onDuplicateClick,
   onDeleteClick,
+  onCommentClick,
   onLinkClick,
   onLinkCreated,
   onDuplicateLink,
@@ -60,6 +62,7 @@ export default function PathwayGraph({
     canvas.onEditClick = onEditClick
     canvas.onDuplicateClick = onDuplicateClick
     canvas.onDeleteClick = onDeleteClick
+    canvas.onCommentClick = onCommentClick
     canvas.onLinkClick = onLinkClick
     canvas.onLinkCreated = onLinkCreated
     canvas.onDuplicateLink = onDuplicateLink
@@ -70,6 +73,7 @@ export default function PathwayGraph({
     onEditClick,
     onDuplicateClick,
     onDeleteClick,
+    onCommentClick,
     onLinkClick,
     onLinkCreated,
     onDuplicateLink,

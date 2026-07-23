@@ -113,6 +113,15 @@ const PathwayEditor: React.FC = () => {
     [dispatch]
   )
 
+  const handleShowComments = useCallback(
+    (activityId: string) => {
+      dispatch(setSelectedActivity(activityId))
+      dispatch(setRightPanelTab(RightPanelTab.COMMENTS))
+      dispatch(setRightDrawerOpen(true))
+    },
+    [dispatch]
+  )
+
   const handleLinkClick = useCallback(
     (sourceId: string, targetId: string) => {
       const model = graphModel?.data
@@ -232,6 +241,7 @@ const PathwayEditor: React.FC = () => {
             onEditClick={handleSelectActivity}
             onDuplicateClick={handleDuplicateActivity}
             onDeleteClick={del.requestDelete}
+            onCommentClick={handleShowComments}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
             onDuplicateLink={handleDuplicateLink}
