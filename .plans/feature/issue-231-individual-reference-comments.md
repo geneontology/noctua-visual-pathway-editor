@@ -107,7 +107,12 @@
 | `src/features/pathway/graph/camCanvas.ts` | `activityHasComments`, badge toggle, `onCommentClick` event | done |
 | `src/features/pathway/components/PathwayGraph.tsx` | `onCommentClick` prop wiring | done |
 | `src/app/PathwayViewer.tsx` | `handleShowComments` → opens Comments panel | done |
-| `tests/features/gocam/components/CommentsPanel.test.tsx` | updated empty-state copy assertion (broken by restructure) | done |
+| `tests/features/gocam/components/CommentsPanel.test.tsx` | updated empty-state copy; +2 cases (Individual/Reference groups) | done |
+| `tests/features/gocam/services/activityOperations.test.ts` | +4 `buildSaveIndividualCommentsOperations` cases | done |
+| `tests/features/gocam/data/commentCategories.test.ts` | +4 new-category parse/badge/round-trip cases | done |
+| `tests/features/gocam/services/graphServices.test.ts` | +3 comment-parsing cases (node + evidence) | done |
+| `tests/features/gocam/components/IndividualCommentsForm.test.tsx` | new: render/read-only/not-found/save-ops | done |
+| `tests/noctua.core/components/cell/EditableCell.test.tsx` | new: comment-icon affordance | done |
 
 ## Notes
 - No new tests unless explicitly requested (per standing preference).

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { extractActivities } from '@/features/gocam/services/graphServices'
+import {
+  extractActivities,
+  extractEvidence,
+  transformGraphData,
+} from '@/features/gocam/services/graphServices'
 import { RootTypes } from '@/features/gocam/models/cam'
 import type { Edge, GraphNode } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
@@ -64,6 +68,57 @@ describe('extractActivities — protein-containing complex `has part`', () => {
     expect(hasPartEdges).toHaveLength(2)
     expect(hasPartEdges.every(e => e.sourceId === complex.uid)).toBe(true)
     expect(hasPartEdges.map(e => e.targetId).sort()).toEqual([gp1.uid, gp2.uid].sort())
+  })
+})
+
+describe('comment parsing (#231)', () => {
+  it('parses comment annotations on an individual into node.comments', () => {
+    const model = transformGraphData({
+      id: 'gomodel:1',
+      individuals: [
+        {
+          id: 'ind-1',
+          type: [{ id: 'GO:0003674', label: 'molecular_function' }],
+          'root-type': [{ id: 'GO:0003674' }],
+          annotations: [
+            { key: 'comment', value: 'General: note one' },
+            { key: 'comment', value: 'GO term pending: note two' },
+          ],
+        },
+      ],
+      facts: [],
+    })
+
+    const node = model.nodes.find(n => n.uid === 'ind-1')
+    expect(node?.comments).toEqual(['General: note one', 'GO term pending: note two'])
+  })
+
+  it('defaults node.comments to an empty array when there are none', () => {
+    const model = transformGraphData({
+      id: 'gomodel:1',
+      individuals: [
+        {
+          id: 'ind-2',
+          type: [{ id: 'GO:0003674', label: 'molecular_function' }],
+          'root-type': [{ id: 'GO:0003674' }],
+          annotations: [],
+        },
+      ],
+      facts: [],
+    })
+
+    expect(model.nodes.find(n => n.uid === 'ind-2')?.comments).toEqual([])
+  })
+
+  it('copies evidence-individual comments onto the extracted Evidence', () => {
+    const evNode: GraphNode = {
+      ...buildNode('ECO:0000314', 'IDA'),
+      uid: 'ev-1',
+      sources: ['PMID:1'],
+      comments: ['Figure/Table: see figure 2'],
+    }
+    const ev = extractEvidence('ev-1', [evNode])
+    expect(ev?.comments).toEqual(['Figure/Table: see figure 2'])
   })
 })
 

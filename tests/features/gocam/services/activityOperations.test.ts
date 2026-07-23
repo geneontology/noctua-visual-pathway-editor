@@ -7,6 +7,7 @@ import {
   buildDeleteNodeOperations,
   buildSaveModelAnnotationsOperations,
   buildSaveEdgeCommentsOperations,
+  buildSaveIndividualCommentsOperations,
   buildAddEvidenceToEdgeOperations,
   buildRemoveEvidenceOperations,
   buildEditIndividualTypeOperations,
@@ -269,6 +270,63 @@ describe('buildSaveEdgeCommentsOperations', () => {
   it('emits only the STORE op for an edge with no comments and nothing new', () => {
     const edge = edgeWithComments([])
     const ops = buildSaveEdgeCommentsOperations(edge, MODEL_ID, [])
+    expect(ops).toHaveLength(1)
+    expect(ops[0].operation).toBe(OperationType.STORE)
+  })
+})
+
+// ── buildSaveIndividualCommentsOperations ──────────────────────────
+
+describe('buildSaveIndividualCommentsOperations', () => {
+  const IND = 'ind-1'
+
+  const commentOps = (ops: Operation[], op: OperationType) =>
+    ops.filter(
+      o =>
+        o.entity === OperationEntity.INDIVIDUAL &&
+        o.operation === op &&
+        Array.isArray(o.arguments.values) &&
+        (o.arguments.values as Array<{ key: AnnotationKey }>)[0].key === AnnotationKey.COMMENT
+    )
+
+  it('removes every existing comment, adds every new one, then STOREs', () => {
+    const ops = buildSaveIndividualCommentsOperations(
+      IND,
+      MODEL_ID,
+      ['old one', 'old two'],
+      ['General: new']
+    )
+
+    expect(commentOps(ops, OperationType.REMOVE_ANNOTATION)).toHaveLength(2)
+    expect(commentOps(ops, OperationType.ADD_ANNOTATION)).toHaveLength(1)
+    expect(lastOp(ops)).toEqual({
+      entity: OperationEntity.MODEL,
+      operation: OperationType.STORE,
+      arguments: { 'model-id': MODEL_ID },
+    })
+  })
+
+  it('targets the individual by uid and tags key=comment + model-id', () => {
+    const ops = buildSaveIndividualCommentsOperations(IND, MODEL_ID, [], ['GO term pending: hi'])
+    const add = commentOps(ops, OperationType.ADD_ANNOTATION)[0]
+
+    expect(add.arguments.individual).toBe(IND)
+    expect(add.arguments['model-id']).toBe(MODEL_ID)
+    expect((add.arguments.values as Array<{ key: AnnotationKey; value: string }>)[0]).toEqual({
+      key: AnnotationKey.COMMENT,
+      value: 'GO term pending: hi',
+    })
+  })
+
+  it('emits only removes + STORE when clearing all comments', () => {
+    const ops = buildSaveIndividualCommentsOperations(IND, MODEL_ID, ['a', 'b'], [])
+    expect(commentOps(ops, OperationType.REMOVE_ANNOTATION)).toHaveLength(2)
+    expect(commentOps(ops, OperationType.ADD_ANNOTATION)).toHaveLength(0)
+    expect(lastOp(ops).operation).toBe(OperationType.STORE)
+  })
+
+  it('emits only the STORE op when there is nothing to remove or add', () => {
+    const ops = buildSaveIndividualCommentsOperations(IND, MODEL_ID, [], [])
     expect(ops).toHaveLength(1)
     expect(ops[0].operation).toBe(OperationType.STORE)
   })

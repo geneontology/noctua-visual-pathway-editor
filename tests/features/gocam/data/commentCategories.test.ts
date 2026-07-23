@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   COMMENT_CATEGORIES,
+  INDIVIDUAL_COMMENT_CATEGORIES,
+  REFERENCE_COMMENT_CATEGORIES,
   parseComment,
   formatComment,
   getCommentCategoryBadgeClass,
@@ -35,6 +37,20 @@ describe('parseComment', () => {
     })
   })
 
+  it('recognizes the individual-scope categories (#231)', () => {
+    expect(parseComment('GO term pending: needs review')).toEqual({
+      option: 'GO term pending',
+      text: 'needs review',
+    })
+  })
+
+  it('recognizes the reference-scope categories (#231)', () => {
+    expect(parseComment('Figure/Table: see figure 2')).toEqual({
+      option: 'Figure/Table',
+      text: 'see figure 2',
+    })
+  })
+
   it('handles an empty string', () => {
     expect(parseComment('')).toEqual({ option: '', text: '' })
   })
@@ -62,6 +78,13 @@ describe('parse/format round-trip', () => {
     const legacy = 'legacy comment with no prefix'
     expect(formatComment(parseComment(legacy))).toBe(legacy)
   })
+
+  it('round-trips the individual and reference categories (#231)', () => {
+    for (const category of [...INDIVIDUAL_COMMENT_CATEGORIES, ...REFERENCE_COMMENT_CATEGORIES]) {
+      const stored = `${category}: some text`
+      expect(formatComment(parseComment(stored))).toBe(stored)
+    }
+  })
 })
 
 describe('getCommentCategoryBadgeClass', () => {
@@ -72,5 +95,10 @@ describe('getCommentCategoryBadgeClass', () => {
 
   it('falls back to a default class for an unknown category', () => {
     expect(getCommentCategoryBadgeClass('Nope')).toContain('slate')
+  })
+
+  it('returns distinct classes for the individual and reference categories (#231)', () => {
+    expect(getCommentCategoryBadgeClass('GO term pending')).toContain('purple')
+    expect(getCommentCategoryBadgeClass('Figure/Table')).toContain('teal')
   })
 })

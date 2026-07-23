@@ -6,6 +6,10 @@ import CommentsPanel from '@/features/gocam/components/CommentsPanel'
 import { buildModel, buildActivity, buildNode, buildEdgeWithEvidence } from '@tests/fixtures/builders'
 import { RightPanelTab } from '@/@noctua.core/components/drawer/drawerSlice'
 import { DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
+import {
+  INDIVIDUAL_COMMENT_CATEGORIES,
+  REFERENCE_COMMENT_CATEGORIES,
+} from '@/features/gocam/data/commentCategories'
 
 const EDGE_UID = 'edge_enabled_by'
 
@@ -73,6 +77,40 @@ describe('CommentsPanel', () => {
     expect(dialog.component).toBe(DialogComponent.EDGE_COMMENTS_FORM)
     expect(dialog.customProps.edgeUid).toBe(EDGE_UID)
     expect(store.getState().cam.selectedActivityId).toBe('act')
+  })
+
+  it('groups an individual comment under its activity and opens the individual dialog', async () => {
+    const node = {
+      ...buildNode('GO:0003674', 'My Term'),
+      comments: ['GO term pending: needs review'],
+    }
+    const { user, store } = renderPanel(buildModel([buildActivity('act', [node])]))
+
+    expect(screen.getByText('GO term pending')).toBeInTheDocument()
+    expect(screen.getAllByText(/needs review/).length).toBeGreaterThan(0)
+
+    await user.click(screen.getByLabelText('Edit comments on My Term'))
+    const dialog = store.getState().dialog
+    expect(dialog.component).toBe(DialogComponent.INDIVIDUAL_COMMENTS_FORM)
+    expect(dialog.customProps.individualUid).toBe(node.uid)
+    expect(dialog.customProps.categories).toEqual(INDIVIDUAL_COMMENT_CATEGORIES)
+    expect(store.getState().cam.selectedActivityId).toBe('act')
+  })
+
+  it('groups a reference comment under its activity and opens the reference dialog', async () => {
+    const edge = buildEdgeWithEvidence('enabled_by', [{ id: 'ECO:0000314', label: 'IDA' }])
+    edge.evidence![0].comments = ['Figure/Table: see figure 2']
+    const { user, store } = renderPanel(
+      buildModel([buildActivity('act', [buildNode('n', 'My Activity')], [edge])])
+    )
+
+    expect(screen.getByText('Figure/Table')).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText('Edit comments on PMID:1'))
+    const dialog = store.getState().dialog
+    expect(dialog.component).toBe(DialogComponent.INDIVIDUAL_COMMENTS_FORM)
+    expect(dialog.customProps.individualUid).toBe(edge.evidence![0].uid)
+    expect(dialog.customProps.categories).toEqual(REFERENCE_COMMENT_CATEGORIES)
   })
 
   it('shows empty-state copy when there are no comments anywhere', () => {
