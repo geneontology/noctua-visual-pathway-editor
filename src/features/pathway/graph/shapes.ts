@@ -12,6 +12,9 @@ const LINK_LINE_STROKE = '#005580'
 
 const GRID_SIZE = 8
 const PADDING_L = GRID_SIZE * 2
+// Extra room reserved at the bottom for the comment icon + count row so the
+// icon isn't clipped by the box edge / last entry.
+const COMMENT_ROW_EXTRA = 6
 const FONT_FAMILY = 'sans-serif'
 
 const HEADER_ICON_SIZE = 30
@@ -30,7 +33,7 @@ const itemPosition = (
 ): joint.g.Point[] => {
   return portsArgs.map((_port, index, { length }) => {
     const bottom =
-      elBBox.height - (LIST_ITEM_HEIGHT + 20) / 2 - GRID_SIZE
+      elBBox.height - (LIST_ITEM_HEIGHT + 20) / 2 - GRID_SIZE - COMMENT_ROW_EXTRA
     const y = (length - 1 - index) * (LIST_ITEM_HEIGHT + LIST_ITEM_GAP)
     return new joint.g.Point(0, bottom - y)
   })
@@ -100,6 +103,7 @@ const headerMarkup = [
   { tagName: 'text', selector: 'label' },
   { tagName: 'image', selector: 'icon' },
   { tagName: 'image', selector: 'commentIcon' },
+  { tagName: 'text', selector: 'commentCount' },
   { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
   { tagName: 'image', selector: 'duplicateIcon' },
@@ -134,19 +138,35 @@ const headerAttributes = {
       x: 5,
       y: (HEADER_HEIGHT - HEADER_ICON_SIZE) / 2,
     },
-    // "Has comments" badge on the top-left corner. Always visible (not hover-
-    // gated) when the activity has comments; click opens the Comments panel (#231).
+    // Comment affordance in the empty bottom row — always present like a
+    // social-media comment button, with the count next to it (Instagram style).
+    // Click opens the Comments panel (#231).
     commentIcon: {
       event: 'element:comment:pointerdown',
-      xlinkHref: './assets/icons/comment.svg',
+      xlinkHref: './assets/icons/comment-grey.svg',
       ref: 'wrapper',
       refX: 0,
-      x: -9,
-      y: -9,
-      width: 18,
-      height: 18,
+      x: 8,
+      refY: '100%',
+      y: -19,
+      width: 14,
+      height: 14,
       cursor: 'pointer',
-      visibility: 'hidden',
+    },
+    commentCount: {
+      event: 'element:comment:pointerdown',
+      ref: 'commentIcon',
+      refX: '100%',
+      refX2: 4,
+      refY: '50%',
+      fontFamily: FONT_FAMILY,
+      fontWeight: 600,
+      fontSize: 12,
+      fill: '#6b7280',
+      textAnchor: 'start',
+      textVerticalAnchor: 'middle',
+      cursor: 'pointer',
+      text: '0',
     },
     label: {
       x: 40,
@@ -248,7 +268,8 @@ export class NodeCellList extends joint.dia.Element {
       ['size', 'height'],
       HEADER_HEIGHT +
       (LIST_ITEM_HEIGHT + LIST_ITEM_GAP) * length +
-      PADDING_L
+      PADDING_L +
+      COMMENT_ROW_EXTRA
     )
   }
 
@@ -301,8 +322,9 @@ export class NodeCellList extends joint.dia.Element {
     return this
   }
 
-  setHasComments(has: boolean): this {
-    this.attr('commentIcon/visibility', has ? 'visible' : 'hidden')
+  setCommentCount(count: number): this {
+    // Greyish icon + count always show in the bottom row (Instagram style).
+    this.attr('commentCount/text', String(count))
     return this
   }
 

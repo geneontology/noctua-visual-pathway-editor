@@ -24,17 +24,16 @@ function activityColorKey(activity: Activity): string {
   }
 }
 
-// Whether an activity carries any comment (on an individual, a statement/edge,
-// or a reference/evidence individual) — drives the node's comment badge (#231).
-function activityHasComments(activity: Activity): boolean {
-  if (activity.nodes.some(n => (n.comments?.length ?? 0) > 0)) return true
+// Total comments an activity carries (across individuals, statements/edges, and
+// reference/evidence individuals) — drives the node's comment count badge (#231).
+function activityCommentCount(activity: Activity): number {
+  let count = 0
+  for (const n of activity.nodes) count += n.comments?.length ?? 0
   for (const edge of activity.edges) {
-    if ((edge.comments?.length ?? 0) > 0) return true
-    for (const ev of edge.evidence ?? []) {
-      if ((ev.comments?.length ?? 0) > 0) return true
-    }
+    count += edge.comments?.length ?? 0
+    for (const ev of edge.evidence ?? []) count += ev.comments?.length ?? 0
   }
-  return false
+  return count
 }
 
 export class CamCanvas {
@@ -566,7 +565,7 @@ export class CamCanvas {
     // 'simple' layout: header only, no entity rows
 
     el.setColor(colorKey)
-    el.setHasComments(activityHasComments(activity))
+    el.setCommentCount(activityCommentCount(activity))
     el.set({
       activity,
       colorKey,
@@ -591,7 +590,7 @@ export class CamCanvas {
 
     el.setText(label)
     el.setColor(colorKey)
-    el.setHasComments(activityHasComments(activity))
+    el.setHasComments(activityCommentCount(activity) > 0)
     el.resize(120, 120)
     el.set({
       activity,
