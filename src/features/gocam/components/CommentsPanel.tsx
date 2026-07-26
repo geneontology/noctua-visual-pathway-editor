@@ -2,7 +2,7 @@ import type React from 'react'
 import { useCallback, useMemo } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
 import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
-import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
+import type { Activity, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import {
   setRightDrawerOpen,
@@ -30,12 +30,6 @@ function activityLabel(activity: Activity): string {
     activity.rootNode.label ??
     'Activity'
   )
-}
-
-function edgeLabel(edge: Edge): string {
-  const subj = edge.source?.label ?? edge.sourceId
-  const obj = edge.target?.label ?? edge.targetId
-  return `${subj} ${edge.label || edge.id} ${obj}`
 }
 
 function nodeLabel(node: GraphNode): string {
@@ -70,7 +64,7 @@ interface CommentSubject {
   onEdit?: () => void
 }
 
-// Statement / Individual / References sub-group inside an activity section.
+// Individual / References sub-group inside an activity section.
 const CommentTypeGroup: React.FC<{
   title: string
   titleClass: string
@@ -128,7 +122,6 @@ const CommentTypeGroup: React.FC<{
 // All comments for one activity, split by type.
 interface ActivityComments {
   activity: Activity
-  edges: Edge[]
   nodes: GraphNode[]
   evidences: Evidence[]
   total: number
@@ -144,7 +137,6 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
     () =>
       model.activities
         .map(activity => {
-          const edges = activity.edges.filter(e => e.comments && e.comments.length > 0)
           const nodes = activity.nodes.filter(n => n.comments && n.comments.length > 0)
           const evidences: Evidence[] = []
           activity.edges.forEach(edge => {
@@ -153,10 +145,9 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
             })
           })
           const total =
-            edges.reduce((s, e) => s + e.comments.length, 0) +
             nodes.reduce((s, n) => s + (n.comments?.length ?? 0), 0) +
             evidences.reduce((s, ev) => s + (ev.comments?.length ?? 0), 0)
-          return { activity, edges, nodes, evidences, total }
+          return { activity, nodes, evidences, total }
         })
         .filter(a => a.total > 0),
     [model.activities]
@@ -183,28 +174,13 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
     )
   }, [dispatch])
 
-  const handleEditEdgeComments = useCallback(
-    (edge: Edge, activity: Activity) => {
-      dispatch(setSelectedActivity(activity.uid))
-      dispatch(
-        openDialog({
-          component: DialogComponent.EDGE_COMMENTS_FORM,
-          title: 'Comments',
-          size: 'sm',
-          customProps: { edgeUid: edge.uid },
-        })
-      )
-    },
-    [dispatch]
-  )
-
   const handleEditNodeComments = useCallback(
     (node: GraphNode, activity: Activity) => {
       dispatch(setSelectedActivity(activity.uid))
       dispatch(
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
-          title: 'Individual Comments',
+          title: 'Node Comments',
           size: 'sm',
           customProps: {
             individualUid: node.uid,
@@ -223,7 +199,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
       dispatch(
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
-          title: 'Reference Comments',
+          title: 'Relation Comments',
           size: 'sm',
           customProps: {
             individualUid: ev.uid,
@@ -317,10 +293,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
         {/* ── One section per activity, comments split by type inside ── */}
         {activitiesWithComments.length === 0 ? (
           <div className="px-3 py-3 text-xs italic text-gray-400">
-            No annotation comments yet. Use the comment icon on a term or reference to add one.
+            No annotation comments yet. Use the comment icon on a node or relation to add one.
           </div>
         ) : (
-          activitiesWithComments.map(({ activity, edges, nodes, evidences, total }) => (
+          activitiesWithComments.map(({ activity, nodes, evidences, total }) => (
             <section key={activity.uid} className="border-b border-slate-200">
               <div className="flex items-center border-l-4 border-slate-400 bg-slate-50 px-3 py-2">
                 <span
@@ -336,21 +312,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
 
               <div className="px-3 py-2">
                 <CommentTypeGroup
-                  title="Statement"
-                  titleClass="text-amber-800"
-                  itemClass="border-amber-300 bg-amber-50/50 hover:bg-amber-100"
-                  isLoggedIn={isLoggedIn}
-                  activityName={activityLabel(activity)}
-                  onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={edges.map(edge => ({
-                    key: edge.uid,
-                    label: edgeLabel(edge),
-                    comments: edge.comments,
-                    onEdit: () => handleEditEdgeComments(edge, activity),
-                  }))}
-                />
-                <CommentTypeGroup
-                  title="Individual"
+                  title="Node"
                   titleClass="text-purple-800"
                   itemClass="border-purple-300 bg-purple-50/50 hover:bg-purple-100"
                   isLoggedIn={isLoggedIn}
@@ -364,7 +326,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                   }))}
                 />
                 <CommentTypeGroup
-                  title="References"
+                  title="Relation"
                   titleClass="text-teal-800"
                   itemClass="border-teal-300 bg-teal-50/50 hover:bg-teal-100"
                   isLoggedIn={isLoggedIn}

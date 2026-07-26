@@ -155,10 +155,13 @@ const headerAttributes = {
     },
     commentCount: {
       event: 'element:comment:pointerdown',
-      ref: 'commentIcon',
-      refX: '100%',
-      refX2: 4,
-      refY: '50%',
+      // Positioned wrapper-relative (like commentIcon) so it sits a few px to the
+      // right of the 14px icon. commentIcon spans x: 8 → 22, so 26 leaves a 4px gap.
+      ref: 'wrapper',
+      refX: 0,
+      x: 26,
+      refY: '100%',
+      y: -12,
       fontFamily: FONT_FAMILY,
       fontWeight: 600,
       fontSize: 12,
@@ -380,17 +383,38 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         fill: LABEL_TEXT_FILL,
         textWrap: { ellipsis: false, width: '95%' },
       },
+      // Greyish comment icon + count at the bottom of the circle (Instagram
+      // style), mirroring the box's bottom row. Always visible; click opens the
+      // Comments panel (#231).
       '.comment': {
         event: 'element:comment:pointerdown',
-        'xlink:href': './assets/icons/comment.svg',
+        'xlink:href': './assets/icons/comment-grey.svg',
         ref: '.wrapper',
-        refX: 0,
-        x: -4,
-        y: -4,
-        height: 18,
-        width: 18,
+        refX: '50%',
+        x: -16,
+        refY: '100%',
+        y: -24,
+        height: 14,
+        width: 14,
         cursor: 'pointer',
-        visibility: 'hidden',
+      },
+      '.commentCount': {
+        event: 'element:comment:pointerdown',
+        // Positioned wrapper-relative (like .comment) so it sits just right of the
+        // 14px icon. .comment spans center-16 → center-2, so center+1 leaves a 3px gap.
+        ref: '.wrapper',
+        refX: '50%',
+        x: 1,
+        refY: '100%',
+        y: -17,
+        fontFamily: FONT_FAMILY,
+        fontWeight: 600,
+        fontSize: 12,
+        fill: '#6b7280',
+        textAnchor: 'start',
+        textVerticalAnchor: 'middle',
+        cursor: 'pointer',
+        text: '0',
       },
       '.view': {
         event: 'element:view:pointerdown',
@@ -451,6 +475,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '</g>',
       '<text class="label"/>',
       '<image class="comment"/>',
+      '<text class="commentCount"/>',
       '<image class="view"/>',
       '<image class="edit"/>',
       '<image class="duplicate"/>',
@@ -474,8 +499,9 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
     return this
   }
 
-  setHasComments(has: boolean): this {
-    this.attr('.comment/visibility', has ? 'visible' : 'hidden')
+  setCommentCount(count: number): this {
+    // Greyish icon + count always show at the bottom of the circle (Instagram style).
+    this.attr('.commentCount/text', String(count))
     return this
   }
 

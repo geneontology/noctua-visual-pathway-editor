@@ -1,9 +1,9 @@
 import type React from 'react'
 import { useCallback, useRef, useState } from 'react'
-import { ActionIcon, Indicator, Menu, Tooltip } from '@mantine/core'
+import { ActionIcon, Menu } from '@mantine/core'
 import { useAppDispatch } from '@/app/hooks'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
-import { FaComment, FaEllipsisV, FaPlus } from 'react-icons/fa'
+import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
@@ -73,13 +73,6 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     treeNode
   const evidence = edge?.evidence ?? []
 
-  // Row-level "all comments" rollup: individual (node) + statement (edge) +
-  // references (evidence individuals). Icon shows the total; click edits the
-  // statement comment (the only scope without its own in-cell icon) — #231.
-  const individualCommentCount = node.comments?.length ?? 0
-  const statementCommentCount = edge?.comments?.length ?? 0
-  const referenceCommentCount = evidence.reduce((s, ev) => s + (ev.comments?.length ?? 0), 0)
-  const allCommentsCount = individualCommentCount + statementCommentCount + referenceCommentCount
   // Not logged in → the table is view-only: no row menus, no add buttons, no
   // inline edit/delete affordances (#278).
   const isLoggedIn = !!useAppSelector(selectAuthUser)
@@ -267,22 +260,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     )
   }, [edge, checkGroup, openAnnotationForm, node.label, node.id, node.uid, node.rootTypes, treeNode.floatingLabel, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
-  const handleAddComment = useCallback(() => {
-    if (!edge) return
-    checkGroup(() =>
-      dispatch(
-        openDialog({
-          component: DialogComponent.EDGE_COMMENTS_FORM,
-          title: 'Comments',
-          size: 'sm',
-          customProps: { edgeUid: edge.uid },
-        })
-      )
-    )
-  }, [edge, checkGroup, dispatch])
-
-  // Comment on the individual (GO term / input) itself — distinct from the
-  // statement (edge) comment above (#231).
+  // Comment on the individual (GO term / input) itself (#231).
   const handleAddIndividualComment = useCallback(() => {
     checkGroup(() =>
       dispatch(
@@ -390,94 +368,6 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 no evidence present.
               </div>
             ) : null}
-          </div>
-        )}
-
-        {/* All-comments rollup cell — sits just before the action (…) menu. Counts
-            every comment on the row (individual + statement + references); click
-            edits the statement (edge) comment. When logged out, shown only if
-            comments already exist (view-only), never as "Add". */}
-        {edge && (isLoggedIn || allCommentsCount > 0) && (
-          <div
-            className={`flex w-10 shrink-0 flex-col items-center justify-center p-0 transition-opacity ${
-              allCommentsCount ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
-            }`}
-          >
-            <Tooltip
-              label={
-                allCommentsCount ? (
-                  <div className="flex flex-col gap-1.5">
-                    {individualCommentCount > 0 && (
-                      <div>
-                        <div className="text-2xs font-semibold uppercase tracking-wide text-purple-300">
-                          Individual
-                        </div>
-                        {node.comments!.map((c, idx) => (
-                          <div key={`n-${idx}`} className="text-xs">
-                            {c}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {statementCommentCount > 0 && (
-                      <div>
-                        <div className="text-2xs font-semibold uppercase tracking-wide text-amber-300">
-                          Statement
-                        </div>
-                        {edge.comments.map((c, idx) => (
-                          <div key={`e-${idx}`} className="text-xs">
-                            {c}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {referenceCommentCount > 0 && (
-                      <div>
-                        <div className="text-2xs font-semibold uppercase tracking-wide text-teal-300">
-                          References
-                        </div>
-                        {evidence
-                          .flatMap(ev => ev.comments ?? [])
-                          .map((c, idx) => (
-                            <div key={`r-${idx}`} className="text-xs">
-                              {c}
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  'Add statement comment'
-                )
-              }
-              position="top"
-              withArrow
-              openDelay={400}
-              w={280}
-            >
-              <Indicator
-                label={allCommentsCount}
-                size={15}
-                color="green"
-                offset={4}
-                disabled={allCommentsCount === 0}
-                aria-label={
-                  allCommentsCount > 0
-                    ? `All comments (${allCommentsCount})`
-                    : 'Add statement comment'
-                }
-              >
-                <ActionIcon
-                  variant="subtle"
-                  color={allCommentsCount > 0 ? 'green' : 'gray'}
-                  radius="xl"
-                  size="md"
-                  onClick={handleAddComment}
-                >
-                  <FaComment size={12} />
-                </ActionIcon>
-              </Indicator>
-            </Tooltip>
           </div>
         )}
 

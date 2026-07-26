@@ -24,13 +24,12 @@ function activityColorKey(activity: Activity): string {
   }
 }
 
-// Total comments an activity carries (across individuals, statements/edges, and
-// reference/evidence individuals) — drives the node's comment count badge (#231).
+// Total comments an activity carries (across individuals and reference/evidence
+// individuals) — drives the node's comment count badge (#231).
 function activityCommentCount(activity: Activity): number {
   let count = 0
   for (const n of activity.nodes) count += n.comments?.length ?? 0
   for (const edge of activity.edges) {
-    count += edge.comments?.length ?? 0
     for (const ev of edge.evidence ?? []) count += ev.comments?.length ?? 0
   }
   return count
@@ -590,7 +589,7 @@ export class CamCanvas {
 
     el.setText(label)
     el.setColor(colorKey)
-    el.setHasComments(activityCommentCount(activity) > 0)
+    el.setCommentCount(activityCommentCount(activity))
     el.resize(120, 120)
     el.set({
       activity,

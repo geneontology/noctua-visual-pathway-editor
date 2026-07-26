@@ -7,10 +7,19 @@ export const COMMENT_CATEGORIES = [
 ] as const
 
 /** Categories for comments on an individual (GO term / input) — #231. */
-export const INDIVIDUAL_COMMENT_CATEGORIES = ['General', 'GO term pending'] as const
+export const INDIVIDUAL_COMMENT_CATEGORIES = [
+  'Ontology term pending',
+  'Annotation dispute',
+  'General',
+] as const
 
 /** Categories for comments on a reference (evidence individual) — #231. */
-export const REFERENCE_COMMENT_CATEGORIES = ['General', 'Figure/Table'] as const
+export const REFERENCE_COMMENT_CATEGORIES = [
+  'Figure/Table',
+  'Evidence confidence',
+  'Justification for evidence',
+  'General',
+] as const
 
 /** Every known category across all scopes — used to detect a category prefix on parse. */
 const ALL_COMMENT_CATEGORIES: readonly string[] = [
@@ -32,8 +41,10 @@ const COMMENT_CATEGORY_BADGE_CLASSES: Record<string, string> = {
   'Not suitable for annotation': 'bg-amber-100 text-amber-800',
   'Annotation dispute': 'bg-red-100 text-red-800',
   Other: 'bg-gray-200 text-gray-700',
-  'GO term pending': 'bg-purple-100 text-purple-800',
+  'Ontology term pending': 'bg-purple-100 text-purple-800',
   'Figure/Table': 'bg-teal-100 text-teal-800',
+  'Evidence confidence': 'bg-indigo-100 text-indigo-800',
+  'Justification for evidence': 'bg-green-100 text-green-800',
 }
 
 export const getCommentCategoryBadgeClass = (option: string): string =>
