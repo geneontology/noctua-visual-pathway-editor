@@ -1,15 +1,11 @@
 import type React from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
 import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
-import type { Activity, Evidence, GraphModel, GraphNode } from '../models/cam'
+import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import {
-  setRightDrawerOpen,
-  setRightPanelTab,
-  RightPanelTab,
-} from '@/@noctua.core/components/drawer/drawerSlice'
-import { setSelectedActivity } from '../slices/camSlice'
+import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
+import { setSelectedActivity, selectSelectedActivityId } from '../slices/camSlice'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import {
@@ -33,11 +29,23 @@ function activityLabel(activity: Activity): string {
 }
 
 function nodeLabel(node: GraphNode): string {
+  if (node.label && node.id) return `${node.label} (${node.id})`
   return node.label || node.id || 'Individual'
 }
 
+function nodeShort(node?: GraphNode): string {
+  return node?.label || node?.id || '?'
+}
+
+// The statement a reference belongs to: subject → relation → object. Shown so a
+// reference comment isn't just a bare PMID with no context (#231).
+function statementLabel(edge: Edge): string {
+  return `${nodeShort(edge.source)} → ${edge.label || edge.id} → ${nodeShort(edge.target)}`
+}
+
+// Evidence code + reference, e.g. "IDA · PMID:25415977".
 function referenceLabel(ev: Evidence): string {
-  return ev.reference || ev.evidenceCode?.label || 'Reference'
+  return [ev.evidenceCode?.label, ev.reference].filter(Boolean).join(' · ') || 'Reference'
 }
 
 const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
@@ -60,6 +68,8 @@ const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
 interface CommentSubject {
   key: string
   label: string
+  // Secondary muted line under the label (e.g. evidence code + reference).
+  sublabel?: string
   comments: string[]
   onEdit?: () => void
 }
@@ -81,10 +91,17 @@ const CommentTypeGroup: React.FC<{
       <div className="flex flex-col gap-2">
         {subjects.map(subj => (
           <div key={subj.key}>
-            <div className="mb-0.5 flex items-center gap-1">
-              <span className="grow truncate font-mono text-2xs text-gray-500" title={subj.label}>
-                {subj.label}
-              </span>
+            <div className="mb-0.5 flex items-start gap-1">
+              <div className="min-w-0 grow">
+                <div className="truncate font-mono text-2xs text-gray-600" title={subj.label}>
+                  {subj.label}
+                </div>
+                {subj.sublabel && (
+                  <div className="truncate text-2xs text-gray-400" title={subj.sublabel}>
+                    {subj.sublabel}
+                  </div>
+                )}
+              </div>
               {isLoggedIn && subj.onEdit && (
                 <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
                   <ActionIcon
@@ -119,17 +136,25 @@ const CommentTypeGroup: React.FC<{
   )
 }
 
+// An evidence bearing comments, paired with the edge (statement) it sits on so
+// the panel can show subject → relation → object context.
+interface EvidenceOnEdge {
+  edge: Edge
+  ev: Evidence
+}
+
 // All comments for one activity, split by type.
 interface ActivityComments {
   activity: Activity
   nodes: GraphNode[]
-  evidences: Evidence[]
+  evidences: EvidenceOnEdge[]
   total: number
 }
 
 const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const dispatch = useAppDispatch()
   const isLoggedIn = !!useAppSelector(selectAuthUser)
+  const selectedActivityId = useAppSelector(selectSelectedActivityId)
 
   const modelComments = model.comments ?? []
 
@@ -138,20 +163,32 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
       model.activities
         .map(activity => {
           const nodes = activity.nodes.filter(n => n.comments && n.comments.length > 0)
-          const evidences: Evidence[] = []
+          const evidences: EvidenceOnEdge[] = []
           activity.edges.forEach(edge => {
             ;(edge.evidence ?? []).forEach(ev => {
-              if (ev.comments && ev.comments.length > 0) evidences.push(ev)
+              if (ev.comments && ev.comments.length > 0) evidences.push({ edge, ev })
             })
           })
           const total =
             nodes.reduce((s, n) => s + (n.comments?.length ?? 0), 0) +
-            evidences.reduce((s, ev) => s + (ev.comments?.length ?? 0), 0)
+            evidences.reduce((s, e) => s + (e.ev.comments?.length ?? 0), 0)
           return { activity, nodes, evidences, total }
         })
-        .filter(a => a.total > 0),
-    [model.activities]
+        // Keep any activity with comments, plus the currently selected one even
+        // if it has none — so clicking its comment button always shows (and
+        // highlights) a section to land on (#231).
+        .filter(a => a.total > 0 || a.activity.uid === selectedActivityId),
+    [model.activities, selectedActivityId]
   )
+
+  // Scroll the selected activity's section into view when selection changes, so
+  // the highlight is actually visible even when it's below the fold.
+  const selectedSectionRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    if (selectedActivityId && selectedSectionRef.current) {
+      selectedSectionRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [selectedActivityId])
 
   const totalActivityComments = useMemo(
     () => activitiesWithComments.reduce((sum, a) => sum + a.total, 0),
@@ -194,7 +231,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   )
 
   const handleEditEvidenceComments = useCallback(
-    (ev: Evidence, activity: Activity) => {
+    (edge: Edge, ev: Evidence, activity: Activity) => {
       dispatch(setSelectedActivity(activity.uid))
       dispatch(
         openDialog({
@@ -204,7 +241,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           customProps: {
             individualUid: ev.uid,
             categories: REFERENCE_COMMENT_CATEGORIES,
-            subjectLabel: referenceLabel(ev),
+            subjectLabel: `${statementLabel(edge)} · ${referenceLabel(ev)}`,
           },
         })
       )
@@ -214,8 +251,9 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
 
   const handleSelectActivity = useCallback(
     (activity: Activity) => {
+      // Highlight the activity unit on the graph and mark this section selected;
+      // stay on the Comments panel (don't jump to the Activity Table) — #231.
       dispatch(setSelectedActivity(activity.uid))
-      dispatch(setRightPanelTab(RightPanelTab.ACTIVITY_TABLE))
     },
     [dispatch]
   )
@@ -296,9 +334,19 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
             No annotation comments yet. Use the comment icon on a node or relation to add one.
           </div>
         ) : (
-          activitiesWithComments.map(({ activity, nodes, evidences, total }) => (
-            <section key={activity.uid} className="border-b border-slate-200">
-              <div className="flex items-center border-l-4 border-slate-400 bg-slate-50 px-3 py-2">
+          activitiesWithComments.map(({ activity, nodes, evidences, total }) => {
+            const isSelected = activity.uid === selectedActivityId
+            return (
+            <section
+              key={activity.uid}
+              ref={isSelected ? selectedSectionRef : undefined}
+              className={`border-b border-slate-200 ${isSelected ? 'bg-orange-50/40' : ''}`}
+            >
+              <div
+                className={`flex items-center border-l-4 px-3 py-2 ${
+                  isSelected ? 'border-orange-500 bg-orange-50' : 'border-slate-400 bg-slate-50'
+                }`}
+              >
                 <span
                   className="grow truncate text-xs font-bold text-slate-800"
                   title={activityLabel(activity)}
@@ -311,6 +359,11 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
               </div>
 
               <div className="px-3 py-2">
+                {total === 0 && (
+                  <div className="text-xs italic text-gray-400">
+                    No comments on this activity yet
+                  </div>
+                )}
                 <CommentTypeGroup
                   title="Node"
                   titleClass="text-purple-800"
@@ -332,16 +385,18 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                   isLoggedIn={isLoggedIn}
                   activityName={activityLabel(activity)}
                   onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={evidences.map(ev => ({
+                  subjects={evidences.map(({ edge, ev }) => ({
                     key: ev.uid,
-                    label: referenceLabel(ev),
+                    label: statementLabel(edge),
+                    sublabel: referenceLabel(ev),
                     comments: ev.comments ?? [],
-                    onEdit: () => handleEditEvidenceComments(ev, activity),
+                    onEdit: () => handleEditEvidenceComments(edge, ev, activity),
                   }))}
                 />
               </div>
             </section>
-          ))
+            )
+          })
         )}
       </div>
     </div>
