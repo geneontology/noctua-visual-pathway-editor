@@ -23,6 +23,7 @@ import Chip from '@/@noctua.core/components/chip/Chip'
 import { useGroupGuard } from './GroupGuardProvider'
 import { useModelUrls } from '../hooks/useModelUrls'
 import { getStateColor } from '../data/stateColors'
+import { countComments } from '../services/graphServices'
 import ContributorChips from './ContributorChips'
 import ToolbarLinkMenu from './ToolbarLinkMenu'
 
@@ -99,11 +100,7 @@ const CamToolbar: React.FC = () => {
 
   if (!cam) return null
 
-  const edgeCommentCount = cam.activities.reduce(
-    (sum, a) => sum + a.edges.reduce((s, e) => s + (e.comments?.length ?? 0), 0),
-    0
-  )
-  const commentCount = (cam.comments?.length ?? 0) + edgeCommentCount
+  const commentCount = countComments(cam)
   const stateColor = getStateColor(cam.state)
 
   return (

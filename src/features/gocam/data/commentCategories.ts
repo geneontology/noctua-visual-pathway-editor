@@ -1,15 +1,20 @@
-/** Selectable comment categories, used as a prefix on stored comments. */
+/** Model-level comment categories, used as a prefix on stored comments — #231. */
 export const COMMENT_CATEGORIES = [
   'General',
-  'Not suitable for annotation',
-  'Annotation dispute',
-  'Other',
+  'Feedback to curator',
+  'Comment to reviewer',
 ] as const
+
+/**
+ * The individual-comment category that lets a curator escalate a disputed
+ * annotation to a GitHub ticket on geneontology/go-annotation (#231).
+ */
+export const ANNOTATION_DISPUTE_CATEGORY = 'Annotation dispute' as const
 
 /** Categories for comments on an individual (GO term / input) — #231. */
 export const INDIVIDUAL_COMMENT_CATEGORIES = [
   'Ontology term pending',
-  'Annotation dispute',
+  ANNOTATION_DISPUTE_CATEGORY,
   'General',
 ] as const
 
@@ -38,9 +43,9 @@ export interface StructuredComment {
 /** Badge color classes per category, for quick visual scanning. */
 const COMMENT_CATEGORY_BADGE_CLASSES: Record<string, string> = {
   General: 'bg-blue-100 text-blue-800',
-  'Not suitable for annotation': 'bg-amber-100 text-amber-800',
+  'Feedback to curator': 'bg-amber-100 text-amber-800',
+  'Comment to reviewer': 'bg-cyan-100 text-cyan-800',
   'Annotation dispute': 'bg-red-100 text-red-800',
-  Other: 'bg-gray-200 text-gray-700',
   'Ontology term pending': 'bg-purple-100 text-purple-800',
   'Figure/Table': 'bg-teal-100 text-teal-800',
   'Evidence confidence': 'bg-indigo-100 text-indigo-800',

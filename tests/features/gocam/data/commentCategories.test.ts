@@ -118,6 +118,10 @@ describe('getCommentCategoryBadgeClass', () => {
 })
 
 describe('comment category lists (2026-07-23 GO-CAM call, #231)', () => {
+  it('model-level topics are general, feedback to curator, comment to reviewer', () => {
+    expect(COMMENT_CATEGORIES).toEqual(['General', 'Feedback to curator', 'Comment to reviewer'])
+  })
+
   it('individual-level topics are ontology-pending, dispute, general', () => {
     expect(INDIVIDUAL_COMMENT_CATEGORIES).toEqual([
       'Ontology term pending',
