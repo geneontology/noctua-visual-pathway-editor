@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
 import { setSelectedActivity, selectSelectedActivityId } from '../slices/camSlice'
 import { countComments } from '../services/graphServices'
-import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import {
@@ -440,7 +439,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                       return (
                         <DisputeTicketButton
                           href={buildAnnotationDisputeUrl({
-                            modelUrl: `${ENVIRONMENT.noctuaUrl}/editor/graph/${model.id}`,
+                            modelUrl: window.location.href,
                             gene: activityLabel(activity),
                             goTerm: nodeLabel(node),
                             curator: curatorName,
