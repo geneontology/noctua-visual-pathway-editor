@@ -1,16 +1,19 @@
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
-import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
+import { FaTimes, FaPen, FaPlus, FaComment, FaGithub } from 'react-icons/fa'
 import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
 import { setSelectedActivity, selectSelectedActivityId } from '../slices/camSlice'
+import { countComments } from '../services/graphServices'
+import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import {
   getCommentCategoryBadgeClass,
   parseComment,
+  ANNOTATION_DISPUTE_CATEGORY,
   INDIVIDUAL_COMMENT_CATEGORIES,
   REFERENCE_COMMENT_CATEGORIES,
 } from '../data/commentCategories'
@@ -48,6 +51,52 @@ function referenceLabel(ev: Evidence): string {
   return [ev.evidenceCode?.label, ev.reference].filter(Boolean).join(' · ') || 'Reference'
 }
 
+// GO annotation disputes are triaged as GitHub issues on this tracker (#231).
+const GO_ANNOTATION_NEW_ISSUE_URL = 'https://github.com/geneontology/go-annotation/issues/new'
+
+// Pull the bare ORCID id (e.g. "0000-0002-1825-0097") out of an ORCID URI.
+function orcidId(uri: string): string {
+  const match = uri.match(/\d{4}-\d{4}-\d{4}-[\dX]{4}/)
+  return match ? match[0] : uri
+}
+
+// A pre-filled "new issue" link on geneontology/go-annotation for a disputed
+// annotation, following the template in #231: title carries the model URL, body
+// lists gene, disputed GO term, and (if resolvable) the curator.
+function buildAnnotationDisputeUrl(params: {
+  modelUrl: string
+  gene: string
+  goTerm: string
+  curator: string
+}): string {
+  const { modelUrl, gene, goTerm, curator } = params
+  const body = [`* ${gene}`, `* ${goTerm}`, curator ? `* ${curator}` : null]
+    .filter(line => line !== null)
+    .join('\n')
+  const query = new URLSearchParams({ title: `Annotation dispute ${modelUrl}`, body })
+  return `${GO_ANNOTATION_NEW_ISSUE_URL}?${query.toString()}`
+}
+
+// Trailing action on an "Annotation dispute" comment: opens the pre-filled
+// go-annotation issue in a new tab so the curator can file it (#231).
+const DisputeTicketButton: React.FC<{ href: string }> = ({ href }) => (
+  <Tooltip label="File this dispute on go-annotation" position="left" withArrow openDelay={300}>
+    <ActionIcon
+      component="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      variant="subtle"
+      color="red"
+      size="sm"
+      onClick={e => e.stopPropagation()}
+      aria-label="File annotation dispute on GitHub"
+    >
+      <FaGithub size={12} />
+    </ActionIcon>
+  </Tooltip>
+)
+
 const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
   const { option, text } = parseComment(comment)
   return (
@@ -72,6 +121,10 @@ interface CommentSubject {
   sublabel?: string
   comments: string[]
   onEdit?: () => void
+  // Optional trailing action rendered beside a specific comment (e.g. the
+  // "file annotation dispute" ticket link). Returns null for comments that
+  // don't get one.
+  renderCommentAction?: (comment: string) => React.ReactNode
 }
 
 // Individual / References sub-group inside an activity section.
@@ -117,17 +170,22 @@ const CommentTypeGroup: React.FC<{
               )}
             </div>
             <div className="flex flex-col gap-1">
-              {subj.comments.map((comment, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={onSelectActivity}
-                  className={`cursor-pointer rounded-sm border-l-2 px-2 py-1 text-left text-xs text-gray-700 transition-colors ${itemClass}`}
-                  aria-label={`Select activity ${activityName}`}
-                >
-                  <CommentText comment={comment} />
-                </button>
-              ))}
+              {subj.comments.map((comment, i) => {
+                const action = subj.renderCommentAction?.(comment)
+                return (
+                  <div key={i} className="flex items-start gap-1">
+                    <button
+                      type="button"
+                      onClick={onSelectActivity}
+                      className={`grow cursor-pointer rounded-sm border-l-2 px-2 py-1 text-left text-xs text-gray-700 transition-colors ${itemClass}`}
+                      aria-label={`Select activity ${activityName}`}
+                    >
+                      <CommentText comment={comment} />
+                    </button>
+                    {action}
+                  </div>
+                )
+              })}
             </div>
           </div>
         ))}
@@ -153,8 +211,13 @@ interface ActivityComments {
 
 const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const dispatch = useAppDispatch()
-  const isLoggedIn = !!useAppSelector(selectAuthUser)
+  const authUser = useAppSelector(selectAuthUser)
+  const isLoggedIn = !!authUser
   const selectedActivityId = useAppSelector(selectSelectedActivityId)
+
+  // Curator on a dispute ticket = the logged-in user, by name if we have it,
+  // otherwise their ORCID id.
+  const curatorName = authUser ? authUser.name?.trim() || orcidId(authUser.uri) : ''
 
   const modelComments = model.comments ?? []
 
@@ -190,12 +253,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
     }
   }, [selectedActivityId])
 
-  const totalActivityComments = useMemo(
-    () => activitiesWithComments.reduce((sum, a) => sum + a.total, 0),
-    [activitiesWithComments]
-  )
-
-  const totalCount = modelComments.length + totalActivityComments
+  const totalCount = countComments(model)
 
   const handleClose = useCallback(() => {
     dispatch(setRightDrawerOpen(false))
@@ -376,6 +434,20 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                     label: nodeLabel(node),
                     comments: node.comments ?? [],
                     onEdit: () => handleEditNodeComments(node, activity),
+                    renderCommentAction: comment => {
+                      const { option } = parseComment(comment)
+                      if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
+                      return (
+                        <DisputeTicketButton
+                          href={buildAnnotationDisputeUrl({
+                            modelUrl: `${ENVIRONMENT.noctuaUrl}/editor/graph/${model.id}`,
+                            gene: activityLabel(activity),
+                            goTerm: nodeLabel(node),
+                            curator: curatorName,
+                          })}
+                        />
+                      )
+                    },
                   }))}
                 />
                 <CommentTypeGroup

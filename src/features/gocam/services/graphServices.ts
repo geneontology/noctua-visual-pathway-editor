@@ -10,6 +10,21 @@ import { canInsertEntity } from '../data/insertMenuConfig';
 import { getPrimaryRootType } from '../data/nodeCategories';
 import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker';
 
+/**
+ * Total comments shown for a model: model-level + node (individual) + evidence
+ * (reference) comments. Statement/edge comments aren't shown, so aren't counted (#231).
+ */
+export function countComments(model: GraphModel): number {
+  let count = model.comments?.length ?? 0;
+  for (const activity of model.activities) {
+    for (const node of activity.nodes) count += node.comments?.length ?? 0;
+    for (const edge of activity.edges) {
+      for (const ev of edge.evidence ?? []) count += ev.comments?.length ?? 0;
+    }
+  }
+  return count;
+}
+
 function isEdgeShapeAllowed(edge: Edge, subject: GraphNode, target: GraphNode): boolean {
   const subjectType = getPrimaryRootType(subject.rootTypes ?? []);
   if (!subjectType) return false;

@@ -5,10 +5,16 @@ export const COMMENT_CATEGORIES = [
   'Comment to reviewer',
 ] as const
 
+/**
+ * The individual-comment category that lets a curator escalate a disputed
+ * annotation to a GitHub ticket on geneontology/go-annotation (#231).
+ */
+export const ANNOTATION_DISPUTE_CATEGORY = 'Annotation dispute' as const
+
 /** Categories for comments on an individual (GO term / input) — #231. */
 export const INDIVIDUAL_COMMENT_CATEGORIES = [
   'Ontology term pending',
-  'Annotation dispute',
+  ANNOTATION_DISPUTE_CATEGORY,
   'General',
 ] as const
 
