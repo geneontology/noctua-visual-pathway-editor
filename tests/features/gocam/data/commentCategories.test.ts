@@ -38,9 +38,13 @@ describe('parseComment', () => {
   })
 
   it('recognizes the individual-scope categories (#231)', () => {
-    expect(parseComment('GO term pending: needs review')).toEqual({
-      option: 'GO term pending',
+    expect(parseComment('Ontology term pending: needs review')).toEqual({
+      option: 'Ontology term pending',
       text: 'needs review',
+    })
+    expect(parseComment('Annotation dispute: disputed')).toEqual({
+      option: 'Annotation dispute',
+      text: 'disputed',
     })
   })
 
@@ -48,6 +52,14 @@ describe('parseComment', () => {
     expect(parseComment('Figure/Table: see figure 2')).toEqual({
       option: 'Figure/Table',
       text: 'see figure 2',
+    })
+    expect(parseComment('Evidence confidence: low')).toEqual({
+      option: 'Evidence confidence',
+      text: 'low',
+    })
+    expect(parseComment('Justification for evidence: reasoning here')).toEqual({
+      option: 'Justification for evidence',
+      text: 'reasoning here',
     })
   })
 
@@ -98,7 +110,28 @@ describe('getCommentCategoryBadgeClass', () => {
   })
 
   it('returns distinct classes for the individual and reference categories (#231)', () => {
-    expect(getCommentCategoryBadgeClass('GO term pending')).toContain('purple')
+    expect(getCommentCategoryBadgeClass('Ontology term pending')).toContain('purple')
     expect(getCommentCategoryBadgeClass('Figure/Table')).toContain('teal')
+    expect(getCommentCategoryBadgeClass('Evidence confidence')).toContain('indigo')
+    expect(getCommentCategoryBadgeClass('Justification for evidence')).toContain('green')
+  })
+})
+
+describe('comment category lists (2026-07-23 GO-CAM call, #231)', () => {
+  it('individual-level topics are ontology-pending, dispute, general', () => {
+    expect(INDIVIDUAL_COMMENT_CATEGORIES).toEqual([
+      'Ontology term pending',
+      'Annotation dispute',
+      'General',
+    ])
+  })
+
+  it('reference-level topics are figure, confidence, justification, general', () => {
+    expect(REFERENCE_COMMENT_CATEGORIES).toEqual([
+      'Figure/Table',
+      'Evidence confidence',
+      'Justification for evidence',
+      'General',
+    ])
   })
 })

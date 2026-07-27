@@ -28,6 +28,12 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
   } as unknown as typeof ResizeObserver
 }
 
+// jsdom lacks Element.prototype.scrollIntoView; the Comments panel calls it to
+// bring the selected activity section into view when the selection changes.
+if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {}
+}
+
 // jsdom lacks document.fonts; Mantine's Textarea autosize listens to it.
 if (typeof document !== 'undefined' && !document.fonts) {
   Object.defineProperty(document, 'fonts', {
