@@ -227,7 +227,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           const nodes = activity.nodes.filter(n => n.comments && n.comments.length > 0)
           const evidences: EvidenceOnEdge[] = []
           activity.edges.forEach(edge => {
-            ;(edge.evidence ?? []).forEach(ev => {
+            ; (edge.evidence ?? []).forEach(ev => {
               if (ev.comments && ev.comments.length > 0) evidences.push({ edge, ev })
             })
           })
@@ -254,6 +254,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
 
   const totalCount = countComments(model)
 
+  // Sum of every comment sitting on an activity unit (node + relation), shown as
+  // the count on the "Activity units" group header (#231).
+  const activityCommentTotal = activitiesWithComments.reduce((s, a) => s + a.total, 0)
+
   const handleClose = useCallback(() => {
     dispatch(setRightDrawerOpen(false))
   }, [dispatch])
@@ -263,7 +267,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
       openDialog({
         component: DialogComponent.CAM_COMMENTS_FORM,
         title: 'Model Comments',
-        size: 'sm',
+        size: 'lg',
       })
     )
   }, [dispatch])
@@ -275,7 +279,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Node Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: node.uid,
             categories: INDIVIDUAL_COMMENT_CATEGORIES,
@@ -294,7 +298,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Relation Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: ev.uid,
             categories: REFERENCE_COMMENT_CATEGORIES,
@@ -385,6 +389,18 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           )}
         </section>
 
+        {/* ── Activity units: group header over the per-activity sections ── */}
+        <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-3 py-2">
+          <span className="grow text-xs font-bold uppercase tracking-wider text-primary-700">
+            Activity units comments
+          </span>
+          {activityCommentTotal > 0 && (
+            <span className="rounded-md bg-primary-100 px-1.5 py-0.5 text-2xs font-semibold text-primary-700">
+              {activityCommentTotal}
+            </span>
+          )}
+        </div>
+
         {/* ── One section per activity, comments split by type inside ── */}
         {activitiesWithComments.length === 0 ? (
           <div className="px-3 py-3 text-xs italic text-gray-400">
@@ -394,78 +410,77 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           activitiesWithComments.map(({ activity, nodes, evidences, total }) => {
             const isSelected = activity.uid === selectedActivityId
             return (
-            <section
-              key={activity.uid}
-              ref={isSelected ? selectedSectionRef : undefined}
-              className={`border-b border-slate-200 ${isSelected ? 'bg-orange-50/40' : ''}`}
-            >
-              <div
-                className={`flex items-center border-l-4 px-3 py-2 ${
-                  isSelected ? 'border-orange-500 bg-orange-50' : 'border-slate-400 bg-slate-50'
-                }`}
+              <section
+                key={activity.uid}
+                ref={isSelected ? selectedSectionRef : undefined}
+                className={`border-b border-slate-200 ${isSelected ? 'bg-orange-50/40' : ''}`}
               >
-                <span
-                  className="grow truncate text-xs font-bold text-slate-800"
-                  title={activityLabel(activity)}
+                <div
+                  className={`flex items-center border-l-4 px-3 py-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-slate-400 bg-slate-50'
+                    }`}
                 >
-                  {activityLabel(activity)}
-                </span>
-                <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
-                  {total}
-                </span>
-              </div>
+                  <span
+                    className="grow truncate text-xs font-bold text-slate-800"
+                    title={activityLabel(activity)}
+                  >
+                    {activityLabel(activity)}
+                  </span>
+                  <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
+                    {total}
+                  </span>
+                </div>
 
-              <div className="px-3 py-2">
-                {total === 0 && (
-                  <div className="text-xs italic text-gray-400">
-                    No comments on this activity yet
-                  </div>
-                )}
-                <CommentTypeGroup
-                  title="Node"
-                  titleClass="text-purple-800"
-                  itemClass="border-purple-300 bg-purple-50/50 hover:bg-purple-100"
-                  isLoggedIn={isLoggedIn}
-                  activityName={activityLabel(activity)}
-                  onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={nodes.map(node => ({
-                    key: node.uid,
-                    label: nodeLabel(node),
-                    comments: node.comments ?? [],
-                    onEdit: () => handleEditNodeComments(node, activity),
-                    renderCommentAction: comment => {
-                      const { option } = parseComment(comment)
-                      if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
-                      return (
-                        <DisputeTicketButton
-                          href={buildAnnotationDisputeUrl({
-                            modelUrl: window.location.href,
-                            gene: activityLabel(activity),
-                            goTerm: nodeLabel(node),
-                            curator: curatorName,
-                          })}
-                        />
-                      )
-                    },
-                  }))}
-                />
-                <CommentTypeGroup
-                  title="Relation"
-                  titleClass="text-teal-800"
-                  itemClass="border-teal-300 bg-teal-50/50 hover:bg-teal-100"
-                  isLoggedIn={isLoggedIn}
-                  activityName={activityLabel(activity)}
-                  onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={evidences.map(({ edge, ev }) => ({
-                    key: ev.uid,
-                    label: statementLabel(edge),
-                    sublabel: referenceLabel(ev),
-                    comments: ev.comments ?? [],
-                    onEdit: () => handleEditEvidenceComments(edge, ev, activity),
-                  }))}
-                />
-              </div>
-            </section>
+                <div className="px-3 py-2">
+                  {total === 0 && (
+                    <div className="text-xs italic text-gray-400">
+                      No comments on this activity yet
+                    </div>
+                  )}
+                  <CommentTypeGroup
+                    title="Node"
+                    titleClass="text-purple-800"
+                    itemClass="border-purple-300 bg-purple-50/50 hover:bg-purple-100"
+                    isLoggedIn={isLoggedIn}
+                    activityName={activityLabel(activity)}
+                    onSelectActivity={() => handleSelectActivity(activity)}
+                    subjects={nodes.map(node => ({
+                      key: node.uid,
+                      label: nodeLabel(node),
+                      comments: node.comments ?? [],
+                      onEdit: () => handleEditNodeComments(node, activity),
+                      renderCommentAction: comment => {
+                        const { option } = parseComment(comment)
+                        if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
+                        return (
+                          <DisputeTicketButton
+                            href={buildAnnotationDisputeUrl({
+                              modelUrl: window.location.href,
+                              gene: activityLabel(activity),
+                              goTerm: nodeLabel(node),
+                              curator: curatorName,
+                            })}
+                          />
+                        )
+                      },
+                    }))}
+                  />
+                  <CommentTypeGroup
+                    title="Relation"
+                    titleClass="text-teal-800"
+                    itemClass="border-teal-300 bg-teal-50/50 hover:bg-teal-100"
+                    isLoggedIn={isLoggedIn}
+                    activityName={activityLabel(activity)}
+                    onSelectActivity={() => handleSelectActivity(activity)}
+                    subjects={evidences.map(({ edge, ev }) => ({
+                      key: ev.uid,
+                      label: statementLabel(edge),
+                      sublabel: referenceLabel(ev),
+                      comments: ev.comments ?? [],
+                      onEdit: () => handleEditEvidenceComments(edge, ev, activity),
+                    }))}
+                  />
+                </div>
+              </section>
             )
           })
         )}

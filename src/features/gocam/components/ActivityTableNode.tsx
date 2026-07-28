@@ -267,7 +267,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Individual Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: node.uid,
             categories: INDIVIDUAL_COMMENT_CATEGORIES,

@@ -34,9 +34,11 @@ const CamCommentsForm: React.FC = () => {
   if (!cam) return null
 
   return (
-    <div className="flex flex-col">
-      <SectionHeading>Comments</SectionHeading>
-      <div className="px-4 py-4">
+    <div className="flex max-h-[85vh] flex-col">
+      <div className="shrink-0">
+        <SectionHeading>Comments</SectionHeading>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         <StructuredCommentsEditor
           comments={comments}
           onChange={setComments}
@@ -44,7 +46,7 @@ const CamCommentsForm: React.FC = () => {
         />
       </div>
 
-      <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
+      <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
         <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
           {isLoggedIn ? 'Cancel' : 'Close'}
         </Button>

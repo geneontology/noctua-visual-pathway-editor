@@ -60,7 +60,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Reference Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: ev.uid,
             categories: REFERENCE_COMMENT_CATEGORIES,
