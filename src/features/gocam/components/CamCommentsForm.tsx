@@ -6,7 +6,6 @@ import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveModelAnnotationsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
-import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 import StructuredCommentsEditor from './StructuredCommentsEditor'
 import { formatComment, parseComment, type StructuredComment } from '../data/commentCategories'
 
@@ -35,8 +34,7 @@ const CamCommentsForm: React.FC = () => {
 
   return (
     <div className="flex flex-col">
-      <SectionHeading>Comments</SectionHeading>
-      <div className="px-4 py-4">
+      <div className="max-h-[60vh] overflow-y-auto px-4 py-4">
         <StructuredCommentsEditor
           comments={comments}
           onChange={setComments}
@@ -44,7 +42,7 @@ const CamCommentsForm: React.FC = () => {
         />
       </div>
 
-      <div className="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
+      <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
         <Button variant="outline" size="sm" onClick={() => dispatch(closeDialog())}>
           {isLoggedIn ? 'Cancel' : 'Close'}
         </Button>

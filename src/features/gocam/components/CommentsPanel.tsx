@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
-import { FaTimes, FaPen, FaPlus, FaComment, FaGithub } from 'react-icons/fa'
+import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
 import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
@@ -16,6 +16,8 @@ import {
   INDIVIDUAL_COMMENT_CATEGORIES,
   REFERENCE_COMMENT_CATEGORIES,
 } from '../data/commentCategories'
+import { buildAnnotationDisputeUrl, orcidId } from '../data/annotationDispute'
+import DisputeTicketButton from './DisputeTicketButton'
 
 interface CommentsPanelProps {
   model: GraphModel
@@ -39,62 +41,17 @@ function nodeShort(node?: GraphNode): string {
   return node?.label || node?.id || '?'
 }
 
-// The statement a reference belongs to: subject → relation → object. Shown so a
-// reference comment isn't just a bare PMID with no context (#231).
+// The statement a reference belongs to, as relation → object (e.g.
+// "enabled by → ABCA14 Sscr"). The subject is dropped — it's already the
+// activity the section is under — to keep the line short (#231).
 function statementLabel(edge: Edge): string {
-  return `${nodeShort(edge.source)} → ${edge.label || edge.id} → ${nodeShort(edge.target)}`
+  return `${edge.label || edge.id} → ${nodeShort(edge.target)}`
 }
 
 // Evidence code + reference, e.g. "IDA · PMID:25415977".
 function referenceLabel(ev: Evidence): string {
   return [ev.evidenceCode?.label, ev.reference].filter(Boolean).join(' · ') || 'Reference'
 }
-
-// GO annotation disputes are triaged as GitHub issues on this tracker (#231).
-const GO_ANNOTATION_NEW_ISSUE_URL = 'https://github.com/geneontology/go-annotation/issues/new'
-
-// Pull the bare ORCID id (e.g. "0000-0002-1825-0097") out of an ORCID URI.
-function orcidId(uri: string): string {
-  const match = uri.match(/\d{4}-\d{4}-\d{4}-[\dX]{4}/)
-  return match ? match[0] : uri
-}
-
-// A pre-filled "new issue" link on geneontology/go-annotation for a disputed
-// annotation, following the template in #231: title carries the model URL, body
-// lists gene, disputed GO term, and (if resolvable) the curator.
-function buildAnnotationDisputeUrl(params: {
-  modelUrl: string
-  gene: string
-  goTerm: string
-  curator: string
-}): string {
-  const { modelUrl, gene, goTerm, curator } = params
-  const body = [`* ${gene}`, `* ${goTerm}`, curator ? `* ${curator}` : null]
-    .filter(line => line !== null)
-    .join('\n')
-  const query = new URLSearchParams({ title: `Annotation dispute ${modelUrl}`, body })
-  return `${GO_ANNOTATION_NEW_ISSUE_URL}?${query.toString()}`
-}
-
-// Trailing action on an "Annotation dispute" comment: opens the pre-filled
-// go-annotation issue in a new tab so the curator can file it (#231).
-const DisputeTicketButton: React.FC<{ href: string }> = ({ href }) => (
-  <Tooltip label="File this dispute on go-annotation" position="left" withArrow openDelay={300}>
-    <ActionIcon
-      component="a"
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      variant="subtle"
-      color="red"
-      size="sm"
-      onClick={e => e.stopPropagation()}
-      aria-label="File annotation dispute on GitHub"
-    >
-      <FaGithub size={12} />
-    </ActionIcon>
-  </Tooltip>
-)
 
 const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
   const { option, text } = parseComment(comment)
@@ -126,33 +83,30 @@ interface CommentSubject {
   renderCommentAction?: (comment: string) => React.ReactNode
 }
 
-// Individual / References sub-group inside an activity section.
+// Individual / References sub-group inside an activity section. Reads like a
+// social-media thread: a muted subject line (the term, or relation → object ·
+// reference), with its comments indented beneath it. Color lives only on the
+// category badge — nothing else is tinted (#231).
 const CommentTypeGroup: React.FC<{
-  title: string
-  titleClass: string
-  itemClass: string
   subjects: CommentSubject[]
   isLoggedIn: boolean
   activityName: string
   onSelectActivity: () => void
-}> = ({ title, titleClass, itemClass, subjects, isLoggedIn, activityName, onSelectActivity }) => {
+}> = ({ subjects, isLoggedIn, activityName, onSelectActivity }) => {
   if (subjects.length === 0) return null
   return (
-    <div className="mb-2 last:mb-0">
-      <div className={`mb-1 text-2xs font-bold uppercase tracking-wide ${titleClass}`}>{title}</div>
-      <div className="flex flex-col gap-2">
-        {subjects.map(subj => (
+    <div className="mb-2 flex flex-col gap-2 last:mb-0">
+      {subjects.map(subj => {
+        const context = [subj.label, subj.sublabel].filter(Boolean).join(' · ')
+        return (
           <div key={subj.key}>
-            <div className="mb-0.5 flex items-start gap-1">
-              <div className="min-w-0 grow">
-                <div className="truncate font-mono text-2xs text-gray-600" title={subj.label}>
-                  {subj.label}
-                </div>
-                {subj.sublabel && (
-                  <div className="truncate text-2xs text-gray-400" title={subj.sublabel}>
-                    {subj.sublabel}
-                  </div>
-                )}
+            {/* Subject — the thing being commented on. */}
+            <div className="flex items-start gap-1">
+              <div
+                className="min-w-0 grow truncate font-mono text-2xs text-gray-500"
+                title={context}
+              >
+                {context}
               </div>
               {isLoggedIn && subj.onEdit && (
                 <Tooltip label="Edit comments" position="left" withArrow openDelay={300}>
@@ -168,7 +122,8 @@ const CommentTypeGroup: React.FC<{
                 </Tooltip>
               )}
             </div>
-            <div className="flex flex-col gap-1">
+            {/* Comments — indented under the subject, threaded like replies. */}
+            <div className="ml-1 flex flex-col gap-0.5 border-l border-gray-200 pl-2">
               {subj.comments.map((comment, i) => {
                 const action = subj.renderCommentAction?.(comment)
                 return (
@@ -176,7 +131,7 @@ const CommentTypeGroup: React.FC<{
                     <button
                       type="button"
                       onClick={onSelectActivity}
-                      className={`grow cursor-pointer rounded-sm border-l-2 px-2 py-1 text-left text-xs text-gray-700 transition-colors ${itemClass}`}
+                      className="min-w-0 grow cursor-pointer rounded-sm px-1 py-0.5 text-left text-xs leading-snug text-gray-700 hover:bg-gray-50"
                       aria-label={`Select activity ${activityName}`}
                     >
                       <CommentText comment={comment} />
@@ -187,8 +142,8 @@ const CommentTypeGroup: React.FC<{
               })}
             </div>
           </div>
-        ))}
-      </div>
+        )
+      })}
     </div>
   )
 }
@@ -227,7 +182,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           const nodes = activity.nodes.filter(n => n.comments && n.comments.length > 0)
           const evidences: EvidenceOnEdge[] = []
           activity.edges.forEach(edge => {
-            ;(edge.evidence ?? []).forEach(ev => {
+            ; (edge.evidence ?? []).forEach(ev => {
               if (ev.comments && ev.comments.length > 0) evidences.push({ edge, ev })
             })
           })
@@ -254,6 +209,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
 
   const totalCount = countComments(model)
 
+  // Sum of every comment sitting on an activity unit (node + relation), shown as
+  // the count on the "Activity units" group header (#231).
+  const activityCommentTotal = activitiesWithComments.reduce((s, a) => s + a.total, 0)
+
   const handleClose = useCallback(() => {
     dispatch(setRightDrawerOpen(false))
   }, [dispatch])
@@ -263,7 +222,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
       openDialog({
         component: DialogComponent.CAM_COMMENTS_FORM,
         title: 'Model Comments',
-        size: 'sm',
+        size: 'lg',
       })
     )
   }, [dispatch])
@@ -275,7 +234,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Node Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: node.uid,
             categories: INDIVIDUAL_COMMENT_CATEGORIES,
@@ -294,7 +253,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
         openDialog({
           component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
           title: 'Relation Comments',
-          size: 'sm',
+          size: 'lg',
           customProps: {
             individualUid: ev.uid,
             categories: REFERENCE_COMMENT_CATEGORIES,
@@ -385,6 +344,18 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           )}
         </section>
 
+        {/* ── Activity units: group header over the per-activity sections ── */}
+        <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-3 py-2">
+          <span className="grow text-xs font-bold uppercase tracking-wider text-primary-700">
+            Activity units comments
+          </span>
+          {activityCommentTotal > 0 && (
+            <span className="rounded-md bg-primary-100 px-1.5 py-0.5 text-2xs font-semibold text-primary-700">
+              {activityCommentTotal}
+            </span>
+          )}
+        </div>
+
         {/* ── One section per activity, comments split by type inside ── */}
         {activitiesWithComments.length === 0 ? (
           <div className="px-3 py-3 text-xs italic text-gray-400">
@@ -394,78 +365,71 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           activitiesWithComments.map(({ activity, nodes, evidences, total }) => {
             const isSelected = activity.uid === selectedActivityId
             return (
-            <section
-              key={activity.uid}
-              ref={isSelected ? selectedSectionRef : undefined}
-              className={`border-b border-slate-200 ${isSelected ? 'bg-orange-50/40' : ''}`}
-            >
-              <div
-                className={`flex items-center border-l-4 px-3 py-2 ${
-                  isSelected ? 'border-orange-500 bg-orange-50' : 'border-slate-400 bg-slate-50'
-                }`}
+              <section
+                key={activity.uid}
+                ref={isSelected ? selectedSectionRef : undefined}
+                className={`border-b border-slate-200 ${isSelected ? 'bg-orange-50/40' : ''}`}
               >
-                <span
-                  className="grow truncate text-xs font-bold text-slate-800"
-                  title={activityLabel(activity)}
+                <div
+                  className={`flex items-center border-l-4 px-3 py-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-slate-400 bg-slate-50'
+                    }`}
                 >
-                  {activityLabel(activity)}
-                </span>
-                <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
-                  {total}
-                </span>
-              </div>
+                  <span
+                    className="grow truncate text-xs font-bold text-slate-800"
+                    title={activityLabel(activity)}
+                  >
+                    {activityLabel(activity)}
+                  </span>
+                  <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
+                    {total}
+                  </span>
+                </div>
 
-              <div className="px-3 py-2">
-                {total === 0 && (
-                  <div className="text-xs italic text-gray-400">
-                    No comments on this activity yet
-                  </div>
-                )}
-                <CommentTypeGroup
-                  title="Node"
-                  titleClass="text-purple-800"
-                  itemClass="border-purple-300 bg-purple-50/50 hover:bg-purple-100"
-                  isLoggedIn={isLoggedIn}
-                  activityName={activityLabel(activity)}
-                  onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={nodes.map(node => ({
-                    key: node.uid,
-                    label: nodeLabel(node),
-                    comments: node.comments ?? [],
-                    onEdit: () => handleEditNodeComments(node, activity),
-                    renderCommentAction: comment => {
-                      const { option } = parseComment(comment)
-                      if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
-                      return (
-                        <DisputeTicketButton
-                          href={buildAnnotationDisputeUrl({
-                            modelUrl: window.location.href,
-                            gene: activityLabel(activity),
-                            goTerm: nodeLabel(node),
-                            curator: curatorName,
-                          })}
-                        />
-                      )
-                    },
-                  }))}
-                />
-                <CommentTypeGroup
-                  title="Relation"
-                  titleClass="text-teal-800"
-                  itemClass="border-teal-300 bg-teal-50/50 hover:bg-teal-100"
-                  isLoggedIn={isLoggedIn}
-                  activityName={activityLabel(activity)}
-                  onSelectActivity={() => handleSelectActivity(activity)}
-                  subjects={evidences.map(({ edge, ev }) => ({
-                    key: ev.uid,
-                    label: statementLabel(edge),
-                    sublabel: referenceLabel(ev),
-                    comments: ev.comments ?? [],
-                    onEdit: () => handleEditEvidenceComments(edge, ev, activity),
-                  }))}
-                />
-              </div>
-            </section>
+                <div className="px-3 py-2">
+                  {total === 0 && (
+                    <div className="text-xs italic text-gray-400">
+                      No comments on this activity yet
+                    </div>
+                  )}
+                  <CommentTypeGroup
+                    isLoggedIn={isLoggedIn}
+                    activityName={activityLabel(activity)}
+                    onSelectActivity={() => handleSelectActivity(activity)}
+                    subjects={nodes.map(node => ({
+                      key: node.uid,
+                      label: nodeLabel(node),
+                      comments: node.comments ?? [],
+                      onEdit: () => handleEditNodeComments(node, activity),
+                      renderCommentAction: comment => {
+                        const { option } = parseComment(comment)
+                        if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
+                        return (
+                          <DisputeTicketButton
+                            href={buildAnnotationDisputeUrl({
+                              modelUrl: window.location.href,
+                              gene: activityLabel(activity),
+                              goTerm: nodeLabel(node),
+                              curator: curatorName,
+                            })}
+                          />
+                        )
+                      },
+                    }))}
+                  />
+                  <CommentTypeGroup
+                    isLoggedIn={isLoggedIn}
+                    activityName={activityLabel(activity)}
+                    onSelectActivity={() => handleSelectActivity(activity)}
+                    subjects={evidences.map(({ edge, ev }) => ({
+                      key: ev.uid,
+                      label: statementLabel(edge),
+                      sublabel: referenceLabel(ev),
+                      comments: ev.comments ?? [],
+                      onEdit: () => handleEditEvidenceComments(edge, ev, activity),
+                    }))}
+                  />
+                </div>
+              </section>
             )
           })
         )}
