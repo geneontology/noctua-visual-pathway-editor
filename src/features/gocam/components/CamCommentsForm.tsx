@@ -6,7 +6,6 @@ import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveModelAnnotationsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
-import SectionHeading from '@/@noctua.core/components/form/SectionHeading'
 import StructuredCommentsEditor from './StructuredCommentsEditor'
 import { formatComment, parseComment, type StructuredComment } from '../data/commentCategories'
 
@@ -34,11 +33,8 @@ const CamCommentsForm: React.FC = () => {
   if (!cam) return null
 
   return (
-    <div className="flex max-h-[85vh] flex-col">
-      <div className="shrink-0">
-        <SectionHeading>Comments</SectionHeading>
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+    <div className="flex flex-col">
+      <div className="max-h-[60vh] overflow-y-auto px-4 py-4">
         <StructuredCommentsEditor
           comments={comments}
           onChange={setComments}

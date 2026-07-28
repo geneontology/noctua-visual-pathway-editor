@@ -13,6 +13,12 @@ interface StructuredCommentsEditorProps {
   categories?: readonly string[]
   /** View-only (not logged in): render comments but hide add/remove/edit affordances (#278). */
   readOnly?: boolean
+  /**
+   * Optional trailing action rendered on a comment row (e.g. the "file
+   * annotation dispute" GitHub link on an Annotation-dispute comment — #231).
+   * Return null for rows that don't get one.
+   */
+  renderCommentAction?: (comment: StructuredComment, index: number) => React.ReactNode
 }
 
 /**
@@ -24,6 +30,7 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
   onChange,
   categories = COMMENT_CATEGORIES,
   readOnly = false,
+  renderCommentAction,
 }) => {
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null)
 
@@ -101,6 +108,10 @@ const StructuredCommentsEditor: React.FC<StructuredCommentsEditorProps> = ({
               ) : (
                 <div className="flex-1" />
               )}
+              {(() => {
+                const action = renderCommentAction?.(comment, i)
+                return action ? <div className="mt-6 shrink-0">{action}</div> : null
+              })()}
               {!readOnly && (
                 <ActionIcon
                   variant="subtle"

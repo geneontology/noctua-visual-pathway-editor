@@ -7,7 +7,14 @@ import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveIndividualCommentsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
 import StructuredCommentsEditor from './StructuredCommentsEditor'
-import { formatComment, parseComment, type StructuredComment } from '../data/commentCategories'
+import DisputeTicketButton from './DisputeTicketButton'
+import {
+  formatComment,
+  parseComment,
+  ANNOTATION_DISPUTE_CATEGORY,
+  type StructuredComment,
+} from '../data/commentCategories'
+import { buildAnnotationDisputeUrl, orcidId } from '../data/annotationDispute'
 
 interface IndividualCommentsFormProps {
   /** UID of the individual to comment on — a GO term / input node, or an evidence individual. */
@@ -30,13 +37,49 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const cam = useAppSelector(selectCamModel)
-  const isLoggedIn = !!useAppSelector(selectAuthUser)
+  const authUser = useAppSelector(selectAuthUser)
+  const isLoggedIn = !!authUser
   const [updateGraphModel, { isLoading }] = useUpdateGraphModelMutation()
 
   // All individuals (regular nodes + evidence individuals) live in cam.nodes.
   const node = useMemo(
     () => cam?.nodes.find(n => n.uid === individualUid) ?? null,
     [cam, individualUid]
+  )
+
+  // Context for an "Annotation dispute" ticket: the enabling gene of the
+  // activity this individual sits in, the disputed GO term, and the curator (#231).
+  const activity = useMemo(
+    () => cam?.activities.find(a => a.nodes.some(n => n.uid === individualUid)) ?? null,
+    [cam, individualUid]
+  )
+  const disputeGene =
+    activity?.enabledBy?.label ??
+    activity?.molecularFunction?.label ??
+    activity?.rootNode.label ??
+    'Activity'
+  const disputeGoTerm = node
+    ? node.label && node.id
+      ? `${node.label} (${node.id})`
+      : node.label || node.id || 'Individual'
+    : ''
+  const curatorName = authUser ? authUser.name?.trim() || orcidId(authUser.uri) : ''
+
+  const renderCommentAction = useCallback(
+    (comment: StructuredComment) => {
+      if (comment.option !== ANNOTATION_DISPUTE_CATEGORY) return null
+      return (
+        <DisputeTicketButton
+          href={buildAnnotationDisputeUrl({
+            modelUrl: window.location.href,
+            gene: disputeGene,
+            goTerm: disputeGoTerm,
+            curator: curatorName,
+          })}
+        />
+      )
+    },
+    [disputeGene, disputeGoTerm, curatorName]
   )
 
   const [comments, setComments] = useState<StructuredComment[]>(
@@ -59,19 +102,20 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
   if (!cam || !node) return null
 
   return (
-    <div className="flex max-h-[85vh] flex-col">
+    <div className="flex flex-col">
       {subjectLabel && (
         <div className="shrink-0 border-b border-gray-200 px-4 py-3">
           <div className="truncate text-xs text-gray-500">{subjectLabel}</div>
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      <div className="max-h-[60vh] overflow-y-auto px-4 py-4">
         <StructuredCommentsEditor
           comments={comments}
           onChange={setComments}
           categories={categories}
           readOnly={!isLoggedIn}
+          renderCommentAction={renderCommentAction}
         />
       </div>
 
