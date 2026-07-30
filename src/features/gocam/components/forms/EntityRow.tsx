@@ -22,6 +22,7 @@ import {
   addISOEvidence,
   addICEvidence,
   fillRootTerm,
+  fillUnknownEnabler,
   selectFormType,
 } from '../../slices/activityFormSlice'
 import { canAddISSEvidence } from '../../services/annotationRules'
@@ -48,6 +49,13 @@ interface EntityRowProps {
   errors: ValidationError[]
   displayMenuButton?: boolean
   /**
+   * Uid of the gene-product enabler node (the `enabled_by` target). When this row
+   * is that node, its "more actions" menu offers "Fill with unknown enabler", which
+   * autofills the generic protein PR:000000001. Undefined for every other row and
+   * for protein-complex / molecule forms, where a PR protein isn't the enabler. (#279)
+   */
+  enablerNodeUid?: string
+  /**
    * Optional Search Annotations callback. The activity-level form decides
    * whether this is wired up — it is only passed for the regular Activity
    * Unit form. Protein-complex and Chemical forms leave it undefined per
@@ -65,6 +73,7 @@ const EntityRow: React.FC<EntityRowProps> = ({
   displayGroup,
   errors: _errors,
   displayMenuButton = true,
+  enablerNodeUid,
   onSearchAnnotations,
 }) => {
   const treeBorder = displayGroup ? TREE_BORDER[displayGroup] : 'border-gray-400'
@@ -178,6 +187,12 @@ const EntityRow: React.FC<EntityRowProps> = ({
     if (relation) {
       dispatch(fillRootTerm({ termUid: node.uid, relationUid: relation.uid }))
     }
+  }
+
+  const isEnabler = enablerNodeUid != null && node.uid === enablerNodeUid
+
+  const handleFillUnknownEnabler = () => {
+    dispatch(fillUnknownEnabler({ termUid: node.uid }))
   }
 
   const handleAddISSEvidence = () => {
@@ -362,6 +377,10 @@ const EntityRow: React.FC<EntityRowProps> = ({
                     ))}
                   </Menu.Sub.Dropdown>
                 </Menu.Sub>
+              )}
+
+              {isEnabler && (
+                <Menu.Item onClick={handleFillUnknownEnabler}>Fill with unknown enabler</Menu.Item>
               )}
 
               {relation && (

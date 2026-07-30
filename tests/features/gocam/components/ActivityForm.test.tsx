@@ -8,6 +8,7 @@ import {
   initCreateForm,
   updateTerm,
 } from '@/features/gocam/slices/activityFormSlice'
+import { setUser } from '@/features/auth/slices/authSlice'
 import { FormMode } from '@/features/gocam/models/formModels'
 import type { ActivityFormType } from '@/features/gocam/models/formModels'
 
@@ -40,6 +41,7 @@ vi.mock('@/features/gocam/components/forms/SearchAnnotations', () => ({
  */
 const renderDirtyForm = (type: ActivityFormType) => {
   const store = makeStore()
+  store.dispatch(setUser({ uri: 'http://orcid.org/0000-0000-0000-0000' }))
   store.dispatch(initCreateForm(type))
   const rootUid = store.getState().activityForm.root!.uid
   store.dispatch(

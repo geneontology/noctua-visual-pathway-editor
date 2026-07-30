@@ -11,7 +11,10 @@ import {
 import { getEntityUrl } from '@/@noctua.core/services/goLinker/goLinker'
 import { validateWithFrom } from '../services/formValidation'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
-import { useAppDispatch } from '@/app/hooks'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
+import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
+import { REFERENCE_COMMENT_CATEGORIES } from '../data/commentCategories'
 import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
@@ -34,6 +37,7 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
 }) => {
   const [updateGraphModel] = useUpdateGraphModelMutation()
   const dispatch = useAppDispatch()
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const checkGroup = useGroupGuard()
   const evCellRef = useRef<HTMLDivElement>(null)
   const refCellRef = useRef<HTMLDivElement>(null)
@@ -48,6 +52,26 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
       setEditorAnchor(ref.current)
     })
   }
+
+  // Comment on the reference — stored on the evidence individual (#231).
+  const handleReferenceComment = useCallback(() => {
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Reference Comments',
+          size: 'lg',
+          customProps: {
+            individualUid: ev.uid,
+            categories: REFERENCE_COMMENT_CATEGORIES,
+            subjectLabel: ev.reference || ev.evidenceCode?.label || 'Reference',
+          },
+        })
+      )
+    )
+  }, [ev.uid, ev.reference, ev.evidenceCode, checkGroup, dispatch])
+
+  const commentCount = ev.comments?.length ?? 0
 
   const handleEditorSave = useCallback(
     async (values: EditorDropdownValues) => {
@@ -94,8 +118,8 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         ref={evCellRef}
         label="Evidence"
         className="ml-1 grow"
-        onEdit={() => openEditor(evCellRef, EditorCategory.evidence)}
-        onDelete={() => onRemoveEvidence(ev)}
+        onEdit={isLoggedIn ? () => openEditor(evCellRef, EditorCategory.evidence) : undefined}
+        onDelete={isLoggedIn ? () => onRemoveEvidence(ev) : undefined}
       >
         <span>
           {ev.evidenceCode?.label || '—'}
@@ -127,8 +151,12 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         ref={refCellRef}
         label="Reference"
         className="ml-1 w-[130px] shrink-0"
-        onEdit={() => openEditor(refCellRef, EditorCategory.reference)}
-        onDelete={ev.reference ? () => onClearField(ev, AnnotationKey.SOURCE) : undefined}
+        onEdit={isLoggedIn ? () => openEditor(refCellRef, EditorCategory.reference) : undefined}
+        onDelete={
+          isLoggedIn && ev.reference ? () => onClearField(ev, AnnotationKey.SOURCE) : undefined
+        }
+        onComment={isLoggedIn || commentCount > 0 ? handleReferenceComment : undefined}
+        commentCount={commentCount}
       >
         {ev.reference ? (
           <span>
@@ -163,8 +191,8 @@ const EvidenceRow: React.FC<EvidenceRowProps> = ({
         ref={withCellRef}
         label="With"
         className="ml-1 w-[120px] shrink-0"
-        onEdit={() => openEditor(withCellRef, EditorCategory.with)}
-        onDelete={ev.with ? () => onClearField(ev, AnnotationKey.WITH) : undefined}
+        onEdit={isLoggedIn ? () => openEditor(withCellRef, EditorCategory.with) : undefined}
+        onDelete={isLoggedIn && ev.with ? () => onClearField(ev, AnnotationKey.WITH) : undefined}
       >
         <span>{ev.with || '—'}</span>
       </EditableCell>

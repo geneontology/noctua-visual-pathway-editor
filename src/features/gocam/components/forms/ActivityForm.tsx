@@ -11,6 +11,7 @@ import SectionHeading, {
 import { FaExclamationCircle, FaInfoCircle, FaSave } from 'react-icons/fa'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { selectCamModel } from '../../slices/camSlice'
 import { Relations } from '@/@noctua.core/models/relations'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
@@ -37,7 +38,7 @@ import {
 } from '../../services/activityOperations'
 import { FormMode } from '../../models/formModels'
 import type { TermNode, RelationNode, ValidationError } from '../../models/formModels'
-import { ActivityType } from '../../models/cam'
+import { ActivityType, RootTypes } from '../../models/cam'
 import type { Aspect, Entity } from '../../models/cam'
 import { referenceAllowedDBs, withFromAllowedDBs } from '../../data/allowedDatabases'
 import EntityRow from './EntityRow'
@@ -53,6 +54,7 @@ interface GroupCardProps {
   errors: ValidationError[]
   bgClass: string
   displayMenuButton: boolean
+  enablerNodeUid?: string
   onSearchAnnotations?: (node: TermNode, relation: RelationNode | null) => void
 }
 
@@ -62,6 +64,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
   errors,
   bgClass,
   displayMenuButton,
+  enablerNodeUid,
   onSearchAnnotations,
 }) => {
   if (rows.length === 0) return null
@@ -79,6 +82,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
               displayGroup={group}
               errors={errors}
               displayMenuButton={displayMenuButton}
+              enablerNodeUid={enablerNodeUid}
               onSearchAnnotations={onSearchAnnotations}
             />
           </div>
@@ -101,6 +105,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
   const errors = useAppSelector(selectFormErrors)
   const existingActivityUid = useAppSelector(selectExistingActivityUid)
   const model = useAppSelector(selectCamModel)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const userContext = useUserContext()
   const [updateGraphModel, { isLoading: isSaving }] = useUpdateGraphModelMutation()
   const isLargeScreen = useMediaQuery('(min-width: 1024px)')
@@ -115,6 +120,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     aspect: Aspect | undefined
     nodeUid: string
     relationUid: string | null
+    termId?: string
   }>({ open: false, gpId: '', aspect: undefined, nodeUid: '', relationUid: null })
 
   useEffect(() => {
@@ -231,6 +237,12 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
     return enabledByRel?.target ?? null
   }, [root])
 
+  // Only the gene-product enabler gets the "fill with unknown enabler" quick-fill —
+  // it autofills the generic protein PR:000000001. A protein-complex enabler is a
+  // complex (and renders an insert-only menu), so it's excluded. (#279)
+  const enablerNodeUid =
+    gpNode?.category === RootTypes.MOLECULAR_ENTITY ? gpNode.uid : undefined
+
   const handleSearchAnnotations = useCallback(
     (node: TermNode, relation: RelationNode | null) => {
       const gpId = gpNode?.term?.id
@@ -250,6 +262,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
         aspect: node.aspect,
         nodeUid: node.uid,
         relationUid: relation?.uid ?? null,
+        termId: node.term?.id,
       })
     },
     [gpNode, dispatch]
@@ -316,6 +329,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                   errors={errors}
                   bgClass=""
                   displayMenuButton
+                  enablerNodeUid={enablerNodeUid}
                   onSearchAnnotations={onSearchAnnotationsForRow}
                 />
               ))}
@@ -374,6 +388,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
                 errors={errors}
                 bgClass="bg-slate-50"
                 displayMenuButton={true}
+                enablerNodeUid={enablerNodeUid}
                 onSearchAnnotations={onSearchAnnotationsForRow}
               />
             ))}
@@ -381,31 +396,33 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex h-[50px] shrink-0 flex-row items-center justify-end gap-2 border-t border-gray-300 bg-gray-100 px-3">
-        {hasErrors && (
-          <button
-            type="button"
-            onClick={() => setShowErrorsDialog(true)}
-            className="mr-auto flex items-center gap-1.5 text-sm font-medium text-amber-700 underline decoration-dotted underline-offset-2 hover:text-amber-800"
+      {/* Footer — hidden when not logged in so the form is view-only (#278) */}
+      {isLoggedIn && (
+        <div className="flex h-[50px] shrink-0 flex-row items-center justify-end gap-2 border-t border-gray-300 bg-gray-100 px-3">
+          {hasErrors && (
+            <button
+              type="button"
+              onClick={() => setShowErrorsDialog(true)}
+              className="mr-auto flex items-center gap-1.5 text-sm font-medium text-amber-700 underline decoration-dotted underline-offset-2 hover:text-amber-800"
+            >
+              <FaExclamationCircle size={12} />
+              Why is the &quot;Save&quot; button disabled?
+            </button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleClear} disabled={isSaving}>
+            Clear
+          </Button>
+          <Button
+            variant="filled"
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving || hasErrors}
+            leftSection={<FaSave size={12} />}
           >
-            <FaExclamationCircle size={12} />
-            Why is the &quot;Save&quot; button disabled?
-          </button>
-        )}
-        <Button variant="outline" size="sm" onClick={handleClear} disabled={isSaving}>
-          Clear
-        </Button>
-        <Button
-          variant="filled"
-          size="sm"
-          onClick={handleSave}
-          disabled={isSaving || hasErrors}
-          leftSection={<FaSave size={12} />}
-        >
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      )}
 
       {/* Errors dialog */}
       <Modal
@@ -443,6 +460,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({ onSaved }) => {
           onApply={handlePickerApply}
           gpId={pickerState.gpId}
           aspect={pickerState.aspect}
+          preselectTermId={pickerState.termId}
         />
       )}
 

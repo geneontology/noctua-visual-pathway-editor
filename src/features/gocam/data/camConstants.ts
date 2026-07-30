@@ -10,6 +10,13 @@ export const MODEL_STATES = [
   { value: 'internal_test', label: 'Internal Test' },
 ] as const
 
+/**
+ * Generic "unknown enabler" protein (root of the Protein Ontology). Used to quick-fill
+ * an enabler when the specific gene product is unknown — aligned with the GAF/GPI specs
+ * (an enabler is a protein, never a ChEBI chemical).
+ */
+export const UNKNOWN_ENABLER = { id: 'PR:000000001', label: 'protein' } as const
+
 /** Root GO terms by aspect, matching Angular noctuaFormConfig.rootNode */
 export const ROOT_NODES: Record<string, { id: string; label: string; aspect: string }> = {
   [RootTypes.MOLECULAR_FUNCTION]: { id: RootTypes.MOLECULAR_FUNCTION, label: 'molecular_function', aspect: Aspect.MOLECULAR_FUNCTION },

@@ -6,6 +6,8 @@ export enum DialogComponent {
   CAM_TITLE_FORM = 'CamTitleForm',
   CAM_STATE_FORM = 'CamStateForm',
   CAM_COMMENTS_FORM = 'CamCommentsForm',
+  EDGE_COMMENTS_FORM = 'EdgeCommentsForm',
+  INDIVIDUAL_COMMENTS_FORM = 'IndividualCommentsForm',
   COPY_MODEL_DIALOG = 'CopyModelDialog',
   CHEMICAL_CONNECTOR_FORM = 'ChemicalConnectorForm',
 }

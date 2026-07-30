@@ -14,6 +14,7 @@ import activityFormSlice, {
   addRelationForm,
   removeRelationForm,
   fillRootTerm,
+  fillUnknownEnabler,
   addISSEvidence,
   addISOEvidence,
   addICEvidence,
@@ -379,6 +380,23 @@ describe('mutating reducers on a hydrated form', () => {
     const stillRel = findRelationByPredicate(next.root!, 'RO:0002333')!
     expect(stillRel.target.term).toBeNull()
     expect(next.isDirty).toBe(false)
+  })
+
+  it('fillUnknownEnabler sets the generic protein (PR:000000001) on the enabler node', () => {
+    // The enabler is the ENABLED_BY target (a Gene Product, aspect null).
+    const gpNode = findRelationByPredicate(state.root!, 'RO:0002333')!.target
+    expect(gpNode.term).toBeNull()
+
+    const next = reducer(state, fillUnknownEnabler({ termUid: gpNode.uid }))
+    const updated = findRelationByPredicate(next.root!, 'RO:0002333')!.target
+    expect(updated.term).toEqual({ id: 'PR:000000001', label: 'protein' })
+    expect(next.isDirty).toBe(true)
+  })
+
+  it('fillUnknownEnabler with an unknown uid is a no-op', () => {
+    const next = reducer(state, fillUnknownEnabler({ termUid: 'no-such-uid' }))
+    expect(next.isDirty).toBe(false)
+    expect(next).toBe(state)
   })
 
   it('addISSEvidence replaces the relation evidence with a single ISS + GO_REF row', () => {

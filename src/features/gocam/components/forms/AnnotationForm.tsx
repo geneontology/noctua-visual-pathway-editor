@@ -15,6 +15,7 @@ import { createEvidenceForm, createAutoPopulatedEvidence } from '../../models/fo
 import { ROOT_NODES } from '../../data/camConstants'
 import { getSearchClosures } from '../../data/nodeCategories'
 import { makeSelectModelTerms, selectModelEvidence } from '../../slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { canAddISSEvidence } from '../../services/annotationRules'
 import DatabaseField from './DatabaseField'
 import type { AnnotationFormOnSubmit } from '../../hooks/useOpenAnnotationForm'
@@ -68,6 +69,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
     selectTerms(state, searchRootTypes, termExcludeRootTypes)
   )
   const evidenceInitialOptions = useAppSelector(selectModelEvidence)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
 
   const addEvidence = useCallback(() => {
     setEvidences(prev => [...prev, createEvidenceForm()])
@@ -299,11 +301,13 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
       {/* ── Footer ── */}
       <div className="flex shrink-0 items-center justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3">
         <Button variant="outline" size="sm" onClick={handleCancel}>
-          Cancel
+          {isLoggedIn ? 'Cancel' : 'Close'}
         </Button>
-        <Button onClick={handleSave} disabled={saveDisabled} variant="filled" size="sm">
-          Save
-        </Button>
+        {isLoggedIn && (
+          <Button onClick={handleSave} disabled={saveDisabled} variant="filled" size="sm">
+            Save
+          </Button>
+        )}
       </div>
 
       {/* Locally-rendered picker — stacks on top of this dialog, doesn't evict it */}
@@ -314,6 +318,7 @@ const AnnotationForm: React.FC<AnnotationFormProps> = ({
           onApply={handlePickerApply}
           gpId={gpId}
           aspect={aspect}
+          preselectTermId={term?.id}
         />
       )}
 

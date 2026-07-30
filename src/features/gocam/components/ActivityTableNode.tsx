@@ -1,9 +1,11 @@
 import type React from 'react'
 import { useCallback, useRef, useState } from 'react'
 import { ActionIcon, Menu } from '@mantine/core'
+import { useAppDispatch } from '@/app/hooks'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
 import { FaEllipsisV, FaPlus } from 'react-icons/fa'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import type { Edge, Evidence, UserContext, DisplayTreeNode } from '../models/cam'
 import { ActivityType, RootTypes, Aspect } from '../models/cam'
 import { AnnotationKey } from '../models/operations'
@@ -13,15 +15,20 @@ import EditableCell from '@/@noctua.core/components/cell/EditableCell'
 import EvidenceRow from './EvidenceRow'
 import { useOpenAnnotationForm } from '../hooks/useOpenAnnotationForm'
 import { useGroupGuard } from './GroupGuardProvider'
+import { useAppSelector } from '@/app/hooks'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import {
   buildAddNodeOperations,
   buildEditIndividualTypeOperations,
+  buildEditNodeAnnotationOperations,
   buildReconcileEdgeEvidenceOperations,
 } from '../services/activityOperations'
+import { isSearchAnnotationsEnabledFor } from '../services/annotationRules'
 import { evidenceToForm } from '../models/formModels'
 import { useActivityNodeEditor } from '../hooks/useActivityNodeEditor'
 import { getInsertMenuItems } from '../data/insertMenuConfig'
 import type { InsertMenuItem } from '../data/insertMenuConfig'
+import { INDIVIDUAL_COMMENT_CATEGORIES } from '../data/commentCategories'
 import { getPrimaryRootType } from '../data/nodeCategories'
 import EditorDropdown from './forms/EditorDropdown'
 import type { EditorDropdownValues } from './forms/EditorDropdown'
@@ -66,6 +73,11 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     treeNode
   const evidence = edge?.evidence ?? []
 
+  // Not logged in → the table is view-only: no row menus, no add buttons, no
+  // inline edit/delete affordances (#278).
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
+
+  const dispatch = useAppDispatch()
   const termCellRef = useRef<HTMLDivElement>(null)
   const actionCellRef = useRef<HTMLDivElement>(null)
   // EditorDropdown is now only used for single-field term edits on this row.
@@ -209,9 +221,66 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
     )
   }, [edge, checkGroup, openAnnotationForm, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
 
+  // Search Annotations on an existing activity's aspect row (#255): opens the
+  // same term+evidence form used when creating, pre-filled with this row's
+  // current term/evidence, and applies the pick in place (term swap + evidence
+  // reconcile in one save). Needs the gene product (search is scoped to it) and
+  // is suppressed for Molecule / Protein-Complex, matching the create form.
+  const searchAnnotationsEnabled =
+    !!edge && !!aspect && !!gpNodeId && isSearchAnnotationsEnabledFor(activityType)
+
+  const handleSearchAnnotations = useCallback(() => {
+    if (!edge) return
+    const existing = edge.evidence ?? []
+    checkGroup(() =>
+      openAnnotationForm({
+        showTerm: true,
+        title: `Edit ${node.label || treeNode.floatingLabel}`,
+        termLabel: treeNode.floatingLabel,
+        termRootTypes: node.rootTypes,
+        initialTerm: node.id ? { id: node.id, label: node.label } : null,
+        initialEvidences: existing.map(evidenceToForm),
+        gpId: gpNodeId,
+        aspect,
+        activityType,
+        onSubmit: async ({ term, evidences }) => {
+          if (!term) return
+          const ops = buildEditNodeAnnotationOperations(
+            { uid: node.uid, id: node.id },
+            edge,
+            term,
+            existing,
+            evidences,
+            modelId,
+            resolvedUserContext
+          )
+          if (ops.length > 0) await updateGraphModel(ops)
+        },
+      })
+    )
+  }, [edge, checkGroup, openAnnotationForm, node.label, node.id, node.uid, node.rootTypes, treeNode.floatingLabel, gpNodeId, aspect, activityType, modelId, resolvedUserContext, updateGraphModel])
+
+  // Comment on the individual (GO term / input) itself (#231).
+  const handleAddIndividualComment = useCallback(() => {
+    checkGroup(() =>
+      dispatch(
+        openDialog({
+          component: DialogComponent.INDIVIDUAL_COMMENTS_FORM,
+          title: 'Individual Comments',
+          size: 'lg',
+          customProps: {
+            individualUid: node.uid,
+            categories: INDIVIDUAL_COMMENT_CATEGORIES,
+            subjectLabel: node.label || node.id,
+          },
+        })
+      )
+    )
+  }, [node.uid, node.label, node.id, checkGroup, dispatch])
+
   return (
     <>
-      <div className="mb-2 flex w-full flex-row items-stretch justify-start">
+      <div className="group mb-2 flex w-full flex-row items-stretch justify-start">
         {/* Tree connector lines */}
         {treeLevel > 1 &&
           Array.from({ length: treeLevel - 1 }, (_, i) => {
@@ -232,14 +301,24 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
         <EditableCell
           ref={termCellRef}
           label={treeNode.floatingLabel}
-          onEdit={() => {
-            checkGroup(() => {
-              if (termCellRef.current) {
-                editor.open(termCellRef.current, { category: EditorCategory.term })
-              }
-            })
-          }}
-          onDelete={canDelete ? requestDeleteNode : undefined}
+          onEdit={
+            isLoggedIn
+              ? () => {
+                  checkGroup(() => {
+                    if (termCellRef.current) {
+                      editor.open(termCellRef.current, { category: EditorCategory.term })
+                    }
+                  })
+                }
+              : undefined
+          }
+          onDelete={canDelete && isLoggedIn ? requestDeleteNode : undefined}
+          onComment={
+            isLoggedIn || (node.comments?.length ?? 0) > 0
+              ? handleAddIndividualComment
+              : undefined
+          }
+          commentCount={node.comments?.length ?? 0}
           className={showEvidence ? 'shrink-0' : 'min-w-0 flex-1'}
           style={showEvidence ? { flexBasis: termWidth } : undefined}
         >
@@ -294,7 +373,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
 
         {/* Action cell */}
         <div ref={actionCellRef} className="flex w-10 shrink-0 flex-col items-center justify-center p-0">
-          {showMenu && (
+          {showMenu && isLoggedIn && (
             <Menu shadow="md" position="bottom-end" withinPortal>
               <Menu.Target>
                 <ActionIcon variant="light" color="primary" radius="xl" size="md">
@@ -302,6 +381,9 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
+                {searchAnnotationsEnabled && (
+                  <Menu.Item onClick={handleSearchAnnotations}>Search Annotations</Menu.Item>
+                )}
                 {insertMenuItems.length > 0 && (
                   <Menu.Sub position="left-start">
                     <Menu.Sub.Target>
@@ -331,7 +413,7 @@ const ActivityTableNode: React.FC<ActivityTableNodeProps> = ({
               </Menu.Dropdown>
             </Menu>
           )}
-          {showAddButton && insertMenuItems.length > 0 && (
+          {showAddButton && isLoggedIn && insertMenuItems.length > 0 && (
             <Menu shadow="md" position="bottom-start" withinPortal>
               <Menu.Target>
                 <ActionIcon variant="light" color="primary" radius="xl" size="md">

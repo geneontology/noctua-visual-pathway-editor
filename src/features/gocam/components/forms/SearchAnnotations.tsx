@@ -18,6 +18,12 @@ interface SearchAnnotationsProps {
   gpId: string
   aspect?: Aspect
   term?: string
+  /**
+   * When editing an existing term, pre-select (highlight) the annotation whose
+   * term matches this id if it appears in the results, so the current term is
+   * selected by default when the picker opens (#255).
+   */
+  preselectTermId?: string
 }
 
 const SectionHeader: React.FC<{ title: React.ReactNode; subtitle?: React.ReactNode }> = ({
@@ -39,6 +45,7 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
   gpId,
   aspect,
   term,
+  preselectTermId,
 }) => {
   const [selectedTerm, setSelectedTerm] = useState<AnnotationsResponse | null>(null)
   const [selectedEvidences, setSelectedEvidences] = useState<Evidence[]>([])
@@ -53,6 +60,13 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
       setSelectedEvidences([])
     }
   }, [open])
+
+  // Highlight the currently-edited term by default once the results arrive, when
+  // it is among them. Only fills an empty selection, so a manual pick still wins.
+  useEffect(() => {
+    if (!open || !preselectTermId || annotations.length === 0) return
+    setSelectedTerm(prev => prev ?? annotations.find(a => a.term.id === preselectTermId) ?? null)
+  }, [open, preselectTermId, annotations])
 
   const handleSelectTerm = (annotation: AnnotationsResponse) => {
     setSelectedTerm(annotation)

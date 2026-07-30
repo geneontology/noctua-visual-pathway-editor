@@ -397,6 +397,74 @@ describe('EntityRow — non-complex ellipsis menu contents', () => {
   })
 })
 
+// ─── Fill with unknown enabler menu item (#279) ─────────────────────
+
+describe('EntityRow — Fill with unknown enabler menu item', () => {
+  // The GP enabler row: category Gene Product, no aspect, relation nulled by
+  // ActivityForm. ActivityForm passes its uid as enablerNodeUid.
+  const enablerNode = makeNode({
+    uid: 'gp-1',
+    category: RootTypes.MOLECULAR_ENTITY,
+    label: 'Gene Product',
+    aspect: null,
+    rootTypes: [RootTypes.MOLECULAR_ENTITY],
+    required: true,
+    relations: [],
+  })
+
+  it('is present when the row is the enabler (node.uid === enablerNodeUid)', () => {
+    renderRow({ node: enablerNode, relation: null, enablerNodeUid: 'gp-1' })
+    expect(
+      screen.getByRole('menuitem', { name: 'Fill with unknown enabler' })
+    ).toBeInTheDocument()
+  })
+
+  it('is absent when enablerNodeUid is not provided', () => {
+    renderRow({ node: enablerNode, relation: null })
+    expect(
+      screen.queryByRole('menuitem', { name: 'Fill with unknown enabler' })
+    ).toBeNull()
+  })
+
+  it('is absent on rows that are not the enabler (uid mismatch)', () => {
+    renderRow({ node: enablerNode, relation: null, enablerNodeUid: 'some-other-uid' })
+    expect(
+      screen.queryByRole('menuitem', { name: 'Fill with unknown enabler' })
+    ).toBeNull()
+  })
+
+  it('is absent on protein-complex rows (they use the "+" insert-only menu)', () => {
+    // Even if the complex node's uid were passed as the enabler, the complex row
+    // renders the "+" menu, not the ellipsis "more actions" menu.
+    renderRow({
+      node: makeNode({
+        uid: 'cx-1',
+        category: RootTypes.PROTEIN_CONTAINING_COMPLEX,
+        aspect: null,
+        rootTypes: [RootTypes.PROTEIN_CONTAINING_COMPLEX],
+      }),
+      relation: null,
+      enablerNodeUid: 'cx-1',
+    })
+    expect(
+      screen.queryByRole('menuitem', { name: 'Fill with unknown enabler' })
+    ).toBeNull()
+  })
+
+  it('dispatches fillUnknownEnabler on click, setting the term to PR:000000001', async () => {
+    const { store, user } = renderRow(
+      { node: enablerNode, relation: null, enablerNodeUid: 'gp-1' },
+      { root: enablerNode }
+    )
+    await user.click(screen.getByRole('menuitem', { name: 'Fill with unknown enabler' }))
+    expect(store.getState().activityForm.root?.term).toEqual({
+      id: 'PR:000000001',
+      label: 'protein',
+    })
+    expect(store.getState().activityForm.isDirty).toBe(true)
+  })
+})
+
 // ─── Protein-complex (+) menu contents ──────────────────────────────
 
 describe('EntityRow — protein-complex (+) menu contents', () => {

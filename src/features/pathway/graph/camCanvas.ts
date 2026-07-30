@@ -24,6 +24,17 @@ function activityColorKey(activity: Activity): string {
   }
 }
 
+// Total comments an activity carries (across individuals and reference/evidence
+// individuals) — drives the node's comment count badge (#231).
+function activityCommentCount(activity: Activity): number {
+  let count = 0
+  for (const n of activity.nodes) count += n.comments?.length ?? 0
+  for (const edge of activity.edges) {
+    for (const ev of edge.evidence ?? []) count += ev.comments?.length ?? 0
+  }
+  return count
+}
+
 export class CamCanvas {
   paper: joint.dia.Paper
   graph: joint.dia.Graph
@@ -41,6 +52,7 @@ export class CamCanvas {
   onEditClick?: (activityId: string) => void
   onDuplicateClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
+  onCommentClick?: (activityId: string) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -48,6 +60,9 @@ export class CamCanvas {
   onStencilDrop?: (type: string) => void
 
   constructor(container: HTMLElement) {
+    // Captured so the paper's validate* callbacks (where `this` is the paper)
+    // can read the canvas read-only state at drag time.
+    const self = this
     this._container = container
     this._wrapper = document.createElement('div')
     this._wrapper.style.width = '100%'
@@ -67,11 +82,12 @@ export class CamCanvas {
       multiLinks: true,
       markAvailable: true,
       validateConnection(cellViewS, _magnetS, cellViewT) {
+        if (self.readOnly) return false
         if (cellViewS === cellViewT) return false
         return true
       },
       validateMagnet() {
-        return true
+        return !self.readOnly
       },
       defaultConnectionPoint: { name: 'boundary', args: { sticky: true } },
       defaultConnector: { name: 'smooth' },
@@ -113,11 +129,13 @@ export class CamCanvas {
     // ── Element hover: highlight + show edit/delete icons ──
     this.paper.on('element:mouseover', (cellView: joint.dia.CellView) => {
       const element = cellView.model
+      // Read-only (not logged in) keeps the hover highlight but hides the
+      // edit/duplicate/delete action icons.
       if (element instanceof NodeCellList) {
-        element.hover(true)
+        element.hover(true, !this.readOnly)
         this._highlightSuccessorNodes(element)
       } else if (element instanceof NodeCellMolecule) {
-        element.hover(true)
+        element.hover(true, !this.readOnly)
       }
     })
 
@@ -129,6 +147,13 @@ export class CamCanvas {
       } else if (element instanceof NodeCellMolecule) {
         element.hover(false)
       }
+    })
+
+    // ── View icon click (read-only affordance): open the activity table ──
+    this.paper.on('element:view:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+      evt.stopPropagation()
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (activity) this.onActivityClick?.(activity.uid)
     })
 
     // ── Edit/delete icon clicks (from shape markup events) ──
@@ -148,6 +173,13 @@ export class CamCanvas {
       evt.stopPropagation()
       const activity = cellView.model.prop('activity') as Activity | undefined
       if (activity) this.onDeleteClick?.(activity.uid)
+    })
+
+    // ── Comment badge click: open the Comments panel for this activity ──
+    this.paper.on('element:comment:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+      evt.stopPropagation()
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (activity) this.onCommentClick?.(activity.uid)
     })
 
     // ── Link hover ──
@@ -392,6 +424,7 @@ export class CamCanvas {
   }
 
   private _handleDrop = (e: DragEvent) => {
+    if (this.readOnly) return
     if (!e.dataTransfer) return
     const raw = e.dataTransfer.getData('application/noctua-stencil')
     if (!raw || !this.onStencilDrop) return
@@ -531,6 +564,7 @@ export class CamCanvas {
     // 'simple' layout: header only, no entity rows
 
     el.setColor(colorKey)
+    el.setCommentCount(activityCommentCount(activity))
     el.set({
       activity,
       colorKey,
@@ -555,6 +589,7 @@ export class CamCanvas {
 
     el.setText(label)
     el.setColor(colorKey)
+    el.setCommentCount(activityCommentCount(activity))
     el.resize(120, 120)
     el.set({
       activity,
@@ -605,6 +640,28 @@ export class CamCanvas {
     for (const cell of this.graph.getCells()) {
       if (cell instanceof NodeCellList) {
         cell.unsetBorder()
+      }
+    }
+  }
+
+  /**
+   * Public selection API used to drive the canvas from outside (e.g. clicking
+   * a comment in the side panel). Highlights the activity without moving the
+   * viewport — auto-panning shifted the rest of the graph off-screen.
+   */
+  selectActivity(uid: string | null) {
+    if (!uid) {
+      this._unselectAll()
+      return
+    }
+
+    for (const element of this.graph.getElements()) {
+      const activity = element.prop('activity') as Activity | undefined
+      if (activity?.uid === uid) {
+        if (element instanceof NodeCellList) {
+          this._selectNode(element)
+        }
+        return
       }
     }
   }

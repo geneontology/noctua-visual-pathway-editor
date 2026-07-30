@@ -4,6 +4,8 @@ import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import CamCommentsForm from '@/features/gocam/components/CamCommentsForm'
 import { buildModel, buildActivity, buildNode } from '@tests/fixtures/builders'
+import { AnnotationKey, OperationType } from '@/features/gocam/models/operations'
+import type { Operation } from '@/features/gocam/models/operations'
 
 const updateMock = vi.hoisted(() => vi.fn(() => Promise.resolve({})))
 
@@ -25,6 +27,7 @@ const buildCamState = (overrides: Partial<{ title: string; state: string; commen
       error: null,
       selectedActivityId: null,
     },
+    auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
   }
 }
 
@@ -36,7 +39,23 @@ const renderForm = (preloadedState: ReturnType<typeof buildCamState>) =>
     { preloadedState }
   )
 
-const commentInputs = () => screen.queryAllByPlaceholderText('Comment') as HTMLTextAreaElement[]
+// Comment bodies render as textareas; category pickers use this placeholder.
+const commentInputs = () =>
+  screen.queryAllByPlaceholderText('Write your comment...') as HTMLTextAreaElement[]
+const emptyCategoryPickers = () => screen.queryAllByPlaceholderText('Select a category')
+
+// COMMENT annotation values from the ops array passed to updateGraphModel.
+const savedComments = () => {
+  const ops = updateMock.mock.calls[0][0] as Operation[]
+  return ops
+    .filter(
+      o =>
+        o.operation === OperationType.ADD_ANNOTATION &&
+        Array.isArray(o.arguments.values) &&
+        (o.arguments.values as Array<{ key: AnnotationKey }>)[0].key === AnnotationKey.COMMENT
+    )
+    .map(o => (o.arguments.values as Array<{ value: string }>)[0].value)
+}
 
 beforeEach(() => {
   updateMock.mockClear()
@@ -46,44 +65,48 @@ describe('CamCommentsForm', () => {
   it('shows "No comments yet" when comments is empty', () => {
     renderForm(buildCamState({ comments: [] }))
     expect(screen.getByText('No comments yet')).toBeInTheDocument()
-    expect(screen.queryAllByPlaceholderText('Comment')).toHaveLength(0)
+    expect(commentInputs()).toHaveLength(0)
   })
 
-  it('renders existing comments as inputs', () => {
-    renderForm(buildCamState({ comments: ['first', 'second'] }))
-    const inputs = commentInputs()
-    expect(inputs).toHaveLength(2)
-    expect(inputs.map(i => i.value)).toEqual(['first', 'second'])
-  })
-
-  it('Add button appends an empty comment row', async () => {
-    const { user } = renderForm(buildCamState({ comments: ['one'] }))
-    expect(commentInputs()).toHaveLength(1)
-
+  it('adds a category picker but no text field until a category is chosen', async () => {
+    const { user } = renderForm(buildCamState({ comments: [] }))
     await user.click(screen.getByLabelText('Add Comment'))
 
+    // Category select appears; the comment textarea only shows once a category is picked.
+    expect(emptyCategoryPickers()).toHaveLength(1)
+    expect(commentInputs()).toHaveLength(0)
+  })
+
+  it('renders existing structured comments split into category + text', () => {
+    renderForm(buildCamState({ comments: ['General: first', 'Annotation dispute: second'] }))
     const inputs = commentInputs()
-    expect(inputs).toHaveLength(2)
-    expect(inputs[1].value).toBe('')
+    expect(inputs.map(i => i.value)).toEqual(['first', 'second'])
+    expect(screen.getAllByDisplayValue('General').length).toBeGreaterThan(0)
+    expect(screen.getAllByDisplayValue('Annotation dispute').length).toBeGreaterThan(0)
+  })
+
+  it('renders a legacy (no-prefix) comment as text with a blank category', () => {
+    renderForm(buildCamState({ comments: ['a legacy note'] }))
+    expect(commentInputs()[0].value).toBe('a legacy note')
+    expect(emptyCategoryPickers()).toHaveLength(1)
   })
 
   it('removes an empty comment immediately without confirm', async () => {
-    const { user } = renderForm(buildCamState({ comments: ['', 'keep me'] }))
+    const { user } = renderForm(buildCamState({ comments: ['General: keep me'] }))
+    await user.click(screen.getByLabelText('Add Comment')) // adds an empty row
+
     const removeButtons = screen.getAllByLabelText('Remove comment')
+    expect(removeButtons).toHaveLength(2)
+    await user.click(removeButtons[1]) // the freshly-added empty one
 
-    await user.click(removeButtons[0])
-
-    const inputs = commentInputs()
-    expect(inputs).toHaveLength(1)
-    expect(inputs[0].value).toBe('keep me')
+    expect(commentInputs().map(i => i.value)).toEqual(['keep me'])
     expect(screen.queryByText(/Remove this comment/)).toBeNull()
   })
 
   it('asks for confirmation before removing a comment with content', async () => {
-    const { user } = renderForm(buildCamState({ comments: ['has content'] }))
-    await user.click(screen.getAllByLabelText('Remove comment')[0])
+    const { user } = renderForm(buildCamState({ comments: ['General: has content'] }))
+    await user.click(screen.getByLabelText('Remove comment'))
 
-    // ConfirmDialog opens with a Remove button; row isn't actually removed yet.
     expect(await screen.findByRole('button', { name: 'Remove' })).toBeInTheDocument()
     expect(commentInputs()).toHaveLength(1)
 
@@ -92,11 +115,9 @@ describe('CamCommentsForm', () => {
   })
 
   it('keeps the row when the user cancels the remove-confirm dialog', async () => {
-    const { user } = renderForm(buildCamState({ comments: ['has content'] }))
-    await user.click(screen.getAllByLabelText('Remove comment')[0])
+    const { user } = renderForm(buildCamState({ comments: ['General: has content'] }))
+    await user.click(screen.getByLabelText('Remove comment'))
 
-    // The confirm dialog adds a "Remove" button alongside the form's "Cancel".
-    // There are two Cancel buttons once the dialog is open — the dialog's is the second.
     const removeBtn = await screen.findByRole('button', { name: 'Remove' })
     const dialogRoot = removeBtn.closest('section') ?? removeBtn.closest('[role="dialog"]')
     expect(dialogRoot).not.toBeNull()
@@ -105,17 +126,16 @@ describe('CamCommentsForm', () => {
     expect(commentInputs()).toHaveLength(1)
   })
 
-  it('filters whitespace-only comments out on save', async () => {
-    const { user } = renderForm(buildCamState({ comments: ['real comment', '   '] }))
+  it('drops whitespace-only comments and saves the rest formatted as "Category: text"', async () => {
+    const { user } = renderForm(buildCamState({ comments: ['General: real', '   '] }))
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(updateMock).toHaveBeenCalledTimes(1)
-    const ops = updateMock.mock.calls[0][0]
-    expect(Array.isArray(ops)).toBe(true)
+    expect(savedComments()).toEqual(['General: real'])
   })
 
   it('does not call updateGraphModel when Cancel is clicked', async () => {
-    const { user, store } = renderForm(buildCamState({ comments: ['one'] }))
+    const { user, store } = renderForm(buildCamState({ comments: ['General: one'] }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
     expect(updateMock).not.toHaveBeenCalled()
@@ -123,7 +143,7 @@ describe('CamCommentsForm', () => {
   })
 
   it('closes the dialog after a successful save', async () => {
-    const { user, store } = renderForm(buildCamState({ comments: ['one'] }))
+    const { user, store } = renderForm(buildCamState({ comments: ['General: one'] }))
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(store.getState().dialog.open).toBe(false)
   })

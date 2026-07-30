@@ -9,6 +9,7 @@ import AllowedDatabasesDialog from './forms/AllowedDatabasesDialog'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useUserContext } from '@/app/hooks/useUserContext'
 import { selectCamModel } from '../slices/camSlice'
+import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { ActivityType } from '../models/cam'
 import type { Activity, Edge, DisplayTreeNode } from '../models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
@@ -182,6 +183,7 @@ interface ActivityTableProps {
 const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
   const dispatch = useAppDispatch()
   const model = useAppSelector(selectCamModel)
+  const isLoggedIn = !!useAppSelector(selectAuthUser)
   const userContext = useUserContext()
   const [updateGraphModel] = useUpdateGraphModelMutation()
 
@@ -230,18 +232,20 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activity }) => {
             </div>
           )}
         </div>
-        <Menu shadow="md" position="bottom-end" withinPortal>
-          <Menu.Target>
-            <ActionIcon variant="subtle" color="gray" size="md">
-              <FaEllipsisV size={14} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item color="red" onClick={() => setConfirmDelete(true)}>
-              Delete Activity
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        {isLoggedIn && (
+          <Menu shadow="md" position="bottom-end" withinPortal>
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray" size="md">
+                <FaEllipsisV size={14} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item color="red" onClick={() => setConfirmDelete(true)}>
+                Delete Activity
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
         <ActionIcon variant="subtle" color="gray" size="md" onClick={handleClose} title="Close">
           <FiX size={16} />
         </ActionIcon>

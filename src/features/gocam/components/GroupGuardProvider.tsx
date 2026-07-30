@@ -33,6 +33,13 @@ const GroupGuardProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const checkGroup = useCallback<CheckGroup>(
     onConfirm => {
+      // Not logged in → no editing is happening (dialogs open view-only), so the
+      // "editing another group's model" warning must never fire. Open directly.
+      if (!user) {
+        onConfirm()
+        return
+      }
+
       const modelGroups = model?.groups ?? []
       const isGroupMember = modelGroups.some(mg =>
         user?.groups?.some(ug => ug.id === mg.id)

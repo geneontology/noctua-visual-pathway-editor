@@ -12,6 +12,9 @@ const LINK_LINE_STROKE = '#005580'
 
 const GRID_SIZE = 8
 const PADDING_L = GRID_SIZE * 2
+// Extra room reserved at the bottom for the comment icon + count row so the
+// icon isn't clipped by the box edge / last entry.
+const COMMENT_ROW_EXTRA = 6
 const FONT_FAMILY = 'sans-serif'
 
 const HEADER_ICON_SIZE = 30
@@ -30,7 +33,7 @@ const itemPosition = (
 ): joint.g.Point[] => {
   return portsArgs.map((_port, index, { length }) => {
     const bottom =
-      elBBox.height - (LIST_ITEM_HEIGHT + 20) / 2 - GRID_SIZE
+      elBBox.height - (LIST_ITEM_HEIGHT + 20) / 2 - GRID_SIZE - COMMENT_ROW_EXTRA
     const y = (length - 1 - index) * (LIST_ITEM_HEIGHT + LIST_ITEM_GAP)
     return new joint.g.Point(0, bottom - y)
   })
@@ -99,6 +102,9 @@ const headerMarkup = [
   { tagName: 'rect', selector: 'body' },
   { tagName: 'text', selector: 'label' },
   { tagName: 'image', selector: 'icon' },
+  { tagName: 'image', selector: 'commentIcon' },
+  { tagName: 'text', selector: 'commentCount' },
+  { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
   { tagName: 'image', selector: 'duplicateIcon' },
   { tagName: 'image', selector: 'deleteIcon' },
@@ -132,6 +138,39 @@ const headerAttributes = {
       x: 5,
       y: (HEADER_HEIGHT - HEADER_ICON_SIZE) / 2,
     },
+    // Comment affordance in the empty bottom row — always present like a
+    // social-media comment button, with the count next to it (Instagram style).
+    // Click opens the Comments panel (#231).
+    commentIcon: {
+      event: 'element:comment:pointerdown',
+      xlinkHref: './assets/icons/comment-grey.svg',
+      ref: 'wrapper',
+      refX: 0,
+      x: 8,
+      refY: '100%',
+      y: -19,
+      width: 14,
+      height: 14,
+      cursor: 'pointer',
+    },
+    commentCount: {
+      event: 'element:comment:pointerdown',
+      // Positioned wrapper-relative (like commentIcon) so it sits a few px to the
+      // right of the 14px icon. commentIcon spans x: 8 → 22, so 26 leaves a 4px gap.
+      ref: 'wrapper',
+      refX: 0,
+      x: 26,
+      refY: '100%',
+      y: -12,
+      fontFamily: FONT_FAMILY,
+      fontWeight: 600,
+      fontSize: 12,
+      fill: '#6b7280',
+      textAnchor: 'start',
+      textVerticalAnchor: 'middle',
+      cursor: 'pointer',
+      text: '0',
+    },
     label: {
       x: 40,
       y: 15,
@@ -142,6 +181,21 @@ const headerAttributes = {
       text: 'Label',
       textWrap: { width: '90%', maxLineCount: 1, ellipsis: true },
       textVerticalAnchor: 'top',
+    },
+    // Read-only affordance: shown on hover only when not logged in, opens the
+    // activity table for viewing (#278). Sits where the edit icon would be
+    // (edit is hidden in read-only, so no overlap).
+    viewIcon: {
+      event: 'element:view:pointerdown',
+      xlinkHref: './assets/icons/info.svg',
+      ref: 'wrapper',
+      refX: '100%',
+      refX2: 5,
+      y: 0,
+      width: 20,
+      height: 20,
+      cursor: 'pointer',
+      visibility: 'hidden',
     },
     editIcon: {
       event: 'element:edit:pointerdown',
@@ -217,7 +271,8 @@ export class NodeCellList extends joint.dia.Element {
       ['size', 'height'],
       HEADER_HEIGHT +
       (LIST_ITEM_HEIGHT + LIST_ITEM_GAP) * length +
-      PADDING_L
+      PADDING_L +
+      COMMENT_ROW_EXTRA
     )
   }
 
@@ -270,6 +325,12 @@ export class NodeCellList extends joint.dia.Element {
     return this
   }
 
+  setCommentCount(count: number): this {
+    // Greyish icon + count always show in the bottom row (Instagram style).
+    this.attr('commentCount/text', String(count))
+    return this
+  }
+
   setBorder(colorKey: string, hue?: number): this {
     const deep = getColor(colorKey, hue ?? 500)
     if (deep) this.attr('highlighter/stroke', deep)
@@ -281,11 +342,14 @@ export class NodeCellList extends joint.dia.Element {
     return this
   }
 
-  hover(on: boolean): this {
+  hover(on: boolean, interactive = true): this {
     this.attr('wrapper/strokeWidth', on ? 40 : 0)
-    this.attr('editIcon/visibility', on ? 'visible' : 'hidden')
-    this.attr('duplicateIcon/visibility', on ? 'visible' : 'hidden')
-    this.attr('deleteIcon/visibility', on ? 'visible' : 'hidden')
+    const iconVis = on && interactive ? 'visible' : 'hidden'
+    this.attr('editIcon/visibility', iconVis)
+    this.attr('duplicateIcon/visibility', iconVis)
+    this.attr('deleteIcon/visibility', iconVis)
+    // Read-only: only the view icon appears on hover.
+    this.attr('viewIcon/visibility', on && !interactive ? 'visible' : 'hidden')
     return this
   }
 }
@@ -318,6 +382,51 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         fontSize: 12,
         fill: LABEL_TEXT_FILL,
         textWrap: { ellipsis: false, width: '95%' },
+      },
+      // Greyish comment icon + count at the bottom of the circle (Instagram
+      // style), mirroring the box's bottom row. Always visible; click opens the
+      // Comments panel (#231).
+      '.comment': {
+        event: 'element:comment:pointerdown',
+        'xlink:href': './assets/icons/comment-grey.svg',
+        ref: '.wrapper',
+        refX: '50%',
+        x: -16,
+        refY: '100%',
+        y: -24,
+        height: 14,
+        width: 14,
+        cursor: 'pointer',
+      },
+      '.commentCount': {
+        event: 'element:comment:pointerdown',
+        // Positioned wrapper-relative (like .comment) so it sits just right of the
+        // 14px icon. .comment spans center-16 → center-2, so center+1 leaves a 3px gap.
+        ref: '.wrapper',
+        refX: '50%',
+        x: 1,
+        refY: '100%',
+        y: -17,
+        fontFamily: FONT_FAMILY,
+        fontWeight: 600,
+        fontSize: 12,
+        fill: '#6b7280',
+        textAnchor: 'start',
+        textVerticalAnchor: 'middle',
+        cursor: 'pointer',
+        text: '0',
+      },
+      '.view': {
+        event: 'element:view:pointerdown',
+        'xlink:href': './assets/icons/info.svg',
+        ref: '.wrapper',
+        refX: '100%',
+        refX2: -10,
+        y: 0,
+        height: 20,
+        width: 20,
+        cursor: 'pointer',
+        visibility: 'hidden',
       },
       '.edit': {
         event: 'element:edit:pointerdown',
@@ -365,6 +474,9 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '<circle class="circle"/>',
       '</g>',
       '<text class="label"/>',
+      '<image class="comment"/>',
+      '<text class="commentCount"/>',
+      '<image class="view"/>',
       '<image class="edit"/>',
       '<image class="duplicate"/>',
       '<image class="delete"/>',
@@ -387,11 +499,20 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
     return this
   }
 
-  hover(on: boolean): this {
+  setCommentCount(count: number): this {
+    // Greyish icon + count always show at the bottom of the circle (Instagram style).
+    this.attr('.commentCount/text', String(count))
+    return this
+  }
+
+  hover(on: boolean, interactive = true): this {
     this.attr('.wrapper/strokeWidth', on ? 40 : 0)
-    this.attr('.edit/visibility', on ? 'visible' : 'hidden')
-    this.attr('.duplicate/visibility', on ? 'visible' : 'hidden')
-    this.attr('.delete/visibility', on ? 'visible' : 'hidden')
+    const iconVis = on && interactive ? 'visible' : 'hidden'
+    this.attr('.edit/visibility', iconVis)
+    this.attr('.duplicate/visibility', iconVis)
+    this.attr('.delete/visibility', iconVis)
+    // Read-only: only the view icon appears on hover.
+    this.attr('.view/visibility', on && !interactive ? 'visible' : 'hidden')
     return this
   }
 }

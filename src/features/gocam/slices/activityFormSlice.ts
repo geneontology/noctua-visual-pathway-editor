@@ -12,7 +12,7 @@ import { createEvidenceForm, createAutoPopulatedEvidence, FormMode } from '../mo
 import type { Entity, Activity, Aspect } from '../models/cam'
 import { ActivityType } from '../models/cam'
 import { createActivityTemplate, activityToFormTree } from '../data/activityTemplates'
-import { ROOT_NODES } from '../data/camConstants'
+import { ROOT_NODES, UNKNOWN_ENABLER } from '../data/camConstants'
 import { v4 as uuidv4 } from 'uuid'
 
 // ── Tree traversal ──────────────────────────────────────────────────
@@ -321,6 +321,15 @@ export const activityFormSlice = createSlice({
       state.isDirty = true
     },
 
+    fillUnknownEnabler(state, action: PayloadAction<{ termUid: string }>) {
+      if (!state.root) return
+      const node = findTermNode(state.root, action.payload.termUid)
+      if (!node) return
+      // Autofill the enabler with the generic "protein" (PR:000000001). (#279)
+      node.term = { id: UNKNOWN_ENABLER.id, label: UNKNOWN_ENABLER.label }
+      state.isDirty = true
+    },
+
     addISSEvidence(
       state,
       action: PayloadAction<{ relationUid: string }>
@@ -399,6 +408,7 @@ export const {
   addRelationForm,
   removeRelationForm,
   fillRootTerm,
+  fillUnknownEnabler,
   addISSEvidence,
   addISOEvidence,
   addICEvidence,
