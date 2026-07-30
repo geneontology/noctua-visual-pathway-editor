@@ -16,7 +16,7 @@ import {
   INDIVIDUAL_COMMENT_CATEGORIES,
   REFERENCE_COMMENT_CATEGORIES,
 } from '../data/commentCategories'
-import { buildAnnotationDisputeUrl, orcidId } from '../data/annotationDispute'
+import { buildAnnotationDisputeUrl } from '../data/annotationDispute'
 import DisputeTicketButton from './DisputeTicketButton'
 
 interface CommentsPanelProps {
@@ -168,10 +168,6 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const authUser = useAppSelector(selectAuthUser)
   const isLoggedIn = !!authUser
   const selectedActivityId = useAppSelector(selectSelectedActivityId)
-
-  // Curator on a dispute ticket = the logged-in user, by name if we have it,
-  // otherwise their ORCID id.
-  const curatorName = authUser ? authUser.name?.trim() || orcidId(authUser.uri) : ''
 
   const modelComments = model.comments ?? []
 
@@ -409,7 +405,9 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                               modelUrl: window.location.href,
                               gene: activityLabel(activity),
                               goTerm: nodeLabel(node),
-                              curator: curatorName,
+                              // Curators on the ticket = whoever contributed the
+                              // disputed individual, not whoever is filing (#231).
+                              contributors: node.contributors ?? [],
                             })}
                           />
                         )

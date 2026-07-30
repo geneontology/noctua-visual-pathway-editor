@@ -14,7 +14,7 @@ import {
   ANNOTATION_DISPUTE_CATEGORY,
   type StructuredComment,
 } from '../data/commentCategories'
-import { buildAnnotationDisputeUrl, orcidId } from '../data/annotationDispute'
+import { buildAnnotationDisputeUrl } from '../data/annotationDispute'
 
 interface IndividualCommentsFormProps {
   /** UID of the individual to comment on — a GO term / input node, or an evidence individual. */
@@ -48,7 +48,8 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
   )
 
   // Context for an "Annotation dispute" ticket: the enabling gene of the
-  // activity this individual sits in, the disputed GO term, and the curator (#231).
+  // activity this individual sits in, the disputed GO term, and the curators who
+  // contributed the individual being disputed (#231).
   const activity = useMemo(
     () => cam?.activities.find(a => a.nodes.some(n => n.uid === individualUid)) ?? null,
     [cam, individualUid]
@@ -63,7 +64,7 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
       ? `${node.label} (${node.id})`
       : node.label || node.id || 'Individual'
     : ''
-  const curatorName = authUser ? authUser.name?.trim() || orcidId(authUser.uri) : ''
+  const disputeContributors = useMemo(() => node?.contributors ?? [], [node])
 
   const renderCommentAction = useCallback(
     (comment: StructuredComment) => {
@@ -74,12 +75,12 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
             modelUrl: window.location.href,
             gene: disputeGene,
             goTerm: disputeGoTerm,
-            curator: curatorName,
+            contributors: disputeContributors,
           })}
         />
       )
     },
-    [disputeGene, disputeGoTerm, curatorName]
+    [disputeGene, disputeGoTerm, disputeContributors]
   )
 
   const [comments, setComments] = useState<StructuredComment[]>(
