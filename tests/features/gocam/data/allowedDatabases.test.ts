@@ -11,6 +11,7 @@ import {
 // is caught.
 const YAML_WITH_FROM_NAMESPACES = [
   'AGI_LocusCode',
+  'CGD',
   'CHEBI',
   'ComplexPortal',
   'dictyBase',

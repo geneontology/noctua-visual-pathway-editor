@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import CommentsPanel from '@/features/gocam/components/CommentsPanel'
+import type { Contributor } from '@/features/users/models/contributor'
 import { buildModel, buildActivity, buildNode, buildEdgeWithEvidence } from '@tests/fixtures/builders'
 import { RightPanelTab } from '@/@noctua.core/components/drawer/drawerSlice'
 import { DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
@@ -60,10 +61,11 @@ describe('CommentsPanel', () => {
     expect(screen.getAllByText(/needs review/).length).toBeGreaterThan(0)
   })
 
-  it('renders a reference comment as subject → relation → object with an evidence·reference sublabel (#231)', () => {
+  it('renders a reference comment as relation → object with an evidence·reference sublabel (#231)', () => {
     renderPanel()
-    expect(screen.getByText('Source → enabled by → Target')).toBeInTheDocument()
-    expect(screen.getByText('IDA · PMID:1')).toBeInTheDocument()
+    // Subject and reference share one context line; the statement's subject is
+    // dropped — it's already the activity heading the section.
+    expect(screen.getByText('enabled by → Target · IDA · PMID:1')).toBeInTheDocument()
     expect(screen.getByText('Figure/Table')).toBeInTheDocument()
     expect(screen.getAllByText(/see figure 2/).length).toBeGreaterThan(0)
   })
@@ -113,7 +115,7 @@ describe('CommentsPanel', () => {
 
   it('opens the reference dialog with reference categories from the relation edit pen (#231)', async () => {
     const { user, store } = renderPanel()
-    await user.click(screen.getByLabelText('Edit comments on Source → enabled by → Target'))
+    await user.click(screen.getByLabelText('Edit comments on enabled by → Target'))
 
     const dialog = store.getState().dialog
     expect(dialog.component).toBe(DialogComponent.INDIVIDUAL_COMMENTS_FORM)
@@ -138,5 +140,61 @@ describe('CommentsPanel', () => {
     renderPanel(buildModel([buildActivity('act', [buildNode('n', 'My Activity')])]))
     expect(screen.getByText('No model comments yet')).toBeInTheDocument()
     expect(screen.getByText(/No annotation comments yet/)).toBeInTheDocument()
+  })
+
+  describe('annotation dispute ticket (#231)', () => {
+    // The logged-in user (0000-0000-0000-0000, from renderPanel) is deliberately
+    // not the contributor of the disputed node.
+    const buildDisputedModel = (contributors: Contributor[]) => {
+      const node = {
+        ...buildNode('GO:0003674', 'My Term'),
+        comments: ['Annotation dispute: wrong term for this gene'],
+        contributors,
+      }
+      return buildModel([buildActivity('act', [node])])
+    }
+
+    const disputeBody = () => {
+      const href = screen.getByLabelText('File annotation dispute on GitHub').getAttribute('href')
+      return new URL(href ?? '').searchParams.get('body') ?? ''
+    }
+
+    it('names the contributor of the disputed statement, not the logged-in user', () => {
+      renderPanel(
+        buildDisputedModel([{ uri: 'http://orcid.org/0000-0002-1825-0097', name: 'Jane Doe' }])
+      )
+
+      expect(disputeBody()).toContain('* Jane Doe (0000-0002-1825-0097)')
+      expect(disputeBody()).not.toContain('0000-0000-0000-0000')
+    })
+
+    it('lists every contributor of the disputed statement', () => {
+      renderPanel(
+        buildDisputedModel([
+          { uri: 'http://orcid.org/0000-0002-1825-0097', name: 'Jane Doe' },
+          { uri: 'http://orcid.org/0000-0001-5109-3700', name: 'John Roe' },
+        ])
+      )
+
+      expect(disputeBody()).toContain(
+        '* Jane Doe (0000-0002-1825-0097), John Roe (0000-0001-5109-3700)'
+      )
+    })
+
+    it('files the ticket with no curator when the statement has no contributors', () => {
+      renderPanel(buildDisputedModel([]))
+
+      expect(disputeBody()).toBe('* My Term\n* My Term (GO:0003674)')
+    })
+
+    it('offers no dispute ticket on a non-dispute comment', () => {
+      const node = {
+        ...buildNode('GO:0003674', 'My Term'),
+        comments: ['Ontology term pending: needs review'],
+      }
+      renderPanel(buildModel([buildActivity('act', [node])]))
+
+      expect(screen.queryByLabelText('File annotation dispute on GitHub')).toBeNull()
+    })
   })
 })
