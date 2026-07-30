@@ -31,6 +31,7 @@ const CamToolbar: React.FC = () => {
   const dispatch = useAppDispatch()
   const cam = useAppSelector(selectCamModel)
   const baristaToken = useAppSelector(selectBaristaToken)
+  // Not logged in → the toolbar is view-only: no title/state edit affordances (#278).
   const isLoggedIn = !!useAppSelector(selectAuthUser)
   const urls = useModelUrls(cam?.id, baristaToken)
   const checkGroup = useGroupGuard()
@@ -116,14 +117,16 @@ const CamToolbar: React.FC = () => {
             <span className="mr-1 font-semibold text-gray-900">Title:</span>
             {cam.title || <span className="italic text-gray-400">Untitled</span>}
           </span>
-          <button
-            data-testid="edit-model-title"
-            aria-label="Edit model title"
-            className="text-gray-500 hover:text-gray-800 focus:outline-hidden"
-            onClick={openTitleForm}
-          >
-            <FaPen size={12} />
-          </button>
+          {isLoggedIn && (
+            <button
+              data-testid="edit-model-title"
+              aria-label="Edit model title"
+              className="text-gray-500 hover:text-gray-800 focus:outline-hidden"
+              onClick={openTitleForm}
+            >
+              <FaPen size={12} />
+            </button>
+          )}
         </div>
       </Tooltip>
 
@@ -194,8 +197,8 @@ const CamToolbar: React.FC = () => {
           icon={<FaTasks size={12} />}
           chipClass={`${stateColor.chip} capitalize`}
           circleClass={stateColor.circle}
-          onClick={openStateForm}
-          trailing={<FaPen size={9} className="mr-1 opacity-60" />}
+          onClick={isLoggedIn ? openStateForm : undefined}
+          trailing={isLoggedIn ? <FaPen size={9} className="mr-1 opacity-60" /> : undefined}
         >
           {cam.state}
         </Chip>
