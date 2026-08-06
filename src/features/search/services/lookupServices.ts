@@ -102,7 +102,7 @@ export const processAnnotationsResponse = (response: any): AnnotationsResponse[]
 
     if (doc.annotation_extension_json) {
       try {
-        const extJsons = Array.isArray(doc.annotation_extension_json)
+        const extJsons: any[] = Array.isArray(doc.annotation_extension_json)
           ? doc.annotation_extension_json.map((ext: string) => JSON.parse(ext))
           : [JSON.parse(doc.annotation_extension_json)]
 

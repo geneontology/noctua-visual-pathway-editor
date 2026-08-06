@@ -76,6 +76,15 @@ export interface GraphNode {
   comments?: string[];
 }
 
+/**
+ * An annotation extension on a GOlr annotation — one extension target term plus
+ * the relation(s) pointing at it (e.g. `has input` : `histone H3`).
+ */
+export interface EvidenceExt {
+  term: Entity;
+  relations: Entity[];
+}
+
 export interface Evidence {
   uid: string;
   evidenceCode: Entity;
@@ -87,6 +96,8 @@ export interface Evidence {
   date?: string;
   /** Comments annotated on the evidence individual — i.e. reference comments (#231). */
   comments?: string[];
+  /** Annotation extensions from a GOlr annotation lookup, when there are any (#286). */
+  evidenceExts?: EvidenceExt[];
 }
 
 export interface Edge {

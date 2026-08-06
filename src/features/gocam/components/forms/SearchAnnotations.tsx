@@ -206,6 +206,14 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
                         </td>
                         <td className="break-words px-2.5 py-2 align-middle">
                           {ev.evidenceCode.label}
+                          {ev.evidenceExts?.map((ext, i) => (
+                            <div key={`${ext.term.id}-${i}`} className="text-[11px] text-gray-500">
+                              <span className="font-semibold">Ext:</span>{' '}
+                              {ext.relations
+                                .map(relation => `${relation.label} : ${ext.term.label}`)
+                                .join(', ')}
+                            </div>
+                          ))}
                         </td>
                         <td className="break-words px-2.5 py-2 align-middle text-gray-700">
                           {ev.reference}
