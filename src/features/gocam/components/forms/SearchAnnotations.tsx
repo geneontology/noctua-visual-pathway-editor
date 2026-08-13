@@ -1,10 +1,14 @@
 import type { AnnotationsResponse } from '@/features/search/models/search'
-import { Button, Checkbox } from '@mantine/core'
+import { Button, Checkbox, Tooltip } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { FaCheckCircle } from 'react-icons/fa'
 import type { Aspect, Entity, Evidence } from '../../models/cam'
-import { useSearchAnnotationsQuery } from '@/features/search/slices/lookupApiSlice'
+import {
+  useLazyGetEntityLabelQuery,
+  useSearchAnnotationsQuery,
+} from '@/features/search/slices/lookupApiSlice'
 import SimpleDialog from '@/@noctua.core/components/dialog/SimpleDialog'
+import { getSourceDbUrl } from '@/@noctua.core/services/goLinker/goLinker'
 
 export interface SearchAnnotationsSelection {
   term: Entity
@@ -37,6 +41,43 @@ const SectionHeader: React.FC<{ title: React.ReactNode; subtitle?: React.ReactNo
     </div>
   </div>
 )
+
+/**
+ * One annotation-extension target, shown exactly as the annotation GOlr returned it
+ * — which for a gene product is usually the bare CURIE. Hovering looks the label up
+ * in NEO and shows it in the tooltip; the displayed text and link never change (#286).
+ */
+const ExtensionTarget: React.FC<{ term: Entity }> = ({ term }) => {
+  const [fetchLabel, { data: fetchedLabel, isFetching }] = useLazyGetEntityLabelQuery()
+
+  const displayText = term.label || term.id
+  const url = getSourceDbUrl(term.id)
+
+  const tooltip = isFetching ? 'Looking up…' : (fetchedLabel ?? displayText)
+
+  // `true` prefers the cached value, so re-hovering a target doesn't re-query.
+  const handleMouseEnter = () => fetchLabel(term.id, true)
+
+  return (
+    <Tooltip label={tooltip} position="top" withArrow openDelay={300}>
+      <span onMouseEnter={handleMouseEnter}>
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="text-blue-600 hover:underline"
+          >
+            {displayText}
+          </a>
+        ) : (
+          displayText
+        )}
+      </span>
+    </Tooltip>
+  )
+}
 
 const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
   open,
@@ -209,9 +250,12 @@ const SearchAnnotations: React.FC<SearchAnnotationsProps> = ({
                           {ev.evidenceExts?.map((ext, i) => (
                             <div key={`${ext.term.id}-${i}`} className="text-[11px] text-gray-500">
                               <span className="font-semibold">Ext:</span>{' '}
-                              {ext.relations
-                                .map(relation => `${relation.label} : ${ext.term.label}`)
-                                .join(', ')}
+                              {ext.relations.map((relation, j) => (
+                                <span key={`${relation.id}-${j}`}>
+                                  {j > 0 && ', '}
+                                  {relation.label} : <ExtensionTarget term={ext.term} />
+                                </span>
+                              ))}
                             </div>
                           ))}
                         </td>
