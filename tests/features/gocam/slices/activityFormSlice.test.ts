@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import activityFormSlice, {
   initCreateForm,
   initEditForm,
+  initPasteForm,
   loadActivity,
   updateTerm,
   updateRelationPredicate,
@@ -129,6 +130,147 @@ describe('initEditForm', () => {
     expect(next.existingActivityUid).toBe('act-1')
     expect(next.activityType).toBe('activity')
     expect(next.root?.uid).toBe(mf.uid)
+  })
+})
+
+describe('initPasteForm', () => {
+  // A clipboard payload's tree, hand-built so the uids are known up front.
+  const payloadRoot = (): TermNode => ({
+    uid: 'src-root',
+    category: RootTypes.MOLECULAR_FUNCTION,
+    label: 'Molecular Function',
+    term: { id: 'GO:0003674', label: 'molecular_function' } as TermNode['term'],
+    aspect: Aspect.MOLECULAR_FUNCTION,
+    rootTypes: [RootTypes.MOLECULAR_FUNCTION],
+    isComplement: false,
+    canDelete: false,
+    required: true,
+    relations: [
+      {
+        uid: 'src-rel',
+        predicate: { id: 'RO:0002333', label: 'enabled by' },
+        target: {
+          uid: 'src-gp',
+          category: RootTypes.MOLECULAR_ENTITY,
+          label: 'Gene Product',
+          term: { id: 'UniProtKB:P12345', label: 'Some GP' } as TermNode['term'],
+          aspect: null,
+          rootTypes: [RootTypes.MOLECULAR_ENTITY],
+          isComplement: true,
+          canDelete: true,
+          required: false,
+          relations: [],
+        },
+        evidence: [
+          {
+            uid: 'src-ev',
+            evidenceCode: { id: 'ECO:0000314', label: 'direct assay' },
+            reference: 'PMID:12345',
+            withFrom: 'UniProtKB:Q99999',
+          },
+        ],
+      },
+    ],
+  })
+
+  it('lands in CREATE mode with no existing activity uid', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    expect(next.mode).toBe(FormMode.CREATE)
+    expect(next.existingActivityUid).toBeNull()
+  })
+
+  it('marks the form dirty — a paste is unsaved work from the start', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    expect(next.isDirty).toBe(true)
+  })
+
+  it('stores the payload activity type', () => {
+    expect(
+      reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'molecule' })).activityType
+    ).toBe('molecule')
+    expect(
+      reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'proteinComplex' }))
+        .activityType
+    ).toBe('proteinComplex')
+  })
+
+  it('clears errors carried over from a previous form', () => {
+    const seeded: ActivityFormState = {
+      ...initial,
+      errors: [{ uid: 'x', field: 'f', message: 'stale' }],
+      existingActivityUid: 'stale-uid',
+    }
+    const next = reducer(seeded, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    expect(next.errors).toEqual([])
+    expect(next.existingActivityUid).toBeNull()
+  })
+
+  it('re-ids every term node so nothing collides with the source activity', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    const uids: string[] = []
+    walk(next.root!, n => uids.push(n.uid))
+
+    expect(uids).toHaveLength(2)
+    expect(uids).not.toContain('src-root')
+    expect(uids).not.toContain('src-gp')
+    expect(new Set(uids).size).toBe(uids.length)
+  })
+
+  it('re-ids relation nodes and evidence forms too', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    const rel = next.root!.relations[0]
+    expect(rel.uid).not.toBe('src-rel')
+    expect(rel.evidence[0].uid).not.toBe('src-ev')
+  })
+
+  it('preserves term content — id, label, rootTypes, aspect, isComplement', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    expect(next.root!.term?.id).toBe('GO:0003674')
+    expect(next.root!.category).toBe(RootTypes.MOLECULAR_FUNCTION)
+    expect(next.root!.aspect).toBe(Aspect.MOLECULAR_FUNCTION)
+    expect(next.root!.rootTypes).toEqual([RootTypes.MOLECULAR_FUNCTION])
+
+    const gp = next.root!.relations[0].target
+    expect(gp.term?.id).toBe('UniProtKB:P12345')
+    expect(gp.isComplement).toBe(true)
+    expect(gp.canDelete).toBe(true)
+    expect(gp.required).toBe(false)
+  })
+
+  it('preserves the relation predicate and evidence content', () => {
+    const next = reducer(initial, initPasteForm({ root: payloadRoot(), activityType: 'activity' }))
+    const rel = next.root!.relations[0]
+    expect(rel.predicate).toEqual({ id: 'RO:0002333', label: 'enabled by' })
+
+    const ev = rel.evidence[0] as EvidenceForm
+    expect(ev.evidenceCode).toEqual({ id: 'ECO:0000314', label: 'direct assay' })
+    expect(ev.reference).toBe('PMID:12345')
+    expect(ev.withFrom).toBe('UniProtKB:Q99999')
+  })
+
+  it('does not mutate the payload it was handed', () => {
+    const payload = payloadRoot()
+    reducer(initial, initPasteForm({ root: payload, activityType: 'activity' }))
+
+    expect(payload.uid).toBe('src-root')
+    expect(payload.relations[0].uid).toBe('src-rel')
+    expect(payload.relations[0].target.uid).toBe('src-gp')
+    expect(payload.relations[0].evidence[0].uid).toBe('src-ev')
+  })
+
+  it('produces different uids each time the same payload is pasted', () => {
+    const payload = payloadRoot()
+    const first = reducer(initial, initPasteForm({ root: payload, activityType: 'activity' }))
+    const second = reducer(initial, initPasteForm({ root: payload, activityType: 'activity' }))
+    expect(first.root!.uid).not.toBe(second.root!.uid)
+    expect(first.root!.relations[0].target.uid).not.toBe(second.root!.relations[0].target.uid)
+  })
+
+  it('handles a leaf-only payload with no relations', () => {
+    const bare: TermNode = { ...payloadRoot(), relations: [] }
+    const next = reducer(initial, initPasteForm({ root: bare, activityType: 'molecule' }))
+    expect(next.root!.relations).toEqual([])
+    expect(next.root!.uid).not.toBe('src-root')
   })
 })
 

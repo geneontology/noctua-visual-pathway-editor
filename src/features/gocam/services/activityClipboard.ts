@@ -110,18 +110,20 @@ export async function writeClipboardText(text: string): Promise<boolean> {
     // Permission denied or non-secure context — try the legacy path.
   }
 
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'fixed'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+
+  // `finally` so a throwing execCommand can't strand the textarea in the DOM.
   try {
-    const textarea = document.createElement('textarea')
-    textarea.value = text
-    textarea.setAttribute('readonly', '')
-    textarea.style.position = 'fixed'
-    textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
     textarea.select()
-    const ok = document.execCommand('copy')
-    document.body.removeChild(textarea)
-    return ok
+    return document.execCommand('copy')
   } catch {
     return false
+  } finally {
+    textarea.remove()
   }
 }

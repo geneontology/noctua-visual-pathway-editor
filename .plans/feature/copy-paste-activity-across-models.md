@@ -153,6 +153,27 @@ Implemented:
 - Extracted `CursorAnchoredMenu` so the node and canvas menus share the 1×1 cursor-placeholder
   anchoring rather than duplicating it.
 
+## Round 3 — tests
+
+97 new tests across 4 files (853 → 950 total, 66 files).
+
+| File | Tests | Covers |
+| ---- | ----- | ------ |
+| `tests/features/gocam/services/activityClipboard.test.ts` | 47 | type mapping, label fallbacks, serialize shape + round trip, 16 rejection cases for foreign clipboard text, `writeClipboardText` fallback matrix, `readActivityClipboard` ok/empty/unsupported |
+| `tests/app/hooks/useActivityPaste.test.tsx` | 21 | payload dispatch, `preventDefault` only on our own payloads, editable-target guards, enabled flag transitions, listener lifecycle + latest-callback-without-resubscribe |
+| `tests/features/pathway/components/NodeContextMenu.test.tsx` | 13 | interactive vs read-only item sets, each action fires + closes, cursor anchoring |
+| `tests/features/pathway/components/CanvasContextMenu.test.tsx` | 5 | paste item, closed state, cursor anchoring |
+| `tests/features/gocam/slices/activityFormSlice.test.ts` (extended) | +11 | `initPasteForm`: CREATE mode, dirty, re-id of terms/relations/evidence, content preservation, payload not mutated, fresh uids per paste |
+
+**Bug found and fixed by these tests:** `writeClipboardText` stranded its hidden textarea in
+the DOM when `document.execCommand` *threw* (as opposed to returning false) — the `removeChild`
+sat after the call inside the same `try`. Moved cleanup to a `finally`.
+
+Note for whoever picks this up: `CamCanvas.armDropAt` is **not** covered. It needs a live
+JointJS paper (`clientToLocalPoint` wants real SVG matrix support), which jsdom doesn't provide.
+`DropPlacement` itself — the part holding the logic — is already covered by
+`tests/features/pathway/graph/dropPlacement.test.ts`. The canvas glue is e2e territory.
+
 ## Summary
 
 The node's copy icon now writes the activity to the system clipboard as JSON text instead of
