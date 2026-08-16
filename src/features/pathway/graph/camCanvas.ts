@@ -50,9 +50,10 @@ export class CamCanvas {
   // Event callbacks — wired by the React component
   onActivityClick?: (activityId: string) => void
   onEditClick?: (activityId: string) => void
-  onDuplicateClick?: (activityId: string) => void
+  onCopyClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
   onCommentClick?: (activityId: string) => void
+  onContextMenu?: (activityId: string, clientX: number, clientY: number) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -163,16 +164,25 @@ export class CamCanvas {
       if (activity) this.onEditClick?.(activity.uid)
     })
 
-    this.paper.on('element:duplicate:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
+    this.paper.on('element:copy:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
       evt.stopPropagation()
       const activity = cellView.model.prop('activity') as Activity | undefined
-      if (activity) this.onDuplicateClick?.(activity.uid)
+      if (activity) this.onCopyClick?.(activity.uid)
     })
 
     this.paper.on('element:delete:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
       evt.stopPropagation()
       const activity = cellView.model.prop('activity') as Activity | undefined
       if (activity) this.onDeleteClick?.(activity.uid)
+    })
+
+    // ── Element right-click: node context menu (same actions as the hover icons) ──
+    this.paper.on('element:contextmenu', (cellView: joint.dia.CellView, evt: MouseEvent) => {
+      const activity = cellView.model.prop('activity') as Activity | undefined
+      if (!activity) return
+      evt.preventDefault()
+      evt.stopPropagation()
+      this.onContextMenu?.(activity.uid, evt.clientX, evt.clientY)
     })
 
     // ── Comment badge click: open the Comments panel for this activity ──

@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from 'uuid'
  * Deep-clone a TermNode tree and assign fresh uids to every TermNode,
  * RelationNode, and EvidenceForm. Preserves term content (id, label,
  * rootTypes, aspect, isComplement) and evidence content (evidenceCode,
- * reference, withFrom). Used by initDuplicateForm so the prefilled form
+ * reference, withFrom). Used by initPasteForm so the prefilled form
  * has no identity overlap with the source activity.
  */
 function reIdTree(node: TermNode): TermNode {
@@ -117,13 +117,18 @@ export const activityFormSlice = createSlice({
       state.errors = []
     },
 
-    initDuplicateForm(
+    /**
+     * Prefill a create-mode form from a clipboard payload (see
+     * `services/activityClipboard.ts`). The tree is re-ided so a pasted activity
+     * shares no identity with the one it was copied from — which also makes it
+     * safe to paste into the model it came from.
+     */
+    initPasteForm(
       state,
-      action: PayloadAction<{ activity: Activity; activityType: ActivityFormType }>
+      action: PayloadAction<{ root: TermNode; activityType: ActivityFormType }>
     ) {
-      const { activity, activityType } = action.payload
-      state.root = reIdTree(activityToFormTree(activity))
-      state.activityType = activityType
+      state.root = reIdTree(action.payload.root)
+      state.activityType = action.payload.activityType
       state.mode = FormMode.CREATE
       state.existingActivityUid = null
       state.isDirty = true
@@ -395,7 +400,7 @@ export const activityFormSlice = createSlice({
 export const {
   initCreateForm,
   initEditForm,
-  initDuplicateForm,
+  initPasteForm,
   loadActivity,
   updateTerm,
   updateRelationPredicate,

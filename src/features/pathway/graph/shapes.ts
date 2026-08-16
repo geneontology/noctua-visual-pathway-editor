@@ -106,7 +106,7 @@ const headerMarkup = [
   { tagName: 'text', selector: 'commentCount' },
   { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
-  { tagName: 'image', selector: 'duplicateIcon' },
+  { tagName: 'image', selector: 'copyIcon' },
   { tagName: 'image', selector: 'deleteIcon' },
 ]
 
@@ -209,8 +209,10 @@ const headerAttributes = {
       cursor: 'pointer',
       visibility: 'hidden',
     },
-    duplicateIcon: {
-      event: 'element:duplicate:pointerdown',
+    // Copies the activity to the system clipboard so it can be pasted into this
+    // or any other model. Keeps the duplicate artwork — it reads as a copy icon.
+    copyIcon: {
+      event: 'element:copy:pointerdown',
       xlinkHref: './assets/icons/duplicate.svg',
       ref: 'wrapper',
       refX: '100%',
@@ -346,7 +348,7 @@ export class NodeCellList extends joint.dia.Element {
     this.attr('wrapper/strokeWidth', on ? 40 : 0)
     const iconVis = on && interactive ? 'visible' : 'hidden'
     this.attr('editIcon/visibility', iconVis)
-    this.attr('duplicateIcon/visibility', iconVis)
+    this.attr('copyIcon/visibility', iconVis)
     this.attr('deleteIcon/visibility', iconVis)
     // Read-only: only the view icon appears on hover.
     this.attr('viewIcon/visibility', on && !interactive ? 'visible' : 'hidden')
@@ -440,8 +442,8 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         cursor: 'pointer',
         visibility: 'hidden',
       },
-      '.duplicate': {
-        event: 'element:duplicate:pointerdown',
+      '.copy': {
+        event: 'element:copy:pointerdown',
         'xlink:href': './assets/icons/duplicate.svg',
         ref: '.wrapper',
         refX: '100%',
@@ -478,7 +480,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '<text class="commentCount"/>',
       '<image class="view"/>',
       '<image class="edit"/>',
-      '<image class="duplicate"/>',
+      '<image class="copy"/>',
       '<image class="delete"/>',
       '</g>',
     ].join(''),
@@ -509,7 +511,7 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
     this.attr('.wrapper/strokeWidth', on ? 40 : 0)
     const iconVis = on && interactive ? 'visible' : 'hidden'
     this.attr('.edit/visibility', iconVis)
-    this.attr('.duplicate/visibility', iconVis)
+    this.attr('.copy/visibility', iconVis)
     this.attr('.delete/visibility', iconVis)
     // Read-only: only the view icon appears on hover.
     this.attr('.view/visibility', on && !interactive ? 'visible' : 'hidden')

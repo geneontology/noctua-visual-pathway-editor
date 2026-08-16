@@ -11,19 +11,26 @@ import { useSearchParams } from 'react-router-dom'
 import PathwayGraph from '@/features/pathway/components/PathwayGraph'
 import GraphToolbar from '@/features/pathway/components/GraphToolbar'
 import StencilPalette from '@/features/pathway/components/StencilPalette'
+import NodeContextMenu from '@/features/pathway/components/NodeContextMenu'
 import {
   setRightDrawerOpen,
   setRightPanelTab,
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import type { Activity, Edge } from '@/features/gocam/models/cam'
-import { ActivityType } from '@/features/gocam/models/cam'
 import type { ActivityFormType } from '@/features/gocam/models/formModels'
 import {
   resetForm,
   initCreateForm,
-  initDuplicateForm,
+  initPasteForm,
 } from '@/features/gocam/slices/activityFormSlice'
+import type { ActivityClipboardPayload } from '@/features/gocam/services/activityClipboard'
+import {
+  activityClipboardLabel,
+  serializeActivity,
+  writeClipboardText,
+} from '@/features/gocam/services/activityClipboard'
+import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import { Button, Modal } from '@mantine/core'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
@@ -38,6 +45,7 @@ import { useGroupGuard } from '@/features/gocam/components/GroupGuardProvider'
 import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
+import { useActivityPaste } from './hooks/useActivityPaste'
 
 interface ConnectorDialog {
   open: boolean
@@ -45,6 +53,15 @@ interface ConnectorDialog {
   target: Activity | null
   edge: Edge | null
 }
+
+interface NodeMenuState {
+  open: boolean
+  activityId: string | null
+  x: number
+  y: number
+}
+
+const closedNodeMenu: NodeMenuState = { open: false, activityId: null, x: 0, y: 0 }
 
 const closedConnector: ConnectorDialog = {
   open: false,
@@ -71,6 +88,7 @@ const PathwayEditor: React.FC = () => {
   const [activityFormOpen, setActivityFormOpen] = useState(false)
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
   const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
+  const [nodeMenu, setNodeMenu] = useState<NodeMenuState>(closedNodeMenu)
 
   const {
     data: graphModel,
@@ -157,24 +175,51 @@ const PathwayEditor: React.FC = () => {
     setDuplicateLinkOpen(true)
   }, [])
 
-  const handleDuplicateActivity = useCallback(
-    (activityId: string) => {
+  // Copy writes the activity to the system clipboard as text, so it can be
+  // pasted back into this model or into a different one (even another tab).
+  const handleCopyActivity = useCallback(
+    async (activityId: string) => {
       const activity = graphModel?.data?.activities.find(a => a.uid === activityId)
       if (!activity) return
-      const activityType: ActivityFormType =
-        activity.type === ActivityType.MOLECULE
-          ? 'molecule'
-          : activity.type === ActivityType.PROTEIN_COMPLEX
-            ? 'proteinComplex'
-            : 'activity'
+
+      const ok = await writeClipboardText(serializeActivity(activity, modelId))
+      dispatch(
+        showToast(
+          ok
+            ? {
+                message: `Copied "${activityClipboardLabel(activity)}" — paste (Ctrl+V) into any model`,
+              }
+            : { message: 'Could not access the clipboard', severity: 'error' }
+        )
+      )
+    },
+    [graphModel, modelId, dispatch]
+  )
+
+  const handlePasteActivity = useCallback(
+    (payload: ActivityClipboardPayload) => {
       checkGroup(() => {
         dispatch(resetForm())
-        dispatch(initDuplicateForm({ activity, activityType }))
+        dispatch(initPasteForm({ root: payload.root, activityType: payload.activityType }))
         setActivityFormOpen(true)
       })
     },
-    [graphModel, dispatch, checkGroup]
+    [dispatch, checkGroup]
   )
+
+  // Paste is off while a dialog owns the screen so it can't open a second form
+  // underneath the one already showing.
+  const pasteEnabled =
+    isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
+  useActivityPaste(pasteEnabled, handlePasteActivity)
+
+  const handleNodeContextMenu = useCallback((activityId: string, x: number, y: number) => {
+    setNodeMenu({ open: true, activityId, x, y })
+  }, [])
+
+  const closeNodeMenu = useCallback(() => {
+    setNodeMenu(prev => ({ ...prev, open: false }))
+  }, [])
 
   const handleStencilDrop = useCallback(
     (type: string) => {
@@ -239,9 +284,10 @@ const PathwayEditor: React.FC = () => {
             canvasRef={canvas.canvasRef}
             onActivityClick={handleSelectActivity}
             onEditClick={handleSelectActivity}
-            onDuplicateClick={handleDuplicateActivity}
+            onCopyClick={handleCopyActivity}
             onDeleteClick={del.requestDelete}
             onCommentClick={handleShowComments}
+            onContextMenu={handleNodeContextMenu}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
             onDuplicateLink={handleDuplicateLink}
@@ -250,6 +296,22 @@ const PathwayEditor: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Node right-click menu — same actions as the hover icons */}
+      {nodeMenu.activityId && (
+        <NodeContextMenu
+          open={nodeMenu.open}
+          x={nodeMenu.x}
+          y={nodeMenu.y}
+          interactive={isLoggedIn}
+          onClose={closeNodeMenu}
+          onView={() => handleSelectActivity(nodeMenu.activityId!)}
+          onEdit={() => handleSelectActivity(nodeMenu.activityId!)}
+          onCopy={() => handleCopyActivity(nodeMenu.activityId!)}
+          onComments={() => handleShowComments(nodeMenu.activityId!)}
+          onDelete={() => del.requestDelete(nodeMenu.activityId!)}
+        />
+      )}
 
       {/* External update notification */}
       <Modal

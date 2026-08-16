@@ -9,9 +9,10 @@ interface PathwayGraphProps {
   spacing?: LayoutSpacing
   onActivityClick?: (activityId: string) => void
   onEditClick?: (activityId: string) => void
-  onDuplicateClick?: (activityId: string) => void
+  onCopyClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
   onCommentClick?: (activityId: string) => void
+  onContextMenu?: (activityId: string, clientX: number, clientY: number) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -26,9 +27,10 @@ export default function PathwayGraph({
   spacing = 'compact',
   onActivityClick,
   onEditClick,
-  onDuplicateClick,
+  onCopyClick,
   onDeleteClick,
   onCommentClick,
+  onContextMenu,
   onLinkClick,
   onLinkCreated,
   onDuplicateLink,
@@ -60,9 +62,10 @@ export default function PathwayGraph({
     if (!canvas) return
     canvas.onActivityClick = onActivityClick
     canvas.onEditClick = onEditClick
-    canvas.onDuplicateClick = onDuplicateClick
+    canvas.onCopyClick = onCopyClick
     canvas.onDeleteClick = onDeleteClick
     canvas.onCommentClick = onCommentClick
+    canvas.onContextMenu = onContextMenu
     canvas.onLinkClick = onLinkClick
     canvas.onLinkCreated = onLinkCreated
     canvas.onDuplicateLink = onDuplicateLink
@@ -71,9 +74,10 @@ export default function PathwayGraph({
   }, [
     onActivityClick,
     onEditClick,
-    onDuplicateClick,
+    onCopyClick,
     onDeleteClick,
     onCommentClick,
+    onContextMenu,
     onLinkClick,
     onLinkCreated,
     onDuplicateLink,
