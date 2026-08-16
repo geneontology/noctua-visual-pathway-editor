@@ -12,6 +12,7 @@ import PathwayGraph from '@/features/pathway/components/PathwayGraph'
 import GraphToolbar from '@/features/pathway/components/GraphToolbar'
 import StencilPalette from '@/features/pathway/components/StencilPalette'
 import NodeContextMenu from '@/features/pathway/components/NodeContextMenu'
+import CanvasContextMenu from '@/features/pathway/components/CanvasContextMenu'
 import {
   setRightDrawerOpen,
   setRightPanelTab,
@@ -27,6 +28,7 @@ import {
 import type { ActivityClipboardPayload } from '@/features/gocam/services/activityClipboard'
 import {
   activityClipboardLabel,
+  readActivityClipboard,
   serializeActivity,
   writeClipboardText,
 } from '@/features/gocam/services/activityClipboard'
@@ -63,6 +65,14 @@ interface NodeMenuState {
 
 const closedNodeMenu: NodeMenuState = { open: false, activityId: null, x: 0, y: 0 }
 
+interface CanvasMenuState {
+  open: boolean
+  x: number
+  y: number
+}
+
+const closedCanvasMenu: CanvasMenuState = { open: false, x: 0, y: 0 }
+
 const closedConnector: ConnectorDialog = {
   open: false,
   source: null,
@@ -89,6 +99,7 @@ const PathwayEditor: React.FC = () => {
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
   const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
   const [nodeMenu, setNodeMenu] = useState<NodeMenuState>(closedNodeMenu)
+  const [canvasMenu, setCanvasMenu] = useState<CanvasMenuState>(closedCanvasMenu)
 
   const {
     data: graphModel,
@@ -196,15 +207,45 @@ const PathwayEditor: React.FC = () => {
     [graphModel, modelId, dispatch]
   )
 
+  // `at` is the right-click point for a menu paste. Ctrl+V has no click point of
+  // its own, so the canvas falls back to the last pointer position over it.
   const handlePasteActivity = useCallback(
-    (payload: ActivityClipboardPayload) => {
+    (payload: ActivityClipboardPayload, at?: { x: number; y: number }) => {
       checkGroup(() => {
+        // Armed like a stencil drop, so the node lands here once it comes back
+        // from the server rather than wherever the layout puts it.
+        canvas.canvasRef.current?.armDropAt(at)
         dispatch(resetForm())
         dispatch(initPasteForm({ root: payload.root, activityType: payload.activityType }))
         setActivityFormOpen(true)
       })
     },
-    [dispatch, checkGroup]
+    [dispatch, checkGroup, canvas.canvasRef]
+  )
+
+  // Menu-driven paste has to go through the async Clipboard API — unlike Ctrl+V,
+  // there's no paste event carrying the data.
+  const handlePasteFromMenu = useCallback(
+    async (at: { x: number; y: number }) => {
+      const result = await readActivityClipboard()
+      if (result.status === 'ok') {
+        handlePasteActivity(result.payload, at)
+        return
+      }
+      dispatch(
+        showToast(
+          result.status === 'empty'
+            ? { message: 'No copied activity on the clipboard', severity: 'warning' }
+            : {
+                message:
+                  'This browser blocked the clipboard read — press Ctrl+V to paste instead',
+                severity: 'info',
+                duration: 5000,
+              }
+        )
+      )
+    },
+    [handlePasteActivity, dispatch]
   )
 
   // Paste is off while a dialog owns the screen so it can't open a second form
@@ -219,6 +260,14 @@ const PathwayEditor: React.FC = () => {
 
   const closeNodeMenu = useCallback(() => {
     setNodeMenu(prev => ({ ...prev, open: false }))
+  }, [])
+
+  const handleBlankContextMenu = useCallback((x: number, y: number) => {
+    setCanvasMenu({ open: true, x, y })
+  }, [])
+
+  const closeCanvasMenu = useCallback(() => {
+    setCanvasMenu(prev => ({ ...prev, open: false }))
   }, [])
 
   const handleStencilDrop = useCallback(
@@ -288,6 +337,7 @@ const PathwayEditor: React.FC = () => {
             onDeleteClick={del.requestDelete}
             onCommentClick={handleShowComments}
             onContextMenu={handleNodeContextMenu}
+            onBlankContextMenu={isLoggedIn ? handleBlankContextMenu : undefined}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
             onDuplicateLink={handleDuplicateLink}
@@ -312,6 +362,15 @@ const PathwayEditor: React.FC = () => {
           onDelete={() => del.requestDelete(nodeMenu.activityId!)}
         />
       )}
+
+      {/* Blank-canvas right-click menu — paste lands at the click point */}
+      <CanvasContextMenu
+        open={canvasMenu.open}
+        x={canvasMenu.x}
+        y={canvasMenu.y}
+        onClose={closeCanvasMenu}
+        onPaste={() => handlePasteFromMenu({ x: canvasMenu.x, y: canvasMenu.y })}
+      />
 
       {/* External update notification */}
       <Modal

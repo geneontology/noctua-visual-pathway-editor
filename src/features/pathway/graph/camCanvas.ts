@@ -2,6 +2,7 @@ import * as joint from 'jointjs'
 import * as dagre from 'dagre'
 import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace } from './shapes'
 import { DropPlacement, centerTopLeft } from './dropPlacement'
+import type { Point } from './dropPlacement'
 import { getEdgeColor } from './edgeDisplayService'
 import { orderActivityEdgesForDisplay } from '@/features/gocam/services/formUtils'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
@@ -42,9 +43,13 @@ export class CamCanvas {
   private _container: HTMLElement
   private _layoutChanged = false
   private _loading = false
-  // Tracks a node being created from a stencil drop so it lands at the drop
-  // point once it arrives from the server. See _handleDrop / addCanvasGraph.
+  // Tracks a node being created from a stencil drop or a paste so it lands at
+  // the drop point once it arrives from the server. See _handleDrop / armDropAt
+  // / addCanvasGraph.
   private _dropPlacement = new DropPlacement()
+  // Last pointer position over the canvas, in viewport coords — gives a keyboard
+  // paste (Ctrl+V) somewhere sensible to land.
+  private _lastPointerClient: Point | null = null
   readOnly = false
 
   // Event callbacks — wired by the React component
@@ -54,6 +59,7 @@ export class CamCanvas {
   onDeleteClick?: (activityId: string) => void
   onCommentClick?: (activityId: string) => void
   onContextMenu?: (activityId: string, clientX: number, clientY: number) => void
+  onBlankContextMenu?: (clientX: number, clientY: number) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -183,6 +189,12 @@ export class CamCanvas {
       evt.preventDefault()
       evt.stopPropagation()
       this.onContextMenu?.(activity.uid, evt.clientX, evt.clientY)
+    })
+
+    // ── Blank canvas right-click: paste menu ──
+    this.paper.on('blank:contextmenu', (evt: MouseEvent) => {
+      evt.preventDefault()
+      this.onBlankContextMenu?.(evt.clientX, evt.clientY)
     })
 
     // ── Comment badge click: open the Comments panel for this activity ──
@@ -347,6 +359,23 @@ export class CamCanvas {
     this._dropPlacement.clear()
   }
 
+  /**
+   * Arm the next activity to appear so it lands at a viewport point — used by
+   * paste, the same way a stencil drop arms its drop point. Falls back to the
+   * last pointer position over the canvas (Ctrl+V has no click point of its
+   * own), then to the canvas center if the pointer has never been over it.
+   */
+  armDropAt(client?: Point) {
+    const rect = this._container.getBoundingClientRect()
+    const point = client ??
+      this._lastPointerClient ?? {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      }
+    const local = this.paper.clientToLocalPoint(point.x, point.y)
+    this._dropPlacement.arm({ x: local.x, y: local.y })
+  }
+
   autoLayout(spacing: LayoutSpacing = 'compact') {
     const elements = this.graph.getElements().filter(el => el.attr('./visibility') !== 'hidden')
     if (elements.length === 0) return
@@ -421,6 +450,7 @@ export class CamCanvas {
   destroy() {
     this._container.removeEventListener('dragover', this._handleDragOver)
     this._container.removeEventListener('drop', this._handleDrop)
+    this._container.removeEventListener('mousemove', this._handleMouseMove)
     this.paper.remove()
   }
 
@@ -451,9 +481,14 @@ export class CamCanvas {
     this.onStencilDrop(data.type)
   }
 
+  private _handleMouseMove = (e: MouseEvent) => {
+    this._lastPointerClient = { x: e.clientX, y: e.clientY }
+  }
+
   private _initStencilDrop() {
     this._container.addEventListener('dragover', this._handleDragOver)
     this._container.addEventListener('drop', this._handleDrop)
+    this._container.addEventListener('mousemove', this._handleMouseMove)
   }
 
   // ── Highlighting ──────────────────────────────────────────────

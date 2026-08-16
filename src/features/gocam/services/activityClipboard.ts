@@ -68,6 +68,33 @@ export function parseActivityClipboard(text: string): ActivityClipboardPayload |
   return payload as ActivityClipboardPayload
 }
 
+export type ClipboardReadResult =
+  | { status: 'ok'; payload: ActivityClipboardPayload }
+  /** Clipboard was readable but holds nothing we can paste. */
+  | { status: 'empty' }
+  /** Browser refused the read — Firefox blocks it for web content, and Chrome
+   *  needs a clipboard-read permission the user can decline. Ctrl+V still works. */
+  | { status: 'unsupported' }
+
+/**
+ * Pull an activity payload from the system clipboard. Only for menu-driven paste
+ * — the Ctrl+V path reads `clipboardData` off the paste event instead, which
+ * needs no permission.
+ */
+export async function readActivityClipboard(): Promise<ClipboardReadResult> {
+  if (!navigator.clipboard?.readText) return { status: 'unsupported' }
+
+  let text: string
+  try {
+    text = await navigator.clipboard.readText()
+  } catch {
+    return { status: 'unsupported' }
+  }
+
+  const payload = parseActivityClipboard(text)
+  return payload ? { status: 'ok', payload } : { status: 'empty' }
+}
+
 /**
  * Async Clipboard API where available, falling back to the legacy textarea +
  * execCommand path for non-secure contexts (the workbench can be served over

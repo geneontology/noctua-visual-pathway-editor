@@ -13,6 +13,7 @@ interface PathwayGraphProps {
   onDeleteClick?: (activityId: string) => void
   onCommentClick?: (activityId: string) => void
   onContextMenu?: (activityId: string, clientX: number, clientY: number) => void
+  onBlankContextMenu?: (clientX: number, clientY: number) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
@@ -31,6 +32,7 @@ export default function PathwayGraph({
   onDeleteClick,
   onCommentClick,
   onContextMenu,
+  onBlankContextMenu,
   onLinkClick,
   onLinkCreated,
   onDuplicateLink,
@@ -66,6 +68,7 @@ export default function PathwayGraph({
     canvas.onDeleteClick = onDeleteClick
     canvas.onCommentClick = onCommentClick
     canvas.onContextMenu = onContextMenu
+    canvas.onBlankContextMenu = onBlankContextMenu
     canvas.onLinkClick = onLinkClick
     canvas.onLinkCreated = onLinkCreated
     canvas.onDuplicateLink = onDuplicateLink
@@ -78,6 +81,7 @@ export default function PathwayGraph({
     onDeleteClick,
     onCommentClick,
     onContextMenu,
+    onBlankContextMenu,
     onLinkClick,
     onLinkCreated,
     onDuplicateLink,

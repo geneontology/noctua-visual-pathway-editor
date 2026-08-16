@@ -125,6 +125,34 @@ lock were left byte-identical), then `npm run build`. If this recurs, check
 | `src/features/gocam/slices/activityFormSlice.ts` | edit | done |
 | `src/app/PathwayViewer.tsx` | edit | done |
 
+## Round 2 — review follow-ups
+
+Reviewed the shipped feature; user triaged the findings:
+
+| Finding | Verdict |
+| ------- | ------- |
+| Discoverability: Ctrl+V is invisible. Proposed a Redux "clipboard" slice + menu paste | **Rejected** — copy targets a *different window*, which has its own store, so Redux can't carry it. Right-click paste accepted, reading the system clipboard instead. |
+| Copy should work logged-out (it's non-destructive) | **Rejected** — copying requires login. |
+| Pasted node doesn't land where you asked | **Fixed** — see below. |
+| No taxon/model-fit check on paste | **Won't do** — the form already validates before save. |
+| Multi-activity copy + preserving connections | **Deferred** — separate project. |
+
+Implemented:
+- `blank:contextmenu` → `onBlankContextMenu(clientX, clientY)` → `CanvasContextMenu` with a
+  **Paste activity** item, gated on `isLoggedIn`. Verified against the real 3.7.7 dist:
+  `contextMenuTrigger` fires `blank:contextmenu` with `(evt, x, y)`.
+- `readActivityClipboard()` — menu paste has no paste event to read, so it uses
+  `navigator.clipboard.readText()`. Returns a 3-way result so the UI can distinguish
+  "clipboard holds nothing pasteable" (warning toast) from "browser refused the read"
+  (info toast pointing at Ctrl+V — Firefox blocks `readText` for web content, and Chrome's
+  permission can be declined). Ctrl+V remains permission-free via `clipboardData`.
+- `CamCanvas.armDropAt(client?)` — reuses the existing `DropPlacement` so a pasted activity is
+  positioned like a stencil drop. Menu paste passes the right-click point; Ctrl+V passes
+  nothing and falls back to the last pointer position over the canvas (tracked via a
+  `mousemove` listener, removed in `destroy()`), then to the canvas center.
+- Extracted `CursorAnchoredMenu` so the node and canvas menus share the 1×1 cursor-placeholder
+  anchoring rather than duplicating it.
+
 ## Summary
 
 The node's copy icon now writes the activity to the system clipboard as JSON text instead of
