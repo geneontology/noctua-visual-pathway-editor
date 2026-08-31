@@ -370,6 +370,16 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         fill: 'transparent',
         stroke: WRAPPER_STROKE,
       },
+      // Selection ring, mirroring the box's `highlighter` rect: drawn under
+      // `.circle` at the same radius, so only the outer half of its stroke shows.
+      '.highlighter': {
+        refCx: '50%',
+        refCy: '50%',
+        refR: '50%',
+        fill: 'none',
+        stroke: 'transparent',
+        strokeWidth: 10,
+      },
       '.circle': {
         refCx: '50%',
         refCy: '50%',
@@ -471,6 +481,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
   {
     markup: [
       '<circle class="wrapper"/>',
+      '<circle class="highlighter"/>',
       '<g class="rotatable">',
       '<g class="scalable">',
       '<circle class="circle"/>',
@@ -504,6 +515,17 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
   setCommentCount(count: number): this {
     // Greyish icon + count always show at the bottom of the circle (Instagram style).
     this.attr('.commentCount/text', String(count))
+    return this
+  }
+
+  setBorder(colorKey: string, hue?: number): this {
+    const deep = getColor(colorKey, hue ?? 500)
+    if (deep) this.attr('.highlighter/stroke', deep)
+    return this
+  }
+
+  unsetBorder(): this {
+    this.attr('.highlighter/stroke', 'transparent')
     return this
   }
 
@@ -630,10 +652,33 @@ export class NodeLink extends joint.shapes.standard.Link {
   }
 
   hover(on: boolean): this {
-    this.attr('line/strokeWidth', on ? 4 : 1)
-    this.label(0, { attrs: { labelBody: { strokeWidth: on ? 2 : 1 } } })
+    this.prop('hovered', on)
+    return this._applyEmphasis()
+  }
+
+  /**
+   * A relation is selected when both of its activities are (#114). Kept as a
+   * prop rather than written straight to `line/strokeWidth` so that hovering a
+   * selected relation and then leaving it doesn't reset it to unselected.
+   */
+  setSelected(on: boolean): this {
+    this.prop('selected', on)
+    return this._applyEmphasis()
+  }
+
+  private _applyEmphasis(): this {
+    const emphasized = this.prop('selected') === true || this.prop('hovered') === true
+    this.attr('line/strokeWidth', emphasized ? 4 : 1)
+    this.label(0, { attrs: { labelBody: { strokeWidth: emphasized ? 2 : 1 } } })
     return this
   }
+}
+
+/** Cells that can render a selection border. */
+export type SelectableCell = NodeCellList | NodeCellMolecule
+
+export function isSelectableCell(cell: joint.dia.Cell): cell is SelectableCell {
+  return cell instanceof NodeCellList || cell instanceof NodeCellMolecule
 }
 
 // ── Cell namespace for JointJS Graph/Paper ────────────────────────

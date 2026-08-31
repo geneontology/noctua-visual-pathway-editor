@@ -1,8 +1,10 @@
 import * as joint from 'jointjs'
 import * as dagre from 'dagre'
-import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace } from './shapes'
+import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace, isSelectableCell } from './shapes'
 import { DropPlacement, centerTopLeft } from './dropPlacement'
 import type { Point } from './dropPlacement'
+import { SelectionModel } from './selectionModel'
+import { MarqueeSelection } from './marqueeSelection'
 import { getEdgeColor } from './edgeDisplayService'
 import { orderActivityEdgesForDisplay } from '@/features/gocam/services/formUtils'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
@@ -13,6 +15,15 @@ export type LayoutDetail = 'detailed' | 'activity' | 'simple'
 export type LayoutSpacing = 'compact' | 'relaxed'
 
 const GRID_COLOR = '#DDDDDD'
+
+// Border colours for the two selection states. Multi-select wins where a node is
+// both — they share the one `highlighter` stroke channel, since `body/fill` is
+// repainted on every hover by _highlightSuccessorNodes.
+const FOCUS_BORDER = { color: 'orange', hue: 500 }
+const MULTI_SELECT_BORDER = { color: 'blue', hue: 600 }
+
+/** How far one arrow-key press nudges the selection, in graph units. */
+const NUDGE_STEP = 10
 
 function activityColorKey(activity: Activity): string {
   switch (activity.type) {
@@ -50,6 +61,19 @@ export class CamCanvas {
   // Last pointer position over the canvas, in viewport coords — gives a keyboard
   // paste (Ctrl+V) somewhere sensible to land.
   private _lastPointerClient: Point | null = null
+  // Multi-selection (#114). Keyed by activity uid, which is also the cell id, so
+  // it survives the resetCells rebuild that every save triggers.
+  private _selection = new SelectionModel()
+  private _marquee: MarqueeSelection
+  // The activity backing the right drawer — a separate state from the
+  // multi-selection, drawn in a different colour.
+  private _focusedUid: string | null = null
+  // Last observed position of the node being dragged, so the rest of the
+  // selection can be moved by the same delta. Tracked rather than derived from
+  // the pointer so that a node clamped by `restrictTranslate` doesn't let the
+  // group drift out of formation.
+  private _dragAnchor: { id: string; x: number; y: number } | null = null
+  private _groupDragging = false
   readOnly = false
 
   // Event callbacks — wired by the React component
@@ -65,6 +89,7 @@ export class CamCanvas {
   onDuplicateLink?: () => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
   onStencilDrop?: (type: string) => void
+  onSelectionChange?: (activityIds: string[]) => void
 
   constructor(container: HTMLElement) {
     // Captured so the paper's validate* callbacks (where `this` is the paper)
@@ -113,6 +138,16 @@ export class CamCanvas {
       sorting: joint.dia.Paper.sorting.APPROX,
     })
 
+    this._marquee = new MarqueeSelection(this.paper, this.graph, {
+      onSelect: (ids, additive) => {
+        const changed = additive ? this._selection.add(ids) : this._selection.replace(ids)
+        if (changed) this._commitSelection()
+      },
+      onClickBlank: () => {
+        if (this._selection.clear()) this._commitSelection()
+      },
+    })
+
     this._initEvents()
     this._initStencilDrop()
   }
@@ -120,7 +155,9 @@ export class CamCanvas {
   private _initEvents() {
     // ── Blank canvas double-click: deselect all ──
     this.paper.on('blank:pointerdblclick', () => {
-      this._unselectAll()
+      this._focusedUid = null
+      this._selection.clear()
+      this._commitSelection()
     })
 
     // ── Element double-click: select + notify ──
@@ -128,10 +165,43 @@ export class CamCanvas {
       const element = cellView.model
       const activity = element.prop('activity') as Activity | undefined
       if (activity) {
-        this._selectNode(element as NodeCellList)
+        this._focusedUid = activity.uid
+        this._renderSelection()
         this.onActivityClick?.(activity.uid)
       }
     })
+
+    // ── Element pointerdown: shift/ctrl-click toggles multi-selection ──
+    // A plain pointerdown is left alone so it still starts a drag and so the
+    // double-click above (which opens the drawer) keeps working.
+    this.paper.on(
+      'element:pointerdown',
+      (cellView: joint.dia.CellView, evt: joint.dia.Event) => {
+        const element = cellView.model
+        const activity = element.prop('activity') as Activity | undefined
+        if (!activity) return
+
+        const mouseEvt = evt as unknown as MouseEvent
+        if (mouseEvt.shiftKey || mouseEvt.ctrlKey || mouseEvt.metaKey) {
+          // ElementView.pointerdown notifies us and then calls dragStart()
+          // directly, so stopPropagation wouldn't stop the drag —
+          // preventDefaultInteraction is the hook dragStart actually checks.
+          cellView.preventDefaultInteraction(evt)
+          this._selection.toggle(activity.uid)
+          this._commitSelection()
+          return
+        }
+
+        // Dragging a node that isn't in the selection drops the selection, the
+        // way PowerPoint does; dragging one that is keeps the group intact.
+        if (!this._selection.has(activity.uid) && !this._selection.isEmpty) {
+          this._selection.clear()
+          this._commitSelection()
+        }
+
+        this._beginGroupDrag(element as joint.dia.Element)
+      }
+    )
 
     // ── Element hover: highlight + show edit/delete icons ──
     this.paper.on('element:mouseover', (cellView: joint.dia.CellView) => {
@@ -225,7 +295,9 @@ export class CamCanvas {
       const sourceId = link.get('source')?.id as string | undefined
       const targetId = link.get('target')?.id as string | undefined
       if (sourceId && targetId) {
-        this._unselectAll()
+        this._focusedUid = null
+        this._selection.clear()
+        this._commitSelection()
         this.onLinkClick?.(sourceId, targetId)
       }
     })
@@ -263,12 +335,14 @@ export class CamCanvas {
       this.onLinkCreated?.(sourceId, targetId)
     })
 
-    // ── Position tracking ──
-    this.graph.on('change:position', () => {
+    // ── Position tracking + group drag ──
+    this.graph.on('change:position', (element: joint.dia.Cell) => {
       this._layoutChanged = true
+      if (element instanceof joint.dia.Element) this._dragGroupWith(element)
     })
 
     this.paper.on('element:pointerup', () => {
+      this._endGroupDrag()
       if (this._layoutChanged) {
         this._layoutChanged = false
         this._persistPositions()
@@ -351,6 +425,18 @@ export class CamCanvas {
         maxScaleY: 1,
       })
     }
+
+    // resetCells above destroyed every cell, taking their selection borders with
+    // them. Drop anything that no longer exists, then repaint onto the new cells
+    // — this also restores the focused activity's border, which used to be lost
+    // on every save because nothing re-applied it after a refetch.
+    if (this._focusedUid && !activityUids.includes(this._focusedUid)) {
+      this._focusedUid = null
+    }
+    const pruned = this._selection.prune(activityUids)
+    this._renderSelection()
+    if (pruned) this.onSelectionChange?.(this._selection.list())
+
     this.paper.unfreeze()
   }
 
@@ -451,6 +537,7 @@ export class CamCanvas {
     this._container.removeEventListener('dragover', this._handleDragOver)
     this._container.removeEventListener('drop', this._handleDrop)
     this._container.removeEventListener('mousemove', this._handleMouseMove)
+    this._marquee.destroy()
     this.paper.remove()
   }
 
@@ -676,17 +763,122 @@ export class CamCanvas {
 
   // ── Selection ─────────────────────────────────────────────────
 
-  private _selectNode(node: NodeCellList) {
-    this._unselectAll()
-    node.setBorder('orange', 500)
-  }
-
-  private _unselectAll() {
+  /**
+   * Paint every cell's selection state. Multi-selected nodes take precedence
+   * over the drawer-focused one: both use the single `highlighter` stroke
+   * channel, because `body/fill` is repainted on every hover by
+   * `_highlightSuccessorNodes`.
+   *
+   * A relation shows as selected when both of its activities are, which is also
+   * what makes a group drag look right — links follow their endpoints anyway.
+   */
+  private _renderSelection() {
     for (const cell of this.graph.getCells()) {
-      if (cell instanceof NodeCellList) {
-        cell.unsetBorder()
+      if (isSelectableCell(cell)) {
+        const uid = String(cell.id)
+        if (this._selection.has(uid)) {
+          cell.setBorder(MULTI_SELECT_BORDER.color, MULTI_SELECT_BORDER.hue)
+        } else if (uid === this._focusedUid) {
+          cell.setBorder(FOCUS_BORDER.color, FOCUS_BORDER.hue)
+        } else {
+          cell.unsetBorder()
+        }
+      } else if (cell instanceof NodeLink) {
+        const source = cell.get('source')?.id as string | undefined
+        const target = cell.get('target')?.id as string | undefined
+        const bothEnds =
+          !!source && !!target && this._selection.has(source) && this._selection.has(target)
+        cell.setSelected(bothEnds)
       }
     }
+  }
+
+  /** Repaint and tell React the selection changed. */
+  private _commitSelection() {
+    this._renderSelection()
+    this.onSelectionChange?.(this._selection.list())
+  }
+
+  /** Currently multi-selected activity uids. */
+  getSelection(): string[] {
+    return this._selection.list()
+  }
+
+  /** Replace the multi-selection from outside the canvas. */
+  setSelection(uids: string[]) {
+    if (this._selection.replace(uids)) this._commitSelection()
+  }
+
+  clearSelection() {
+    if (this._selection.clear()) this._commitSelection()
+  }
+
+  /** Add every activity on the canvas to the selection (Ctrl+A). */
+  selectAll() {
+    const uids = this.graph
+      .getElements()
+      .filter(el => !!el.prop('activity'))
+      .map(el => String(el.id))
+    if (this._selection.replace(uids)) this._commitSelection()
+  }
+
+  /**
+   * Move the whole selection by a fixed step — arrow-key nudge. No-op when read
+   * only or when nothing is selected.
+   */
+  nudgeSelection(dx: number, dy: number) {
+    if (this.readOnly || this._selection.isEmpty) return
+
+    const step = { x: dx * NUDGE_STEP, y: dy * NUDGE_STEP }
+    this._groupDragging = true
+    for (const uid of this._selection.list()) {
+      const cell = this.graph.getCell(uid)
+      if (cell instanceof joint.dia.Element) cell.translate(step.x, step.y)
+    }
+    this._groupDragging = false
+
+    this._layoutChanged = false
+    this._persistPositions()
+  }
+
+  // ── Group drag ────────────────────────────────────────────────
+
+  private _beginGroupDrag(element: joint.dia.Element) {
+    if (this.readOnly || this._selection.size < 2) return
+    const id = String(element.id)
+    if (!this._selection.has(id)) return
+    const pos = element.position()
+    this._dragAnchor = { id, x: pos.x, y: pos.y }
+  }
+
+  /**
+   * Translate the rest of the selection by however far the dragged node has
+   * actually moved since the last event — so a node stopped at the paper edge
+   * by `restrictTranslate` doesn't let the group lose its relative positions.
+   */
+  private _dragGroupWith(element: joint.dia.Element) {
+    if (this._groupDragging || !this._dragAnchor) return
+    if (String(element.id) !== this._dragAnchor.id) return
+
+    const draggedId = this._dragAnchor.id
+    const pos = element.position()
+    const dx = pos.x - this._dragAnchor.x
+    const dy = pos.y - this._dragAnchor.y
+    if (dx === 0 && dy === 0) return
+
+    this._dragAnchor = { id: draggedId, x: pos.x, y: pos.y }
+
+    this._groupDragging = true
+    for (const uid of this._selection.list()) {
+      if (uid === draggedId) continue
+      const cell = this.graph.getCell(uid)
+      if (cell instanceof joint.dia.Element) cell.translate(dx, dy)
+    }
+    this._groupDragging = false
+  }
+
+  private _endGroupDrag() {
+    this._dragAnchor = null
   }
 
   /**
@@ -695,20 +887,8 @@ export class CamCanvas {
    * viewport — auto-panning shifted the rest of the graph off-screen.
    */
   selectActivity(uid: string | null) {
-    if (!uid) {
-      this._unselectAll()
-      return
-    }
-
-    for (const element of this.graph.getElements()) {
-      const activity = element.prop('activity') as Activity | undefined
-      if (activity?.uid === uid) {
-        if (element instanceof NodeCellList) {
-          this._selectNode(element)
-        }
-        return
-      }
-    }
+    this._focusedUid = uid
+    this._renderSelection()
   }
 
   // ── Coordinate transform ──────────────────────────────────────

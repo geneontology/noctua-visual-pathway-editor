@@ -48,6 +48,7 @@ import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
 import { useActivityPaste } from './hooks/useActivityPaste'
+import { useCanvasKeyboard } from './hooks/useCanvasKeyboard'
 
 interface ConnectorDialog {
   open: boolean
@@ -98,6 +99,7 @@ const PathwayEditor: React.FC = () => {
   const [activityFormOpen, setActivityFormOpen] = useState(false)
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
   const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [nodeMenu, setNodeMenu] = useState<NodeMenuState>(closedNodeMenu)
   const [canvasMenu, setCanvasMenu] = useState<CanvasMenuState>(closedCanvasMenu)
 
@@ -253,6 +255,12 @@ const PathwayEditor: React.FC = () => {
   const pasteEnabled =
     isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
   useActivityPaste(pasteEnabled, handlePasteActivity)
+  // Same guard as paste — a dialog on screen owns the keyboard.
+  useCanvasKeyboard(pasteEnabled, canvas.canvasRef)
+
+  const handleClearSelection = useCallback(() => {
+    canvas.canvasRef.current?.clearSelection()
+  }, [canvas.canvasRef])
 
   const handleNodeContextMenu = useCallback((activityId: string, x: number, y: number) => {
     setNodeMenu({ open: true, activityId, x, y })
@@ -312,6 +320,8 @@ const PathwayEditor: React.FC = () => {
         onZoomIn={canvas.onZoomIn}
         onZoomOut={canvas.onZoomOut}
         onZoomReset={canvas.onZoomReset}
+        selectionCount={selectedIds.length}
+        onClearSelection={handleClearSelection}
       />
       <div className="flex min-h-0 flex-1 flex-row">
         {isLoggedIn && <StencilPalette />}
@@ -338,6 +348,7 @@ const PathwayEditor: React.FC = () => {
             onCommentClick={handleShowComments}
             onContextMenu={handleNodeContextMenu}
             onBlankContextMenu={isLoggedIn ? handleBlankContextMenu : undefined}
+            onSelectionChange={setSelectedIds}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
             onDuplicateLink={handleDuplicateLink}

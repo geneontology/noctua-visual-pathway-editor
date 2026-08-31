@@ -19,6 +19,7 @@ interface PathwayGraphProps {
   onDuplicateLink?: () => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
   onStencilDrop?: (type: ActivityType) => void
+  onSelectionChange?: (activityIds: string[]) => void
   canvasRef?: React.MutableRefObject<CamCanvas | null>
 }
 
@@ -38,6 +39,7 @@ export default function PathwayGraph({
   onDuplicateLink,
   onUpdateLocations,
   onStencilDrop,
+  onSelectionChange,
   canvasRef: externalCanvasRef,
 }: PathwayGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -74,6 +76,7 @@ export default function PathwayGraph({
     canvas.onDuplicateLink = onDuplicateLink
     canvas.onUpdateLocations = onUpdateLocations
     canvas.onStencilDrop = onStencilDrop as CamCanvas['onStencilDrop']
+    canvas.onSelectionChange = onSelectionChange
   }, [
     onActivityClick,
     onEditClick,
@@ -87,6 +90,7 @@ export default function PathwayGraph({
     onDuplicateLink,
     onUpdateLocations,
     onStencilDrop,
+    onSelectionChange,
     canvasRef,
   ])
 

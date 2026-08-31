@@ -18,6 +18,9 @@ interface GraphToolbarProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onZoomReset: () => void
+  /** Number of activities in the canvas multi-selection (#114). */
+  selectionCount?: number
+  onClearSelection?: () => void
 }
 
 export default function GraphToolbar({
@@ -29,6 +32,8 @@ export default function GraphToolbar({
   onZoomIn,
   onZoomOut,
   onZoomReset,
+  selectionCount = 0,
+  onClearSelection,
 }: GraphToolbarProps) {
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
@@ -64,7 +69,26 @@ export default function GraphToolbar({
         onChange={onSpacingChange}
       />
 
-      <div className="ml-auto flex items-center gap-1 rounded-full bg-gray-100 p-0.5">
+      {selectionCount > 0 && (
+        <div className="ml-auto flex items-center gap-2 rounded-full bg-blue-50 py-1 pr-1 pl-3 text-xs font-medium text-blue-800">
+          <span>
+            {selectionCount} selected — drag to move together, arrow keys to nudge
+          </span>
+          <Button
+            variant="subtle"
+            size="compact-xs"
+            radius="xl"
+            onClick={onClearSelection}
+            className="!text-xs !text-blue-800 hover:!bg-blue-100"
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+
+      <div
+        className={`flex items-center gap-1 rounded-full bg-gray-100 p-0.5 ${selectionCount > 0 ? '' : 'ml-auto'}`}
+      >
         <Tooltip label="Zoom out" withArrow position="bottom">
           <ActionIcon
             variant="subtle"
