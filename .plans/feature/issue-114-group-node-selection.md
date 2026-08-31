@@ -187,10 +187,30 @@ longer holds. Three things, all verified against the current tree and the instal
 ### Phase 8: Verify
 
 - [x] `npm run type-check` — clean
-- [x] `npx eslint src` — only the 2 pre-existing errors (`findParentOfRelation`, `Autocomplete`
-      `variant`), both untouched by this work
-- [x] `npm run test` — 950 passed / 66 files
+- [x] `npx eslint src tests` — only 3 pre-existing errors (`findParentOfRelation`, `Autocomplete`
+      `variant`, and an unused `GraphNode` import in `violationService.test.ts`); none from this work
+- [x] `npm run test` — **1011 passed / 69 files** (was 950 / 66)
 - [x] `npm run build` — succeeds
+
+### Phase 9: Tests
+
+Unit tests for the three new modules. `camCanvas.ts` and `shapes.ts` are deliberately left
+untested, matching the repo's existing precedent — there is no JointJS-paper-under-jsdom test
+anywhere in `tests/`, only pure modules (`dropPlacement`, `edgeDisplayService`).
+
+- [x] `tests/features/pathway/graph/selectionModel.test.ts` — 23 tests: replace/add/toggle/clear/
+      prune, the changed-flag contract, order-independence, de-duplication, and that `list()` hands
+      back a copy.
+- [x] `tests/features/pathway/graph/marqueeSelection.test.ts` — 19 tests against a fake paper/graph
+      (the class only touches `on`/`off`/`getLayerNode`/`findModelsInArea`): click-vs-drag threshold,
+      rectangle normalization in all drag directions, additive shift-drag, non-primary buttons
+      ignored, band added/removed from the front layer, `destroy()` cleanup.
+- [x] `tests/app/hooks/useCanvasKeyboard.test.tsx` — 19 tests: Escape, Ctrl/Cmd+A, all four arrow
+      deltas, no-nudge-when-empty, editable-target guards (input/textarea/select/contenteditable and
+      nested targets), enable/disable/unmount, and a null canvas ref.
+- [x] **Mutation-checked.** Temporarily broke `prune` (no-op) and the marquee's `Math.min`
+      normalization; 3 tests failed as they should, then both mutations were reverted. The tests
+      are load-bearing, not just green.
 - [ ] Manual: marquee over mixed activities/chemicals/relations; group drag; save mid-selection and
       confirm selection survives; read-only (logged out) must not select or drag.
 
@@ -198,8 +218,8 @@ longer holds. Three things, all verified against the current tree and the instal
 
 > **⚠ UPDATE THIS AFTER EVERY CHANGE**
 
-- **Last completed action:** Phases 1–7 implemented on branch `issue-114-group-selection`;
-  type-check, lint, test suite (950 passed) and production build all green.
+- **Last completed action:** Phases 1–9 done on branch `issue-114-group-selection` — implementation
+  plus 61 unit tests. Type-check, lint, full suite (1011 passed) and production build all green.
 - **Next immediate action:** **manual smoke test in the browser** (`npm run dev`, port 4208) — none
   of this has been exercised against a real model yet. Check in order: marquee over a mix of
   activities + chemicals + relations; shift-click add/remove; group drag keeps relative positions;
@@ -207,7 +227,8 @@ longer holds. Three things, all verified against the current tree and the instal
   read-only. Then commit.
 - **Recent commands run:**
   - `git checkout -b issue-114-group-selection`
-  - `npx tsc --noEmit` / `npx eslint src` / `npm run test` / `npm run build`
+  - `npx tsc --noEmit` / `npx eslint src tests` / `npm run test` / `npm run build`
+  - mutation check: broke `prune` and the marquee normalization, confirmed 3 test failures, reverted
 - **Uncommitted changes:** see Files Modified — nothing committed yet
 - **Environment state:** nothing running; `npm run build` wrote to
   `workbenches/noctua-visual-pathway-editor/public`
@@ -239,6 +260,9 @@ longer holds. Three things, all verified against the current tree and the instal
 | `src/features/pathway/components/GraphToolbar.tsx`  | edit         | done    |
 | `src/app/PathwayViewer.tsx`                         | edit         | done    |
 | `src/features/gocam/slices/camSlice.ts`             | not touched  | —       |
+| `tests/features/pathway/graph/selectionModel.test.ts`   | create   | done, 23 passing |
+| `tests/features/pathway/graph/marqueeSelection.test.ts` | create   | done, 19 passing |
+| `tests/app/hooks/useCanvasKeyboard.test.tsx`            | create   | done, 19 passing |
 
 ## Blockers
 
@@ -268,6 +292,10 @@ longer holds. Three things, all verified against the current tree and the instal
   class of async-rendering sequencing problems. Worth reaching for whenever the paper is `async`.
 - Measuring a drag delta from the **actual position change** rather than the pointer made the
   clamping problem disappear instead of needing to be solved.
+- Designing `MarqueeSelection` to take `(paper, graph)` rather than reaching into `CamCanvas` meant
+  it could be unit-tested against ~30 lines of fakes. The same feature written inline in
+  `camCanvas.ts` would have been untestable in this repo's setup.
+- Green tests proved nothing until they were mutation-checked. Worth the two minutes.
 
 ## Additional Context (Claude)
 
