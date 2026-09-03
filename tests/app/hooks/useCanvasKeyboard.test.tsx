@@ -128,6 +128,103 @@ describe('useCanvasKeyboard', () => {
     })
   })
 
+  describe('region copy', () => {
+    it('copies on Ctrl+C when something is selected', () => {
+      canvas = buildCanvas(['act-1'])
+      const onCopyRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onCopyRegion }))
+
+      const event = fireKey('c', { ctrl: true })
+
+      expect(onCopyRegion).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('leaves Ctrl+C alone when nothing is selected', () => {
+      const onCopyRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onCopyRegion }))
+
+      const event = fireKey('c', { ctrl: true })
+
+      expect(onCopyRegion).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+  })
+
+  describe('region paste precedence', () => {
+    // The single-activity paste listens for the browser `paste` event, which a
+    // preventDefault here would suppress. So Ctrl+V must only be claimed when
+    // there is genuinely a region to paste.
+    it('claims Ctrl+V when a region was pasted', () => {
+      const onPasteRegion = vi.fn(() => true)
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onPasteRegion }))
+
+      const event = fireKey('v', { ctrl: true })
+
+      expect(onPasteRegion).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('does NOT claim Ctrl+V when there is no region, so single paste still works', () => {
+      const onPasteRegion = vi.fn(() => false)
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onPasteRegion }))
+
+      const event = fireKey('v', { ctrl: true })
+
+      expect(onPasteRegion).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('does not claim Ctrl+V when no region handler is wired at all', () => {
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas)))
+
+      expect(fireKey('v', { ctrl: true }).defaultPrevented).toBe(false)
+    })
+
+    it('ignores a bare "v" so typing is unaffected', () => {
+      const onPasteRegion = vi.fn(() => true)
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onPasteRegion }))
+
+      fireKey('v')
+
+      expect(onPasteRegion).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('delete selection', () => {
+    it.each(['Delete', 'Backspace'])('%s deletes when something is selected', key => {
+      canvas = buildCanvas(['act-1'])
+      const onDeleteRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDeleteRegion }))
+
+      const event = fireKey(key)
+
+      expect(onDeleteRegion).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('does nothing when the selection is empty', () => {
+      const onDeleteRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDeleteRegion }))
+
+      const event = fireKey('Delete')
+
+      expect(onDeleteRegion).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('ignores Backspace aimed at a text field, so editing still works', () => {
+      canvas = buildCanvas(['act-1'])
+      const onDeleteRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDeleteRegion }))
+      const field = mount(document.createElement('input'))
+
+      fireKey('Backspace', { target: field })
+
+      expect(onDeleteRegion).not.toHaveBeenCalled()
+    })
+  })
+
   describe('editable targets', () => {
     it.each(['input', 'textarea', 'select'])('ignores keys aimed at a <%s>', tag => {
       renderHook(() => useCanvasKeyboard(true, refTo(canvas)))
