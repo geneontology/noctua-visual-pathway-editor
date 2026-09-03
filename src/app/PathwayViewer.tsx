@@ -49,6 +49,18 @@ import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
 import { useActivityPaste } from './hooks/useActivityPaste'
 import { useCanvasKeyboard } from './hooks/useCanvasKeyboard'
+import { useRegionDelete } from './hooks/useRegionDelete'
+import { useUserContext } from './hooks/useUserContext'
+import { useUpdateGraphModelMutation } from '@/features/gocam/slices/camApiSlice'
+import {
+  buildRegionPayload,
+  clearRegion,
+  readRegion,
+  writeRegion,
+} from '@/features/gocam/services/regionClipboard'
+import type { RegionClipboardPayload } from '@/features/gocam/services/regionClipboard'
+import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
+import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
 
 interface ConnectorDialog {
   open: boolean
@@ -70,9 +82,32 @@ interface CanvasMenuState {
   open: boolean
   x: number
   y: number
+  /** Summary of the stored region, or null when there isn't one to paste. */
+  regionSummary: string | null
 }
 
-const closedCanvasMenu: CanvasMenuState = { open: false, x: 0, y: 0 }
+const closedCanvasMenu: CanvasMenuState = {
+  open: false,
+  x: 0,
+  y: 0,
+  regionSummary: null,
+}
+
+interface RegionPasteState {
+  open: boolean
+  payload: RegionClipboardPayload | null
+  /** Viewport point the region should land on, when it came from a right-click. */
+  at: { x: number; y: number } | undefined
+}
+
+const closedRegionPaste: RegionPasteState = { open: false, payload: null, at: undefined }
+
+/** e.g. "3 activities" / "2 activities and 1 relation" — used in menus. */
+const describeRegion = (activities: number, relations: number): string => {
+  const head = `${activities} ${activities === 1 ? 'activity' : 'activities'}`
+  if (relations === 0) return head
+  return `${head} and ${relations} ${relations === 1 ? 'relation' : 'relations'}`
+}
 
 const closedConnector: ConnectorDialog = {
   open: false,
@@ -96,10 +131,13 @@ const PathwayEditor: React.FC = () => {
   const checkGroup = useGroupGuard()
 
   const canvas = usePathwayCanvas(isLoggedIn)
+  const userContext = useUserContext()
+  const [updateGraphModel] = useUpdateGraphModelMutation()
   const [activityFormOpen, setActivityFormOpen] = useState(false)
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
   const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [regionPaste, setRegionPaste] = useState<RegionPasteState>(closedRegionPaste)
   const [nodeMenu, setNodeMenu] = useState<NodeMenuState>(closedNodeMenu)
   const [canvasMenu, setCanvasMenu] = useState<CanvasMenuState>(closedCanvasMenu)
 
@@ -122,6 +160,9 @@ const PathwayEditor: React.FC = () => {
   }, [acknowledge, refetch])
 
   const del = useDeleteConfirmation(graphModel?.data ?? null)
+  const regionDel = useRegionDelete(graphModel?.data ?? null, () =>
+    canvas.canvasRef.current?.clearSelection()
+  )
 
   useEffect(() => {
     if (isSuccess && graphModel?.data) {
@@ -196,6 +237,10 @@ const PathwayEditor: React.FC = () => {
       if (!activity) return
 
       const ok = await writeClipboardText(serializeActivity(activity, modelId))
+      // Drop any stored region, so this becomes the thing Ctrl+V pastes. The two
+      // clipboards are separate stores and Ctrl+V checks the region first, so a
+      // leftover region would otherwise keep winning over a fresh single copy.
+      clearRegion()
       dispatch(
         showToast(
           ok
@@ -223,6 +268,84 @@ const PathwayEditor: React.FC = () => {
       })
     },
     [dispatch, checkGroup, canvas.canvasRef]
+  )
+
+  // ── Region copy/paste (#114 follow-on) ────────────────────────
+  //
+  // The region payload lives in localStorage rather than the system clipboard,
+  // so the menu-driven paste needs no clipboard-read permission (which Firefox
+  // never grants) and Ctrl+V and the context menu share one code path.
+
+  const handleCopyRegion = useCallback(() => {
+    const model = graphModel?.data
+    const canvasApi = canvas.canvasRef.current
+    if (!model || !canvasApi) return
+
+    const selection = canvasApi.getSelection()
+    if (selection.length === 0) return
+
+    const payload = buildRegionPayload(model, selection, canvasApi.getSelectionPositions())
+    if (!payload) return
+
+    const summary = describeRegion(payload.activities.length, payload.connections.length)
+    const stored = writeRegion(payload)
+    dispatch(
+      showToast(
+        stored
+          ? { message: `Copied ${summary} — paste into this or any other model` }
+          : { message: 'Could not store the copied region', severity: 'error' }
+      )
+    )
+  }, [graphModel, canvas.canvasRef, dispatch])
+
+  /** Opens the confirm dialog. Returns false when there's no region to paste. */
+  const handleRequestPasteRegion = useCallback(
+    (at?: { x: number; y: number }): boolean => {
+      const payload = readRegion()
+      if (!payload) return false
+      checkGroup(() => setRegionPaste({ open: true, payload, at }))
+      return true
+    },
+    [checkGroup]
+  )
+
+  const handleCancelPasteRegion = useCallback(() => {
+    setRegionPaste(closedRegionPaste)
+  }, [])
+
+  const handleConfirmPasteRegion = useCallback(
+    async (includeEvidence: boolean) => {
+      const { payload, at } = regionPaste
+      if (!payload || !modelId) return
+
+      const operations = buildPasteRegionOperations(payload, modelId, userContext, {
+        includeEvidence,
+      })
+
+      // Armed like a stencil drop, so the new activities rebuild their copied
+      // layout once they come back from the server.
+      canvas.canvasRef.current?.armRegionAt(
+        payload.activities.map(entry => ({ termId: entry.rootTermId, offset: entry.offset })),
+        at
+      )
+      setRegionPaste(closedRegionPaste)
+
+      try {
+        await updateGraphModel(operations).unwrap()
+        dispatch(
+          showToast({
+            message: `Pasted ${describeRegion(
+              payload.activities.length,
+              payload.connections.length
+            )}`,
+          })
+        )
+      } catch {
+        canvas.canvasRef.current?.clearPendingRegion()
+        dispatch(showToast({ message: 'Could not paste the region', severity: 'error' }))
+      }
+    },
+    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch]
   )
 
   // Menu-driven paste has to go through the async Clipboard API — unlike Ctrl+V,
@@ -256,11 +379,22 @@ const PathwayEditor: React.FC = () => {
     isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
   useActivityPaste(pasteEnabled, handlePasteActivity)
   // Same guard as paste — a dialog on screen owns the keyboard.
-  useCanvasKeyboard(pasteEnabled, canvas.canvasRef)
+  const handleDeleteSelection = useCallback(() => {
+    const selection = canvas.canvasRef.current?.getSelection() ?? []
+    if (selection.length === 0) return
+    checkGroup(() => regionDel.requestDelete(selection))
+  }, [canvas.canvasRef, checkGroup, regionDel])
+
+  useCanvasKeyboard(pasteEnabled, canvas.canvasRef, {
+    onCopyRegion: handleCopyRegion,
+    onPasteRegion: () => handleRequestPasteRegion(),
+    onDeleteRegion: handleDeleteSelection,
+  })
 
   const handleClearSelection = useCallback(() => {
     canvas.canvasRef.current?.clearSelection()
   }, [canvas.canvasRef])
+
 
   const handleNodeContextMenu = useCallback((activityId: string, x: number, y: number) => {
     setNodeMenu({ open: true, activityId, x, y })
@@ -271,7 +405,17 @@ const PathwayEditor: React.FC = () => {
   }, [])
 
   const handleBlankContextMenu = useCallback((x: number, y: number) => {
-    setCanvasMenu({ open: true, x, y })
+    // Read the stored region as the menu opens, so the Paste item only shows
+    // when there is actually something to paste.
+    const region = readRegion()
+    setCanvasMenu({
+      open: true,
+      x,
+      y,
+      regionSummary: region
+        ? describeRegion(region.activities.length, region.connections.length)
+        : null,
+    })
   }, [])
 
   const closeCanvasMenu = useCallback(() => {
@@ -322,6 +466,9 @@ const PathwayEditor: React.FC = () => {
         onZoomReset={canvas.onZoomReset}
         selectionCount={selectedIds.length}
         onClearSelection={handleClearSelection}
+        onCopySelection={handleCopyRegion}
+        onDeleteSelection={handleDeleteSelection}
+        canEdit={isLoggedIn}
       />
       <div className="flex min-h-0 flex-1 flex-row">
         {isLoggedIn && <StencilPalette />}
@@ -369,6 +516,9 @@ const PathwayEditor: React.FC = () => {
           onView={() => handleSelectActivity(nodeMenu.activityId!)}
           onEdit={() => handleSelectActivity(nodeMenu.activityId!)}
           onCopy={() => handleCopyActivity(nodeMenu.activityId!)}
+          regionSummary={selectedIds.length > 1 ? describeRegion(selectedIds.length, 0) : null}
+          onCopyRegion={handleCopyRegion}
+          onDeleteRegion={handleDeleteSelection}
           onComments={() => handleShowComments(nodeMenu.activityId!)}
           onDelete={() => del.requestDelete(nodeMenu.activityId!)}
         />
@@ -379,6 +529,10 @@ const PathwayEditor: React.FC = () => {
         open={canvasMenu.open}
         x={canvasMenu.x}
         y={canvasMenu.y}
+        regionSummary={canvasMenu.regionSummary}
+        onPasteRegion={() =>
+          handleRequestPasteRegion({ x: canvasMenu.x, y: canvasMenu.y })
+        }
         onClose={closeCanvasMenu}
         onPaste={() => handlePasteFromMenu({ x: canvasMenu.x, y: canvasMenu.y })}
       />
@@ -435,6 +589,35 @@ const PathwayEditor: React.FC = () => {
           />
         )}
       </SimpleDialog>
+
+      {/* Bulk delete confirmation (#114 follow-on) */}
+      <ConfirmDialog
+        open={regionDel.isDeleteOpen}
+        onClose={regionDel.cancelDelete}
+        onConfirm={regionDel.confirmDelete}
+        title="Delete selected activities"
+        confirmLabel="Delete"
+        busy={regionDel.isDeleting}
+        message={
+          <div className="flex flex-col gap-2">
+            <p>
+              Delete {regionDel.deleteTargets?.length ?? 0}{' '}
+              {(regionDel.deleteTargets?.length ?? 0) === 1 ? 'activity' : 'activities'} and
+              their relations?
+            </p>
+            <p className="text-xs text-gray-500">This cannot be undone.</p>
+          </div>
+        }
+      />
+
+      {/* Region paste confirmation (#114 follow-on) */}
+      <PasteRegionDialog
+        open={regionPaste.open}
+        payload={regionPaste.payload}
+        currentModelId={modelId}
+        onCancel={handleCancelPasteRegion}
+        onConfirm={handleConfirmPasteRegion}
+      />
 
       {/* Duplicate connection warning */}
       <SimpleDialog

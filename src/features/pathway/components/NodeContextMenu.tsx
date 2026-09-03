@@ -2,7 +2,14 @@ import type React from 'react'
 import type { ReactNode } from 'react'
 import { MenuItem } from '@/@noctua.core/components/menu/AnchoredMenu'
 import CursorAnchoredMenu from './CursorAnchoredMenu'
-import { FaComment, FaCopy, FaInfoCircle, FaPencilAlt, FaTrash } from 'react-icons/fa'
+import {
+  FaComment,
+  FaCopy,
+  FaInfoCircle,
+  FaObjectGroup,
+  FaPencilAlt,
+  FaTrash,
+} from 'react-icons/fa'
 
 interface NodeContextMenuProps {
   open: boolean
@@ -17,6 +24,10 @@ interface NodeContextMenuProps {
   onCopy: () => void
   onComments: () => void
   onDelete: () => void
+  /** Set when 2+ activities are selected, e.g. "3 activities". */
+  regionSummary?: string | null
+  onCopyRegion?: () => void
+  onDeleteRegion?: () => void
 }
 
 const Row = ({ icon, children }: { icon: ReactNode; children: ReactNode }) => (
@@ -41,6 +52,9 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
   onCopy,
   onComments,
   onDelete,
+  regionSummary,
+  onCopyRegion,
+  onDeleteRegion,
 }) => {
   const run = (action: () => void) => () => {
     onClose()
@@ -57,12 +71,22 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
           <MenuItem onClick={run(onCopy)}>
             <Row icon={<FaCopy size={13} />}>Copy activity</Row>
           </MenuItem>
+          {regionSummary && onCopyRegion && (
+            <MenuItem onClick={run(onCopyRegion)}>
+              <Row icon={<FaObjectGroup size={13} />}>Copy {regionSummary}</Row>
+            </MenuItem>
+          )}
           <MenuItem onClick={run(onComments)}>
             <Row icon={<FaComment size={13} />}>Comments</Row>
           </MenuItem>
           <MenuItem onClick={run(onDelete)} className="!text-red-600 hover:!bg-red-50">
             <Row icon={<FaTrash size={13} />}>Delete activity</Row>
           </MenuItem>
+          {regionSummary && onDeleteRegion && (
+            <MenuItem onClick={run(onDeleteRegion)} className="!text-red-600 hover:!bg-red-50">
+              <Row icon={<FaTrash size={13} />}>Delete {regionSummary}</Row>
+            </MenuItem>
+          )}
         </>
       ) : (
         <>

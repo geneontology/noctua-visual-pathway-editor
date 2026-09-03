@@ -44,7 +44,14 @@ const buildDefaultModelTitle = (root: TermNode): string | undefined => {
 function buildActivityGraphOperations(
   root: TermNode,
   modelId: string,
-  userContext?: UserContext
+  userContext?: UserContext,
+  /**
+   * Optional sink for the node-uid → batch-variable mapping. A region paste
+   * needs it to wire relations between activities that don't exist yet: within
+   * one m3Batch, an edge can name a variable assigned by an earlier operation.
+   * Keyed by node uid because a relation endpoint isn't always an activity root.
+   */
+  varIdsByNodeUid?: Map<string, string>
 ): Operation[] {
   const operations: Operation[] = []
   const termVarIds = new Map<string, string>()
@@ -54,6 +61,7 @@ function buildActivityGraphOperations(
 
     const varId = uuidv4()
     termVarIds.set(node.uid, varId)
+    varIdsByNodeUid?.set(node.uid, varId)
 
     const expression = node.isComplement
       ? { type: ExpressionType.COMPLEMENT, filler: { type: ExpressionType.CLASS, id: node.term.id } }
@@ -129,6 +137,93 @@ export const buildCreateActivityOperations = (
           values: [{ key: AnnotationKey.TITLE, value: title }],
         },
       })
+    }
+  }
+
+  operations.push({
+    entity: OperationEntity.MODEL,
+    operation: OperationType.STORE,
+    arguments: { 'model-id': modelId },
+  })
+
+  return operations
+}
+
+/** A copy of the tree with every relation's evidence dropped. */
+function stripTreeEvidence(node: TermNode): TermNode {
+  return {
+    ...node,
+    relations: node.relations.map(rel => ({
+      ...rel,
+      evidence: [],
+      target: stripTreeEvidence(rel.target),
+    })),
+  }
+}
+
+/**
+ * Create a whole copied region — several activities plus the relations between
+ * them — in ONE m3Batch call.
+ *
+ * This is the same per-activity builder the Activity Form uses on save
+ * (`buildCreateActivityOperations` → `buildActivityGraphOperations`); the only
+ * addition is that the inter-activity relations are wired by batch variable, so
+ * nothing needs to exist on the server first and there is no second round trip.
+ *
+ * A relation whose endpoint didn't make it into any copied tree is dropped
+ * rather than emitted with a dangling reference.
+ */
+export const buildPasteRegionOperations = (
+  region: {
+    activities: { root: TermNode }[]
+    connections: {
+      predicate: Entity
+      sourceNodeUid: string
+      targetNodeUid: string
+      evidence: EvidenceForm[]
+    }[]
+  },
+  modelId: string,
+  userContext?: UserContext,
+  options?: { includeEvidence?: boolean }
+): Operation[] => {
+  const includeEvidence = options?.includeEvidence ?? false
+  const operations: Operation[] = []
+  const varIdsByNodeUid = new Map<string, string>()
+
+  for (const entry of region.activities) {
+    const root = includeEvidence ? entry.root : stripTreeEvidence(entry.root)
+    operations.push(
+      ...buildActivityGraphOperations(root, modelId, userContext, varIdsByNodeUid)
+    )
+  }
+
+  for (const conn of region.connections) {
+    const subject = varIdsByNodeUid.get(conn.sourceNodeUid)
+    const object = varIdsByNodeUid.get(conn.targetNodeUid)
+    if (!subject || !object) continue
+
+    operations.push({
+      entity: OperationEntity.EDGE,
+      operation: OperationType.ADD,
+      arguments: {
+        subject,
+        object,
+        predicate: conn.predicate.id,
+        'model-id': modelId,
+      },
+    })
+
+    if (includeEvidence) {
+      addEvidenceOperations(
+        operations,
+        subject,
+        object,
+        conn.predicate.id,
+        conn.evidence,
+        modelId,
+        userContext
+      )
     }
   }
 
@@ -433,15 +528,26 @@ const buildFullReplaceOperations = (
 }
 
 /**
- * Delete an entire activity.
+ * Queue the removals for one activity, without a trailing STORE — so several
+ * activities can be deleted in a single batch.
+ *
+ * `seen` de-duplicates across activities: removing the same individual twice in
+ * one batch would fail, and a node can turn up in more than one activity's
+ * subgraph. Relations *between* deleted activities need no explicit removal —
+ * they go with their individuals, which is what the single-activity delete has
+ * always relied on.
  */
-export const buildDeleteActivityOperations = (
+function addActivityRemovalOperations(
+  operations: Operation[],
   activity: Activity,
-  modelId: string
-): Operation[] => {
-  const operations: Operation[] = []
-
+  modelId: string,
+  seen: { edges: Set<string>; nodes: Set<string> }
+) {
   for (const edge of activity.edges) {
+    const key = `${edge.sourceId}|${edge.id}|${edge.targetId}`
+    if (seen.edges.has(key)) continue
+    seen.edges.add(key)
+
     operations.push({
       entity: OperationEntity.EDGE,
       operation: OperationType.REMOVE,
@@ -455,11 +561,55 @@ export const buildDeleteActivityOperations = (
   }
 
   for (const node of activity.nodes) {
+    if (seen.nodes.has(node.uid)) continue
+    seen.nodes.add(node.uid)
+
     operations.push({
       entity: OperationEntity.INDIVIDUAL,
       operation: OperationType.REMOVE,
       arguments: { individual: node.uid, 'model-id': modelId },
     })
+  }
+}
+
+const emptySeen = () => ({ edges: new Set<string>(), nodes: new Set<string>() })
+
+/**
+ * Delete an entire activity.
+ */
+export const buildDeleteActivityOperations = (
+  activity: Activity,
+  modelId: string
+): Operation[] => {
+  const operations: Operation[] = []
+
+  addActivityRemovalOperations(operations, activity, modelId, emptySeen())
+
+  operations.push({
+    entity: OperationEntity.MODEL,
+    operation: OperationType.STORE,
+    arguments: { 'model-id': modelId },
+  })
+
+  return operations
+}
+
+/**
+ * Delete several selected activities in ONE m3Batch call.
+ *
+ * Same removals as `buildDeleteActivityOperations` per activity, concatenated
+ * with a single trailing STORE — so deleting a selection is one round trip
+ * rather than N.
+ */
+export const buildDeleteRegionOperations = (
+  activities: Activity[],
+  modelId: string
+): Operation[] => {
+  const operations: Operation[] = []
+  const seen = emptySeen()
+
+  for (const activity of activities) {
+    addActivityRemovalOperations(operations, activity, modelId, seen)
   }
 
   operations.push({

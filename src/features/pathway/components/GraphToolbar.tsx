@@ -5,6 +5,9 @@ import {
   MdYoutubeSearchedFor as ZoomResetIcon,
   MdArrowDropDown as ArrowDropDownIcon,
   MdAutoFixHigh as AutoLayoutIcon,
+  MdContentCopy as CopyIcon,
+  MdDeleteOutline as DeleteIcon,
+  MdClose as ClearIcon,
 } from 'react-icons/md'
 import type { LayoutDetail, LayoutSpacing } from '../graph/camCanvas'
 import { layoutDetailOptions, spacingOptions } from '../data/toolbarOptions'
@@ -21,6 +24,10 @@ interface GraphToolbarProps {
   /** Number of activities in the canvas multi-selection (#114). */
   selectionCount?: number
   onClearSelection?: () => void
+  onCopySelection?: () => void
+  onDeleteSelection?: () => void
+  /** False when not logged in — hides the editing actions. */
+  canEdit?: boolean
 }
 
 export default function GraphToolbar({
@@ -34,6 +41,9 @@ export default function GraphToolbar({
   onZoomReset,
   selectionCount = 0,
   onClearSelection,
+  onCopySelection,
+  onDeleteSelection,
+  canEdit = true,
 }: GraphToolbarProps) {
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
@@ -70,19 +80,54 @@ export default function GraphToolbar({
       />
 
       {selectionCount > 0 && (
-        <div className="ml-auto flex items-center gap-2 rounded-full bg-blue-50 py-1 pr-1 pl-3 text-xs font-medium text-blue-800">
-          <span>
-            {selectionCount} selected — drag to move together, arrow keys to nudge
+        <div className="ml-auto flex items-center gap-1 rounded-full bg-blue-50 py-1 pr-1 pl-3">
+          <span className="mr-1 text-xs font-semibold whitespace-nowrap text-blue-900">
+            {selectionCount} selected
           </span>
-          <Button
-            variant="subtle"
-            size="compact-xs"
-            radius="xl"
-            onClick={onClearSelection}
-            className="!text-xs !text-blue-800 hover:!bg-blue-100"
-          >
-            Clear
-          </Button>
+
+          {canEdit && (
+            <>
+              <Tooltip label="Copy selection (Ctrl+C)" withArrow position="bottom">
+                <Button
+                  variant="subtle"
+                  size="compact-xs"
+                  radius="xl"
+                  onClick={onCopySelection}
+                  leftSection={<CopyIcon size={14} />}
+                  className="!text-xs !text-blue-800 hover:!bg-blue-100"
+                >
+                  Copy
+                </Button>
+              </Tooltip>
+              <Tooltip label="Delete selected activities" withArrow position="bottom">
+                <Button
+                  variant="subtle"
+                  size="compact-xs"
+                  radius="xl"
+                  color="red"
+                  onClick={onDeleteSelection}
+                  leftSection={<DeleteIcon size={14} />}
+                  className="!text-xs !text-red-700 hover:!bg-red-50"
+                >
+                  Delete
+                </Button>
+              </Tooltip>
+              <span className="mx-1 h-4 w-px bg-blue-200" />
+            </>
+          )}
+
+          <Tooltip label="Clear selection (Esc)" withArrow position="bottom">
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              radius="xl"
+              onClick={onClearSelection}
+              aria-label="Clear selection"
+              className="!text-blue-800 hover:!bg-blue-100"
+            >
+              <ClearIcon size={14} />
+            </ActionIcon>
+          </Tooltip>
         </div>
       )}
 

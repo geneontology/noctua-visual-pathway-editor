@@ -1,8 +1,8 @@
 import * as joint from 'jointjs'
 import * as dagre from 'dagre'
 import { NodeCellList, NodeCellMolecule, NodeLink, cellNamespace, isSelectableCell } from './shapes'
-import { DropPlacement, centerTopLeft } from './dropPlacement'
-import type { Point } from './dropPlacement'
+import { DropPlacement, RegionPlacement, centerTopLeft } from './dropPlacement'
+import type { Point, RegionPlacementEntry, RenderedActivity } from './dropPlacement'
 import { SelectionModel } from './selectionModel'
 import { MarqueeSelection } from './marqueeSelection'
 import { getEdgeColor } from './edgeDisplayService'
@@ -58,6 +58,8 @@ export class CamCanvas {
   // the drop point once it arrives from the server. See _handleDrop / armDropAt
   // / addCanvasGraph.
   private _dropPlacement = new DropPlacement()
+  // Same job as _dropPlacement but for a pasted region of several activities.
+  private _regionPlacement = new RegionPlacement()
   // Last pointer position over the canvas, in viewport coords — gives a keyboard
   // paste (Ctrl+V) somewhere sensible to land.
   private _lastPointerClient: Point | null = null
@@ -402,10 +404,14 @@ export class CamCanvas {
     // the activities seen last render and centers it on the drop. When we place
     // one we keep the current viewport (skip the re-fit) so the node stays under
     // the cursor instead of being scrolled away.
-    const activityUids = this.graph
-      .getElements()
-      .map(el => (el.prop('activity') as Activity | undefined)?.uid)
-      .filter((uid): uid is string => !!uid)
+    const rendered: RenderedActivity[] = []
+    for (const el of this.graph.getElements()) {
+      const activity = el.prop('activity') as Activity | undefined
+      if (activity) {
+        rendered.push({ uid: activity.uid, termId: activity.rootNode?.id ?? null })
+      }
+    }
+    const activityUids = rendered.map(item => item.uid)
 
     const placement = this._dropPlacement.resolve(activityUids)
     if (placement) {
@@ -417,7 +423,21 @@ export class CamCanvas {
       }
     }
 
-    if (!placement) {
+    // A pasted region places several activities at once, rebuilding the layout
+    // they were copied in.
+    const regionPlacements = this._regionPlacement.resolve(rendered)
+    if (regionPlacements) {
+      for (const [uid, point] of Object.entries(regionPlacements)) {
+        const el = this.graph.getCell(uid)
+        if (el instanceof joint.dia.Element) el.position(point.x, point.y)
+      }
+      this._persistPositions()
+      // Select what was just pasted, so it can immediately be dragged as a unit.
+      this._selection.replace(Object.keys(regionPlacements))
+      this.onSelectionChange?.(this._selection.list())
+    }
+
+    if (!placement && !regionPlacements) {
       this.paper.scaleContentToFit({
         minScaleX: 0.3,
         minScaleY: 0.3,
@@ -445,6 +465,32 @@ export class CamCanvas {
     this._dropPlacement.clear()
   }
 
+  /** Discard a pending region paste, e.g. when the paste dialog is cancelled. */
+  clearPendingRegion() {
+    this._regionPlacement.clear()
+  }
+
+  /**
+   * Arm a region paste so the new activities rebuild their copied layout at a
+   * viewport point — the region equivalent of `armDropAt`.
+   */
+  armRegionAt(entries: RegionPlacementEntry[], client?: Point) {
+    this._regionPlacement.arm(this._localDropPoint(client), entries)
+  }
+
+  /** Top-left positions of the current multi-selection, for a region copy. */
+  getSelectionPositions(): Record<string, { x: number; y: number }> {
+    const positions: Record<string, { x: number; y: number }> = {}
+    for (const uid of this._selection.list()) {
+      const cell = this.graph.getCell(uid)
+      if (cell instanceof joint.dia.Element) {
+        const pos = cell.position()
+        positions[uid] = { x: pos.x, y: pos.y }
+      }
+    }
+    return positions
+  }
+
   /**
    * Arm the next activity to appear so it lands at a viewport point — used by
    * paste, the same way a stencil drop arms its drop point. Falls back to the
@@ -452,6 +498,15 @@ export class CamCanvas {
    * own), then to the canvas center if the pointer has never been over it.
    */
   armDropAt(client?: Point) {
+    this._dropPlacement.arm(this._localDropPoint(client))
+  }
+
+  /**
+   * Resolve a paste/drop target to graph coordinates. Falls back to the last
+   * pointer position over the canvas (Ctrl+V has no click point of its own),
+   * then to the canvas centre if the pointer has never been over it.
+   */
+  private _localDropPoint(client?: Point): Point {
     const rect = this._container.getBoundingClientRect()
     const point = client ??
       this._lastPointerClient ?? {
@@ -459,7 +514,7 @@ export class CamCanvas {
         y: rect.top + rect.height / 2,
       }
     const local = this.paper.clientToLocalPoint(point.x, point.y)
-    this._dropPlacement.arm({ x: local.x, y: local.y })
+    return { x: local.x, y: local.y }
   }
 
   autoLayout(spacing: LayoutSpacing = 'compact') {
