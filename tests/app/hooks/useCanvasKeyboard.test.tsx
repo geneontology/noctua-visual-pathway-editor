@@ -225,6 +225,68 @@ describe('useCanvasKeyboard', () => {
     })
   })
 
+  describe('duplicate', () => {
+    it('duplicates on Ctrl+D when something is selected', () => {
+      canvas = buildCanvas(['act-1'])
+      const onDuplicateRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDuplicateRegion }))
+
+      const event = fireKey('d', { ctrl: true })
+
+      expect(onDuplicateRegion).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('leaves Ctrl+D alone when nothing is selected', () => {
+      const onDuplicateRegion = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDuplicateRegion }))
+
+      const event = fireKey('d', { ctrl: true })
+
+      expect(onDuplicateRegion).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+  })
+
+  describe('save', () => {
+    it('claims Ctrl+S so the browser Save dialog never opens', () => {
+      const onSaveModel = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onSaveModel }))
+
+      const event = fireKey('s', { ctrl: true })
+
+      expect(onSaveModel).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('claims Ctrl+S even with nothing selected — saving is not about the selection', () => {
+      const onSaveModel = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onSaveModel }))
+
+      expect(fireKey('s', { ctrl: true }).defaultPrevented).toBe(true)
+      expect(onSaveModel).toHaveBeenCalledTimes(1)
+    })
+
+    it('ignores a bare "s"', () => {
+      const onSaveModel = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onSaveModel }))
+
+      fireKey('s')
+
+      expect(onSaveModel).not.toHaveBeenCalled()
+    })
+
+    it('does not claim Ctrl+S when typing in a field', () => {
+      const onSaveModel = vi.fn()
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onSaveModel }))
+      const field = mount(document.createElement('input'))
+
+      fireKey('s', { target: field, ctrl: true })
+
+      expect(onSaveModel).not.toHaveBeenCalled()
+    })
+  })
+
   describe('editable targets', () => {
     it.each(['input', 'textarea', 'select'])('ignores keys aimed at a <%s>', tag => {
       renderHook(() => useCanvasKeyboard(true, refTo(canvas)))
