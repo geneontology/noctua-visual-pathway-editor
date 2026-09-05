@@ -996,13 +996,16 @@ export class CamCanvas {
   }
 
   /**
-   * Replace the selection with every activity of one type. Returns how many
-   * matched; when nothing does, the selection is left untouched so a mis-click
-   * doesn't silently wipe it.
+   * Replace the selection with the activities matching `predicate`. Returns how
+   * many matched; when nothing does the selection is left untouched, so a
+   * mis-click on a filter doesn't silently wipe what you had.
    */
-  selectByType(type: ActivityType): number {
+  private _selectMatching(predicate: (activity: Activity) => boolean): number {
     const uids = this._activityElements()
-      .filter(el => (el.prop('activity') as Activity | undefined)?.type === type)
+      .filter(el => {
+        const activity = el.prop('activity') as Activity | undefined
+        return !!activity && predicate(activity)
+      })
       .map(el => String(el.id))
 
     if (uids.length === 0) return 0
@@ -1011,22 +1014,26 @@ export class CamCanvas {
     return uids.length
   }
 
+  selectByType(type: ActivityType): number {
+    return this._selectMatching(activity => activity.type === type)
+  }
+
   /**
    * Activities carrying at least one statement with no evidence — the same
    * condition that draws the no-evidence marker on a node's rows.
    */
   selectWithoutEvidence(): number {
-    const uids = this._activityElements()
-      .filter(el => {
-        const activity = el.prop('activity') as Activity | undefined
-        return !!activity?.edges.some(edge => !edge.evidence?.length)
-      })
-      .map(el => String(el.id))
+    return this._selectMatching(activity =>
+      activity.edges.some(edge => !edge.evidence?.length)
+    )
+  }
 
-    if (uids.length === 0) return 0
-    this._selection.replace(uids)
-    this._commitSelection()
-    return uids.length
+  /**
+   * Activities with at least one comment, counted exactly as the node's comment
+   * badge counts them — so the selection matches what is visible on the canvas.
+   */
+  selectWithComments(): number {
+    return this._selectMatching(activity => activityCommentCount(activity) > 0)
   }
 
   /** Swap selected for unselected. Always applies — emptying is a valid result. */

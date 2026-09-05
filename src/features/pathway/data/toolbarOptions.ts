@@ -19,6 +19,7 @@ export type SelectionPreset =
   | 'chemicals'
   | 'complexes'
   | 'noEvidence'
+  | 'withComments'
 
 export interface SelectionPresetOption {
   id: SelectionPreset
@@ -35,4 +36,5 @@ export const selectionPresetOptions: SelectionPresetOption[] = [
   { id: 'chemicals', label: 'Chemicals' },
   { id: 'complexes', label: 'Protein complexes' },
   { id: 'noEvidence', label: 'Without evidence', group: 'Quality' },
+  { id: 'withComments', label: 'With comments' },
 ]

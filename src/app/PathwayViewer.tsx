@@ -496,6 +496,10 @@ const PathwayEditor: React.FC = () => {
           run: () => canvasApi.selectWithoutEvidence(),
           noun: 'activities without evidence',
         },
+        withComments: {
+          run: () => canvasApi.selectWithComments(),
+          noun: 'activities with comments',
+        },
       }
 
       const filter = filters[preset]

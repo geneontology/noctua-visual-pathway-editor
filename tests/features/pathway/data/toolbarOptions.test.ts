@@ -42,6 +42,7 @@ describe('selectionPresetOptions', () => {
       'chemicals',
       'complexes',
       'noEvidence',
+      'withComments',
     ])
   })
 
