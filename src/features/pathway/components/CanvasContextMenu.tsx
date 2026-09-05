@@ -10,9 +10,14 @@ interface CanvasContextMenuProps {
   y: number
   onClose: () => void
   onPaste: () => void
-  /** Present only when a copied region is waiting in localStorage. */
-  regionSummary?: string | null
-  onPasteRegion?: () => void
+  /**
+   * What is on the clipboard, or null when nothing is. Both kinds are mirrored
+   * into localStorage, so this can be answered synchronously — the menu offers
+   * Paste only when there is genuinely something to paste.
+   */
+  paste: { kind: 'region' | 'activity'; summary: string } | null
+  /** False when not logged in — the menu still opens, but offers no edit. */
+  canEdit?: boolean
 }
 
 /** Right-click menu on empty canvas. */
@@ -22,34 +27,27 @@ const CanvasContextMenu: React.FC<CanvasContextMenuProps> = ({
   y,
   onClose,
   onPaste,
-  regionSummary,
-  onPasteRegion,
+  paste,
+  canEdit = true,
 }) => (
   <CursorAnchoredMenu open={open} x={x} y={y} onClose={onClose}>
-    {regionSummary && onPasteRegion && (
+    {!canEdit ? (
+      <span className="block px-3 py-1.5 text-sm text-gray-400">Log in to edit</span>
+    ) : paste ? (
       <MenuItem
         onClick={() => {
           onClose()
-          onPasteRegion()
+          onPaste()
         }}
       >
         <span className="flex items-center gap-2">
-          <FaObjectGroup size={13} />
-          Paste {regionSummary}
+          {paste.kind === 'region' ? <FaObjectGroup size={13} /> : <FaPaste size={13} />}
+          Paste {paste.summary}
         </span>
       </MenuItem>
+    ) : (
+      <span className="block px-3 py-1.5 text-sm text-gray-400">Nothing to paste</span>
     )}
-    <MenuItem
-      onClick={() => {
-        onClose()
-        onPaste()
-      }}
-    >
-      <span className="flex items-center gap-2">
-        <FaPaste size={13} />
-        Paste activity
-      </span>
-    </MenuItem>
   </CursorAnchoredMenu>
 )
 

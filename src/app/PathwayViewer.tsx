@@ -19,6 +19,8 @@ import {
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import type { Activity, Edge } from '@/features/gocam/models/cam'
+import { ActivityType } from '@/features/gocam/models/cam'
+import type { SelectionPreset } from '@/features/pathway/data/toolbarOptions'
 import type { ActivityFormType } from '@/features/gocam/models/formModels'
 import {
   resetForm,
@@ -28,9 +30,8 @@ import {
 import type { ActivityClipboardPayload } from '@/features/gocam/services/activityClipboard'
 import {
   activityClipboardLabel,
-  readActivityClipboard,
+  parseActivityClipboard,
   serializeActivity,
-  writeClipboardText,
 } from '@/features/gocam/services/activityClipboard'
 import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import { Button, Modal } from '@mantine/core'
@@ -47,18 +48,22 @@ import { useGroupGuard } from '@/features/gocam/components/GroupGuardProvider'
 import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
-import { useActivityPaste } from './hooks/useActivityPaste'
 import { useCanvasKeyboard } from './hooks/useCanvasKeyboard'
 import { useRegionDelete } from './hooks/useRegionDelete'
 import { useUserContext } from './hooks/useUserContext'
 import { useUpdateGraphModelMutation } from '@/features/gocam/slices/camApiSlice'
 import {
   buildRegionPayload,
-  clearRegion,
-  readRegion,
   writeRegion,
 } from '@/features/gocam/services/regionClipboard'
 import type { RegionClipboardPayload } from '@/features/gocam/services/regionClipboard'
+import {
+  readClipboard,
+  regionSummary,
+  writeActivityClipboardLocal,
+} from '@/features/gocam/services/clipboardStore'
+import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
+import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
 import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
 import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
 
@@ -82,15 +87,15 @@ interface CanvasMenuState {
   open: boolean
   x: number
   y: number
-  /** Summary of the stored region, or null when there isn't one to paste. */
-  regionSummary: string | null
+  /** Read as the menu opens, so Paste only appears when something is available. */
+  clipboard: ClipboardEntry | null
 }
 
 const closedCanvasMenu: CanvasMenuState = {
   open: false,
   x: 0,
   y: 0,
-  regionSummary: null,
+  clipboard: null,
 }
 
 interface RegionPasteState {
@@ -101,6 +106,9 @@ interface RegionPasteState {
 }
 
 const closedRegionPaste: RegionPasteState = { open: false, payload: null, at: undefined }
+
+/** How far a duplicate is offset from the originals, in graph units. */
+const DUPLICATE_OFFSET = 40
 
 /** e.g. "3 activities" / "2 activities and 1 relation" — used in menus. */
 const describeRegion = (activities: number, relations: number): string => {
@@ -232,22 +240,23 @@ const PathwayEditor: React.FC = () => {
   // Copy writes the activity to the system clipboard as text, so it can be
   // pasted back into this model or into a different one (even another tab).
   const handleCopyActivity = useCallback(
-    async (activityId: string) => {
+    (activityId: string) => {
       const activity = graphModel?.data?.activities.find(a => a.uid === activityId)
       if (!activity) return
 
-      const ok = await writeClipboardText(serializeActivity(activity, modelId))
-      // Drop any stored region, so this becomes the thing Ctrl+V pastes. The two
-      // clipboards are separate stores and Ctrl+V checks the region first, so a
-      // leftover region would otherwise keep winning over a fresh single copy.
-      clearRegion()
+      // localStorage is the only clipboard now — shared across tabs of this
+      // origin, so cross-model paste still works, with no permission prompt and
+      // no browser that silently refuses to read it back.
+      const parsed = parseActivityClipboard(serializeActivity(activity, modelId))
+      const ok = parsed ? writeActivityClipboardLocal(parsed) : false
+
       dispatch(
         showToast(
           ok
             ? {
-                message: `Copied "${activityClipboardLabel(activity)}" — paste (Ctrl+V) into any model`,
+                message: `Copied "${activityClipboardLabel(activity)}" — paste into this or any other model`,
               }
-            : { message: 'Could not access the clipboard', severity: 'error' }
+            : { message: 'Could not store the copied activity', severity: 'error' }
         )
       )
     },
@@ -298,15 +307,85 @@ const PathwayEditor: React.FC = () => {
     )
   }, [graphModel, canvas.canvasRef, dispatch])
 
-  /** Opens the confirm dialog. Returns false when there's no region to paste. */
-  const handleRequestPasteRegion = useCallback(
+  /**
+   * Duplicate the selection in place — no dialog. Unlike paste, this is the
+   * user's own data being copied within the model they are looking at, so there
+   * is nothing stale to warn about. Evidence is left out, matching paste and
+   * Copy Model.
+   */
+  const handleDuplicateSelection = useCallback(() => {
+    const model = graphModel?.data
+    const canvasApi = canvas.canvasRef.current
+    if (!model || !canvasApi || !modelId) return
+
+    const selection = canvasApi.getSelection()
+    if (selection.length === 0) return
+
+    const payload = buildRegionPayload(model, selection, canvasApi.getSelectionPositions())
+    const origin = canvasApi.getSelectionOrigin()
+    if (!payload || !origin) return
+
+    checkGroup(async () => {
+      const operations = buildPasteRegionOperations(payload, modelId, userContext, {
+        includeEvidence: false,
+      })
+
+      canvasApi.armRegionAtGraphPoint(
+        payload.activities.map(entry => ({ termId: entry.rootTermId, offset: entry.offset })),
+        { x: origin.x + DUPLICATE_OFFSET, y: origin.y + DUPLICATE_OFFSET }
+      )
+
+      try {
+        await updateGraphModel(operations).unwrap()
+        dispatch(showToast({ message: `Duplicated ${regionSummary(payload)}` }))
+      } catch {
+        canvasApi.clearPendingRegion()
+        dispatch(
+          showToast({ message: 'Could not duplicate the selection', severity: 'error' })
+        )
+      }
+    })
+  }, [graphModel, canvas.canvasRef, modelId, userContext, checkGroup, updateGraphModel, dispatch])
+
+  /**
+   * Ctrl+S. Every edit already ends with a STORE, so this is a reassurance
+   * affordance more than a necessity — but curators press it, and a browser
+   * "Save page" dialog is never the right answer on a graph editor.
+   */
+  const handleSaveModel = useCallback(async () => {
+    if (!modelId) return
+    try {
+      await updateGraphModel([
+        {
+          entity: OperationEntity.MODEL,
+          operation: OperationType.STORE,
+          arguments: { 'model-id': modelId },
+        },
+      ]).unwrap()
+      dispatch(showToast({ message: 'Model saved' }))
+    } catch {
+      dispatch(showToast({ message: 'Could not save the model', severity: 'error' }))
+    }
+  }, [modelId, updateGraphModel, dispatch])
+
+  /**
+   * Paste whatever was copied last. Regions go through the confirm dialog;
+   * a single activity opens the prefilled form as it always has. Returns false
+   * when there is nothing stored, so Ctrl+V can be left unclaimed.
+   */
+  const handleRequestPaste = useCallback(
     (at?: { x: number; y: number }): boolean => {
-      const payload = readRegion()
-      if (!payload) return false
-      checkGroup(() => setRegionPaste({ open: true, payload, at }))
+      const entry = readClipboard()
+      if (!entry) return false
+
+      if (entry.kind === 'region') {
+        checkGroup(() => setRegionPaste({ open: true, payload: entry.payload, at }))
+      } else {
+        handlePasteActivity(entry.payload, at)
+      }
       return true
     },
-    [checkGroup]
+    [checkGroup, handlePasteActivity]
   )
 
   const handleCancelPasteRegion = useCallback(() => {
@@ -348,36 +427,10 @@ const PathwayEditor: React.FC = () => {
     [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch]
   )
 
-  // Menu-driven paste has to go through the async Clipboard API — unlike Ctrl+V,
-  // there's no paste event carrying the data.
-  const handlePasteFromMenu = useCallback(
-    async (at: { x: number; y: number }) => {
-      const result = await readActivityClipboard()
-      if (result.status === 'ok') {
-        handlePasteActivity(result.payload, at)
-        return
-      }
-      dispatch(
-        showToast(
-          result.status === 'empty'
-            ? { message: 'No copied activity on the clipboard', severity: 'warning' }
-            : {
-                message:
-                  'This browser blocked the clipboard read — press Ctrl+V to paste instead',
-                severity: 'info',
-                duration: 5000,
-              }
-        )
-      )
-    },
-    [handlePasteActivity, dispatch]
-  )
-
   // Paste is off while a dialog owns the screen so it can't open a second form
   // underneath the one already showing.
   const pasteEnabled =
     isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
-  useActivityPaste(pasteEnabled, handlePasteActivity)
   // Same guard as paste — a dialog on screen owns the keyboard.
   const handleDeleteSelection = useCallback(() => {
     const selection = canvas.canvasRef.current?.getSelection() ?? []
@@ -387,9 +440,79 @@ const PathwayEditor: React.FC = () => {
 
   useCanvasKeyboard(pasteEnabled, canvas.canvasRef, {
     onCopyRegion: handleCopyRegion,
-    onPasteRegion: () => handleRequestPasteRegion(),
+    onPasteRegion: () => handleRequestPaste(),
     onDeleteRegion: handleDeleteSelection,
+    onDuplicateRegion: handleDuplicateSelection,
+    onSaveModel: handleSaveModel,
   })
+
+  /** Grow the selection along the causal graph from the right-clicked node. */
+  const handleSelectConnected = useCallback(
+    (direction: 'downstream' | 'upstream' | 'connected') => {
+      const uid = nodeMenu.activityId
+      if (!uid) return
+      const count = canvas.canvasRef.current?.selectConnected(uid, direction) ?? 0
+      dispatch(
+        showToast({
+          message: `Selected ${count} ${count === 1 ? 'activity' : 'activities'}`,
+        })
+      )
+    },
+    [nodeMenu.activityId, canvas.canvasRef, dispatch]
+  )
+
+  /**
+   * Toolbar Select menu. A filter that matches nothing leaves the selection
+   * alone and says so, rather than silently emptying it.
+   */
+  const handleSelectPreset = useCallback(
+    (preset: SelectionPreset) => {
+      const canvasApi = canvas.canvasRef.current
+      if (!canvasApi) return
+
+      if (preset === 'all') {
+        canvasApi.selectAll()
+        return
+      }
+      if (preset === 'invert') {
+        canvasApi.invertSelection()
+        return
+      }
+
+      const filters: Record<string, { run: () => number; noun: string }> = {
+        activities: {
+          run: () => canvasApi.selectByType(ActivityType.ACTIVITY),
+          noun: 'activities',
+        },
+        chemicals: {
+          run: () => canvasApi.selectByType(ActivityType.MOLECULE),
+          noun: 'chemicals',
+        },
+        complexes: {
+          run: () => canvasApi.selectByType(ActivityType.PROTEIN_COMPLEX),
+          noun: 'protein complexes',
+        },
+        noEvidence: {
+          run: () => canvasApi.selectWithoutEvidence(),
+          noun: 'activities without evidence',
+        },
+      }
+
+      const filter = filters[preset]
+      if (!filter) return
+
+      const count = filter.run()
+      if (count === 0) {
+        dispatch(
+          showToast({
+            message: `No ${filter.noun} in this model`,
+            severity: 'warning',
+          })
+        )
+      }
+    },
+    [canvas.canvasRef, dispatch]
+  )
 
   const handleClearSelection = useCallback(() => {
     canvas.canvasRef.current?.clearSelection()
@@ -405,17 +528,7 @@ const PathwayEditor: React.FC = () => {
   }, [])
 
   const handleBlankContextMenu = useCallback((x: number, y: number) => {
-    // Read the stored region as the menu opens, so the Paste item only shows
-    // when there is actually something to paste.
-    const region = readRegion()
-    setCanvasMenu({
-      open: true,
-      x,
-      y,
-      regionSummary: region
-        ? describeRegion(region.activities.length, region.connections.length)
-        : null,
-    })
+    setCanvasMenu({ open: true, x, y, clipboard: readClipboard() })
   }, [])
 
   const closeCanvasMenu = useCallback(() => {
@@ -467,8 +580,10 @@ const PathwayEditor: React.FC = () => {
         selectionCount={selectedIds.length}
         onClearSelection={handleClearSelection}
         onCopySelection={handleCopyRegion}
+        onDuplicateSelection={handleDuplicateSelection}
         onDeleteSelection={handleDeleteSelection}
         canEdit={isLoggedIn}
+        onSelectPreset={handleSelectPreset}
       />
       <div className="flex min-h-0 flex-1 flex-row">
         {isLoggedIn && <StencilPalette />}
@@ -494,7 +609,7 @@ const PathwayEditor: React.FC = () => {
             onDeleteClick={del.requestDelete}
             onCommentClick={handleShowComments}
             onContextMenu={handleNodeContextMenu}
-            onBlankContextMenu={isLoggedIn ? handleBlankContextMenu : undefined}
+            onBlankContextMenu={handleBlankContextMenu}
             onSelectionChange={setSelectedIds}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
@@ -519,6 +634,7 @@ const PathwayEditor: React.FC = () => {
           regionSummary={selectedIds.length > 1 ? describeRegion(selectedIds.length, 0) : null}
           onCopyRegion={handleCopyRegion}
           onDeleteRegion={handleDeleteSelection}
+          onSelectConnected={handleSelectConnected}
           onComments={() => handleShowComments(nodeMenu.activityId!)}
           onDelete={() => del.requestDelete(nodeMenu.activityId!)}
         />
@@ -529,12 +645,14 @@ const PathwayEditor: React.FC = () => {
         open={canvasMenu.open}
         x={canvasMenu.x}
         y={canvasMenu.y}
-        regionSummary={canvasMenu.regionSummary}
-        onPasteRegion={() =>
-          handleRequestPasteRegion({ x: canvasMenu.x, y: canvasMenu.y })
+        paste={
+          canvasMenu.clipboard
+            ? { kind: canvasMenu.clipboard.kind, summary: canvasMenu.clipboard.summary }
+            : null
         }
+        canEdit={isLoggedIn}
         onClose={closeCanvasMenu}
-        onPaste={() => handlePasteFromMenu({ x: canvasMenu.x, y: canvasMenu.y })}
+        onPaste={() => handleRequestPaste({ x: canvasMenu.x, y: canvasMenu.y })}
       />
 
       {/* External update notification */}

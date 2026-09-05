@@ -6,11 +6,17 @@ import {
   MdArrowDropDown as ArrowDropDownIcon,
   MdAutoFixHigh as AutoLayoutIcon,
   MdContentCopy as CopyIcon,
+  MdLibraryAdd as DuplicateIcon,
   MdDeleteOutline as DeleteIcon,
   MdClose as ClearIcon,
 } from 'react-icons/md'
 import type { LayoutDetail, LayoutSpacing } from '../graph/camCanvas'
-import { layoutDetailOptions, spacingOptions } from '../data/toolbarOptions'
+import {
+  layoutDetailOptions,
+  spacingOptions,
+  selectionPresetOptions,
+} from '../data/toolbarOptions'
+import type { SelectionPreset } from '../data/toolbarOptions'
 
 interface GraphToolbarProps {
   layoutDetail: LayoutDetail
@@ -25,9 +31,11 @@ interface GraphToolbarProps {
   selectionCount?: number
   onClearSelection?: () => void
   onCopySelection?: () => void
+  onDuplicateSelection?: () => void
   onDeleteSelection?: () => void
   /** False when not logged in — hides the editing actions. */
   canEdit?: boolean
+  onSelectPreset?: (preset: SelectionPreset) => void
 }
 
 export default function GraphToolbar({
@@ -42,8 +50,10 @@ export default function GraphToolbar({
   selectionCount = 0,
   onClearSelection,
   onCopySelection,
+  onDuplicateSelection,
   onDeleteSelection,
   canEdit = true,
+  onSelectPreset,
 }: GraphToolbarProps) {
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
@@ -79,6 +89,8 @@ export default function GraphToolbar({
         onChange={onSpacingChange}
       />
 
+      {onSelectPreset && <SelectMenu onSelect={onSelectPreset} />}
+
       {selectionCount > 0 && (
         <div className="ml-auto flex items-center gap-1 rounded-full bg-blue-50 py-1 pr-1 pl-3">
           <span className="mr-1 text-xs font-semibold whitespace-nowrap text-blue-900">
@@ -97,6 +109,18 @@ export default function GraphToolbar({
                   className="!text-xs !text-blue-800 hover:!bg-blue-100"
                 >
                   Copy
+                </Button>
+              </Tooltip>
+              <Tooltip label="Duplicate selection (Ctrl+D)" withArrow position="bottom">
+                <Button
+                  variant="subtle"
+                  size="compact-xs"
+                  radius="xl"
+                  onClick={onDuplicateSelection}
+                  leftSection={<DuplicateIcon size={14} />}
+                  className="!text-xs !text-blue-800 hover:!bg-blue-100"
+                >
+                  Duplicate
                 </Button>
               </Tooltip>
               <Tooltip label="Delete selected activities" withArrow position="bottom">
@@ -213,6 +237,52 @@ function PillMenu<T extends string>({
           >
             {opt.label}
           </Menu.Item>
+        ))}
+      </Menu.Dropdown>
+    </Menu>
+  )
+}
+
+/**
+ * Selection actions that aren't tied to a particular node. Unlike PillMenu this
+ * is a list of one-shot actions rather than a current-value picker, so it has no
+ * active state.
+ */
+function SelectMenu({ onSelect }: { onSelect: (preset: SelectionPreset) => void }) {
+  return (
+    <Menu shadow="md" width={210} position="bottom-start">
+      <Menu.Target>
+        <Button
+          variant="subtle"
+          size="xs"
+          radius="xl"
+          rightSection={<ArrowDropDownIcon size={16} />}
+          className="!h-7 !px-3 !text-xs !font-normal !text-gray-700 hover:!bg-gray-100"
+        >
+          Select
+        </Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {selectionPresetOptions.map(option => (
+          <div key={option.id}>
+            {option.group && (
+              <>
+                <Menu.Divider />
+                <Menu.Label>{option.group}</Menu.Label>
+              </>
+            )}
+            <Menu.Item
+              onClick={() => onSelect(option.id)}
+              rightSection={
+                option.shortcut && (
+                  <span className="text-xs text-gray-400">{option.shortcut}</span>
+                )
+              }
+              className="!text-xs"
+            >
+              {option.label}
+            </Menu.Item>
+          </div>
         ))}
       </Menu.Dropdown>
     </Menu>

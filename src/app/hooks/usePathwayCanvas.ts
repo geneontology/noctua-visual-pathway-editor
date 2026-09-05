@@ -12,8 +12,15 @@ export function usePathwayCanvas(isLoggedIn: boolean) {
     }
   }, [isLoggedIn])
 
+  // With a selection, tidy only that; otherwise the whole graph.
   const handleAutoLayout = useCallback(() => {
-    canvasRef.current?.autoLayout(spacing)
+    const canvas = canvasRef.current
+    if (!canvas) return
+    if (canvas.getSelection().length > 0) {
+      canvas.autoLayoutSelection(spacing)
+    } else {
+      canvas.autoLayout(spacing)
+    }
   }, [spacing])
 
   const handleLayoutDetailChange = useCallback((detail: LayoutDetail) => {

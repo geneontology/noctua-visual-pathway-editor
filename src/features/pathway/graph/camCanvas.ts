@@ -255,19 +255,7 @@ export class CamCanvas {
     })
 
     // ── Element right-click: node context menu (same actions as the hover icons) ──
-    this.paper.on('element:contextmenu', (cellView: joint.dia.CellView, evt: MouseEvent) => {
-      const activity = cellView.model.prop('activity') as Activity | undefined
-      if (!activity) return
-      evt.preventDefault()
-      evt.stopPropagation()
-      this.onContextMenu?.(activity.uid, evt.clientX, evt.clientY)
-    })
-
-    // ── Blank canvas right-click: paste menu ──
-    this.paper.on('blank:contextmenu', (evt: MouseEvent) => {
-      evt.preventDefault()
-      this.onBlankContextMenu?.(evt.clientX, evt.clientY)
-    })
+    // Right-click is handled natively on the container — see _handleContextMenu.
 
     // ── Comment badge click: open the Comments panel for this activity ──
     this.paper.on('element:comment:pointerdown', (cellView: joint.dia.CellView, evt: Event) => {
@@ -478,6 +466,25 @@ export class CamCanvas {
     this._regionPlacement.arm(this._localDropPoint(client), entries)
   }
 
+  /**
+   * Arm a region paste at a point already in graph coordinates — used by
+   * duplicate, which offsets from where the originals sit rather than from the
+   * pointer.
+   */
+  armRegionAtGraphPoint(entries: RegionPlacementEntry[], point: Point) {
+    this._regionPlacement.arm(point, entries)
+  }
+
+  /** Top-left of the current selection in graph coordinates. */
+  getSelectionOrigin(): Point | null {
+    const points = Object.values(this.getSelectionPositions())
+    if (points.length === 0) return null
+    return {
+      x: Math.min(...points.map(p => p.x)),
+      y: Math.min(...points.map(p => p.y)),
+    }
+  }
+
   /** Top-left positions of the current multi-selection, for a region copy. */
   getSelectionPositions(): Record<string, { x: number; y: number }> {
     const positions: Record<string, { x: number; y: number }> = {}
@@ -517,8 +524,20 @@ export class CamCanvas {
     return { x: local.x, y: local.y }
   }
 
-  autoLayout(spacing: LayoutSpacing = 'compact') {
-    const elements = this.graph.getElements().filter(el => el.attr('./visibility') !== 'hidden')
+  /**
+   * Re-run dagre. With `uids` it lays out only those activities, leaving the
+   * rest of the graph where the curator put it — tidying one cluster without
+   * rearranging the whole pathway.
+   *
+   * Positions are persisted afterwards: a selection-only tidy sits alongside
+   * manual positions, so losing it on reload would be surprising. (The
+   * whole-graph layout was previously not saved either, which only went
+   * unnoticed because re-running dagre is deterministic.)
+   */
+  autoLayout(spacing: LayoutSpacing = 'compact', uids?: string[]) {
+    const visible = this.graph.getElements().filter(el => el.attr('./visibility') !== 'hidden')
+    const scope = uids?.length ? new Set(uids) : null
+    const elements = scope ? visible.filter(el => scope.has(String(el.id))) : visible
     if (elements.length === 0) return
 
     const subgraph = this.graph.getSubgraph(elements)
@@ -536,6 +555,15 @@ export class CamCanvas {
       rankDir: 'TB',
       ...opts,
     })
+
+    this._layoutChanged = false
+    this._persistPositions()
+  }
+
+  /** Tidy just the current selection, if there is one. */
+  autoLayoutSelection(spacing: LayoutSpacing = 'compact') {
+    if (this._selection.isEmpty) return
+    this.autoLayout(spacing, this._selection.list())
   }
 
   zoom(delta: number, event?: MouseEvent) {
@@ -592,6 +620,7 @@ export class CamCanvas {
     this._container.removeEventListener('dragover', this._handleDragOver)
     this._container.removeEventListener('drop', this._handleDrop)
     this._container.removeEventListener('mousemove', this._handleMouseMove)
+    this._container.removeEventListener('contextmenu', this._handleContextMenu, true)
     this._marquee.destroy()
     this.paper.remove()
   }
@@ -631,6 +660,39 @@ export class CamCanvas {
     this._container.addEventListener('dragover', this._handleDragOver)
     this._container.addEventListener('drop', this._handleDrop)
     this._container.addEventListener('mousemove', this._handleMouseMove)
+    // Capture phase, on the container, so every right-click inside the canvas
+    // reaches us before JointJS's own handling.
+    this._container.addEventListener('contextmenu', this._handleContextMenu, true)
+  }
+
+  /**
+   * Right-click anywhere on the canvas.
+   *
+   * Deliberately native rather than JointJS's `blank:contextmenu` /
+   * `element:contextmenu` / `link:contextmenu` trio: those route through
+   * `Paper.contextMenuTrigger`, whose `findView` + `guard` chain decides which
+   * of the three fires, and a click that misses `blank` (on a relation's wide
+   * invisible hit area, or a cell with no activity behind it) silently reached
+   * no handler at all. One listener on the container cannot miss, and resolving
+   * node-vs-canvas here is a single `closest('[model-id]')`.
+   */
+  private _handleContextMenu = (e: MouseEvent) => {
+    e.preventDefault()
+
+    const target = e.target as Element | null
+    const cellEl = typeof target?.closest === 'function' ? target.closest('[model-id]') : null
+    const modelId = cellEl?.getAttribute('model-id')
+
+    if (modelId) {
+      const cell = this.graph.getCell(modelId)
+      const activity = cell?.prop('activity') as Activity | undefined
+      if (activity) {
+        this.onContextMenu?.(activity.uid, e.clientX, e.clientY)
+        return
+      }
+    }
+
+    this.onBlankContextMenu?.(e.clientX, e.clientY)
   }
 
   // ── Highlighting ──────────────────────────────────────────────
@@ -875,6 +937,107 @@ export class CamCanvas {
       .filter(el => !!el.prop('activity'))
       .map(el => String(el.id))
     if (this._selection.replace(uids)) this._commitSelection()
+  }
+
+  /** Every element on the canvas that is backed by an activity. */
+  private _activityElements(): joint.dia.Element[] {
+    return this.graph.getElements().filter(el => !!el.prop('activity'))
+  }
+
+  /**
+   * Select an activity and everything causally related to it.
+   *
+   * `downstream`/`upstream` use JointJS's transitive successors/predecessors —
+   * the same traversal the hover highlight already uses. `connected` walks
+   * neighbours in both directions to reach the whole weakly-connected
+   * component, which successors+predecessors alone would miss (they don't cross
+   * to a sibling that shares a target).
+   *
+   * Replaces the selection and always includes the anchor. Returns its size.
+   */
+  selectConnected(uid: string, direction: 'downstream' | 'upstream' | 'connected'): number {
+    const cell = this.graph.getCell(uid)
+    if (!(cell instanceof joint.dia.Element)) return 0
+
+    const related =
+      direction === 'downstream'
+        ? this.graph.getSuccessors(cell)
+        : direction === 'upstream'
+          ? this.graph.getPredecessors(cell)
+          : this._componentOf(cell)
+
+    const uids = [cell, ...related]
+      .filter(el => !!el.prop('activity'))
+      .map(el => String(el.id))
+
+    this._selection.replace(uids)
+    this._commitSelection()
+    return this._selection.size
+  }
+
+  /** Breadth-first walk over neighbours in both directions. */
+  private _componentOf(start: joint.dia.Element): joint.dia.Element[] {
+    const seen = new Set<string>([String(start.id)])
+    const found: joint.dia.Element[] = []
+    const queue: joint.dia.Element[] = [start]
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      for (const neighbor of this.graph.getNeighbors(current)) {
+        const id = String(neighbor.id)
+        if (seen.has(id)) continue
+        seen.add(id)
+        found.push(neighbor)
+        queue.push(neighbor)
+      }
+    }
+
+    return found
+  }
+
+  /**
+   * Replace the selection with every activity of one type. Returns how many
+   * matched; when nothing does, the selection is left untouched so a mis-click
+   * doesn't silently wipe it.
+   */
+  selectByType(type: ActivityType): number {
+    const uids = this._activityElements()
+      .filter(el => (el.prop('activity') as Activity | undefined)?.type === type)
+      .map(el => String(el.id))
+
+    if (uids.length === 0) return 0
+    this._selection.replace(uids)
+    this._commitSelection()
+    return uids.length
+  }
+
+  /**
+   * Activities carrying at least one statement with no evidence — the same
+   * condition that draws the no-evidence marker on a node's rows.
+   */
+  selectWithoutEvidence(): number {
+    const uids = this._activityElements()
+      .filter(el => {
+        const activity = el.prop('activity') as Activity | undefined
+        return !!activity?.edges.some(edge => !edge.evidence?.length)
+      })
+      .map(el => String(el.id))
+
+    if (uids.length === 0) return 0
+    this._selection.replace(uids)
+    this._commitSelection()
+    return uids.length
+  }
+
+  /** Swap selected for unselected. Always applies — emptying is a valid result. */
+  invertSelection(): number {
+    const next = this._activityElements()
+      .map(el => String(el.id))
+      .filter(uid => !this._selection.has(uid))
+
+    this._selection.replace(next)
+    this._commitSelection()
+    return next.length
   }
 
   /**

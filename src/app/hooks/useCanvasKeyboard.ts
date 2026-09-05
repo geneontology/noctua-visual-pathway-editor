@@ -19,13 +19,16 @@ export interface CanvasKeyboardActions {
   /** Ctrl/Cmd+C with a non-empty selection. */
   onCopyRegion?: () => void
   /**
-   * Ctrl/Cmd+V. Return true to claim the keystroke — the single-activity paste
-   * listens for the browser `paste` event, so only claim it when there really is
-   * a region to paste, otherwise that path must stay reachable.
+   * Ctrl/Cmd+V. Return true when something was actually pasted, so the keystroke
+   * is only claimed when it did something.
    */
   onPasteRegion?: () => boolean
   /** Delete/Backspace with a non-empty selection. */
   onDeleteRegion?: () => void
+  /** Ctrl/Cmd+D — duplicate the selection in place. */
+  onDuplicateRegion?: () => void
+  /** Ctrl/Cmd+S — the browser's Save dialog is suppressed either way. */
+  onSaveModel?: () => void
 }
 
 /**
@@ -34,8 +37,8 @@ export interface CanvasKeyboardActions {
  * Ctrl/Cmd+C / Ctrl/Cmd+V for region copy-paste and Delete to remove it.
  *
  * This is the app's first global key handler, so it is deliberately narrow — it
- * ignores keys aimed at form fields the same way `useActivityPaste` does, and
- * only claims a key when it actually acts on it.
+ * ignores keys aimed at form fields and only claims a key when it actually acts
+ * on it.
  */
 export function useCanvasKeyboard(
   enabled: boolean,
@@ -82,9 +85,24 @@ export function useCanvasKeyboard(
         return
       }
 
+      if (modifier && (e.key === 'd' || e.key === 'D')) {
+        if (canvas.getSelection().length === 0) return
+        e.preventDefault()
+        actionsRef.current.onDuplicateRegion?.()
+        return
+      }
+
+      if (modifier && (e.key === 's' || e.key === 'S')) {
+        // Always claim it — a browser "Save page" dialog on a graph editor is
+        // never what the user wanted.
+        e.preventDefault()
+        actionsRef.current.onSaveModel?.()
+        return
+      }
+
       if (modifier && (e.key === 'v' || e.key === 'V')) {
-        // preventDefault here suppresses the `paste` event that
-        // useActivityPaste listens for, so only do it when a region was claimed.
+        // Only claim the key when there was something to paste, so a stray
+        // Ctrl+V isn't silently swallowed.
         if (actionsRef.current.onPasteRegion?.()) e.preventDefault()
         return
       }

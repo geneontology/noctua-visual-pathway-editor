@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type React from 'react'
 import { Checkbox } from '@mantine/core'
 import ConfirmDialog from '@/@noctua.core/components/dialog/ConfirmDialog'
+import RegionPreview from './RegionPreview'
 import type { RegionClipboardPayload } from '@/features/gocam/services/regionClipboard'
 
 interface PasteRegionDialogProps {
@@ -79,6 +80,7 @@ const PasteRegionDialog: React.FC<PasteRegionDialogProps> = ({
       onClose={onCancel}
       onConfirm={() => onConfirm(includeEvidence)}
       title="Paste copied region"
+      size="sm"
       confirmLabel={busy ? 'Pasting…' : 'Paste'}
       confirmColor="blue"
       busy={busy}
@@ -91,6 +93,8 @@ const PasteRegionDialog: React.FC<PasteRegionDialogProps> = ({
             )}{' '}
             into this model?
           </p>
+
+          <RegionPreview payload={payload} />
           <p className="text-xs text-gray-500">
             Copied {fromAnotherModel ? 'from another model' : 'from this model'}{' '}
             {describeAge(payload.copiedAt)}. They are added straight away — there is no form to

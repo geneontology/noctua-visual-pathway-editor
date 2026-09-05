@@ -133,6 +133,21 @@ function toConnectionEntry(edge: Edge): RegionConnectionEntry {
   }
 }
 
+/**
+ * Every node uid in an entry's tree. A relation endpoint isn't always the
+ * activity root, so this is what maps a connection back to the activity that
+ * owns it — used by the paste preview.
+ */
+export function activityEntryNodeUids(entry: RegionActivityEntry): string[] {
+  const uids: string[] = []
+  const walk = (node: TermNode) => {
+    uids.push(node.uid)
+    for (const rel of node.relations) walk(rel.target)
+  }
+  walk(entry.root)
+  return uids
+}
+
 /** Returns null for anything that isn't one of our region payloads. */
 export function parseRegion(text: string | null): RegionClipboardPayload | null {
   const trimmed = text?.trim()

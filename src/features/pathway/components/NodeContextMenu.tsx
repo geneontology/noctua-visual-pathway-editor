@@ -9,6 +9,9 @@ import {
   FaObjectGroup,
   FaPencilAlt,
   FaTrash,
+  FaArrowDown,
+  FaArrowUp,
+  FaProjectDiagram,
 } from 'react-icons/fa'
 
 interface NodeContextMenuProps {
@@ -28,6 +31,8 @@ interface NodeContextMenuProps {
   regionSummary?: string | null
   onCopyRegion?: () => void
   onDeleteRegion?: () => void
+  /** Grow the selection along the causal graph from this node. */
+  onSelectConnected?: (direction: 'downstream' | 'upstream' | 'connected') => void
 }
 
 const Row = ({ icon, children }: { icon: ReactNode; children: ReactNode }) => (
@@ -55,6 +60,7 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
   regionSummary,
   onCopyRegion,
   onDeleteRegion,
+  onSelectConnected,
 }) => {
   const run = (action: () => void) => () => {
     onClose()
@@ -95,6 +101,24 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
           </MenuItem>
           <MenuItem onClick={run(onComments)}>
             <Row icon={<FaComment size={13} />}>Comments</Row>
+          </MenuItem>
+        </>
+      )}
+
+      {onSelectConnected && (
+        <>
+          <div className="my-1 border-t border-gray-200" />
+          <span className="block px-3 py-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
+            Select
+          </span>
+          <MenuItem onClick={run(() => onSelectConnected('downstream'))}>
+            <Row icon={<FaArrowDown size={13} />}>Downstream</Row>
+          </MenuItem>
+          <MenuItem onClick={run(() => onSelectConnected('upstream'))}>
+            <Row icon={<FaArrowUp size={13} />}>Upstream</Row>
+          </MenuItem>
+          <MenuItem onClick={run(() => onSelectConnected('connected'))}>
+            <Row icon={<FaProjectDiagram size={13} />}>Connected</Row>
           </MenuItem>
         </>
       )}
