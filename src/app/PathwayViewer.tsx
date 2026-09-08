@@ -518,6 +518,21 @@ const PathwayEditor: React.FC = () => {
     [canvas.canvasRef, dispatch]
   )
 
+  /**
+   * Toolbar search: highlight the matches. A single pick also scrolls it into
+   * view; selecting all matches highlights them in place instead — jumping the
+   * viewport somewhere arbitrary would hide that there are matches elsewhere.
+   */
+  const handleFindActivity = useCallback(
+    (uids: string[]) => {
+      if (uids.length === 0) return
+      const canvasApi = canvas.canvasRef.current
+      canvasApi?.setSelection(uids)
+      if (uids.length === 1) canvasApi?.centerOnActivity(uids[0])
+    },
+    [canvas.canvasRef]
+  )
+
   const handleClearSelection = useCallback(() => {
     canvas.canvasRef.current?.clearSelection()
   }, [canvas.canvasRef])
@@ -588,6 +603,8 @@ const PathwayEditor: React.FC = () => {
         onDeleteSelection={handleDeleteSelection}
         canEdit={isLoggedIn}
         onSelectPreset={handleSelectPreset}
+        activities={graphModel?.data?.activities ?? []}
+        onFindActivity={handleFindActivity}
       />
       <div className="flex min-h-0 flex-1 flex-row">
         {isLoggedIn && <StencilPalette />}
@@ -600,6 +617,18 @@ const PathwayEditor: React.FC = () => {
           {error && (
             <div className="absolute inset-0 z-10 flex items-center justify-center">
               <div className="p-4 text-red-500">Error loading graph data</div>
+            </div>
+          )}
+          {isSuccess && graphModel?.data?.activities.length === 0 && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <div className="rounded-lg border border-dashed border-gray-300 bg-white/90 px-8 py-6 text-center">
+                <p className="text-base font-medium text-gray-700">This model is empty</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {isLoggedIn
+                    ? 'Drag an Activity Unit from the palette on the left to create your first activity.'
+                    : 'Log in to start adding activities.'}
+                </p>
+              </div>
             </div>
           )}
           <PathwayGraph

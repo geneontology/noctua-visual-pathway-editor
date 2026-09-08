@@ -1107,6 +1107,30 @@ export class CamCanvas {
   }
 
   /**
+   * Scroll the canvas so an activity sits in the middle of the viewport.
+   *
+   * Panning here is native container scroll (the 30000px paper sits inside an
+   * overflow-auto div), so centring is a scroll adjustment by the delta between
+   * the node's client point and the viewport centre — correct at any zoom.
+   * Used by the toolbar search; deliberately separate from `selectActivity`,
+   * which must NOT move the viewport (see its comment).
+   */
+  centerOnActivity(uid: string) {
+    const cell = this.graph.getCell(uid)
+    if (!(cell instanceof joint.dia.Element)) return
+
+    const center = cell.getBBox().center()
+    const client = this.paper.localToClientPoint(center.x, center.y)
+    const rect = this._container.getBoundingClientRect()
+
+    this._container.scrollBy({
+      left: client.x - (rect.left + rect.width / 2),
+      top: client.y - (rect.top + rect.height / 2),
+      behavior: 'smooth',
+    })
+  }
+
+  /**
    * Public selection API used to drive the canvas from outside (e.g. clicking
    * a comment in the side panel). Highlights the activity without moving the
    * viewport — auto-panning shifted the rest of the graph off-screen.

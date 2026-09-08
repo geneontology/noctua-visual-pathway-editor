@@ -17,6 +17,8 @@ import {
   selectionPresetOptions,
 } from '../data/toolbarOptions'
 import type { SelectionPreset } from '../data/toolbarOptions'
+import ActivitySearch from './ActivitySearch'
+import type { Activity } from '@/features/gocam/models/cam'
 
 interface GraphToolbarProps {
   layoutDetail: LayoutDetail
@@ -36,6 +38,9 @@ interface GraphToolbarProps {
   /** False when not logged in — hides the editing actions. */
   canEdit?: boolean
   onSelectPreset?: (preset: SelectionPreset) => void
+  /** Model activities, searchable by name from the toolbar. */
+  activities?: Activity[]
+  onFindActivity?: (uids: string[]) => void
 }
 
 export default function GraphToolbar({
@@ -54,6 +59,8 @@ export default function GraphToolbar({
   onDeleteSelection,
   canEdit = true,
   onSelectPreset,
+  activities,
+  onFindActivity,
 }: GraphToolbarProps) {
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
@@ -91,6 +98,10 @@ export default function GraphToolbar({
 
       {onSelectPreset && <SelectMenu onSelect={onSelectPreset} />}
 
+      {activities && onFindActivity && (
+        <ActivitySearch activities={activities} onSelect={onFindActivity} />
+      )}
+
       {selectionCount > 0 && (
         <div className="ml-auto flex items-center gap-1 rounded-full bg-blue-50 py-1 pr-1 pl-3">
           <span className="mr-1 text-xs font-semibold whitespace-nowrap text-blue-900">
@@ -101,37 +112,36 @@ export default function GraphToolbar({
             <>
               <Tooltip label="Copy selection (Ctrl+C)" withArrow position="bottom">
                 <Button
-                  variant="subtle"
+                  variant="default"
                   size="compact-xs"
                   radius="xl"
                   onClick={onCopySelection}
                   leftSection={<CopyIcon size={14} />}
-                  className="!text-xs !text-blue-800 hover:!bg-blue-100"
+                  className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
                 >
                   Copy
                 </Button>
               </Tooltip>
               <Tooltip label="Duplicate selection (Ctrl+D)" withArrow position="bottom">
                 <Button
-                  variant="subtle"
+                  variant="default"
                   size="compact-xs"
                   radius="xl"
                   onClick={onDuplicateSelection}
                   leftSection={<DuplicateIcon size={14} />}
-                  className="!text-xs !text-blue-800 hover:!bg-blue-100"
+                  className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
                 >
                   Duplicate
                 </Button>
               </Tooltip>
               <Tooltip label="Delete selected activities" withArrow position="bottom">
                 <Button
-                  variant="subtle"
+                  variant="default"
                   size="compact-xs"
                   radius="xl"
-                  color="red"
                   onClick={onDeleteSelection}
                   leftSection={<DeleteIcon size={14} />}
-                  className="!text-xs !text-red-700 hover:!bg-red-50"
+                  className="!border-red-300 !bg-white !text-xs !text-red-700 hover:!bg-red-50"
                 >
                   Delete
                 </Button>
