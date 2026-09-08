@@ -17,6 +17,7 @@ import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/di
 import {
   setRightDrawerOpen,
   setRightPanelTab,
+  setCommentsScope,
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import Chip from '@/@noctua.core/components/chip/Chip'
@@ -60,7 +61,10 @@ const CamToolbar: React.FC = () => {
     )
   }
 
+  // The toolbar button is the model-wide list: drop any per-activity scope a
+  // previous open from an activity's comment icon left behind (#289).
   const openCommentsPanel = () => {
+    dispatch(setCommentsScope(null))
     dispatch(setRightPanelTab(RightPanelTab.COMMENTS))
     dispatch(setRightDrawerOpen(true))
   }

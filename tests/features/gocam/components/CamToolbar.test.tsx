@@ -4,7 +4,7 @@ import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import CamToolbar from '@/features/gocam/components/CamToolbar'
 import GroupGuardProvider from '@/features/gocam/components/GroupGuardProvider'
-import { RightPanelTab } from '@/@noctua.core/components/drawer/drawerSlice'
+import { RightPanelTab, setCommentsScope } from '@/@noctua.core/components/drawer/drawerSlice'
 import { DialogComponent } from '@/@noctua.core/components/dialog/dialogSlice'
 import { buildModel, buildActivity, buildNode } from '@tests/fixtures/builders'
 
@@ -127,5 +127,17 @@ describe('CamToolbar logged-out gating (#278)', () => {
     const dialog = store.getState().dialog
     expect(dialog.open).toBe(true)
     expect(dialog.component).toBe(DialogComponent.CAM_STATE_FORM)
+  })
+
+  // The toolbar is the model-wide list, so it clears any per-activity scope an
+  // earlier open from an activity's comment icon left behind (#289).
+  it('opens the comments panel unscoped', async () => {
+    const { user, store } = renderToolbar(0)
+    store.dispatch(setCommentsScope('a'))
+    await user.click(screen.getByRole('button', { name: 'View all comments' }))
+
+    expect(store.getState().drawer.rightPanelTab).toBe(RightPanelTab.COMMENTS)
+    expect(store.getState().drawer.rightDrawerOpen).toBe(true)
+    expect(store.getState().drawer.commentsActivityScope).toBeNull()
   })
 })

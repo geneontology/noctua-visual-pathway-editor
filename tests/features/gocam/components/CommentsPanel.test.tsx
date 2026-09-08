@@ -28,11 +28,16 @@ const buildTestModel = () => {
 interface RenderOpts {
   selectedActivityId?: string | null
   rightPanelTab?: RightPanelTab
+  commentsActivityScope?: string | null
 }
 
 const renderPanel = (
   model = buildTestModel(),
-  { selectedActivityId = null, rightPanelTab = RightPanelTab.COMMENTS }: RenderOpts = {}
+  {
+    selectedActivityId = null,
+    rightPanelTab = RightPanelTab.COMMENTS,
+    commentsActivityScope = null,
+  }: RenderOpts = {}
 ) =>
   renderWithProviders(
     <MantineProvider>
@@ -42,7 +47,7 @@ const renderPanel = (
       preloadedState: {
         auth: { user: { uri: 'http://orcid.org/0000-0000-0000-0000' }, baristaToken: 'test-token' },
         cam: { model: null, loading: false, error: null, selectedActivityId },
-        drawer: { rightDrawerOpen: true, rightPanelTab },
+        drawer: { rightDrawerOpen: true, rightPanelTab, commentsActivityScope },
       },
     }
   )
@@ -184,7 +189,9 @@ describe('CommentsPanel', () => {
     it('files the ticket with no curator when the statement has no contributors', () => {
       renderPanel(buildDisputedModel([]))
 
-      expect(disputeBody()).toBe('* My Term\n* My Term (GO:0003674)')
+      expect(disputeBody()).toBe(
+        '* My Term\n* My Term (GO:0003674)\n\nwrong term for this gene'
+      )
     })
 
     it('offers no dispute ticket on a non-dispute comment', () => {
@@ -195,6 +202,112 @@ describe('CommentsPanel', () => {
       renderPanel(buildModel([buildActivity('act', [node])]))
 
       expect(screen.queryByLabelText('File annotation dispute on GitHub')).toBeNull()
+    })
+  })
+
+  describe('scoped to one activity unit (#289)', () => {
+    // Two commented activities: opening the panel from one unit's comment icon
+    // should leave the other one (and the model comments) out of the list.
+    const buildTwoActivityModel = () => {
+      const first = { ...buildNode('GO:0003674', 'First Term'), comments: ['General: first note'] }
+      const second = {
+        ...buildNode('GO:0016301', 'Second Term'),
+        comments: ['General: second note'],
+      }
+      return {
+        ...buildModel([buildActivity('act-1', [first]), buildActivity('act-2', [second])]),
+        comments: ['General: model comment'],
+      }
+    }
+
+    const scoped = (scope: string | null = 'act-2') =>
+      renderPanel(buildTwoActivityModel(), {
+        commentsActivityScope: scope,
+        selectedActivityId: scope,
+      })
+
+    it('shows the scoped activity unit and no other', () => {
+      scoped()
+
+      expect(screen.getAllByText(/second note/).length).toBeGreaterThan(0)
+      expect(screen.queryAllByText(/first note/)).toHaveLength(0)
+    })
+
+    it('hides the model comments, which belong to no activity unit', () => {
+      scoped()
+
+      expect(screen.queryAllByText(/model comment/)).toHaveLength(0)
+      expect(screen.queryByText('No model comments yet')).toBeNull()
+    })
+
+    it('names the scoped activity in the header', () => {
+      scoped()
+      expect(screen.getAllByText('Second Term').length).toBeGreaterThan(0)
+    })
+
+    it('counts the scoped unit only, not the whole model', () => {
+      scoped()
+      // 3 comments model-wide, 1 on the scoped unit.
+      expect(screen.queryByText('3')).toBeNull()
+    })
+
+    it('drops the scope from "Show all comments", revealing the whole model', async () => {
+      const { user, store } = scoped()
+      await user.click(screen.getByRole('button', { name: /Show all comments/ }))
+
+      expect(store.getState().drawer.commentsActivityScope).toBeNull()
+      expect(screen.getAllByText(/first note/).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/model comment/).length).toBeGreaterThan(0)
+    })
+
+    it('offers no "Show all comments" when the panel was opened unscoped', () => {
+      scoped(null)
+      expect(screen.queryByRole('button', { name: /Show all comments/ })).toBeNull()
+    })
+
+    it('falls back to the full list when the scoped activity is no longer in the model', () => {
+      renderPanel(buildTwoActivityModel(), { commentsActivityScope: 'act-gone' })
+
+      expect(screen.getAllByText(/first note/).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/second note/).length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('evidence dispute and ontology term tickets (#289)', () => {
+    const ticketBody = (label: string) => {
+      const href = screen.getByLabelText(label).getAttribute('href') ?? ''
+      return { href, body: new URL(href).searchParams.get('body') ?? '' }
+    }
+
+    it('files an evidence dispute on go-annotation, naming the statement it supports', () => {
+      const edge = buildEdgeWithEvidence('enabled_by', [{ id: 'ECO:0000314', label: 'IDA' }])
+      edge.evidence![0].comments = ['Evidence dispute: figure shows the opposite']
+      const model = buildModel([
+        buildActivity('act', [buildNode('GO:0003674', 'My Term')], [edge]),
+      ])
+      renderPanel(model)
+
+      const { href, body } = ticketBody('File evidence dispute on GitHub')
+      expect(href).toContain('go-annotation/issues/new')
+      expect(body).toContain('* enabled by → Target')
+      expect(body).toContain('* IDA · PMID:1')
+      expect(body).toContain('figure shows the opposite')
+    })
+
+    it('files a pending ontology term on go-ontology, not go-annotation', () => {
+      // The test model's node comment is "Ontology term pending: needs review".
+      renderPanel()
+
+      const { href, body } = ticketBody('Request ontology term on GitHub')
+      expect(href).toContain('go-ontology/issues/new')
+      expect(body).toContain('* My Term (GO:0003674)')
+      expect(body).toContain('needs review')
+    })
+
+    it('offers no ticket on a reference comment that is not a dispute', () => {
+      // Same model also carries a "Figure/Table" reference comment.
+      renderPanel()
+      expect(screen.queryByLabelText('File evidence dispute on GitHub')).toBeNull()
     })
   })
 })
