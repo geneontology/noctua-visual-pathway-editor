@@ -7,14 +7,16 @@ import { useUpdateGraphModelMutation } from '../slices/camApiSlice'
 import { buildSaveIndividualCommentsOperations } from '../services/activityOperations'
 import { closeDialog } from '@/@noctua.core/components/dialog/dialogSlice'
 import StructuredCommentsEditor from './StructuredCommentsEditor'
-import DisputeTicketButton from './DisputeTicketButton'
+import CommentTicketButton from './CommentTicketButton'
+import { formatComment, parseComment, type StructuredComment } from '../data/commentCategories'
+import { commentTicket } from '../data/annotationDispute'
 import {
-  formatComment,
-  parseComment,
-  ANNOTATION_DISPUTE_CATEGORY,
-  type StructuredComment,
-} from '../data/commentCategories'
-import { buildAnnotationDisputeUrl } from '../data/annotationDispute'
+  activityLabel,
+  individualLabel,
+  statementLabel,
+  evidenceLabel,
+  findCommentSubject,
+} from '../services/commentSubjects'
 
 interface IndividualCommentsFormProps {
   /** UID of the individual to comment on — a GO term / input node, or an evidence individual. */
@@ -47,40 +49,30 @@ const IndividualCommentsForm: React.FC<IndividualCommentsFormProps> = ({
     [cam, individualUid]
   )
 
-  // Context for an "Annotation dispute" ticket: the enabling gene of the
-  // activity this individual sits in, the disputed GO term, and the curators who
-  // contributed the individual being disputed (#231).
-  const activity = useMemo(
-    () => cam?.activities.find(a => a.nodes.some(n => n.uid === individualUid)) ?? null,
-    [cam, individualUid]
+  // Context for a GitHub ticket on a dispute or a pending ontology term: the
+  // enabling gene of the activity this individual sits in, the individual
+  // itself, and — when it's an evidence individual — the statement it supports
+  // (#231, #289). Curators named are whoever contributed the individual being
+  // commented on, not whoever is filing.
+  const location = useMemo(() => findCommentSubject(cam, individualUid), [cam, individualUid])
+  const ticketContext = useMemo(
+    () => ({
+      modelUrl: window.location.href,
+      gene: location ? activityLabel(location.activity) : 'Activity',
+      goTerm: individualLabel(node),
+      statement: location?.edge ? statementLabel(location.edge) : undefined,
+      evidence: location?.evidence ? evidenceLabel(location.evidence) : undefined,
+      contributors: node?.contributors ?? [],
+    }),
+    [location, node]
   )
-  const disputeGene =
-    activity?.enabledBy?.label ??
-    activity?.molecularFunction?.label ??
-    activity?.rootNode.label ??
-    'Activity'
-  const disputeGoTerm = node
-    ? node.label && node.id
-      ? `${node.label} (${node.id})`
-      : node.label || node.id || 'Individual'
-    : ''
-  const disputeContributors = useMemo(() => node?.contributors ?? [], [node])
 
   const renderCommentAction = useCallback(
     (comment: StructuredComment) => {
-      if (comment.option !== ANNOTATION_DISPUTE_CATEGORY) return null
-      return (
-        <DisputeTicketButton
-          href={buildAnnotationDisputeUrl({
-            modelUrl: window.location.href,
-            gene: disputeGene,
-            goTerm: disputeGoTerm,
-            contributors: disputeContributors,
-          })}
-        />
-      )
+      const ticket = commentTicket(comment.option, { ...ticketContext, comment: comment.text })
+      return ticket ? <CommentTicketButton ticket={ticket} /> : null
     },
-    [disputeGene, disputeGoTerm, disputeContributors]
+    [ticketContext]
   )
 
   const [comments, setComments] = useState<StructuredComment[]>(

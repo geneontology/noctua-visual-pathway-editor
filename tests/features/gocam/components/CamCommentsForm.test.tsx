@@ -82,7 +82,8 @@ describe('CamCommentsForm', () => {
     const inputs = commentInputs()
     expect(inputs.map(i => i.value)).toEqual(['first', 'second'])
     expect(screen.getAllByDisplayValue('General').length).toBeGreaterThan(0)
-    expect(screen.getAllByDisplayValue('Annotation dispute').length).toBeGreaterThan(0)
+    // Stored under the pre-#289 label, shown under the current one.
+    expect(screen.getAllByDisplayValue('GO term annotation dispute').length).toBeGreaterThan(0)
   })
 
   it('renders a legacy (no-prefix) comment as text with a blank category', () => {
