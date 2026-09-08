@@ -1,4 +1,5 @@
 import type React from 'react'
+import { useState } from 'react'
 import { ActionIcon, Button } from '@mantine/core'
 import AnchoredMenu, { MenuItem } from '@/@noctua.core/components/menu/AnchoredMenu'
 import { usePopover } from '@/@noctua.core/hooks/usePopover'
@@ -8,10 +9,15 @@ import { useAuth } from '@/features/auth/authProvider'
 import { useAppSelector } from '../hooks'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { ENVIRONMENT, EXTERNAL_LINKS } from '@/@noctua.core/data/constants'
+import { useAnnouncements } from '@/features/announcements/hooks/useAnnouncements'
+import AnnouncementBell from '@/features/announcements/components/AnnouncementBell'
+import AnnouncementPanel from '@/features/announcements/components/AnnouncementPanel'
 
 const Toolbar: React.FC = () => {
   const userMenu = usePopover()
   const helpMenu = usePopover()
+  const announcements = useAnnouncements()
+  const [announcementsOpen, setAnnouncementsOpen] = useState(false)
 
   const { isLoggedIn, loginUrl, logoutUrl, noctuaUrl } = useAuth()
   const user = useAppSelector(selectAuthUser)
@@ -70,6 +76,16 @@ const Toolbar: React.FC = () => {
 
       {/* Right-aligned section */}
       <div className="flex flex-1 flex-row items-center justify-end">
+        {/* Announcements */}
+        {announcements.length > 0 && (
+          <div className="flex flex-row items-center border-r border-gray-300 pr-3">
+            <AnnouncementBell
+              count={announcements.length}
+              onClick={() => setAnnouncementsOpen(true)}
+            />
+          </div>
+        )}
+
         {/* GitHub */}
         <div className="flex flex-row items-center border-r border-gray-300 pr-3">
           <ActionIcon
@@ -172,6 +188,12 @@ const Toolbar: React.FC = () => {
           />
         </a>
       </div>
+
+      <AnnouncementPanel
+        announcements={announcements}
+        opened={announcementsOpen}
+        onClose={() => setAnnouncementsOpen(false)}
+      />
     </div>
   )
 }

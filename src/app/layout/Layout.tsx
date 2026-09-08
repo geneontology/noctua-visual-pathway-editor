@@ -10,6 +10,16 @@ import { useMediaQuery } from '@mantine/hooks'
 import CamToolbar from '@/features/gocam/components/CamToolbar'
 import GroupGuardProvider from '@/features/gocam/components/GroupGuardProvider'
 import LoadingOverlay from '@/@noctua.core/components/loading-overlay/LoadingOverlay'
+import {
+  useAnnouncements,
+  useAnnouncementDismissal,
+} from '@/features/announcements/hooks/useAnnouncements'
+import AnnouncementBanner from '@/features/announcements/components/AnnouncementBanner'
+
+/** Fixed offsets below are measured from the toolbar; the banner shifts them. */
+const TOOLBAR_BOTTOM = 50
+const CAM_TOOLBAR_BOTTOM = 94
+const BANNER_HEIGHT = 32
 
 interface LayoutProps {
   rightDrawerContent?: React.ReactNode
@@ -19,6 +29,12 @@ const Layout: React.FC<LayoutProps> = ({ rightDrawerContent }) => {
   const isMobile = useMediaQuery('(max-width: 36em)')
 
   const rightDrawerOpen = useAppSelector(selectRightDrawerOpen)
+
+  const announcements = useAnnouncements()
+  const { isDismissed, dismiss } = useAnnouncementDismissal()
+  // Only the topmost announcement gets a banner; the rest live behind the bell.
+  const banner = announcements.find(a => !isDismissed(a.id))
+  const bannerOffset = banner ? BANNER_HEIGHT : 0
 
   useEffect(() => {
     initGA('G-LHBLYRN338')
@@ -35,11 +51,26 @@ const Layout: React.FC<LayoutProps> = ({ rightDrawerContent }) => {
         <div className="fixed left-0 top-0 z-50 h-12 w-full border-b-2 border-b-primary-500">
           <Toolbar />
         </div>
-        <div className="fixed z-40 flex w-full flex-1" style={{ top: 50 }}>
+        {banner && (
+          <div
+            className="fixed left-0 z-40 w-full"
+            style={{ top: TOOLBAR_BOTTOM, height: BANNER_HEIGHT }}
+          >
+            <AnnouncementBanner announcement={banner} onDismiss={dismiss} />
+          </div>
+        )}
+
+        <div
+          className="fixed z-40 flex w-full flex-1"
+          style={{ top: TOOLBAR_BOTTOM + bannerOffset }}
+        >
           <CamToolbar />
         </div>
 
-        <div className="fixed flex w-full flex-1" style={{ top: 94, bottom: 0 }}>
+        <div
+          className="fixed flex w-full flex-1"
+          style={{ top: CAM_TOOLBAR_BOTTOM + bannerOffset, bottom: 0 }}
+        >
           <div className="flex-1 overflow-auto">
             <Outlet />
             <Footer />
