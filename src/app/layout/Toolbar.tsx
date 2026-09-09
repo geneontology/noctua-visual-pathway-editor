@@ -8,10 +8,29 @@ import { useAuth } from '@/features/auth/authProvider'
 import { useAppSelector } from '../hooks'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
 import { ENVIRONMENT, EXTERNAL_LINKS } from '@/@noctua.core/data/constants'
+import type { Announcement } from '@/features/announcements/models/announcement'
+import type { AnnouncementState } from '@/features/announcements/hooks/useAnnouncements'
+import AnnouncementBell from '@/features/announcements/components/AnnouncementBell'
 
-const Toolbar: React.FC = () => {
+interface ToolbarProps {
+  announcements: Announcement[]
+  announcementState: AnnouncementState
+  onOpenAnnouncements: () => void
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({
+  announcements,
+  announcementState,
+  onOpenAnnouncements,
+}) => {
   const userMenu = usePopover()
   const helpMenu = usePopover()
+
+  // Pinned announcements can't be dismissed, so they always count toward the bell.
+  const shown = announcements.filter(
+    a => a.pinned || !announcementState.isDismissed(a.id)
+  )
+  const unread = shown.filter(a => !announcementState.isRead(a.id)).length
 
   const { isLoggedIn, loginUrl, logoutUrl, noctuaUrl } = useAuth()
   const user = useAppSelector(selectAuthUser)
@@ -70,6 +89,17 @@ const Toolbar: React.FC = () => {
 
       {/* Right-aligned section */}
       <div className="flex flex-1 flex-row items-center justify-end">
+        {/* Announcements */}
+        {shown.length > 0 && (
+          <div className="flex flex-row items-center border-r border-gray-300 pr-3">
+            <AnnouncementBell
+              total={shown.length}
+              unread={unread}
+              onClick={onOpenAnnouncements}
+            />
+          </div>
+        )}
+
         {/* GitHub */}
         <div className="flex flex-row items-center border-r border-gray-300 pr-3">
           <ActionIcon
