@@ -17,8 +17,8 @@ describe('parseComment', () => {
   })
 
   it('only splits on the first ": " so the body can contain colons', () => {
-    expect(parseComment('GO term annotation dispute: ratio 1: 2 mismatch')).toEqual({
-      option: 'GO term annotation dispute',
+    expect(parseComment('Ontology term annotation dispute: ratio 1: 2 mismatch')).toEqual({
+      option: 'Ontology term annotation dispute',
       text: 'ratio 1: 2 mismatch',
     })
   })
@@ -42,17 +42,8 @@ describe('parseComment', () => {
       option: 'Ontology term pending',
       text: 'needs review',
     })
-    expect(parseComment('GO term annotation dispute: disputed')).toEqual({
-      option: 'GO term annotation dispute',
-      text: 'disputed',
-    })
-  })
-
-  // The category is stored as a prefix inside the comment, so models saved
-  // before the #289 rename still carry the old label.
-  it('reads the pre-#289 dispute label as its current name', () => {
-    expect(parseComment('Annotation dispute: disputed')).toEqual({
-      option: 'GO term annotation dispute',
+    expect(parseComment('Ontology term annotation dispute: disputed')).toEqual({
+      option: 'Ontology term annotation dispute',
       text: 'disputed',
     })
   })
@@ -133,11 +124,11 @@ describe('getCommentCategoryBadgeClass', () => {
   })
 
   it('badges both dispute categories, without colliding (#289)', () => {
-    const goTerm = getCommentCategoryBadgeClass('GO term annotation dispute')
+    const annotation = getCommentCategoryBadgeClass('Ontology term annotation dispute')
     const evidence = getCommentCategoryBadgeClass('Evidence dispute')
-    expect(goTerm).toContain('red')
+    expect(annotation).toContain('red')
     expect(evidence).toContain('rose')
-    expect(goTerm).not.toBe(evidence)
+    expect(annotation).not.toBe(evidence)
   })
 })
 
@@ -149,7 +140,7 @@ describe('comment category lists (2026-07-23 GO-CAM call, #231)', () => {
   it('individual-level topics are ontology-pending, dispute, general', () => {
     expect(INDIVIDUAL_COMMENT_CATEGORIES).toEqual([
       'Ontology term pending',
-      'GO term annotation dispute',
+      'Ontology term annotation dispute',
       'General',
     ])
   })
@@ -164,7 +155,7 @@ describe('comment category lists (2026-07-23 GO-CAM call, #231)', () => {
     ])
   })
 
-  it('offers the renamed dispute label, not the one it replaced (#289)', () => {
-    expect(INDIVIDUAL_COMMENT_CATEGORIES).not.toContain('Annotation dispute')
+  it('offers the dispute label under its ontology-term name (#289)', () => {
+    expect(INDIVIDUAL_COMMENT_CATEGORIES).toContain('Ontology term annotation dispute')
   })
 })

@@ -6,17 +6,12 @@ export const COMMENT_CATEGORIES = [
 ] as const
 
 /**
- * The individual-comment category that lets a curator escalate a disputed GO
- * term annotation to a GitHub ticket on geneontology/go-annotation (#231).
+ * The individual-comment category that lets a curator escalate a disputed
+ * annotation to a GitHub ticket on geneontology/go-annotation. These categories
+ * are offered on every node, chemicals included, so the label says "ontology
+ * term" rather than naming GO (#231, #289).
  */
-export const ANNOTATION_DISPUTE_CATEGORY = 'GO term annotation dispute' as const
-
-/**
- * What the GO term dispute category was called before #289. The category is
- * stored as a prefix inside the comment itself, so models saved earlier still
- * carry this label — it stays parseable and is shown under the new name.
- */
-export const LEGACY_ANNOTATION_DISPUTE_CATEGORY = 'Annotation dispute' as const
+export const ANNOTATION_DISPUTE_CATEGORY = 'Ontology term annotation dispute' as const
 
 /**
  * The individual-comment category for a term that doesn't exist in the ontology
@@ -26,7 +21,7 @@ export const ONTOLOGY_TERM_PENDING_CATEGORY = 'Ontology term pending' as const
 
 /**
  * The reference-comment category for disputed evidence; escalates to a GitHub
- * ticket on geneontology/go-annotation, like the GO term dispute (#289).
+ * ticket on geneontology/go-annotation, like the annotation dispute (#289).
  */
 export const EVIDENCE_DISPUTE_CATEGORY = 'Evidence dispute' as const
 
@@ -51,13 +46,7 @@ const ALL_COMMENT_CATEGORIES: readonly string[] = [
   ...COMMENT_CATEGORIES,
   ...INDIVIDUAL_COMMENT_CATEGORIES,
   ...REFERENCE_COMMENT_CATEGORIES,
-  LEGACY_ANNOTATION_DISPUTE_CATEGORY,
 ]
-
-/** Renamed categories, mapped from their stored label to the current one (#289). */
-const CATEGORY_ALIASES: Record<string, string> = {
-  [LEGACY_ANNOTATION_DISPUTE_CATEGORY]: ANNOTATION_DISPUTE_CATEGORY,
-}
 
 export type CommentCategory = (typeof COMMENT_CATEGORIES)[number]
 
@@ -88,18 +77,13 @@ const SEPARATOR = ': '
  * Parse a stored comment string into an option + text.
  * If the prefix before the first `": "` is a known category, it becomes the
  * option; otherwise the option is left blank and the full string is kept as-is.
- * A renamed category resolves to its current label, so a comment saved under
- * the old name reads (and re-saves) as the new one.
  */
 export const parseComment = (comment: string): StructuredComment => {
   const idx = comment.indexOf(SEPARATOR)
   if (idx > 0) {
     const prefix = comment.slice(0, idx)
     if (ALL_COMMENT_CATEGORIES.includes(prefix)) {
-      return {
-        option: CATEGORY_ALIASES[prefix] ?? prefix,
-        text: comment.slice(idx + SEPARATOR.length),
-      }
+      return { option: prefix, text: comment.slice(idx + SEPARATOR.length) }
     }
   }
   return { option: '', text: comment }

@@ -71,7 +71,7 @@ describe('buildAnnotationDisputeUrl', () => {
 
     expect(url.startsWith('https://github.com/geneontology/go-annotation/issues/new?')).toBe(true)
     expect(issueFields(url).title).toBe(
-      'GO term annotation dispute https://noctua.geneontology.org/editor/graph/gomodel:123'
+      'Ontology term annotation dispute https://noctua.geneontology.org/editor/graph/gomodel:123'
     )
   })
 
@@ -216,8 +216,8 @@ describe('commentTicket', () => {
     comment: 'see figure 2',
   }
 
-  it('sends a GO term dispute and an evidence dispute to go-annotation', () => {
-    expect(commentTicket('GO term annotation dispute', ctx)?.href).toContain(
+  it('sends an annotation dispute and an evidence dispute to go-annotation', () => {
+    expect(commentTicket('Ontology term annotation dispute', ctx)?.href).toContain(
       'go-annotation/issues/new'
     )
     expect(commentTicket('Evidence dispute', ctx)?.href).toContain('go-annotation/issues/new')
@@ -229,7 +229,7 @@ describe('commentTicket', () => {
 
   it('carries the comment into whichever ticket it builds', () => {
     for (const category of [
-      'GO term annotation dispute',
+      'Ontology term annotation dispute',
       'Evidence dispute',
       'Ontology term pending',
     ]) {
@@ -238,7 +238,7 @@ describe('commentTicket', () => {
   })
 
   it('distinguishes the two disputes by wording, so a curator knows what they filed', () => {
-    expect(commentTicket('GO term annotation dispute', ctx)?.ariaLabel).toBe(
+    expect(commentTicket('Ontology term annotation dispute', ctx)?.ariaLabel).toBe(
       'File annotation dispute on GitHub'
     )
     expect(commentTicket('Evidence dispute', ctx)?.ariaLabel).toBe(
