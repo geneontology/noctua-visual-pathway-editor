@@ -78,11 +78,14 @@ describe('CamCommentsForm', () => {
   })
 
   it('renders existing structured comments split into category + text', () => {
-    renderForm(buildCamState({ comments: ['General: first', 'Annotation dispute: second'] }))
+    renderForm(
+      buildCamState({ comments: ['General: first', 'Ontology term annotation dispute: second'] })
+    )
     const inputs = commentInputs()
     expect(inputs.map(i => i.value)).toEqual(['first', 'second'])
     expect(screen.getAllByDisplayValue('General').length).toBeGreaterThan(0)
-    expect(screen.getAllByDisplayValue('Annotation dispute').length).toBeGreaterThan(0)
+    const disputes = screen.getAllByDisplayValue('Ontology term annotation dispute')
+    expect(disputes.length).toBeGreaterThan(0)
   })
 
   it('renders a legacy (no-prefix) comment as text with a blank category', () => {
