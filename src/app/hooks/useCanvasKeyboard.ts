@@ -25,8 +25,6 @@ export interface CanvasKeyboardActions {
   onPasteRegion?: () => boolean
   /** Delete/Backspace with a non-empty selection. */
   onDeleteRegion?: () => void
-  /** Ctrl/Cmd+D — duplicate the selection in place. */
-  onDuplicateRegion?: () => void
   /** Ctrl/Cmd+S — the browser's Save dialog is suppressed either way. */
   onSaveModel?: () => void
 }
@@ -82,13 +80,6 @@ export function useCanvasKeyboard(
         if (canvas.getSelection().length === 0) return
         e.preventDefault()
         actionsRef.current.onCopyRegion?.()
-        return
-      }
-
-      if (modifier && (e.key === 'd' || e.key === 'D')) {
-        if (canvas.getSelection().length === 0) return
-        e.preventDefault()
-        actionsRef.current.onDuplicateRegion?.()
         return
       }
 

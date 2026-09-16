@@ -6,7 +6,6 @@ import {
   MdArrowDropDown as ArrowDropDownIcon,
   MdAutoFixHigh as AutoLayoutIcon,
   MdContentCopy as CopyIcon,
-  MdLibraryAdd as DuplicateIcon,
   MdDeleteOutline as DeleteIcon,
   MdClose as ClearIcon,
 } from 'react-icons/md'
@@ -17,6 +16,7 @@ import {
   selectionPresetOptions,
 } from '../data/toolbarOptions'
 import type { SelectionPreset } from '../data/toolbarOptions'
+import { MAX_BULK_NODES } from '../data/selectionLimits'
 import ActivitySearch from './ActivitySearch'
 import type { Activity } from '@/features/gocam/models/cam'
 
@@ -33,7 +33,6 @@ interface GraphToolbarProps {
   selectionCount?: number
   onClearSelection?: () => void
   onCopySelection?: () => void
-  onDuplicateSelection?: () => void
   onDeleteSelection?: () => void
   /** False when not logged in — hides the editing actions. */
   canEdit?: boolean
@@ -55,13 +54,15 @@ export default function GraphToolbar({
   selectionCount = 0,
   onClearSelection,
   onCopySelection,
-  onDuplicateSelection,
   onDeleteSelection,
   canEdit = true,
   onSelectPreset,
   activities,
   onFindActivity,
 }: GraphToolbarProps) {
+  // Copy and Delete each go to the server as one batch, so past the cap the
+  // chip turns red and both actions go dead rather than letting it through.
+  const overBulkLimit = selectionCount > MAX_BULK_NODES
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
 
@@ -103,50 +104,69 @@ export default function GraphToolbar({
       )}
 
       {selectionCount > 0 && (
-        <div className="ml-auto flex items-center gap-1 rounded-full bg-blue-50 py-1 pr-1 pl-3">
-          <span className="mr-1 text-xs font-semibold whitespace-nowrap text-blue-900">
-            {selectionCount} selected
+        <div
+          className={`ml-auto flex items-center gap-1 rounded-full py-1 pr-1 pl-3 ${
+            overBulkLimit ? 'bg-red-50' : 'bg-blue-50'
+          }`}
+        >
+          <span
+            className={`mr-1 text-xs font-semibold whitespace-nowrap ${
+              overBulkLimit ? 'text-red-700' : 'text-blue-900'
+            }`}
+          >
+            {selectionCount} selected{overBulkLimit && ` — max ${MAX_BULK_NODES}`}
           </span>
 
           {canEdit && (
             <>
-              <Tooltip label="Copy selection (Ctrl+C)" withArrow position="bottom">
+              <Tooltip
+                label={
+                  overBulkLimit
+                    ? `Select ${MAX_BULK_NODES} or fewer to copy`
+                    : 'Copy selection (Ctrl+C)'
+                }
+                withArrow
+                position="bottom"
+              >
                 <Button
                   variant="default"
                   size="compact-xs"
                   radius="xl"
-                  onClick={onCopySelection}
+                  // Called with no arguments on purpose: the handler behind this
+                  // takes an optional uid list, and onClick would hand it the
+                  // click event as that list.
+                  onClick={() => onCopySelection?.()}
+                  disabled={overBulkLimit}
                   leftSection={<CopyIcon size={14} />}
                   className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
                 >
                   Copy
                 </Button>
               </Tooltip>
-              <Tooltip label="Duplicate selection (Ctrl+D)" withArrow position="bottom">
-                <Button
-                  variant="default"
-                  size="compact-xs"
-                  radius="xl"
-                  onClick={onDuplicateSelection}
-                  leftSection={<DuplicateIcon size={14} />}
-                  className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
-                >
-                  Duplicate
-                </Button>
-              </Tooltip>
-              <Tooltip label="Delete selected activities" withArrow position="bottom">
+              <Tooltip
+                label={
+                  overBulkLimit
+                    ? `Select ${MAX_BULK_NODES} or fewer to delete`
+                    : 'Delete selected activities'
+                }
+                withArrow
+                position="bottom"
+              >
                 <Button
                   variant="default"
                   size="compact-xs"
                   radius="xl"
                   onClick={onDeleteSelection}
+                  disabled={overBulkLimit}
                   leftSection={<DeleteIcon size={14} />}
                   className="!border-red-300 !bg-white !text-xs !text-red-700 hover:!bg-red-50"
                 >
                   Delete
                 </Button>
               </Tooltip>
-              <span className="mx-1 h-4 w-px bg-blue-200" />
+              <span
+                className={`mx-1 h-4 w-px ${overBulkLimit ? 'bg-red-200' : 'bg-blue-200'}`}
+              />
             </>
           )}
 

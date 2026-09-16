@@ -1,14 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  clearActivityClipboardLocal,
-  readClipboard,
-  regionSummary,
-  writeActivityClipboardLocal,
-} from '@/features/gocam/services/clipboardStore'
-import {
-  ACTIVITY_CLIPBOARD_KIND,
-  type ActivityClipboardPayload,
-} from '@/features/gocam/services/activityClipboard'
+import { readClipboard, regionSummary } from '@/features/gocam/services/clipboardStore'
 import {
   REGION_CLIPBOARD_KEY,
   REGION_CLIPBOARD_KIND,
@@ -16,14 +7,6 @@ import {
 } from '@/features/gocam/services/regionClipboard'
 
 // ── Fixtures ────────────────────────────────────────────────────────
-
-const activityPayload = (label = 'CDK2'): ActivityClipboardPayload => ({
-  kind: ACTIVITY_CLIPBOARD_KIND,
-  activityType: 'activity',
-  label,
-  sourceModelId: 'gomodel:src',
-  root: { uid: 'a', relations: [] } as never,
-})
 
 const regionPayload = (
   copiedAt: string,
@@ -52,9 +35,6 @@ const regionPayload = (
 const storeRegion = (payload: RegionClipboardPayload) =>
   localStorage.setItem(REGION_CLIPBOARD_KEY, JSON.stringify(payload))
 
-// Far either side of the real clock, because writeActivityClipboardLocal stamps
-// the actual current time — so "now" always sits between these two.
-const EARLIER = '1999-01-01T00:00:00.000Z'
 const LATER = '2099-01-01T00:00:00.000Z'
 
 beforeEach(() => {
@@ -64,34 +44,12 @@ beforeEach(() => {
 // ── Tests ───────────────────────────────────────────────────────────
 
 describe('regionSummary', () => {
-  it('counts activities and relations', () => {
-    expect(regionSummary(regionPayload(LATER, 3, 2))).toBe('3 activities and 2 relations')
+  it('counts the nodes, leaving relations out of it', () => {
+    expect(regionSummary(regionPayload(LATER, 3, 2))).toBe('3 nodes')
   })
 
-  it('singularises', () => {
-    expect(regionSummary(regionPayload(LATER, 1, 1))).toBe('1 activity and 1 relation')
-  })
-
-  it('omits relations when there are none', () => {
-    expect(regionSummary(regionPayload(LATER, 2, 0))).toBe('2 activities')
-  })
-})
-
-describe('writeActivityClipboardLocal', () => {
-  it('reports success so the caller can confirm the copy', () => {
-    expect(writeActivityClipboardLocal(activityPayload())).toBe(true)
-  })
-
-  it('reports failure when storage refuses, rather than claiming a copy', () => {
-    const setItem = vi
-      .spyOn(Storage.prototype, 'setItem')
-      .mockImplementation(() => {
-        throw new Error('QuotaExceededError')
-      })
-
-    expect(writeActivityClipboardLocal(activityPayload())).toBe(false)
-
-    setItem.mockRestore()
+  it('singularises — a single copied node is a region of one', () => {
+    expect(regionSummary(regionPayload(LATER, 1, 0))).toBe('1 node')
   })
 })
 
@@ -100,93 +58,43 @@ describe('readClipboard', () => {
     expect(readClipboard()).toBeNull()
   })
 
-  it('reports a stored single activity', () => {
-    writeActivityClipboardLocal(activityPayload('CDK2'))
-
-    const entry = readClipboard()
-    expect(entry?.kind).toBe('activity')
-    expect(entry?.summary).toBe('CDK2')
-  })
-
   it('reports a stored region with its summary', () => {
     storeRegion(regionPayload(LATER, 2, 1))
 
     const entry = readClipboard()
-    expect(entry?.kind).toBe('region')
-    expect(entry?.summary).toBe('2 activities and 1 relation')
+    expect(entry?.summary).toBe('2 nodes')
+    expect(entry?.copiedAt).toBe(LATER)
+    expect(entry?.payload.activities).toHaveLength(2)
   })
 
-  describe('newest wins', () => {
-    // This is what makes "copy an activity, then Ctrl+V" do the obvious thing
-    // even when an older region is still stored.
-    it('prefers a single activity copied after the region', () => {
-      storeRegion(regionPayload(EARLIER))
-      writeActivityClipboardLocal(activityPayload())
+  it('reports a single copied node the same way — one path for 1 and N', () => {
+    storeRegion(regionPayload(LATER, 1, 0))
 
-      expect(readClipboard()?.kind).toBe('activity')
-    })
-
-    it('prefers a region copied after the single activity', () => {
-      writeActivityClipboardLocal(activityPayload())
-      storeRegion(regionPayload(LATER))
-
-      expect(readClipboard()?.kind).toBe('region')
-    })
+    expect(readClipboard()?.summary).toBe('1 node')
   })
 
   describe('resilience', () => {
     it('ignores a region entry that is not ours', () => {
       localStorage.setItem(REGION_CLIPBOARD_KEY, 'garbage')
-      writeActivityClipboardLocal(activityPayload())
-
-      expect(readClipboard()?.kind).toBe('activity')
-    })
-
-    it('ignores a malformed activity entry', () => {
-      localStorage.setItem('noctua-activity-clipboard', '{ not json')
-      storeRegion(regionPayload(LATER))
-
-      expect(readClipboard()?.kind).toBe('region')
-    })
-
-    it('ignores an activity entry with no timestamp', () => {
-      localStorage.setItem(
-        'noctua-activity-clipboard',
-        JSON.stringify({ payload: activityPayload() })
-      )
 
       expect(readClipboard()).toBeNull()
     })
 
-    it('ignores an activity entry whose payload fails validation', () => {
-      localStorage.setItem(
-        'noctua-activity-clipboard',
-        JSON.stringify({ copiedAt: LATER, payload: { kind: 'something-else' } })
-      )
+    it('ignores a malformed entry rather than throwing', () => {
+      localStorage.setItem(REGION_CLIPBOARD_KEY, '{ not json')
 
+      expect(() => readClipboard()).not.toThrow()
       expect(readClipboard()).toBeNull()
     })
 
-    it('falls back to the region when the activity entry is unreadable', () => {
-      localStorage.setItem('noctua-activity-clipboard', 'nonsense')
-      storeRegion(regionPayload(EARLIER))
+    it('survives storage that refuses to be read', () => {
+      const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError')
+      })
 
-      expect(readClipboard()?.kind).toBe('region')
+      expect(readClipboard()).toBeNull()
+
+      getItem.mockRestore()
     })
-  })
-
-  it('forgets a cleared single activity', () => {
-    writeActivityClipboardLocal(activityPayload())
-    clearActivityClipboardLocal()
-
-    expect(readClipboard()).toBeNull()
-  })
-
-  it('falls back to the region once the activity is cleared', () => {
-    storeRegion(regionPayload(EARLIER))
-    writeActivityClipboardLocal(activityPayload())
-    clearActivityClipboardLocal()
-
-    expect(readClipboard()?.kind).toBe('region')
   })
 })

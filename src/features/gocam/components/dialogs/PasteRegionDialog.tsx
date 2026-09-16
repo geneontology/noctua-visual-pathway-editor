@@ -59,12 +59,13 @@ const PasteRegionDialog: React.FC<PasteRegionDialogProps> = ({
   onCancel,
   onConfirm,
 }) => {
-  // Matches CopyModelDialog's "Include evidence", which also defaults to off.
-  const [includeEvidence, setIncludeEvidence] = useState(false)
+  // On by default — a pasted activity keeps the evidence it was copied with
+  // unless the curator opts out.
+  const [includeEvidence, setIncludeEvidence] = useState(true)
 
-  // Reset the checkbox between pastes so one opt-in doesn't silently persist.
+  // Reset the checkbox between pastes so one opt-out doesn't silently persist.
   useEffect(() => {
-    if (open) setIncludeEvidence(false)
+    if (open) setIncludeEvidence(true)
   }, [open])
 
   if (!payload) return null

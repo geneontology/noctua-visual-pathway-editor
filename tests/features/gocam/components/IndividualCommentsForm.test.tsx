@@ -127,7 +127,7 @@ describe('IndividualCommentsForm', () => {
       renderForm(
         {},
         buildCamModel(
-          ['Annotation dispute: wrong term'],
+          ['Ontology term annotation dispute: wrong term'],
           [{ uri: 'http://orcid.org/0000-0002-1825-0097', name: 'Jane Doe' }]
         )
       )
@@ -138,14 +138,17 @@ describe('IndividualCommentsForm', () => {
     })
 
     it('files the ticket with no curator when the individual has no contributors', () => {
-      renderForm({}, buildCamModel(['Annotation dispute: wrong term']))
+      renderForm({}, buildCamModel(['Ontology term annotation dispute: wrong term']))
 
       expect(disputeBody()).toBe('* My Term\n* My Term (GO:0003674)\n\nwrong term')
     })
 
     // The comment is what the ticket is about, so it travels with it (#289).
     it('pastes the comment into the ticket body', () => {
-      renderForm({}, buildCamModel(['GO term annotation dispute: this term is far too broad']))
+      renderForm(
+        {},
+        buildCamModel(['Ontology term annotation dispute: this term is far too broad'])
+      )
 
       expect(disputeBody()).toContain('this term is far too broad')
     })

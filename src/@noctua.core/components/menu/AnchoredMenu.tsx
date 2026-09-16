@@ -144,14 +144,17 @@ const AnchoredMenu = ({
 interface MenuItemProps {
   onClick?: (e: React.MouseEvent) => void
   className?: string
+  /** Renders the row inert and greyed — the action exists but isn't available. */
+  disabled?: boolean
   children: ReactNode
 }
 
-export const MenuItem = ({ onClick, className, children }: MenuItemProps) => (
+export const MenuItem = ({ onClick, className, disabled = false, children }: MenuItemProps) => (
   <button
     type="button"
     onClick={onClick}
-    className={`block w-full px-3 py-1.5 text-left text-sm text-gray-900 hover:bg-primary-200 ${className ?? ''}`}
+    disabled={disabled}
+    className={`block w-full px-3 py-1.5 text-left text-sm text-gray-900 hover:bg-primary-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent ${className ?? ''}`}
   >
     {children}
   </button>

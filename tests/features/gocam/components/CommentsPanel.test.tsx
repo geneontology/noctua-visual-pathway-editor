@@ -81,7 +81,11 @@ describe('CommentsPanel', () => {
   })
 
   it('does not render statement (edge) comments (#231)', () => {
-    const edge = buildEdgeWithEvidence('enabled_by', [], ['Annotation dispute: edge issue'])
+    const edge = buildEdgeWithEvidence(
+      'enabled_by',
+      [],
+      ['Ontology term annotation dispute: edge issue']
+    )
     const model = buildModel([buildActivity('act', [buildNode('n', 'My Activity')], [edge])])
     renderPanel(model)
 
@@ -153,7 +157,7 @@ describe('CommentsPanel', () => {
     const buildDisputedModel = (contributors: Contributor[]) => {
       const node = {
         ...buildNode('GO:0003674', 'My Term'),
-        comments: ['Annotation dispute: wrong term for this gene'],
+        comments: ['Ontology term annotation dispute: wrong term for this gene'],
         contributors,
       }
       return buildModel([buildActivity('act', [node])])
