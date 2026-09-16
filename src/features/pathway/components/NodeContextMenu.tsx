@@ -72,10 +72,10 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
       {interactive ? (
         <>
           <MenuItem onClick={run(onEdit)}>
-            <Row icon={<FaPencilAlt size={13} />}>Edit activity</Row>
+            <Row icon={<FaPencilAlt size={13} />}>Edit</Row>
           </MenuItem>
           <MenuItem onClick={run(onCopy)}>
-            <Row icon={<FaCopy size={13} />}>Copy activity</Row>
+            <Row icon={<FaCopy size={13} />}>Copy</Row>
           </MenuItem>
           {regionSummary && onCopyRegion && (
             <MenuItem onClick={run(onCopyRegion)}>
@@ -86,7 +86,7 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
             <Row icon={<FaComment size={13} />}>Comments</Row>
           </MenuItem>
           <MenuItem onClick={run(onDelete)} className="!text-red-600 hover:!bg-red-50">
-            <Row icon={<FaTrash size={13} />}>Delete activity</Row>
+            <Row icon={<FaTrash size={13} />}>Delete</Row>
           </MenuItem>
           {regionSummary && onDeleteRegion && (
             <MenuItem onClick={run(onDeleteRegion)} className="!text-red-600 hover:!bg-red-50">

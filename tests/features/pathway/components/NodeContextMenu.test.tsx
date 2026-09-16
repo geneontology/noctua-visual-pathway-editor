@@ -43,18 +43,18 @@ beforeEach(() => {
 describe('NodeContextMenu — visibility', () => {
   it('renders nothing when closed', () => {
     renderMenu({ open: false })
-    expect(screen.queryByText('Copy activity')).not.toBeInTheDocument()
-    expect(screen.queryByText('Edit activity')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
   })
 })
 
 describe('NodeContextMenu — logged in (interactive)', () => {
   it('offers Edit, Copy, Comments and Delete', () => {
     renderMenu({ interactive: true })
-    expect(screen.getByText('Edit activity')).toBeInTheDocument()
-    expect(screen.getByText('Copy activity')).toBeInTheDocument()
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+    expect(screen.getByText('Copy')).toBeInTheDocument()
     expect(screen.getByText('Comments')).toBeInTheDocument()
-    expect(screen.getByText('Delete activity')).toBeInTheDocument()
+    expect(screen.getByText('Delete')).toBeInTheDocument()
   })
 
   it('does not offer the read-only View item', () => {
@@ -66,7 +66,7 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     const h = handlers()
     const { user } = renderMenu({ interactive: true }, h)
 
-    await user.click(screen.getByText('Copy activity'))
+    await user.click(screen.getByText('Copy'))
     expect(h.onCopy).toHaveBeenCalledTimes(1)
     expect(h.onClose).toHaveBeenCalledTimes(1)
   })
@@ -75,7 +75,7 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     const h = handlers()
     const { user } = renderMenu({ interactive: true }, h)
 
-    await user.click(screen.getByText('Edit activity'))
+    await user.click(screen.getByText('Edit'))
     expect(h.onEdit).toHaveBeenCalledTimes(1)
     expect(h.onClose).toHaveBeenCalledTimes(1)
   })
@@ -93,7 +93,7 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     const h = handlers()
     const { user } = renderMenu({ interactive: true }, h)
 
-    await user.click(screen.getByText('Delete activity'))
+    await user.click(screen.getByText('Delete'))
     expect(h.onDelete).toHaveBeenCalledTimes(1)
     expect(h.onClose).toHaveBeenCalledTimes(1)
   })
@@ -102,7 +102,7 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     const h = handlers()
     const { user } = renderMenu({ interactive: true }, h)
 
-    await user.click(screen.getByText('Copy activity'))
+    await user.click(screen.getByText('Copy'))
     expect(h.onEdit).not.toHaveBeenCalled()
     expect(h.onDelete).not.toHaveBeenCalled()
     expect(h.onComments).not.toHaveBeenCalled()
@@ -118,9 +118,9 @@ describe('NodeContextMenu — read-only (logged out)', () => {
 
   it('hides the editing actions — Edit, Copy and Delete', () => {
     renderMenu({ interactive: false })
-    expect(screen.queryByText('Edit activity')).not.toBeInTheDocument()
-    expect(screen.queryByText('Copy activity')).not.toBeInTheDocument()
-    expect(screen.queryByText('Delete activity')).not.toBeInTheDocument()
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Delete')).not.toBeInTheDocument()
   })
 
   it('View calls onView and closes', async () => {

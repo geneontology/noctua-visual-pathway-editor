@@ -104,9 +104,9 @@ describe('CanvasContextMenu', () => {
 
   it('offers no node-specific actions — this is the empty-canvas menu', () => {
     renderMenu()
-    expect(screen.queryByText('Copy activity')).not.toBeInTheDocument()
-    expect(screen.queryByText('Edit activity')).not.toBeInTheDocument()
-    expect(screen.queryByText('Delete activity')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+    expect(screen.queryByText('Delete')).not.toBeInTheDocument()
   })
 
   it('parks its anchor placeholder at the click coordinates', () => {
