@@ -16,6 +16,7 @@ import CanvasContextMenu from '@/features/pathway/components/CanvasContextMenu'
 import {
   setRightDrawerOpen,
   setRightPanelTab,
+  setCommentsScope,
   RightPanelTab,
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import type { Activity, Edge } from '@/features/gocam/models/cam'
@@ -193,9 +194,12 @@ const PathwayEditor: React.FC = () => {
     [dispatch]
   )
 
+  // The comment icon on an activity unit shows that unit's comments only — not
+  // the whole model's list, which is what the toolbar button is for (#289).
   const handleShowComments = useCallback(
     (activityId: string) => {
       dispatch(setSelectedActivity(activityId))
+      dispatch(setCommentsScope(activityId))
       dispatch(setRightPanelTab(RightPanelTab.COMMENTS))
       dispatch(setRightDrawerOpen(true))
     },

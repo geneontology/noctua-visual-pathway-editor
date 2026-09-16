@@ -7,22 +7,37 @@ export const COMMENT_CATEGORIES = [
 
 /**
  * The individual-comment category that lets a curator escalate a disputed
- * annotation to a GitHub ticket on geneontology/go-annotation (#231).
+ * annotation to a GitHub ticket on geneontology/go-annotation. These categories
+ * are offered on every node, chemicals included, so the label says "ontology
+ * term" rather than naming GO (#231, #289).
  */
-export const ANNOTATION_DISPUTE_CATEGORY = 'Annotation dispute' as const
+export const ANNOTATION_DISPUTE_CATEGORY = 'Ontology term annotation dispute' as const
+
+/**
+ * The individual-comment category for a term that doesn't exist in the ontology
+ * yet; escalates to a GitHub ticket on geneontology/go-ontology (#289).
+ */
+export const ONTOLOGY_TERM_PENDING_CATEGORY = 'Ontology term pending' as const
+
+/**
+ * The reference-comment category for disputed evidence; escalates to a GitHub
+ * ticket on geneontology/go-annotation, like the annotation dispute (#289).
+ */
+export const EVIDENCE_DISPUTE_CATEGORY = 'Evidence dispute' as const
 
 /** Categories for comments on an individual (GO term / input) — #231. */
 export const INDIVIDUAL_COMMENT_CATEGORIES = [
-  'Ontology term pending',
+  ONTOLOGY_TERM_PENDING_CATEGORY,
   ANNOTATION_DISPUTE_CATEGORY,
   'General',
 ] as const
 
-/** Categories for comments on a reference (evidence individual) — #231. */
+/** Categories for comments on a reference (evidence individual) — #231, #289. */
 export const REFERENCE_COMMENT_CATEGORIES = [
   'Figure/Table',
   'Evidence confidence',
   'Justification for evidence',
+  EVIDENCE_DISPUTE_CATEGORY,
   'General',
 ] as const
 
@@ -45,11 +60,12 @@ const COMMENT_CATEGORY_BADGE_CLASSES: Record<string, string> = {
   General: 'bg-blue-100 text-blue-800',
   'Feedback to curator': 'bg-amber-100 text-amber-800',
   'Comment to reviewer': 'bg-cyan-100 text-cyan-800',
-  'Annotation dispute': 'bg-red-100 text-red-800',
-  'Ontology term pending': 'bg-purple-100 text-purple-800',
+  [ANNOTATION_DISPUTE_CATEGORY]: 'bg-red-100 text-red-800',
+  [ONTOLOGY_TERM_PENDING_CATEGORY]: 'bg-purple-100 text-purple-800',
   'Figure/Table': 'bg-teal-100 text-teal-800',
   'Evidence confidence': 'bg-indigo-100 text-indigo-800',
   'Justification for evidence': 'bg-green-100 text-green-800',
+  [EVIDENCE_DISPUTE_CATEGORY]: 'bg-rose-100 text-rose-800',
 }
 
 export const getCommentCategoryBadgeClass = (option: string): string =>
