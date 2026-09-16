@@ -4,12 +4,12 @@ import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import CanvasContextMenu from '@/features/pathway/components/CanvasContextMenu'
 
-type Paste = { kind: 'region' | 'activity'; summary: string } | null
+type Paste = { summary: string } | null
 
-const ACTIVITY_PASTE: Paste = { kind: 'activity', summary: 'activity' }
+const ONE_NODE: Paste = { summary: '1 node' }
 
 const renderMenu = (
-  { open = true, x = 200, y = 150, paste = ACTIVITY_PASTE, canEdit = true }: {
+  { open = true, x = 200, y = 150, paste = ONE_NODE, canEdit = true }: {
     open?: boolean
     x?: number
     y?: number
@@ -43,25 +43,25 @@ beforeEach(() => {
 describe('CanvasContextMenu', () => {
   it('renders nothing when closed', () => {
     renderMenu({ open: false })
-    expect(screen.queryByText('Paste activity')).not.toBeInTheDocument()
+    expect(screen.queryByText('Paste 1 node')).not.toBeInTheDocument()
   })
 
-  it('offers Paste activity when a single activity is on the clipboard', () => {
+  it('offers Paste 1 node when a single copied node is on the clipboard', () => {
     renderMenu()
-    expect(screen.getByText('Paste activity')).toBeInTheDocument()
+    expect(screen.getByText('Paste 1 node')).toBeInTheDocument()
   })
 
   it('calls onPaste and closes when clicked', async () => {
     const { user, onPaste, onClose } = renderMenu()
 
-    await user.click(screen.getByText('Paste activity'))
+    await user.click(screen.getByText('Paste 1 node'))
     expect(onPaste).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   describe('clipboard availability', () => {
     it('names the region when one is on the clipboard', () => {
-      renderMenu({ paste: { kind: 'region', summary: '3 nodes' } })
+      renderMenu({ paste: { summary: '3 nodes' } })
 
       expect(screen.getByText('Paste 3 nodes')).toBeInTheDocument()
     })
@@ -88,13 +88,13 @@ describe('CanvasContextMenu', () => {
       renderMenu({ canEdit: false })
 
       expect(screen.getByText('Log in to edit')).toBeInTheDocument()
-      expect(screen.queryByText('Paste activity')).not.toBeInTheDocument()
+      expect(screen.queryByText('Paste 1 node')).not.toBeInTheDocument()
     })
 
     it('offers nothing to click even when the clipboard has something', async () => {
       const { user, onPaste } = renderMenu({
         canEdit: false,
-        paste: { kind: 'region', summary: '2 nodes' },
+        paste: { summary: '2 nodes' },
       })
 
       await user.click(screen.getByText('Log in to edit'))

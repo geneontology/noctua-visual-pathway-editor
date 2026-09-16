@@ -1,20 +1,35 @@
 import type { Activity, Edge, Entity, GraphModel } from '../models/cam'
+import { ActivityType } from '../models/cam'
 import type { ActivityFormType, EvidenceForm, TermNode } from '../models/formModels'
 import { activityToFormTree } from '../data/activityTemplates'
-import { activityClipboardLabel, activityFormTypeOf } from './activityClipboard'
 
 /**
- * Copy/paste of a whole selected region — several activities plus the relations
- * between them (#114 follow-on).
+ * The canvas clipboard: a copied region — one or more activities plus the
+ * relations between them.
  *
- * Unlike the single-activity payload in `activityClipboard.ts`, this lives in
- * `localStorage` rather than the system clipboard. Reading the system clipboard
- * needs a permission Firefox never grants to web content, which is why the
- * menu-driven paste there falls back to "press Ctrl+V instead"; `localStorage`
- * needs no permission and is still shared across tabs of the same origin, so
- * cross-model paste keeps working. The payload is structured data nobody would
- * want in a text editor anyway.
+ * A single copied node is just a region of one, so there is one payload shape
+ * and one paste path for both. It lives in `localStorage` rather than the
+ * system clipboard: reading the system clipboard needs a permission Firefox
+ * never grants to web content, while `localStorage` needs none and is still
+ * shared across tabs of the same origin, so cross-model paste keeps working.
+ * The payload is structured data nobody would want in a text editor anyway.
  */
+
+export function activityFormTypeOf(type: ActivityType): ActivityFormType {
+  switch (type) {
+    case ActivityType.MOLECULE:
+      return 'molecule'
+    case ActivityType.PROTEIN_COMPLEX:
+      return 'proteinComplex'
+    default:
+      return 'activity'
+  }
+}
+
+/** Best user-facing name for an activity — used in messaging and previews. */
+export function activityLabel(activity: Activity): string {
+  return activity.enabledBy?.label || activity.rootNode?.label || 'Activity'
+}
 export const REGION_CLIPBOARD_KEY = 'noctua-region-clipboard'
 export const REGION_CLIPBOARD_KIND = 'noctua-region/v1'
 
@@ -83,7 +98,7 @@ export function buildRegionPayload(
       const pos = positions[activity.uid]
       return {
         activityType: activityFormTypeOf(activity.type),
-        label: activityClipboardLabel(activity),
+        label: activityLabel(activity),
         rootNodeUid: activity.rootNode.uid,
         rootTermId: activity.rootNode.id ?? null,
         offset: pos ? { x: pos.x - origin.x, y: pos.y - origin.y } : { x: 0, y: 0 },

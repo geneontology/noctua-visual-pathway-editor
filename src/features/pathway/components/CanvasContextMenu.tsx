@@ -1,7 +1,7 @@
 import type React from 'react'
 import { MenuItem } from '@/@noctua.core/components/menu/AnchoredMenu'
 import CursorAnchoredMenu from './CursorAnchoredMenu'
-import { FaPaste, FaObjectGroup } from 'react-icons/fa'
+import { FaObjectGroup } from 'react-icons/fa'
 
 interface CanvasContextMenuProps {
   open: boolean
@@ -11,11 +11,11 @@ interface CanvasContextMenuProps {
   onClose: () => void
   onPaste: () => void
   /**
-   * What is on the clipboard, or null when nothing is. Both kinds are mirrored
-   * into localStorage, so this can be answered synchronously — the menu offers
+   * What is on the clipboard, or null when nothing is. It lives in
+   * localStorage, so this can be answered synchronously — the menu offers
    * Paste only when there is genuinely something to paste.
    */
-  paste: { kind: 'region' | 'activity'; summary: string } | null
+  paste: { summary: string } | null
   /** False when not logged in — the menu still opens, but offers no edit. */
   canEdit?: boolean
 }
@@ -41,7 +41,7 @@ const CanvasContextMenu: React.FC<CanvasContextMenuProps> = ({
         }}
       >
         <span className="flex items-center gap-2">
-          {paste.kind === 'region' ? <FaObjectGroup size={13} /> : <FaPaste size={13} />}
+          <FaObjectGroup size={13} />
           Paste {paste.summary}
         </span>
       </MenuItem>

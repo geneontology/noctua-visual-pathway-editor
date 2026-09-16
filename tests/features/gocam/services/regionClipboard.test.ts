@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   REGION_CLIPBOARD_KEY,
   REGION_CLIPBOARD_KIND,
+  activityFormTypeOf,
+  activityLabel,
   buildRegionPayload,
   clearRegion,
   parseRegion,
@@ -262,5 +264,46 @@ describe('region storage', () => {
     writeRegion(payload())
     clearRegion()
     expect(readRegion()).toBeNull()
+  })
+})
+
+// These two moved here when the single-activity clipboard was removed — this
+// module is now the only one that needs them.
+
+describe('activityFormTypeOf', () => {
+  it('maps MOLECULE to the molecule form', () => {
+    expect(activityFormTypeOf(ActivityType.MOLECULE)).toBe('molecule')
+  })
+
+  it('maps PROTEIN_COMPLEX to the protein-complex form', () => {
+    expect(activityFormTypeOf(ActivityType.PROTEIN_COMPLEX)).toBe('proteinComplex')
+  })
+
+  it('falls back to the plain activity form', () => {
+    expect(activityFormTypeOf(ActivityType.ACTIVITY)).toBe('activity')
+  })
+})
+
+describe('activityLabel', () => {
+  it('prefers the enabling gene product', () => {
+    const activity = buildActivity('act-1', [buildNode('n1', 'a function')])
+    activity.enabledBy = { label: 'CDK2' } as Activity['enabledBy']
+
+    expect(activityLabel(activity)).toBe('CDK2')
+  })
+
+  it('falls back to the root node label', () => {
+    const activity = buildActivity('act-1', [buildNode('n1', 'a function')])
+    activity.enabledBy = null
+
+    expect(activityLabel(activity)).toBe(activity.rootNode?.label)
+  })
+
+  it('falls back to "Activity" when it has neither', () => {
+    const activity = buildActivity('act-1', [])
+    activity.enabledBy = null
+    activity.rootNode = null as unknown as GraphNode
+
+    expect(activityLabel(activity)).toBe('Activity')
   })
 })
