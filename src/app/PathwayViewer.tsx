@@ -53,6 +53,7 @@ import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
 import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
 import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
 import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
+import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
 
 interface ConnectorDialog {
   open: boolean
@@ -241,6 +242,16 @@ const PathwayEditor: React.FC = () => {
 
       const selection = uids ?? canvasApi.getSelection()
       if (selection.length === 0) return
+      // The toolbar and menu already grey this out; this catches Ctrl+C.
+      if (selection.length > MAX_BULK_NODES) {
+        dispatch(
+          showToast({
+            message: `Select ${MAX_BULK_NODES} or fewer nodes to copy`,
+            severity: 'warning',
+          })
+        )
+        return
+      }
 
       const payload = buildRegionPayload(model, selection, canvasApi.getSelectionPositions())
       if (!payload) return
@@ -342,8 +353,18 @@ const PathwayEditor: React.FC = () => {
   const handleDeleteSelection = useCallback(() => {
     const selection = canvas.canvasRef.current?.getSelection() ?? []
     if (selection.length === 0) return
+    // As with copy — the Delete key bypasses the greyed-out buttons otherwise.
+    if (selection.length > MAX_BULK_NODES) {
+      dispatch(
+        showToast({
+          message: `Select ${MAX_BULK_NODES} or fewer nodes to delete`,
+          severity: 'warning',
+        })
+      )
+      return
+    }
     checkGroup(() => regionDel.requestDelete(selection))
-  }, [canvas.canvasRef, checkGroup, regionDel])
+  }, [canvas.canvasRef, checkGroup, regionDel, dispatch])
 
   useCanvasKeyboard(pasteEnabled, canvas.canvasRef, {
     onCopyRegion: handleCopyRegion,
@@ -569,6 +590,7 @@ const PathwayEditor: React.FC = () => {
           onEdit={() => handleSelectActivity(nodeMenu.activityId!)}
           onCopy={() => handleCopyRegion([nodeMenu.activityId!])}
           regionSummary={selectedIds.length > 1 ? `${selectedIds.length} nodes` : null}
+          overBulkLimit={selectedIds.length > MAX_BULK_NODES}
           onCopyRegion={handleCopyRegion}
           onDeleteRegion={handleDeleteSelection}
           onSelectConnected={handleSelectConnected}

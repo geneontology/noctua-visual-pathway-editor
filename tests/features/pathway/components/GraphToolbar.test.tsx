@@ -4,8 +4,11 @@ import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import GraphToolbar from '@/features/pathway/components/GraphToolbar'
 
-const renderToolbar = (props: Partial<{ selectionCount: number; canEdit: boolean }> = {}) =>
-  renderWithProviders(
+const renderToolbar = (
+  props: Partial<{ selectionCount: number; canEdit: boolean }> = {},
+  onCopySelection = vi.fn()
+) => {
+  const utils = renderWithProviders(
     <MantineProvider>
       <GraphToolbar
         layoutDetail="detailed"
@@ -18,18 +21,33 @@ const renderToolbar = (props: Partial<{ selectionCount: number; canEdit: boolean
         onZoomReset={vi.fn()}
         selectionCount={props.selectionCount ?? 3}
         onClearSelection={vi.fn()}
-        onCopySelection={vi.fn()}
+        onCopySelection={onCopySelection}
         onDeleteSelection={vi.fn()}
         canEdit={props.canEdit ?? true}
       />
     </MantineProvider>
   )
+  return { ...utils, onCopySelection }
+}
 
 describe('GraphToolbar — selection actions', () => {
   it('offers Copy and Delete on a selection', () => {
     renderToolbar()
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+  })
+
+  // Regression: the handler behind onCopySelection takes an optional uid list,
+  // so onClick passing the click event through as that list broke Copy while
+  // leaving Ctrl+C (called with no arguments) working.
+  it('calls onCopySelection with no arguments, never the click event', async () => {
+    const onCopySelection = vi.fn()
+    const { user } = renderToolbar({}, onCopySelection)
+
+    await user.click(screen.getByRole('button', { name: 'Copy' }))
+
+    expect(onCopySelection).toHaveBeenCalledTimes(1)
+    expect(onCopySelection).toHaveBeenCalledWith()
   })
 
   // Removed — Copy covers it.

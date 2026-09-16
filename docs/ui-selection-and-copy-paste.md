@@ -13,16 +13,16 @@ and its follow-ons (branch `issue-114-group-selection`).
 Until now the canvas worked on one activity at a time: click a node, edit it, delete it. You
 can now put several nodes into a **selection** and act on all of them together.
 
-| You want to…                                  | Where to go                                |
-| --------------------------------------------- | ------------------------------------------ |
-| Pick several nodes                            | Drag a box on empty canvas, or Shift-click |
-| Pick nodes by kind or by quality              | Toolbar → **Select** menu                  |
-| Find a node by gene, term, GO id or PMID      | Toolbar → **Find in model…**               |
-| Pick everything up- or downstream of one node | Right-click a node → **Select**            |
-| Move a group, keeping its shape               | Drag any member, or use the arrow keys     |
-| Re-arrange only the group                     | Toolbar → **Auto Layout**                  |
-| Copy activities into this or another model    | `Ctrl+C`, then `Ctrl+V`                    |
-| Remove several activities in one go           | `Delete`, or the **Delete** button         |
+| You want to…                                  | Where to go                                     |
+| --------------------------------------------- | ----------------------------------------------- |
+| Pick several nodes                            | Drag a box on empty canvas, or Shift-click      |
+| Pick nodes by kind or by quality              | Toolbar → **Select** menu                       |
+| Find a node by gene, term, GO id or PMID      | Toolbar → **Find in model…**                    |
+| Copy activities into this or another model    | `Ctrl+C`, then `Ctrl+V` — up to **13** nodes    |
+| Remove several activities in one go           | `Delete`, or the **Delete** button — up to **13** |
+| Pick everything up- or downstream of one node | Right-click a node → **Select**                 |
+| Move a group, keeping its shape               | Drag any member, or use the arrow keys          |
+| Re-arrange only the group                     | Toolbar → **Auto Layout**                       |
 
 Everything here needs you to be **logged in**. Logged out, you can still look at the model —
 see [Read-only mode](#10-read-only-mode).
@@ -132,7 +132,94 @@ When nothing matches you get **"No match in this model"**.
 
 ---
 
-## 4. Growing a selection along the graph
+## 4. Copy and paste
+
+> **At most 13 nodes at a time.** Copy and Delete each reach the server as a single batch, so
+> the editor caps them. Select more than 13 and the toolbar pill turns **red** and reads
+> _"N selected — max 13"_, with **Copy** and **Delete** greyed out; the matching rows in the
+> right-click menu go grey too. `Ctrl+C` and `Delete` are refused the same way, with a message.
+
+### 4.1 What gets copied
+
+Copying captures the selected activities **and the relations between them** — a relation is
+included only when **both** of its ends are in the selection. Relations reaching out to
+activities you did not select are not copied.
+
+Terms, evidence codes, references and with/from values are global identifiers, so they carry
+over between models unchanged. The pasted activities get brand-new identifiers: nothing is
+shared with the originals.
+
+### 4.2 Copying
+
+| From               | How                                                        |
+| ------------------ | ---------------------------------------------------------- |
+| Keyboard           | **Ctrl+C** / **Cmd+C** with a selection                    |
+| Selection bar      | **Copy**                                                   |
+| Right-click a node | **Copy** (that node), or **Copy N nodes** with a selection |
+
+A message confirms what went to the clipboard, e.g.
+_"Copied 3 activities and 2 relations — paste into this or any other model"_.
+
+> **The clipboard lives in your browser**, not the system clipboard. That means no permission
+> prompt, and it works in Firefox. It is shared across **tabs and windows of the same browser**,
+> which is what makes copying between models work. It is **not** shared with a different browser,
+> a different profile, or another person. Copying something new replaces what was there.
+
+### 4.3 Pasting
+
+Open the model you want to paste into, then either:
+
+- press **Ctrl+V** / **Cmd+V** — the region lands where your pointer last was over the canvas, or
+- **right-click empty canvas** and choose **Paste N nodes** — the region lands at the point you
+  clicked.
+
+When the clipboard is empty the right-click menu says **"Nothing to paste"** rather than offering
+a paste that would fail.
+
+### 4.4 The paste dialog
+
+Paste does **not** open the Activity Form — the activities are written to the model directly, so
+a confirmation step spells out exactly what is about to happen:
+
+- **how many** activities and relations
+- a **small preview** of the copied region, drawn in its real layout and colours
+- whether it was copied **from this model or another one**, and **how long ago** (_"just now"_,
+  _"4 minutes ago"_, _"2 days ago"_) — so a stale clipboard is obvious
+- **Include evidence** — on by default. Turn it off to paste the structure without its evidence
+  and references.
+
+Choose **Paste** to write, or **Cancel** to back out. Everything goes to the server in a single
+save, so you either get all of it or none of it.
+
+### 4.5 Where the pasted nodes land
+
+The region rebuilds its copied layout at the point you pasted, so relative positions are kept.
+Where that cannot be worked out exactly, the new activities are laid out in a compact block at
+the paste point instead — **Auto Layout** tidies them if you prefer.
+
+The pasted activities are **selected** as soon as they appear, so you can immediately drag them
+somewhere else as a group.
+
+---
+
+## 5. Deleting a selection
+
+With a selection in place:
+
+- press **Delete** or **Backspace**, or
+- use **Delete** in the selection bar, or
+- right-click a node and choose **Delete N nodes**
+
+A confirmation dialog names how many activities will go. Confirm, and all of them are removed in
+**one** save. Relations between deleted activities go with them.
+
+The same **13-node cap** applies as for copy — see section 4.
+
+This cannot be undone — there is no undo history in the editor.
+
+---
+
+## 6. Growing a selection along the graph
 
 Right-click a node, and under **Select** choose:
 
@@ -149,7 +236,7 @@ under the cursor, which would read as ambiguous next to rows that act on the who
 
 ---
 
-## 5. Moving a selection
+## 7. Moving a selection
 
 **Drag** — grab any node that is part of the selection and drag it. Every other member moves by
 the same amount, so the shape of the group is preserved. Relations re-route themselves.
@@ -165,7 +252,7 @@ the way PowerPoint behaves.
 
 ---
 
-## 6. Auto Layout on a selection
+## 8. Auto Layout on a selection
 
 **Auto Layout** in the toolbar is context-sensitive:
 
@@ -173,93 +260,6 @@ the way PowerPoint behaves.
 - With a **selection**, it tidies only those nodes and leaves the rest of the model where it is.
 
 Either way the resulting positions are saved to your browser, so they survive a reload.
-
----
-
-## 7. Copy and paste
-
-> **At most 13 nodes at a time.** Copy and Delete each reach the server as a single batch, so
-> the editor caps them. Select more than 13 and the toolbar pill turns **red** and reads
-> _"N selected — max 13"_, with **Copy** and **Delete** greyed out; the matching rows in the
-> right-click menu go grey too. `Ctrl+C` and `Delete` are refused the same way, with a message.
-
-### 7.1 What gets copied
-
-Copying captures the selected activities **and the relations between them** — a relation is
-included only when **both** of its ends are in the selection. Relations reaching out to
-activities you did not select are not copied.
-
-Terms, evidence codes, references and with/from values are global identifiers, so they carry
-over between models unchanged. The pasted activities get brand-new identifiers: nothing is
-shared with the originals.
-
-### 7.2 Copying
-
-| From               | How                                                        |
-| ------------------ | ---------------------------------------------------------- |
-| Keyboard           | **Ctrl+C** / **Cmd+C** with a selection                    |
-| Selection bar      | **Copy**                                                   |
-| Right-click a node | **Copy** (that node), or **Copy N nodes** with a selection |
-
-A message confirms what went to the clipboard, e.g.
-_"Copied 3 activities and 2 relations — paste into this or any other model"_.
-
-> **The clipboard lives in your browser**, not the system clipboard. That means no permission
-> prompt, and it works in Firefox. It is shared across **tabs and windows of the same browser**,
-> which is what makes copying between models work. It is **not** shared with a different browser,
-> a different profile, or another person. Copying something new replaces what was there.
-
-### 7.3 Pasting
-
-Open the model you want to paste into, then either:
-
-- press **Ctrl+V** / **Cmd+V** — the region lands where your pointer last was over the canvas, or
-- **right-click empty canvas** and choose **Paste N nodes** — the region lands at the point you
-  clicked.
-
-When the clipboard is empty the right-click menu says **"Nothing to paste"** rather than offering
-a paste that would fail.
-
-### 7.4 The paste dialog
-
-Paste does **not** open the Activity Form — the activities are written to the model directly, so
-a confirmation step spells out exactly what is about to happen:
-
-- **how many** activities and relations
-- a **small preview** of the copied region, drawn in its real layout and colours
-- whether it was copied **from this model or another one**, and **how long ago** (_"just now"_,
-  _"4 minutes ago"_, _"2 days ago"_) — so a stale clipboard is obvious
-- **Include evidence** — on by default. Turn it off to paste the structure without its evidence
-  and references.
-
-Choose **Paste** to write, or **Cancel** to back out. Everything goes to the server in a single
-save, so you either get all of it or none of it.
-
-### 7.5 Where the pasted nodes land
-
-The region rebuilds its copied layout at the point you pasted, so relative positions are kept.
-Where that cannot be worked out exactly, the new activities are laid out in a compact block at
-the paste point instead — **Auto Layout** tidies them if you prefer.
-
-The pasted activities are **selected** as soon as they appear, so you can immediately drag them
-somewhere else as a group.
-
----
-
-## 8. Deleting a selection
-
-With a selection in place:
-
-- press **Delete** or **Backspace**, or
-- use **Delete** in the selection bar, or
-- right-click a node and choose **Delete N nodes**
-
-A confirmation dialog names how many activities will go. Confirm, and all of them are removed in
-**one** save. Relations between deleted activities go with them.
-
-The same **13-node cap** applies as for copy — see section 7.
-
-This cannot be undone — there is no undo history in the editor.
 
 ---
 
@@ -281,6 +281,8 @@ forms is unaffected.
 | `Delete` / `Backspace`           | Delete the selection (with confirmation)          |
 | `Ctrl/Cmd + S`                   | Save the model                                    |
 
+`Ctrl+C` and `Delete` are refused above the 13-node cap, with a message saying so.
+
 ---
 
 ## 10. Read-only mode
@@ -296,6 +298,8 @@ Logged out, the canvas is for viewing:
 
 ## 11. Worth knowing
 
+- **Copy and Delete stop at 13 nodes.** Both go to the server as one batch, and a bigger batch is
+  slow enough to look like the editor has hung. Work in groups of 13 or fewer.
 - **Layout is local.** Node positions — including group moves, nudges and Auto Layout — are
   stored in your browser per model. They are not part of the GO-CAM and are not visible to other
   curators.

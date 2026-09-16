@@ -2,6 +2,7 @@ import type React from 'react'
 import type { ReactNode } from 'react'
 import { MenuItem } from '@/@noctua.core/components/menu/AnchoredMenu'
 import CursorAnchoredMenu from './CursorAnchoredMenu'
+import { MAX_BULK_NODES } from '../data/selectionLimits'
 import {
   FaComment,
   FaCopy,
@@ -35,6 +36,12 @@ interface NodeContextMenuProps {
   onCopyRegion?: () => void
   onDeleteRegion?: () => void
   /**
+   * True when more nodes are selected than one batch may carry. The region rows
+   * stay visible but inert, with a line underneath saying why — hiding them
+   * outright would just look like the menu was broken.
+   */
+  overBulkLimit?: boolean
+  /**
    * Grow the selection along the causal graph from this node. Hidden once 2+
    * nodes are selected — it works off the one node under the cursor, which
    * reads as ambiguous next to rows that act on the whole selection.
@@ -67,6 +74,7 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
   regionSummary,
   onCopyRegion,
   onDeleteRegion,
+  overBulkLimit = false,
   onSelectConnected,
 }) => {
   const run = (action: () => void) => () => {
@@ -82,7 +90,7 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
             <Row icon={<FaPencilAlt size={13} />}>Edit</Row>
           </MenuItem>
           {regionSummary && onCopyRegion ? (
-            <MenuItem onClick={run(onCopyRegion)}>
+            <MenuItem onClick={run(onCopyRegion)} disabled={overBulkLimit}>
               <Row icon={<FaObjectGroup size={13} />}>Copy {regionSummary}</Row>
             </MenuItem>
           ) : (
@@ -94,13 +102,22 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
             <Row icon={<FaComment size={13} />}>Comments</Row>
           </MenuItem>
           {regionSummary && onDeleteRegion ? (
-            <MenuItem onClick={run(onDeleteRegion)} className="!text-red-600 hover:!bg-red-50">
+            <MenuItem
+              onClick={run(onDeleteRegion)}
+              disabled={overBulkLimit}
+              className={overBulkLimit ? undefined : '!text-red-600 hover:!bg-red-50'}
+            >
               <Row icon={<FaTrash size={13} />}>Delete {regionSummary}</Row>
             </MenuItem>
           ) : (
             <MenuItem onClick={run(onDelete)} className="!text-red-600 hover:!bg-red-50">
               <Row icon={<FaTrash size={13} />}>Delete</Row>
             </MenuItem>
+          )}
+          {regionSummary && overBulkLimit && (
+            <span className="block px-3 py-1 text-[11px] text-red-600">
+              Select {MAX_BULK_NODES} or fewer to copy or delete
+            </span>
           )}
         </>
       ) : (
