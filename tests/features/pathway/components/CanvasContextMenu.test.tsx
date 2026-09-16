@@ -61,9 +61,9 @@ describe('CanvasContextMenu', () => {
 
   describe('clipboard availability', () => {
     it('names the region when one is on the clipboard', () => {
-      renderMenu({ paste: { kind: 'region', summary: '3 activities and 2 relations' } })
+      renderMenu({ paste: { kind: 'region', summary: '3 nodes' } })
 
-      expect(screen.getByText('Paste 3 activities and 2 relations')).toBeInTheDocument()
+      expect(screen.getByText('Paste 3 nodes')).toBeInTheDocument()
     })
 
     it('says nothing is available when the clipboard is empty', () => {
@@ -94,7 +94,7 @@ describe('CanvasContextMenu', () => {
     it('offers nothing to click even when the clipboard has something', async () => {
       const { user, onPaste } = renderMenu({
         canEdit: false,
-        paste: { kind: 'region', summary: '2 activities' },
+        paste: { kind: 'region', summary: '2 nodes' },
       })
 
       await user.click(screen.getByText('Log in to edit'))

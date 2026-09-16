@@ -60,7 +60,6 @@ import {
 import type { RegionClipboardPayload } from '@/features/gocam/services/regionClipboard'
 import {
   readClipboard,
-  regionSummary,
   writeActivityClipboardLocal,
 } from '@/features/gocam/services/clipboardStore'
 import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
@@ -107,9 +106,6 @@ interface RegionPasteState {
 }
 
 const closedRegionPaste: RegionPasteState = { open: false, payload: null, at: undefined }
-
-/** How far a duplicate is offset from the originals, in graph units. */
-const DUPLICATE_OFFSET = 40
 
 /** e.g. "3 activities" / "2 activities and 1 relation" — used in menus. */
 const describeRegion = (activities: number, relations: number): string => {
@@ -312,46 +308,6 @@ const PathwayEditor: React.FC = () => {
   }, [graphModel, canvas.canvasRef, dispatch])
 
   /**
-   * Duplicate the selection in place — no dialog. Unlike paste, this is the
-   * user's own data being copied within the model they are looking at, so there
-   * is nothing stale to warn about. Evidence is left out, matching paste and
-   * Copy Model.
-   */
-  const handleDuplicateSelection = useCallback(() => {
-    const model = graphModel?.data
-    const canvasApi = canvas.canvasRef.current
-    if (!model || !canvasApi || !modelId) return
-
-    const selection = canvasApi.getSelection()
-    if (selection.length === 0) return
-
-    const payload = buildRegionPayload(model, selection, canvasApi.getSelectionPositions())
-    const origin = canvasApi.getSelectionOrigin()
-    if (!payload || !origin) return
-
-    checkGroup(async () => {
-      const operations = buildPasteRegionOperations(payload, modelId, userContext, {
-        includeEvidence: false,
-      })
-
-      canvasApi.armRegionAtGraphPoint(
-        payload.activities.map(entry => ({ termId: entry.rootTermId, offset: entry.offset })),
-        { x: origin.x + DUPLICATE_OFFSET, y: origin.y + DUPLICATE_OFFSET }
-      )
-
-      try {
-        await updateGraphModel(operations).unwrap()
-        dispatch(showToast({ message: `Duplicated ${regionSummary(payload)}` }))
-      } catch {
-        canvasApi.clearPendingRegion()
-        dispatch(
-          showToast({ message: 'Could not duplicate the selection', severity: 'error' })
-        )
-      }
-    })
-  }, [graphModel, canvas.canvasRef, modelId, userContext, checkGroup, updateGraphModel, dispatch])
-
-  /**
    * Ctrl+S. Every edit already ends with a STORE, so this is a reassurance
    * affordance more than a necessity — but curators press it, and a browser
    * "Save page" dialog is never the right answer on a graph editor.
@@ -446,7 +402,6 @@ const PathwayEditor: React.FC = () => {
     onCopyRegion: handleCopyRegion,
     onPasteRegion: () => handleRequestPaste(),
     onDeleteRegion: handleDeleteSelection,
-    onDuplicateRegion: handleDuplicateSelection,
     onSaveModel: handleSaveModel,
   })
 
@@ -603,7 +558,6 @@ const PathwayEditor: React.FC = () => {
         selectionCount={selectedIds.length}
         onClearSelection={handleClearSelection}
         onCopySelection={handleCopyRegion}
-        onDuplicateSelection={handleDuplicateSelection}
         onDeleteSelection={handleDeleteSelection}
         canEdit={isLoggedIn}
         onSelectPreset={handleSelectPreset}
@@ -668,7 +622,7 @@ const PathwayEditor: React.FC = () => {
           onView={() => handleSelectActivity(nodeMenu.activityId!)}
           onEdit={() => handleSelectActivity(nodeMenu.activityId!)}
           onCopy={() => handleCopyActivity(nodeMenu.activityId!)}
-          regionSummary={selectedIds.length > 1 ? describeRegion(selectedIds.length, 0) : null}
+          regionSummary={selectedIds.length > 1 ? `${selectedIds.length} nodes` : null}
           onCopyRegion={handleCopyRegion}
           onDeleteRegion={handleDeleteSelection}
           onSelectConnected={handleSelectConnected}

@@ -466,25 +466,6 @@ export class CamCanvas {
     this._regionPlacement.arm(this._localDropPoint(client), entries)
   }
 
-  /**
-   * Arm a region paste at a point already in graph coordinates — used by
-   * duplicate, which offsets from where the originals sit rather than from the
-   * pointer.
-   */
-  armRegionAtGraphPoint(entries: RegionPlacementEntry[], point: Point) {
-    this._regionPlacement.arm(point, entries)
-  }
-
-  /** Top-left of the current selection in graph coordinates. */
-  getSelectionOrigin(): Point | null {
-    const points = Object.values(this.getSelectionPositions())
-    if (points.length === 0) return null
-    return {
-      x: Math.min(...points.map(p => p.x)),
-      y: Math.min(...points.map(p => p.y)),
-    }
-  }
-
   /** Top-left positions of the current multi-selection, for a region copy. */
   getSelectionPositions(): Record<string, { x: number; y: number }> {
     const positions: Record<string, { x: number; y: number }> = {}

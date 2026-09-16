@@ -27,7 +27,10 @@ interface NodeContextMenuProps {
   onCopy: () => void
   onComments: () => void
   onDelete: () => void
-  /** Set when 2+ activities are selected, e.g. "3 activities". */
+  /**
+   * Set when 2+ nodes are selected, e.g. "8 nodes". The region rows take the
+   * place of the single-node Copy/Delete rather than sitting beside them.
+   */
   regionSummary?: string | null
   onCopyRegion?: () => void
   onDeleteRegion?: () => void
@@ -74,23 +77,25 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
           <MenuItem onClick={run(onEdit)}>
             <Row icon={<FaPencilAlt size={13} />}>Edit</Row>
           </MenuItem>
-          <MenuItem onClick={run(onCopy)}>
-            <Row icon={<FaCopy size={13} />}>Copy</Row>
-          </MenuItem>
-          {regionSummary && onCopyRegion && (
+          {regionSummary && onCopyRegion ? (
             <MenuItem onClick={run(onCopyRegion)}>
               <Row icon={<FaObjectGroup size={13} />}>Copy {regionSummary}</Row>
+            </MenuItem>
+          ) : (
+            <MenuItem onClick={run(onCopy)}>
+              <Row icon={<FaCopy size={13} />}>Copy</Row>
             </MenuItem>
           )}
           <MenuItem onClick={run(onComments)}>
             <Row icon={<FaComment size={13} />}>Comments</Row>
           </MenuItem>
-          <MenuItem onClick={run(onDelete)} className="!text-red-600 hover:!bg-red-50">
-            <Row icon={<FaTrash size={13} />}>Delete</Row>
-          </MenuItem>
-          {regionSummary && onDeleteRegion && (
+          {regionSummary && onDeleteRegion ? (
             <MenuItem onClick={run(onDeleteRegion)} className="!text-red-600 hover:!bg-red-50">
               <Row icon={<FaTrash size={13} />}>Delete {regionSummary}</Row>
+            </MenuItem>
+          ) : (
+            <MenuItem onClick={run(onDelete)} className="!text-red-600 hover:!bg-red-50">
+              <Row icon={<FaTrash size={13} />}>Delete</Row>
             </MenuItem>
           )}
         </>

@@ -225,26 +225,14 @@ describe('useCanvasKeyboard', () => {
     })
   })
 
-  describe('duplicate', () => {
-    it('duplicates on Ctrl+D when something is selected', () => {
+  describe('Ctrl+D', () => {
+    // Duplicate is gone — Copy/Paste covers it — so the key must fall through
+    // to the browser rather than being silently swallowed.
+    it('is left to the browser, even with a selection', () => {
       canvas = buildCanvas(['act-1'])
-      const onDuplicateRegion = vi.fn()
-      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDuplicateRegion }))
+      renderHook(() => useCanvasKeyboard(true, refTo(canvas)))
 
-      const event = fireKey('d', { ctrl: true })
-
-      expect(onDuplicateRegion).toHaveBeenCalledTimes(1)
-      expect(event.defaultPrevented).toBe(true)
-    })
-
-    it('leaves Ctrl+D alone when nothing is selected', () => {
-      const onDuplicateRegion = vi.fn()
-      renderHook(() => useCanvasKeyboard(true, refTo(canvas), { onDuplicateRegion }))
-
-      const event = fireKey('d', { ctrl: true })
-
-      expect(onDuplicateRegion).not.toHaveBeenCalled()
-      expect(event.defaultPrevented).toBe(false)
+      expect(fireKey('d', { ctrl: true }).defaultPrevented).toBe(false)
     })
   })
 

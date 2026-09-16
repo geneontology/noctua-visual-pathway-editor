@@ -64,16 +64,12 @@ beforeEach(() => {
 // ── Tests ───────────────────────────────────────────────────────────
 
 describe('regionSummary', () => {
-  it('counts activities and relations', () => {
-    expect(regionSummary(regionPayload(LATER, 3, 2))).toBe('3 activities and 2 relations')
+  it('counts the nodes, leaving relations out of it', () => {
+    expect(regionSummary(regionPayload(LATER, 3, 2))).toBe('3 nodes')
   })
 
   it('singularises', () => {
-    expect(regionSummary(regionPayload(LATER, 1, 1))).toBe('1 activity and 1 relation')
-  })
-
-  it('omits relations when there are none', () => {
-    expect(regionSummary(regionPayload(LATER, 2, 0))).toBe('2 activities')
+    expect(regionSummary(regionPayload(LATER, 1, 1))).toBe('1 node')
   })
 })
 
@@ -113,7 +109,7 @@ describe('readClipboard', () => {
 
     const entry = readClipboard()
     expect(entry?.kind).toBe('region')
-    expect(entry?.summary).toBe('2 activities and 1 relation')
+    expect(entry?.summary).toBe('2 nodes')
   })
 
   describe('newest wins', () => {

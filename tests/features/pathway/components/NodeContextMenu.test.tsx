@@ -16,12 +16,14 @@ const handlers = () => ({
   onCopy: vi.fn(),
   onComments: vi.fn(),
   onDelete: vi.fn(),
+  onCopyRegion: vi.fn(),
+  onDeleteRegion: vi.fn(),
 })
 
 type Handlers = ReturnType<typeof handlers>
 
 const renderMenu = (
-  props: Partial<{ open: boolean; interactive: boolean }> = {},
+  props: Partial<{ open: boolean; interactive: boolean; regionSummary: string }> = {},
   h: Handlers = handlers()
 ) => {
   const utils = renderMantine(
@@ -30,6 +32,7 @@ const renderMenu = (
       x={120}
       y={80}
       interactive={props.interactive ?? true}
+      regionSummary={props.regionSummary ?? null}
       {...h}
     />
   )
@@ -106,6 +109,42 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     expect(h.onEdit).not.toHaveBeenCalled()
     expect(h.onDelete).not.toHaveBeenCalled()
     expect(h.onComments).not.toHaveBeenCalled()
+  })
+})
+
+describe('NodeContextMenu — multi-selection', () => {
+  it('replaces the single-node Copy and Delete with the region rows', () => {
+    renderMenu({ regionSummary: '8 nodes' })
+    expect(screen.getByText('Copy 8 nodes')).toBeInTheDocument()
+    expect(screen.getByText('Delete 8 nodes')).toBeInTheDocument()
+    expect(screen.queryByText('Copy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Delete')).not.toBeInTheDocument()
+  })
+
+  it('still offers Edit and Comments', () => {
+    renderMenu({ regionSummary: '8 nodes' })
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+    expect(screen.getByText('Comments')).toBeInTheDocument()
+  })
+
+  it('Copy 8 nodes calls onCopyRegion, not the single-node onCopy', async () => {
+    const h = handlers()
+    const { user } = renderMenu({ regionSummary: '8 nodes' }, h)
+
+    await user.click(screen.getByText('Copy 8 nodes'))
+    expect(h.onCopyRegion).toHaveBeenCalledTimes(1)
+    expect(h.onCopy).not.toHaveBeenCalled()
+    expect(h.onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('Delete 8 nodes calls onDeleteRegion, not the single-node onDelete', async () => {
+    const h = handlers()
+    const { user } = renderMenu({ regionSummary: '8 nodes' }, h)
+
+    await user.click(screen.getByText('Delete 8 nodes'))
+    expect(h.onDeleteRegion).toHaveBeenCalledTimes(1)
+    expect(h.onDelete).not.toHaveBeenCalled()
+    expect(h.onClose).toHaveBeenCalledTimes(1)
   })
 })
 

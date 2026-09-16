@@ -6,7 +6,6 @@ import {
   MdArrowDropDown as ArrowDropDownIcon,
   MdAutoFixHigh as AutoLayoutIcon,
   MdContentCopy as CopyIcon,
-  MdLibraryAdd as DuplicateIcon,
   MdDeleteOutline as DeleteIcon,
   MdClose as ClearIcon,
 } from 'react-icons/md'
@@ -33,7 +32,6 @@ interface GraphToolbarProps {
   selectionCount?: number
   onClearSelection?: () => void
   onCopySelection?: () => void
-  onDuplicateSelection?: () => void
   onDeleteSelection?: () => void
   /** False when not logged in — hides the editing actions. */
   canEdit?: boolean
@@ -55,7 +53,6 @@ export default function GraphToolbar({
   selectionCount = 0,
   onClearSelection,
   onCopySelection,
-  onDuplicateSelection,
   onDeleteSelection,
   canEdit = true,
   onSelectPreset,
@@ -120,18 +117,6 @@ export default function GraphToolbar({
                   className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
                 >
                   Copy
-                </Button>
-              </Tooltip>
-              <Tooltip label="Duplicate selection (Ctrl+D)" withArrow position="bottom">
-                <Button
-                  variant="default"
-                  size="compact-xs"
-                  radius="xl"
-                  onClick={onDuplicateSelection}
-                  leftSection={<DuplicateIcon size={14} />}
-                  className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
-                >
-                  Duplicate
                 </Button>
               </Tooltip>
               <Tooltip label="Delete selected activities" withArrow position="bottom">

@@ -29,10 +29,9 @@ export type ClipboardEntry =
 const plural = (count: number, one: string, many: string) =>
   `${count} ${count === 1 ? one : many}`
 
+/** e.g. "8 nodes" — how the canvas paste row counts a copied region. */
 export function regionSummary(payload: RegionClipboardPayload): string {
-  const head = plural(payload.activities.length, 'activity', 'activities')
-  if (payload.connections.length === 0) return head
-  return `${head} and ${plural(payload.connections.length, 'relation', 'relations')}`
+  return plural(payload.activities.length, 'node', 'nodes')
 }
 
 /** Store a single-activity copy. Returns false if storage refused it. */
