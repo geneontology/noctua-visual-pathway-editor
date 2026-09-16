@@ -25,7 +25,7 @@ can now put several nodes into a **selection** and act on all of them together.
 | Remove several activities in one go           | `Delete`, or the **Delete** button         |
 
 Everything here needs you to be **logged in**. Logged out, you can still look at the model —
-see [Read-only mode](#11-read-only-mode).
+see [Read-only mode](#10-read-only-mode).
 
 ---
 
@@ -178,6 +178,11 @@ Either way the resulting positions are saved to your browser, so they survive a 
 
 ## 7. Copy and paste
 
+> **At most 13 nodes at a time.** Copy and Delete each reach the server as a single batch, so
+> the editor caps them. Select more than 13 and the toolbar pill turns **red** and reads
+> _"N selected — max 13"_, with **Copy** and **Delete** greyed out; the matching rows in the
+> right-click menu go grey too. `Ctrl+C` and `Delete` are refused the same way, with a message.
+
 ### 7.1 What gets copied
 
 Copying captures the selected activities **and the relations between them** — a relation is
@@ -252,20 +257,13 @@ With a selection in place:
 A confirmation dialog names how many activities will go. Confirm, and all of them are removed in
 **one** save. Relations between deleted activities go with them.
 
+The same **13-node cap** applies as for copy — see section 7.
+
 This cannot be undone — there is no undo history in the editor.
 
 ---
 
-## 9. Ctrl+S
-
-**Ctrl+S** / **Cmd+S** saves the model and shows _"Model saved"_. The browser's "Save page"
-dialog never opens on the canvas.
-
-Every edit you make is already saved as you go, so this is reassurance rather than a requirement.
-
----
-
-## 10. Keyboard shortcuts
+## 9. Keyboard shortcuts
 
 Shortcuts are active on the canvas while you are logged in and no dialog or form is open. They
 are ignored while you are typing in a text field, so normal typing, copying and pasting inside
@@ -285,7 +283,7 @@ forms is unaffected.
 
 ---
 
-## 11. Read-only mode
+## 10. Read-only mode
 
 Logged out, the canvas is for viewing:
 
@@ -296,7 +294,7 @@ Logged out, the canvas is for viewing:
 
 ---
 
-## 12. Worth knowing
+## 11. Worth knowing
 
 - **Layout is local.** Node positions — including group moves, nudges and Auto Layout — are
   stored in your browser per model. They are not part of the GO-CAM and are not visible to other
