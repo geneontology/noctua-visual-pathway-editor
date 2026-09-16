@@ -70,6 +70,12 @@ export class CamCanvas {
   // The activity backing the right drawer — a separate state from the
   // multi-selection, drawn in a different colour.
   private _focusedUid: string | null = null
+  // The node the pointer is over. Hover paints into the cell's own attrs, so a
+  // mouseleave that never arrives — the window losing focus with the cursor
+  // parked on a node, a dialog opening under it — would stand the halo up
+  // forever. Holding the id here keeps at most one node hovered: the next
+  // hover, or the pointer leaving the canvas, always clears the last one.
+  private _hoveredId: string | null = null
   // Last observed position of the node being dragged, so the rest of the
   // selection can be moved by the same delta. Tracked rather than derived from
   // the pointer so that a node clamped by `restrictTranslate` doesn't let the
@@ -205,26 +211,15 @@ export class CamCanvas {
     )
 
     // ── Element hover: highlight + show edit/delete icons ──
-    this.paper.on('element:mouseover', (cellView: joint.dia.CellView) => {
-      const element = cellView.model
-      // Read-only (not logged in) keeps the hover highlight but hides the
-      // edit/delete action icons.
-      if (element instanceof NodeCellList) {
-        element.hover(true, !this.readOnly)
-        this._highlightSuccessorNodes(element)
-      } else if (element instanceof NodeCellMolecule) {
-        element.hover(true, !this.readOnly)
-      }
+    // enter/leave are a matched pair. mouseover also fires on every crossing
+    // between a node's own sub-elements, which re-ran the whole-graph repaint
+    // in _highlightSuccessorNodes on each one.
+    this.paper.on('element:mouseenter', (cellView: joint.dia.CellView) => {
+      this._setHovered(cellView.model as joint.dia.Element)
     })
 
     this.paper.on('element:mouseleave', (cellView: joint.dia.CellView) => {
-      const element = cellView.model
-      if (element instanceof NodeCellList) {
-        element.hover(false)
-        this._unhighlightAllNodes()
-      } else if (element instanceof NodeCellMolecule) {
-        element.hover(false)
-      }
+      if (this._hoveredId === cellView.model.id) this._setHovered(null)
     })
 
     // ── View icon click (read-only affordance): open the activity table ──
@@ -438,6 +433,10 @@ export class CamCanvas {
     this._renderSelection()
     if (pruned) this.onSelectionChange?.(this._selection.list())
 
+    // The new cells come up un-hovered, so forget the old one — otherwise the
+    // next mouseleave would be matched against a cell that no longer exists.
+    this._hoveredId = null
+
     this.paper.unfreeze()
   }
 
@@ -594,6 +593,8 @@ export class CamCanvas {
     this._container.removeEventListener('dragover', this._handleDragOver)
     this._container.removeEventListener('drop', this._handleDrop)
     this._container.removeEventListener('mousemove', this._handleMouseMove)
+    this._container.removeEventListener('mouseleave', this._handleContainerLeave)
+    window.removeEventListener('blur', this._handleWindowBlur)
     this._container.removeEventListener('contextmenu', this._handleContextMenu, true)
     this._marquee.destroy()
     this.paper.remove()
@@ -630,10 +631,23 @@ export class CamCanvas {
     this._lastPointerClient = { x: e.clientX, y: e.clientY }
   }
 
+  // The paper only reports leaves it actually sees. These two cover the cases
+  // it misses: the pointer leaving the canvas altogether, and the window losing
+  // focus while the cursor still sits on a node.
+  private _handleContainerLeave = () => {
+    this._setHovered(null)
+  }
+
+  private _handleWindowBlur = () => {
+    this._setHovered(null)
+  }
+
   private _initStencilDrop() {
     this._container.addEventListener('dragover', this._handleDragOver)
     this._container.addEventListener('drop', this._handleDrop)
     this._container.addEventListener('mousemove', this._handleMouseMove)
+    this._container.addEventListener('mouseleave', this._handleContainerLeave)
+    window.addEventListener('blur', this._handleWindowBlur)
     // Capture phase, on the container, so every right-click inside the canvas
     // reaches us before JointJS's own handling.
     this._container.addEventListener('contextmenu', this._handleContextMenu, true)
@@ -670,6 +684,41 @@ export class CamCanvas {
   }
 
   // ── Highlighting ──────────────────────────────────────────────
+
+  /**
+   * Move the hover halo to `element`, or clear it with null. Routing every
+   * change through here is what makes a missed mouseleave survivable: whatever
+   * was hovered last is always turned off before anything else turns on.
+   */
+  private _setHovered(element: joint.dia.Element | null) {
+    const id = (element?.id as string | undefined) ?? null
+    if (id === this._hoveredId) return
+
+    const previous = this._hoveredId ? this.graph.getCell(this._hoveredId) : null
+    if (previous instanceof NodeCellList || previous instanceof NodeCellMolecule) {
+      previous.hover(false)
+    }
+
+    this._hoveredId = id
+
+    // Read-only (not logged in) keeps the hover highlight but hides the
+    // edit/delete action icons.
+    if (element instanceof NodeCellList) {
+      element.hover(true, !this.readOnly)
+      // Repaints every node, and unhighlights them first.
+      this._highlightSuccessorNodes(element)
+    } else if (element instanceof NodeCellMolecule) {
+      element.hover(true, !this.readOnly)
+      this._unhighlightAllNodes()
+    } else {
+      this._unhighlightAllNodes()
+    }
+  }
+
+  /** Drop the hover halo — the pointer left the canvas, or the window did. */
+  clearHover() {
+    this._setHovered(null)
+  }
 
   private _highlightSuccessorNodes(node: joint.dia.Element) {
     this._unhighlightAllNodes()

@@ -34,7 +34,11 @@ interface NodeContextMenuProps {
   regionSummary?: string | null
   onCopyRegion?: () => void
   onDeleteRegion?: () => void
-  /** Grow the selection along the causal graph from this node. */
+  /**
+   * Grow the selection along the causal graph from this node. Hidden once 2+
+   * nodes are selected — it works off the one node under the cursor, which
+   * reads as ambiguous next to rows that act on the whole selection.
+   */
   onSelectConnected?: (direction: 'downstream' | 'upstream' | 'connected') => void
 }
 
@@ -110,7 +114,7 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
         </>
       )}
 
-      {onSelectConnected && (
+      {onSelectConnected && !regionSummary && (
         <>
           <div className="my-1 border-t border-gray-200" />
           <span className="block px-3 py-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase">

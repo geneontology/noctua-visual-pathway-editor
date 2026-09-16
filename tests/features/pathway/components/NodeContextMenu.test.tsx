@@ -22,8 +22,15 @@ const handlers = () => ({
 
 type Handlers = ReturnType<typeof handlers>
 
+type SelectConnected = (direction: 'downstream' | 'upstream' | 'connected') => void
+
 const renderMenu = (
-  props: Partial<{ open: boolean; interactive: boolean; regionSummary: string }> = {},
+  props: Partial<{
+    open: boolean
+    interactive: boolean
+    regionSummary: string
+    onSelectConnected: SelectConnected
+  }> = {},
   h: Handlers = handlers()
 ) => {
   const utils = renderMantine(
@@ -33,6 +40,7 @@ const renderMenu = (
       y={80}
       interactive={props.interactive ?? true}
       regionSummary={props.regionSummary ?? null}
+      onSelectConnected={props.onSelectConnected}
       {...h}
     />
   )
@@ -58,6 +66,14 @@ describe('NodeContextMenu — logged in (interactive)', () => {
     expect(screen.getByText('Copy')).toBeInTheDocument()
     expect(screen.getByText('Comments')).toBeInTheDocument()
     expect(screen.getByText('Delete')).toBeInTheDocument()
+  })
+
+  it('offers the Select section for a single node', () => {
+    renderMenu({ onSelectConnected: vi.fn() })
+    expect(screen.getByText('Select')).toBeInTheDocument()
+    expect(screen.getByText('Downstream')).toBeInTheDocument()
+    expect(screen.getByText('Upstream')).toBeInTheDocument()
+    expect(screen.getByText('Connected')).toBeInTheDocument()
   })
 
   it('does not offer the read-only View item', () => {
@@ -125,6 +141,14 @@ describe('NodeContextMenu — multi-selection', () => {
     renderMenu({ regionSummary: '8 nodes' })
     expect(screen.getByText('Edit')).toBeInTheDocument()
     expect(screen.getByText('Comments')).toBeInTheDocument()
+  })
+
+  it('drops the Select section — it grows from one node, not the selection', () => {
+    renderMenu({ regionSummary: '8 nodes', onSelectConnected: vi.fn() })
+    expect(screen.queryByText('Select')).not.toBeInTheDocument()
+    expect(screen.queryByText('Downstream')).not.toBeInTheDocument()
+    expect(screen.queryByText('Upstream')).not.toBeInTheDocument()
+    expect(screen.queryByText('Connected')).not.toBeInTheDocument()
   })
 
   it('Copy 8 nodes calls onCopyRegion, not the single-node onCopy', async () => {
