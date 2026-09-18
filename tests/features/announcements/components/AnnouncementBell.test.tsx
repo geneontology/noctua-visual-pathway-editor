@@ -17,12 +17,26 @@ const renderBell = (total: number, unread: number) => {
 }
 
 describe('AnnouncementBell', () => {
-  it('renders nothing when there are no announcements at all', () => {
+  // The panel is the only way back to a dismissed announcement, so the bell has
+  // to survive the list emptying.
+  it('stays put when there is nothing to show', () => {
     renderBell(0, 0)
 
-    // MantineProvider injects its own <style> tags, so check for the control
-    // itself rather than an empty container.
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'No announcements' })).toBeInTheDocument()
+  })
+
+  it('still opens the panel with nothing to show', async () => {
+    const { onClick, user } = renderBell(0, 0)
+
+    await user.click(screen.getByRole('button', { name: 'No announcements' }))
+
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('has no badge when there is nothing to show', () => {
+    renderBell(0, 0)
+
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
   })
 
   it('badges the unread count', () => {

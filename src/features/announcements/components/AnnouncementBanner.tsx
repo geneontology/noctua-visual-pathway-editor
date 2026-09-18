@@ -30,6 +30,7 @@ const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
     <div
       className={`flex h-full w-full items-center justify-center border-b px-4 text-xs ${bannerStyle(announcement.level)}`}
       role="status"
+      data-testid="announcement-banner"
     >
       <div className="flex min-w-0 max-w-5xl flex-1 items-center gap-2">
         <Icon className="shrink-0" />

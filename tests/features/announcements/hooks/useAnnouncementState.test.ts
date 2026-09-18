@@ -73,6 +73,78 @@ describe('useAnnouncementState', () => {
     })
   })
 
+  // Dismissing hides rather than deletes, so a stray Clear all is recoverable.
+  describe('restoring', () => {
+    it('puts a dismissed announcement back', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.dismiss('a'))
+      act(() => result.current.restore('a'))
+
+      expect(result.current.isDismissed('a')).toBe(false)
+    })
+
+    // It was seen on the way out; bringing it back should not re-badge the bell.
+    it('leaves it marked read', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.dismiss('a'))
+      act(() => result.current.restore('a'))
+
+      expect(result.current.isRead('a')).toBe(true)
+    })
+
+    it('restores one of several cleared at once', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.dismissAll(['a', 'b', 'c']))
+      act(() => result.current.restore('b'))
+
+      expect(result.current.isDismissed('b')).toBe(false)
+      expect(result.current.isDismissed('a')).toBe(true)
+      expect(result.current.isDismissed('c')).toBe(true)
+    })
+
+    it('persists, so it stays back after a reload', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.dismiss('a'))
+      act(() => result.current.restore('a'))
+
+      expect(stored()).toMatchObject({ read: ['a'], dismissed: [] })
+    })
+
+    it('can be dismissed again afterwards', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.dismiss('a'))
+      act(() => result.current.restore('a'))
+      act(() => result.current.dismiss('a'))
+
+      expect(result.current.isDismissed('a')).toBe(true)
+    })
+
+    it('does nothing for an announcement that was never dismissed', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+      const setItem = vi.spyOn(Storage.prototype, 'setItem')
+
+      act(() => result.current.restore('never-dismissed'))
+
+      expect(setItem).not.toHaveBeenCalled()
+      setItem.mockRestore()
+    })
+
+    it('leaves a closed banner closed', () => {
+      const { result } = renderHook(() => useAnnouncementState())
+
+      act(() => result.current.closeBanner('a'))
+      act(() => result.current.dismiss('a'))
+      act(() => result.current.restore('a'))
+
+      expect(result.current.isBannerClosed('a')).toBe(true)
+    })
+  })
+
   describe('persistence', () => {
     it('writes each set to localStorage', () => {
       const { result } = renderHook(() => useAnnouncementState())

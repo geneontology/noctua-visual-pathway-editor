@@ -2,16 +2,16 @@
 
 **Status:** ACTIVE
 **Issue:** —
-**Branch:** issue-misc (VPE side); `dev` on the announcements repo
+**Branch:** issue-297-announcements (VPE side); `main` on the announcements repo
 
 ## Goal
-Give Mary (non-coder, GitHub-literate) a way to publish an announcement by committing one
+Give the announcement author (non-coder, GitHub-literate) a way to publish an announcement by committing one
 Markdown file, and render those announcements in VPE as a banner + notification bell + side
 panel — with `starts`/`expires` scheduling and per-app targeting actually implemented.
 
 ## Context
 - **Repos involved:**
-  - `C:\work\go\noctua-announcements` → `github.com/tmushayahama/noctua-announcements` (content + build)
+  - `C:\work\go\noctua-announcements` → `github.com/geneontology/noctua-announcements` (content + build)
   - `C:\work\go\noctua-visual-pathway-editor` (React consumer)
 - **Reference implementation:** `C:\work\go\old-noctua-landing-page`
   - `src/@noctua.announcement/` — service + panel component
@@ -45,19 +45,34 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
 
 - **Authoring format: one Markdown file per announcement, YAML frontmatter + body.**
   Chosen over Issue Forms, raw JSON, and Decap CMS. Rationale:
-  - Mary is the only author and there is no review step, so the label-based approval gate
+  - There is a single author and no review step, so the label-based approval gate
     that justified Issue Forms buys nothing; issues-as-CMS also make editing and
     scheduling awkward.
   - Frontmatter is punctuation-tolerant in a way JSON is not, and long-form content lives
     in the same file instead of a separate `docs/` link.
-  - **Decap CMS edits exactly this format**, so if Mary later wants a form UI it bolts on
+  - **Decap CMS edits exactly this format**, so if the author later wants a form UI it bolts on
     without touching a single content file. The Issues route would have closed that door.
-- **Publish gate is commit access, not review.** Mary is a collaborator with write access
+- **Publish gate is commit access, not review.** The author is a collaborator with write access
   and commits straight to `dev` from the GitHub web UI. No PR, no reviewer.
 - **A broken commit must be a no-op, not an outage.** The build validates and only
   republishes `announcements.json` when everything parses. Bad input leaves the previously
   published file live. GitHub's default notification settings email the author when their
-  own commit fails a workflow — so Mary learns about it without anyone else in the loop.
+  own commit fails a workflow — so the author learns about it without anyone else in the loop.
+- **Dismissing hides, it does not delete.** The panel header toggles between the new ones
+  and everything, and a dismissed row offers Restore. Nothing is unrecoverable, so
+  `Clear all` is safe to hit. State is still per browser (localStorage), so it does not
+  follow a curator to another machine.
+- **Row layout: expander left, action right.** The chevron is a tree-style expander on the
+  left of the row; dismiss/restore is a permanently visible icon on the right with a
+  tooltip. They were previously stacked in the same spot, which made the expander
+  unclickable on hover, and hiding the action until hover made it undiscoverable. The
+  expanded body no longer repeats a Dismiss text button.
+- **The bell is always rendered**, even at zero. It is the only way into the panel, and the
+  panel is the only way back to a dismissed announcement — hiding the bell when the list
+  empties would strand anything cleared by accident.
+- **Expiry beats everything.** The panel only ever lists what `useAnnouncements` returns, so
+  a dismissed announcement that has since expired is gone for good; restoring cannot bring
+  back something outside its window.
 - **Serve from GitHub Pages, not `raw.githubusercontent.com`.** Pages purges its CDN on
   deploy; raw has a fixed 5-minute TTL with no purge. The client also fetches with
   `cache: 'no-store'` so freshness does not depend on the host's headers.
@@ -72,7 +87,10 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
 ---
 title: Maintenance Friday 4pm PST      # required, short
 level: danger                          # info | success | warning | danger
-apps: [landing, form, vpe]             # optional, default: all
+type: maintenance                      # optional, default: announcement
+pinned: false                          # optional, default: false
+testing: false                         # optional, default: false — true = dev site only
+apps: [landing-page, sae, vpe]         # optional, default: all
 starts: 2026-09-10                     # optional, default: publish immediately
 expires: 2026-09-12                    # optional, default: never
 descriptionUrl: https://...            # optional external "More details" link
@@ -81,16 +99,45 @@ descriptionUrl: https://...            # optional external "More details" link
 Noctua will be down for about 30 minutes. Please save your work before then.
 ```
 
-Build emits, per entry: `id` (slug from filename), `title`, `level`, `apps`, `starts`,
-`expires`, `description` (first paragraph, plain text — banner copy), `body` (rendered
-HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
+Build emits, per entry: `id` (slug from filename), `title`, `level`, `type`, `pinned`,
+`testing`, `apps`, `starts`, `expires`, `description` (first paragraph, plain text —
+banner copy), `body` (rendered HTML — panel copy), `descriptionUrl`. Pinned first, then
+newest-first by `starts`.
+
+**Scheduling.** A bare `YYYY-MM-DD` means the whole of that day *in the viewer's own
+timezone* — `expires: 2026-03-14` runs to the end of the 14th, inclusive. An author can add
+a 24-hour time (`2026-03-14 16:00`), read as `America/Los_Angeles` and converted to an
+absolute instant by the build, so the feed carries either a date or an ISO instant and the
+consumer never guesses a timezone. `scripts/schedule.mjs` owns the conversion; the client
+mirrors it in `instantOf()`.
+
+The client re-checks on a timeout to the next `starts`/`expires` boundary rather than on a
+tick, so a 4pm window opens at 4pm and a whole-day announcement drops at local midnight
+without waiting for the 5-minute poll.
+
+**Expired entries are not published.** The build drops anything whose end is more than two
+days past, so the payload stays bounded however many announcements pile up. Local dates
+around the world span 26 hours, hence the slack. Consumers still filter: the feed carries
+ones that have not started, ones ending today, and ones that ended since the last build (it
+only runs on push).
+
+**App targets** are `landing-page`, `sae` (Standard Annotation Editor) and `vpe`.
+
+**`testing: true`** holds an announcement back from production: the consumer shows it only
+when its build is not production (`ENVIRONMENT.isProd === false`) — i.e. the dev site,
+built with `npm run build:dev`. Default `false` shows everywhere. Filtering is the
+consumer's job, exactly like `apps` and the dates — the feed ships every announcement.
+
+Verified: `npm run build:dev` bakes `VITE_APP_ENV=dev` into the bundle and `npm run build`
+bakes `prod`, so the two deploys differ by build command alone. Both write to the same
+`workbenches/noctua-visual-pathway-editor/public`, so whichever ran last is what gets
+deployed.
 
 ## Steps
 
 ### Phase 1: Announcements repo — structure
-- [x] Fork detached by the user. Repo is now standalone (`fork: false`, no parent, public,
-      default branch `dev`). Not required by this design — see Blockers — but done.
-- [ ] Add Mary as a collaborator with write access.
+- [x] `geneontology/noctua-announcements` unarchived; default branch is `main`.
+- [ ] Add the announcement author as a collaborator with write access.
 - [x] Create `announcements/` with `_template.md`.
 - [x] Port the 5 existing entries from `notification.json` to Markdown files (they are all
       long expired — port for format reference, then decide with the user which to keep).
@@ -101,14 +148,14 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 ### Phase 2: Announcements repo — build + publish
 - [x] `schema.json` — JSON Schema for the frontmatter fields.
-- [x] `.github/workflows/build.yml` — on push to `dev`:
+- [x] `.github/workflows/build.yml` — on push to `main`:
       parse frontmatter → validate against schema → fail loudly on error →
       emit `announcements.json` → deploy to GitHub Pages.
-- [ ] Enable GitHub Pages on the repo.
+- [x] GitHub Pages enabled; the workflow builds and deploys on push to `main`.
 - [x] Verify: a deliberately malformed commit fails the build AND leaves the previously
       published `announcements.json` intact.
 
-### Phase 3: Announcements repo — docs for Mary
+### Phase 3: Announcements repo — docs for the author
 - [x] Rewrite `README.md`: what this repo is, what the displays look like.
 - [x] `AUTHORS.md` written for a non-coder: how to add / edit / retire an announcement,
       the four `level` values and their colors, how `starts`/`expires` scheduling works,
@@ -145,7 +192,13 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 ### Phase 6: Verify
 - [x] `npm run type-check`, `npm run lint`.
-- [ ] Manual: announcement appears within ~1 min of Mary's commit; expired one does not
+- [x] Unit tests: feed slice (URL, `no-store`, polling, focus/reconnect refetch, every
+      failure mode), row component, level and type style maps, and a `Layout` integration
+      test covering banner/bell/panel together against a mocked feed. 154 tests.
+- [x] E2E (`e2e/announcements.spec.ts`, 25 tests): banner, scheduling and app targeting,
+      panel expand/collapse, bell counts, dismissal, persistence across reload, and a
+      broken feed leaving the editor usable. Feed mocked in `e2e/mocks/announcements.ts`.
+- [ ] Manual: announcement appears within ~1 min of the author's commit; expired one does not
       render; `apps: [form]` entry does not render in VPE; dismissal survives reload;
       malformed commit leaves the last good feed serving.
 
@@ -153,13 +206,15 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 > **⚠ UPDATE THIS AFTER EVERY CHANGE**
 
-- **Last completed action:** Phases 1–5 built. Announcements repo has
+- **Last completed action:** Phases 1–6 built, plus the test suite (unit + e2e) and the
+  move of the feed to `geneontology/noctua-announcements`. Announcements repo has
   `announcements/` (template + 5 ported entries), `schema.json`, `scripts/build.mjs`,
   `package.json`, `.gitignore`, `.github/workflows/build.yml`, rewritten `README.md`,
   new `AUTHORS.md`. VPE has `src/features/announcements/**` wired into `store.ts`,
   `Toolbar.tsx`, `Layout.tsx`, `constants.ts`.
-- **Next immediate action:** Blocker 1 (repo home). Then push the announcements repo,
-  enable Pages, and confirm the live feed URL matches `ENVIRONMENT.announcementsUrl`.
+- **Next immediate action:** Grant the announcement author write access, then retire
+  `notification.json` / `archived-notifications.json` and switch the landing page and SAE
+  to the new feed.
 - **Verified so far:**
   - `npm run build` in the announcements repo → 5 entries, correct HTML + plain-text split.
   - Bad `level`, unknown field, `expires` before `starts`, empty body, and malformed
@@ -169,24 +224,29 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
   - All four `LEVEL_STYLES` palettes present in the emitted CSS — Tailwind's scanner
     picks up the whole class strings in the Record.
   - GitHub Pages sends `Access-Control-Allow-Origin: *` and `Cache-Control: max-age=600`.
-- **NOT yet verified (blocked):** the live end-to-end path. Nothing is pushed, Pages is
-  not enabled, so `ENVIRONMENT.announcementsUrl` currently 404s. The app degrades to
-  "no announcements", which is the intended behavior but means the banner/bell/panel
-  have not been seen rendering against a real feed.
-- **Uncommitted changes:**
-  - announcements repo: everything above, plus `package-lock.json`. Nothing committed
-    or pushed.
-  - VPE: `constants.ts`, `Layout.tsx`, `Toolbar.tsx`, `store.ts` modified;
-    `src/features/announcements/` and this plan file untracked.
+  - 197 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
+    and 33 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
+  - Announcements repo has its own suite now: `node --test scripts/` — 41 tests covering
+    the Pacific conversion, DST, end-of-day, the expiry drop, and every author-facing
+    validation message (`scripts/schedule.test.mjs`, `scripts/build.test.mjs`).
+  - Build drops expired entries: 7 files in `announcements/`, 2 published, 5 listed as
+    left out.
+  - **Live end-to-end path works (2026-09-18):** pushed to `main`, the workflow published,
+    and `https://geneontology.github.io/noctua-announcements/announcements.json` returns 200
+    `application/json` with 7 entries, apps `landing-page`/`sae`/`vpe`, `testing` on each.
+- **NOT yet verified:** the banner/bell/panel rendering against the *live* feed in a
+  deployed build. The feed itself is live and correct; every UI path so far has been
+  exercised against a mocked feed in unit and e2e tests.
+- **Committed:** announcements repo pushed to `main` (feed published). VPE committed on
+  `issue-297-announcements`.
 - **Environment state:** `node_modules/` installed in the announcements repo (gitignored).
 
 ## Failed Approaches
 
 | What was tried | Why it failed | Date |
 | -------------- | ------------- | ---- |
-| Assessed `geneontology/noctua-announcements` as the target | Wrong repo — it is archived (last push 2022-07-22). The live one is the user's fork `tmushayahama/noctua-announcements`. | 2026-09-08 |
 | Proposed Issue Forms + label-gated publishing | Gate was the whole point; with one trusted author and no review step it adds a public issue queue for nothing, and blocks a later Decap upgrade. | 2026-09-08 |
-| Recommended detaching the fork | Overstated. Both reasons given (PR base defaults to archived parent, Issues disabled) are irrelevant to a direct-commit flow that uses neither. Actions — the one fork default that would have mattered — were already enabled. | 2026-09-08 |
+| Hosting the feed on a personal fork | Superseded 2026-09-18 — the feed is GO infrastructure and belongs in the `geneontology` org. | 2026-09-18 |
 
 ## Files Modified
 
@@ -219,19 +279,17 @@ octua-announcements`) — uncommitted
 | `src/app/store/store.ts` | edit | done |
 | `src/app/layout/Toolbar.tsx` | edit | done |
 | `src/app/layout/Layout.tsx` | edit | done |
+| `tests/features/announcements/**` (hooks, components, data, slice) | create | done |
+| `tests/app/layout/Layout.test.tsx` | create | done |
+| `e2e/mocks/announcements.ts`, `e2e/announcements.spec.ts` | create | done |
 
 ## Blockers
 
-1. ~~**Repo home undecided.**~~ **RESOLVED 2026-09-08 — `tmushayahama/noctua-announcements`.**
-   Not moving to the GO org. The user detached the fork, so the repo is now standalone
-   (`fork: false`, no parent). Worth recording that detaching was *not* needed: the two
-   reasons originally given for it both evaporate under the design actually chosen — PRs
-   defaulting to the archived parent does not matter when Mary commits directly and there
-   are no PRs, and Issues being disabled does not matter when Issues are not part of the
-   flow. Actions, the one fork default that would have mattered, were already enabled.
-   Either way the owner/repo is unchanged, so the feed URL in `constants.ts` and
-   `README.md` was correct throughout:
-   `https://tmushayahama.github.io/noctua-announcements/announcements.json`
+1. ~~**Repo home undecided.**~~ **RESOLVED 2026-09-18 — `geneontology/noctua-announcements`.**
+   The feed lives in the GO org, not a personal fork. The repo is unarchived, Pages is on,
+   and the feed is published and live:
+   `https://geneontology.github.io/noctua-announcements/announcements.json`
+   Still open: give the announcement author write access on that repo.
 
 ## Notes
 - **YAML parses an unquoted `2026-03-14` into a JS `Date`, not a string**, so the schema's
@@ -239,16 +297,17 @@ octua-announcements`) — uncommitted
   now normalizes `starts`/`expires` back to `YYYY-MM-DD` before validating — the
   alternative (making authors quote their dates) is exactly the kind of trap this
   redesign exists to remove.
-- `tmushayahama/noctua-announcements` has `has_issues: false` — GitHub disables Issues on
-  forks by default. Irrelevant to the chosen design, but worth knowing.
-- The old landing page still points at the archived org repo's raw URL. Switching it to the
-  new feed is out of scope here but should follow — same JSON shape, so it is a one-line change.
+- The workflow's `paths` filter includes `.github/workflows/build.yml`, so changing the
+  trigger branch is itself enough to fire a publish. `workflow_dispatch` is there as a
+  manual fallback.
+- The old landing page still points at the old `raw.githubusercontent.com` URL. Switching it
+  to the new feed is out of scope here but should follow — same JSON shape, so it is a one-line change.
 - Verified `raw.githubusercontent.com` does send `Access-Control-Allow-Origin: *`, so CORS
   was never the problem — caching and reliability are.
 
 ## Lessons Learned
-- Follow the repo the user names, not the URL found in old config. Cost a detour into the
-  archived org repo.
+- Shared GO infrastructure belongs in the `geneontology` org; a personal repo is not a home
+  for a feed three apps consume.
 
 ## Additional Context (Claude)
 
@@ -264,9 +323,9 @@ adding a second `createApi` feels heavy for one endpoint.
 - GitHub Pages is not a hard-SLA host either. It is materially better than raw (CDN purge on
   deploy, real content types), but the consumer must treat a failed fetch as "no
   announcements" and never block app render on it.
-- Rendering author-written Markdown to HTML means sanitizing it before injecting. Mary is
+- Rendering author-written Markdown to HTML means sanitizing it before injecting. The author is
   trusted, but the panel should still sanitize rather than raw `dangerouslySetInnerHTML`.
 - Three apps will eventually consume this feed. Keep the built JSON shape stable and additive.
 
 **Follow-ups out of scope:** switching the landing page and Form editor to the new feed;
-optional Decap CMS layer if Mary ever wants a form UI.
+optional Decap CMS layer if the author ever wants a form UI.

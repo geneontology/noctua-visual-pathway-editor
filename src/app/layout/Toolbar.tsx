@@ -89,16 +89,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
       {/* Right-aligned section */}
       <div className="flex flex-1 flex-row items-center justify-end">
-        {/* Announcements */}
-        {shown.length > 0 && (
-          <div className="flex flex-row items-center border-r border-gray-300 pr-3">
-            <AnnouncementBell
-              total={shown.length}
-              unread={unread}
-              onClick={onOpenAnnouncements}
-            />
-          </div>
-        )}
+        {/* Announcements. Always shown: the panel is the only way back to a
+            dismissed announcement, so the bell cannot come and go with the count. */}
+        <div className="flex flex-row items-center border-r border-gray-300 pr-3">
+          <AnnouncementBell
+            total={shown.length}
+            unread={unread}
+            onClick={onOpenAnnouncements}
+          />
+        </div>
 
         {/* GitHub */}
         <div className="flex flex-row items-center border-r border-gray-300 pr-3">

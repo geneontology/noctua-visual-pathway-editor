@@ -21,7 +21,7 @@ const workbenchUrl = window.global_workbench_url ?? `${window.location.origin}/w
 // announcements repo ever moves.
 const announcementsUrl =
   window.global_announcements_url ??
-  'https://tmushayahama.github.io/noctua-announcements/announcements.json'
+  'https://geneontology.github.io/noctua-announcements/announcements.json'
 
 const appEnv: AppEnv = (import.meta.env.VITE_APP_ENV ?? 'dev') as AppEnv
 
