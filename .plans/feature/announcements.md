@@ -58,6 +58,21 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
   republishes `announcements.json` when everything parses. Bad input leaves the previously
   published file live. GitHub's default notification settings email the author when their
   own commit fails a workflow — so the author learns about it without anyone else in the loop.
+- **Dismissing hides, it does not delete.** The panel header toggles between the new ones
+  and everything, and a dismissed row offers Restore. Nothing is unrecoverable, so
+  `Clear all` is safe to hit. State is still per browser (localStorage), so it does not
+  follow a curator to another machine.
+- **Row layout: expander left, action right.** The chevron is a tree-style expander on the
+  left of the row; dismiss/restore is a permanently visible icon on the right with a
+  tooltip. They were previously stacked in the same spot, which made the expander
+  unclickable on hover, and hiding the action until hover made it undiscoverable. The
+  expanded body no longer repeats a Dismiss text button.
+- **The bell is always rendered**, even at zero. It is the only way into the panel, and the
+  panel is the only way back to a dismissed announcement — hiding the bell when the list
+  empties would strand anything cleared by accident.
+- **Expiry beats everything.** The panel only ever lists what `useAnnouncements` returns, so
+  a dismissed announcement that has since expired is gone for good; restoring cannot bring
+  back something outside its window.
 - **Serve from GitHub Pages, not `raw.githubusercontent.com`.** Pages purges its CDN on
   deploy; raw has a fixed 5-minute TTL with no purge. The client also fetches with
   `cache: 'no-store'` so freshness does not depend on the host's headers.
@@ -88,6 +103,23 @@ Build emits, per entry: `id` (slug from filename), `title`, `level`, `type`, `pi
 `testing`, `apps`, `starts`, `expires`, `description` (first paragraph, plain text —
 banner copy), `body` (rendered HTML — panel copy), `descriptionUrl`. Pinned first, then
 newest-first by `starts`.
+
+**Scheduling.** A bare `YYYY-MM-DD` means the whole of that day *in the viewer's own
+timezone* — `expires: 2026-03-14` runs to the end of the 14th, inclusive. An author can add
+a 24-hour time (`2026-03-14 16:00`), read as `America/Los_Angeles` and converted to an
+absolute instant by the build, so the feed carries either a date or an ISO instant and the
+consumer never guesses a timezone. `scripts/schedule.mjs` owns the conversion; the client
+mirrors it in `instantOf()`.
+
+The client re-checks on a timeout to the next `starts`/`expires` boundary rather than on a
+tick, so a 4pm window opens at 4pm and a whole-day announcement drops at local midnight
+without waiting for the 5-minute poll.
+
+**Expired entries are not published.** The build drops anything whose end is more than two
+days past, so the payload stays bounded however many announcements pile up. Local dates
+around the world span 26 hours, hence the slack. Consumers still filter: the feed carries
+ones that have not started, ones ending today, and ones that ended since the last build (it
+only runs on push).
 
 **App targets** are `landing-page`, `sae` (Standard Annotation Editor) and `vpe`.
 
@@ -192,8 +224,13 @@ deployed.
   - All four `LEVEL_STYLES` palettes present in the emitted CSS — Tailwind's scanner
     picks up the whole class strings in the Record.
   - GitHub Pages sends `Access-Control-Allow-Origin: *` and `Cache-Control: max-age=600`.
-  - 159 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
-    and 26 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
+  - 197 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
+    and 33 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
+  - Announcements repo has its own suite now: `node --test scripts/` — 41 tests covering
+    the Pacific conversion, DST, end-of-day, the expiry drop, and every author-facing
+    validation message (`scripts/schedule.test.mjs`, `scripts/build.test.mjs`).
+  - Build drops expired entries: 7 files in `announcements/`, 2 published, 5 listed as
+    left out.
   - **Live end-to-end path works (2026-09-18):** pushed to `main`, the workflow published,
     and `https://geneontology.github.io/noctua-announcements/announcements.json` returns 200
     `application/json` with 7 entries, apps `landing-page`/`sae`/`vpe`, `testing` on each.
