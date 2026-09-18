@@ -3,6 +3,7 @@ import {
   useGetAnnouncementsQuery,
   POLL_INTERVAL_MS,
 } from '../slices/announcementsApiSlice'
+import { ENVIRONMENT } from '@/@noctua.core/data/constants'
 import { CURRENT_APP } from '../models/announcement'
 import type { Announcement } from '../models/announcement'
 
@@ -38,9 +39,17 @@ function isActive(announcement: Announcement, date: string): boolean {
 }
 
 /**
+ * A draft an author wants to see in place before it reaches everyone. Any build
+ * that is not production — the dev site — shows it; production never does.
+ */
+function isReleased(announcement: Announcement): boolean {
+  return !announcement.testing || !ENVIRONMENT.isProd
+}
+
+/**
  * The announcements this app should show right now. The feed ships every
- * announcement for every app, so filtering by date and by `apps` is the
- * consumer's job.
+ * announcement for every app, so filtering by date, by `apps` and by `testing`
+ * is the consumer's job.
  *
  * Re-checks on a timer and whenever the tab regains focus, so a tab left open
  * all day still picks up a new announcement.
@@ -55,7 +64,9 @@ export function useAnnouncements(): Announcement[] {
   return useMemo(() => {
     if (!data) return []
     const date = today()
-    return data.filter(a => a.apps.includes(CURRENT_APP) && isActive(a, date))
+    return data.filter(
+      a => a.apps.includes(CURRENT_APP) && isReleased(a) && isActive(a, date)
+    )
   }, [data])
 }
 

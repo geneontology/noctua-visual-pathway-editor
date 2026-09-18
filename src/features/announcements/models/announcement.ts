@@ -7,7 +7,7 @@ export type AnnouncementType =
   | 'maintenance'
   | 'event'
 
-export type AnnouncementApp = 'landing' | 'form' | 'vpe'
+export type AnnouncementApp = 'landing-page' | 'sae' | 'vpe'
 
 /** Which app this is, for filtering the shared feed. */
 export const CURRENT_APP: AnnouncementApp = 'vpe'
@@ -28,6 +28,8 @@ export interface Announcement {
   level: AnnouncementLevel
   type: AnnouncementType
   pinned: boolean
+  /** Held back from production: the dev site shows it, the live site never does. */
+  testing: boolean
   apps: AnnouncementApp[]
   starts: string | null
   expires: string | null

@@ -8,6 +8,21 @@ vi.mock('@/features/announcements/slices/announcementsApiSlice', () => ({
   POLL_INTERVAL_MS: 1000,
 }))
 
+// ENVIRONMENT is read at module load from VITE_APP_ENV, so the environment has
+// to be swappable to cover what production does with a testing announcement.
+const { environment } = vi.hoisted(() => ({
+  environment: { appEnv: 'dev', isDev: true, isBeta: false, isProd: false },
+}))
+
+vi.mock('@/@noctua.core/data/constants', () => ({ ENVIRONMENT: environment }))
+
+const runningOn = (appEnv: 'dev' | 'beta' | 'prod') => {
+  environment.appEnv = appEnv
+  environment.isDev = appEnv === 'dev'
+  environment.isBeta = appEnv === 'beta'
+  environment.isProd = appEnv === 'prod'
+}
+
 const { useGetAnnouncementsQuery } = await import(
   '@/features/announcements/slices/announcementsApiSlice'
 )
@@ -27,6 +42,7 @@ const idsFrom = () => renderHook(() => useAnnouncements()).result.current.map(a 
 
 describe('useAnnouncements', () => {
   beforeEach(() => {
+    runningOn('dev')
     vi.useFakeTimers()
     // Local time, matching how the hook reads the date.
     vi.setSystemTime(new Date('2026-03-15T12:00:00'))
@@ -57,16 +73,57 @@ describe('useAnnouncements', () => {
       feed(
         buildAnnouncement('all'),
         buildAnnouncement('vpe-only', { apps: ['vpe'] }),
-        buildAnnouncement('with-form', { apps: ['form', 'vpe'] })
+        buildAnnouncement('with-sae', { apps: ['sae', 'vpe'] })
       )
 
-      expect(idsFrom()).toEqual(['all', 'vpe-only', 'with-form'])
+      expect(idsFrom()).toEqual(['all', 'vpe-only', 'with-sae'])
     })
 
     it('drops announcements aimed at other apps', () => {
       feed(
-        buildAnnouncement('landing-only', { apps: ['landing'] }),
-        buildAnnouncement('form-only', { apps: ['form'] })
+        buildAnnouncement('landing-page-only', { apps: ['landing-page'] }),
+        buildAnnouncement('sae-only', { apps: ['sae'] })
+      )
+
+      expect(idsFrom()).toEqual([])
+    })
+  })
+
+  // A draft the author wants to look at in place before everyone sees it.
+  describe('testing announcements', () => {
+    it('shows one on dev', () => {
+      runningOn('dev')
+      feed(buildAnnouncement('draft', { testing: true }))
+
+      expect(idsFrom()).toEqual(['draft'])
+    })
+
+    it('shows one on any build that is not production', () => {
+      runningOn('beta')
+      feed(buildAnnouncement('draft', { testing: true }))
+
+      expect(idsFrom()).toEqual(['draft'])
+    })
+
+    it('never shows one in production', () => {
+      runningOn('prod')
+      feed(buildAnnouncement('draft', { testing: true }))
+
+      expect(idsFrom()).toEqual([])
+    })
+
+    it('leaves ordinary announcements alone in production', () => {
+      runningOn('prod')
+      feed(buildAnnouncement('real'), buildAnnouncement('draft', { testing: true }))
+
+      expect(idsFrom()).toEqual(['real'])
+    })
+
+    it('still applies the other filters to a testing announcement', () => {
+      runningOn('dev')
+      feed(
+        buildAnnouncement('expired-draft', { testing: true, expires: '2026-03-01' }),
+        buildAnnouncement('other-app-draft', { testing: true, apps: ['landing-page'] })
       )
 
       expect(idsFrom()).toEqual([])
