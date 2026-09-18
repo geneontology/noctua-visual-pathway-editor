@@ -5,7 +5,7 @@
 **Branch:** issue-misc (VPE side); `dev` on the announcements repo
 
 ## Goal
-Give Mary (non-coder, GitHub-literate) a way to publish an announcement by committing one
+Give the announcement author (non-coder, GitHub-literate) a way to publish an announcement by committing one
 Markdown file, and render those announcements in VPE as a banner + notification bell + side
 panel — with `starts`/`expires` scheduling and per-app targeting actually implemented.
 
@@ -45,19 +45,19 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
 
 - **Authoring format: one Markdown file per announcement, YAML frontmatter + body.**
   Chosen over Issue Forms, raw JSON, and Decap CMS. Rationale:
-  - Mary is the only author and there is no review step, so the label-based approval gate
+  - There is a single author and no review step, so the label-based approval gate
     that justified Issue Forms buys nothing; issues-as-CMS also make editing and
     scheduling awkward.
   - Frontmatter is punctuation-tolerant in a way JSON is not, and long-form content lives
     in the same file instead of a separate `docs/` link.
-  - **Decap CMS edits exactly this format**, so if Mary later wants a form UI it bolts on
+  - **Decap CMS edits exactly this format**, so if the author later wants a form UI it bolts on
     without touching a single content file. The Issues route would have closed that door.
-- **Publish gate is commit access, not review.** Mary is a collaborator with write access
+- **Publish gate is commit access, not review.** The author is a collaborator with write access
   and commits straight to `dev` from the GitHub web UI. No PR, no reviewer.
 - **A broken commit must be a no-op, not an outage.** The build validates and only
   republishes `announcements.json` when everything parses. Bad input leaves the previously
   published file live. GitHub's default notification settings email the author when their
-  own commit fails a workflow — so Mary learns about it without anyone else in the loop.
+  own commit fails a workflow — so the author learns about it without anyone else in the loop.
 - **Serve from GitHub Pages, not `raw.githubusercontent.com`.** Pages purges its CDN on
   deploy; raw has a fixed 5-minute TTL with no purge. The client also fetches with
   `cache: 'no-store'` so freshness does not depend on the host's headers.
@@ -90,7 +90,7 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 ### Phase 1: Announcements repo — structure
 - [x] Fork detached by the user. Repo is now standalone (`fork: false`, no parent, public,
       default branch `dev`). Not required by this design — see Blockers — but done.
-- [ ] Add Mary as a collaborator with write access.
+- [ ] Add the announcement author as a collaborator with write access.
 - [x] Create `announcements/` with `_template.md`.
 - [x] Port the 5 existing entries from `notification.json` to Markdown files (they are all
       long expired — port for format reference, then decide with the user which to keep).
@@ -108,7 +108,7 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 - [x] Verify: a deliberately malformed commit fails the build AND leaves the previously
       published `announcements.json` intact.
 
-### Phase 3: Announcements repo — docs for Mary
+### Phase 3: Announcements repo — docs for the author
 - [x] Rewrite `README.md`: what this repo is, what the displays look like.
 - [x] `AUTHORS.md` written for a non-coder: how to add / edit / retire an announcement,
       the four `level` values and their colors, how `starts`/`expires` scheduling works,
@@ -145,7 +145,7 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 ### Phase 6: Verify
 - [x] `npm run type-check`, `npm run lint`.
-- [ ] Manual: announcement appears within ~1 min of Mary's commit; expired one does not
+- [ ] Manual: announcement appears within ~1 min of the author's commit; expired one does not
       render; `apps: [form]` entry does not render in VPE; dismissal survives reload;
       malformed commit leaves the last good feed serving.
 
@@ -226,7 +226,7 @@ octua-announcements`) — uncommitted
    Not moving to the GO org. The user detached the fork, so the repo is now standalone
    (`fork: false`, no parent). Worth recording that detaching was *not* needed: the two
    reasons originally given for it both evaporate under the design actually chosen — PRs
-   defaulting to the archived parent does not matter when Mary commits directly and there
+   defaulting to the archived parent does not matter when the author commits directly and there
    are no PRs, and Issues being disabled does not matter when Issues are not part of the
    flow. Actions, the one fork default that would have mattered, were already enabled.
    Either way the owner/repo is unchanged, so the feed URL in `constants.ts` and
@@ -264,9 +264,9 @@ adding a second `createApi` feels heavy for one endpoint.
 - GitHub Pages is not a hard-SLA host either. It is materially better than raw (CDN purge on
   deploy, real content types), but the consumer must treat a failed fetch as "no
   announcements" and never block app render on it.
-- Rendering author-written Markdown to HTML means sanitizing it before injecting. Mary is
+- Rendering author-written Markdown to HTML means sanitizing it before injecting. The author is
   trusted, but the panel should still sanitize rather than raw `dangerouslySetInnerHTML`.
 - Three apps will eventually consume this feed. Keep the built JSON shape stable and additive.
 
 **Follow-ups out of scope:** switching the landing page and Form editor to the new feed;
-optional Decap CMS layer if Mary ever wants a form UI.
+optional Decap CMS layer if the author ever wants a form UI.
