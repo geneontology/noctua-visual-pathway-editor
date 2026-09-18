@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE
 **Issue:** —
-**Branch:** issue-misc (VPE side); `main` on the announcements repo
+**Branch:** issue-297-announcements (VPE side); `main` on the announcements repo
 
 ## Goal
 Give the announcement author (non-coder, GitHub-literate) a way to publish an announcement by committing one
@@ -238,7 +238,7 @@ deployed.
   deployed build. The feed itself is live and correct; every UI path so far has been
   exercised against a mocked feed in unit and e2e tests.
 - **Committed:** announcements repo pushed to `main` (feed published). VPE committed on
-  `issue-misc`, not pushed.
+  `issue-297-announcements`.
 - **Environment state:** `node_modules/` installed in the announcements repo (gitignored).
 
 ## Failed Approaches
