@@ -11,7 +11,7 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
 
 ## Context
 - **Repos involved:**
-  - `C:\work\go\noctua-announcements` → `github.com/tmushayahama/noctua-announcements` (content + build)
+  - `C:\work\go\noctua-announcements` → `github.com/geneontology/noctua-announcements` (content + build)
   - `C:\work\go\noctua-visual-pathway-editor` (React consumer)
 - **Reference implementation:** `C:\work\go\old-noctua-landing-page`
   - `src/@noctua.announcement/` — service + panel component
@@ -72,7 +72,10 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
 ---
 title: Maintenance Friday 4pm PST      # required, short
 level: danger                          # info | success | warning | danger
-apps: [landing, form, vpe]             # optional, default: all
+type: maintenance                      # optional, default: announcement
+pinned: false                          # optional, default: false
+testing: false                         # optional, default: false — true = dev site only
+apps: [landing-page, sae, vpe]         # optional, default: all
 starts: 2026-09-10                     # optional, default: publish immediately
 expires: 2026-09-12                    # optional, default: never
 descriptionUrl: https://...            # optional external "More details" link
@@ -81,15 +84,28 @@ descriptionUrl: https://...            # optional external "More details" link
 Noctua will be down for about 30 minutes. Please save your work before then.
 ```
 
-Build emits, per entry: `id` (slug from filename), `title`, `level`, `apps`, `starts`,
-`expires`, `description` (first paragraph, plain text — banner copy), `body` (rendered
-HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
+Build emits, per entry: `id` (slug from filename), `title`, `level`, `type`, `pinned`,
+`testing`, `apps`, `starts`, `expires`, `description` (first paragraph, plain text —
+banner copy), `body` (rendered HTML — panel copy), `descriptionUrl`. Pinned first, then
+newest-first by `starts`.
+
+**App targets** are `landing-page`, `sae` (Standard Annotation Editor) and `vpe`.
+
+**`testing: true`** holds an announcement back from production: the consumer shows it only
+when its build is not production (`ENVIRONMENT.isProd === false`) — i.e. the dev site,
+built with `npm run build:dev`. Default `false` shows everywhere. Filtering is the
+consumer's job, exactly like `apps` and the dates — the feed ships every announcement.
+
+Verified: `npm run build:dev` bakes `VITE_APP_ENV=dev` into the bundle and `npm run build`
+bakes `prod`, so the two deploys differ by build command alone. Both write to the same
+`workbenches/noctua-visual-pathway-editor/public`, so whichever ran last is what gets
+deployed.
 
 ## Steps
 
 ### Phase 1: Announcements repo — structure
-- [x] Fork detached by the user. Repo is now standalone (`fork: false`, no parent, public,
-      default branch `dev`). Not required by this design — see Blockers — but done.
+- [ ] Unarchive `geneontology/noctua-announcements` (archived since 2022-07-22) so pushes and
+      Pages deploys work; confirm default branch `dev`.
 - [ ] Add the announcement author as a collaborator with write access.
 - [x] Create `announcements/` with `_template.md`.
 - [x] Port the 5 existing entries from `notification.json` to Markdown files (they are all
@@ -145,6 +161,12 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 ### Phase 6: Verify
 - [x] `npm run type-check`, `npm run lint`.
+- [x] Unit tests: feed slice (URL, `no-store`, polling, focus/reconnect refetch, every
+      failure mode), row component, level and type style maps, and a `Layout` integration
+      test covering banner/bell/panel together against a mocked feed. 154 tests.
+- [x] E2E (`e2e/announcements.spec.ts`, 25 tests): banner, scheduling and app targeting,
+      panel expand/collapse, bell counts, dismissal, persistence across reload, and a
+      broken feed leaving the editor usable. Feed mocked in `e2e/mocks/announcements.ts`.
 - [ ] Manual: announcement appears within ~1 min of the author's commit; expired one does not
       render; `apps: [form]` entry does not render in VPE; dismissal survives reload;
       malformed commit leaves the last good feed serving.
@@ -153,12 +175,13 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 > **⚠ UPDATE THIS AFTER EVERY CHANGE**
 
-- **Last completed action:** Phases 1–5 built. Announcements repo has
+- **Last completed action:** Phases 1–6 built, plus the test suite (unit + e2e) and the
+  move of the feed to `geneontology/noctua-announcements`. Announcements repo has
   `announcements/` (template + 5 ported entries), `schema.json`, `scripts/build.mjs`,
   `package.json`, `.gitignore`, `.github/workflows/build.yml`, rewritten `README.md`,
   new `AUTHORS.md`. VPE has `src/features/announcements/**` wired into `store.ts`,
   `Toolbar.tsx`, `Layout.tsx`, `constants.ts`.
-- **Next immediate action:** Blocker 1 (repo home). Then push the announcements repo,
+- **Next immediate action:** Unarchive `geneontology/noctua-announcements`, push it,
   enable Pages, and confirm the live feed URL matches `ENVIRONMENT.announcementsUrl`.
 - **Verified so far:**
   - `npm run build` in the announcements repo → 5 entries, correct HTML + plain-text split.
@@ -169,6 +192,8 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
   - All four `LEVEL_STYLES` palettes present in the emitted CSS — Tailwind's scanner
     picks up the whole class strings in the Record.
   - GitHub Pages sends `Access-Control-Allow-Origin: *` and `Cache-Control: max-age=600`.
+  - 154 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
+    and 25 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
 - **NOT yet verified (blocked):** the live end-to-end path. Nothing is pushed, Pages is
   not enabled, so `ENVIRONMENT.announcementsUrl` currently 404s. The app degrades to
   "no announcements", which is the intended behavior but means the banner/bell/panel
@@ -184,9 +209,8 @@ HTML — panel copy), `descriptionUrl`. Sorted newest-first by `starts`.
 
 | What was tried | Why it failed | Date |
 | -------------- | ------------- | ---- |
-| Assessed `geneontology/noctua-announcements` as the target | Wrong repo — it is archived (last push 2022-07-22). The live one is the user's fork `tmushayahama/noctua-announcements`. | 2026-09-08 |
 | Proposed Issue Forms + label-gated publishing | Gate was the whole point; with one trusted author and no review step it adds a public issue queue for nothing, and blocks a later Decap upgrade. | 2026-09-08 |
-| Recommended detaching the fork | Overstated. Both reasons given (PR base defaults to archived parent, Issues disabled) are irrelevant to a direct-commit flow that uses neither. Actions — the one fork default that would have mattered — were already enabled. | 2026-09-08 |
+| Hosting the feed on a personal fork | Superseded 2026-09-18 — the feed is GO infrastructure and belongs in the `geneontology` org. | 2026-09-18 |
 
 ## Files Modified
 
@@ -219,19 +243,17 @@ octua-announcements`) — uncommitted
 | `src/app/store/store.ts` | edit | done |
 | `src/app/layout/Toolbar.tsx` | edit | done |
 | `src/app/layout/Layout.tsx` | edit | done |
+| `tests/features/announcements/**` (hooks, components, data, slice) | create | done |
+| `tests/app/layout/Layout.test.tsx` | create | done |
+| `e2e/mocks/announcements.ts`, `e2e/announcements.spec.ts` | create | done |
 
 ## Blockers
 
-1. ~~**Repo home undecided.**~~ **RESOLVED 2026-09-08 — `tmushayahama/noctua-announcements`.**
-   Not moving to the GO org. The user detached the fork, so the repo is now standalone
-   (`fork: false`, no parent). Worth recording that detaching was *not* needed: the two
-   reasons originally given for it both evaporate under the design actually chosen — PRs
-   defaulting to the archived parent does not matter when the author commits directly and there
-   are no PRs, and Issues being disabled does not matter when Issues are not part of the
-   flow. Actions, the one fork default that would have mattered, were already enabled.
-   Either way the owner/repo is unchanged, so the feed URL in `constants.ts` and
-   `README.md` was correct throughout:
-   `https://tmushayahama.github.io/noctua-announcements/announcements.json`
+1. ~~**Repo home undecided.**~~ **RESOLVED 2026-09-18 — `geneontology/noctua-announcements`.**
+   The feed lives in the GO org, not a personal fork. Prerequisites on that repo:
+   unarchive it (last push 2022-07-22), enable Pages, give the announcement author write
+   access. Feed URL in `constants.ts` and the repo README:
+   `https://geneontology.github.io/noctua-announcements/announcements.json`
 
 ## Notes
 - **YAML parses an unquoted `2026-03-14` into a JS `Date`, not a string**, so the schema's
@@ -239,16 +261,16 @@ octua-announcements`) — uncommitted
   now normalizes `starts`/`expires` back to `YYYY-MM-DD` before validating — the
   alternative (making authors quote their dates) is exactly the kind of trap this
   redesign exists to remove.
-- `tmushayahama/noctua-announcements` has `has_issues: false` — GitHub disables Issues on
-  forks by default. Irrelevant to the chosen design, but worth knowing.
-- The old landing page still points at the archived org repo's raw URL. Switching it to the
-  new feed is out of scope here but should follow — same JSON shape, so it is a one-line change.
+- `geneontology/noctua-announcements` is archived — nothing can be pushed and Pages cannot
+  deploy until it is unarchived.
+- The old landing page still points at the old `raw.githubusercontent.com` URL. Switching it
+  to the new feed is out of scope here but should follow — same JSON shape, so it is a one-line change.
 - Verified `raw.githubusercontent.com` does send `Access-Control-Allow-Origin: *`, so CORS
   was never the problem — caching and reliability are.
 
 ## Lessons Learned
-- Follow the repo the user names, not the URL found in old config. Cost a detour into the
-  archived org repo.
+- Shared GO infrastructure belongs in the `geneontology` org; a personal repo is not a home
+  for a feed three apps consume.
 
 ## Additional Context (Claude)
 
