@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE
 **Issue:** —
-**Branch:** issue-misc (VPE side); `dev` on the announcements repo
+**Branch:** issue-misc (VPE side); `main` on the announcements repo
 
 ## Goal
 Give the announcement author (non-coder, GitHub-literate) a way to publish an announcement by committing one
@@ -104,8 +104,7 @@ deployed.
 ## Steps
 
 ### Phase 1: Announcements repo — structure
-- [ ] Unarchive `geneontology/noctua-announcements` (archived since 2022-07-22) so pushes and
-      Pages deploys work; confirm default branch `dev`.
+- [x] `geneontology/noctua-announcements` unarchived; default branch is `main`.
 - [ ] Add the announcement author as a collaborator with write access.
 - [x] Create `announcements/` with `_template.md`.
 - [x] Port the 5 existing entries from `notification.json` to Markdown files (they are all
@@ -117,10 +116,10 @@ deployed.
 
 ### Phase 2: Announcements repo — build + publish
 - [x] `schema.json` — JSON Schema for the frontmatter fields.
-- [x] `.github/workflows/build.yml` — on push to `dev`:
+- [x] `.github/workflows/build.yml` — on push to `main`:
       parse frontmatter → validate against schema → fail loudly on error →
       emit `announcements.json` → deploy to GitHub Pages.
-- [ ] Enable GitHub Pages on the repo.
+- [x] GitHub Pages enabled; the workflow builds and deploys on push to `main`.
 - [x] Verify: a deliberately malformed commit fails the build AND leaves the previously
       published `announcements.json` intact.
 
@@ -181,8 +180,9 @@ deployed.
   `package.json`, `.gitignore`, `.github/workflows/build.yml`, rewritten `README.md`,
   new `AUTHORS.md`. VPE has `src/features/announcements/**` wired into `store.ts`,
   `Toolbar.tsx`, `Layout.tsx`, `constants.ts`.
-- **Next immediate action:** Unarchive `geneontology/noctua-announcements`, push it,
-  enable Pages, and confirm the live feed URL matches `ENVIRONMENT.announcementsUrl`.
+- **Next immediate action:** Grant the announcement author write access, then retire
+  `notification.json` / `archived-notifications.json` and switch the landing page and SAE
+  to the new feed.
 - **Verified so far:**
   - `npm run build` in the announcements repo → 5 entries, correct HTML + plain-text split.
   - Bad `level`, unknown field, `expires` before `starts`, empty body, and malformed
@@ -192,17 +192,16 @@ deployed.
   - All four `LEVEL_STYLES` palettes present in the emitted CSS — Tailwind's scanner
     picks up the whole class strings in the Record.
   - GitHub Pages sends `Access-Control-Allow-Origin: *` and `Cache-Control: max-age=600`.
-  - 154 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
-    and 25 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
-- **NOT yet verified (blocked):** the live end-to-end path. Nothing is pushed, Pages is
-  not enabled, so `ENVIRONMENT.announcementsUrl` currently 404s. The app degrades to
-  "no announcements", which is the intended behavior but means the banner/bell/panel
-  have not been seen rendering against a real feed.
-- **Uncommitted changes:**
-  - announcements repo: everything above, plus `package-lock.json`. Nothing committed
-    or pushed.
-  - VPE: `constants.ts`, `Layout.tsx`, `Toolbar.tsx`, `store.ts` modified;
-    `src/features/announcements/` and this plan file untracked.
+  - 159 unit tests (`tests/features/announcements/**`, `tests/app/layout/Layout.test.tsx`)
+    and 26 e2e tests (`e2e/announcements.spec.ts`) pass against a mocked feed.
+  - **Live end-to-end path works (2026-09-18):** pushed to `main`, the workflow published,
+    and `https://geneontology.github.io/noctua-announcements/announcements.json` returns 200
+    `application/json` with 7 entries, apps `landing-page`/`sae`/`vpe`, `testing` on each.
+- **NOT yet verified:** the banner/bell/panel rendering against the *live* feed in a
+  deployed build. The feed itself is live and correct; every UI path so far has been
+  exercised against a mocked feed in unit and e2e tests.
+- **Committed:** announcements repo pushed to `main` (feed published). VPE committed on
+  `issue-misc`, not pushed.
 - **Environment state:** `node_modules/` installed in the announcements repo (gitignored).
 
 ## Failed Approaches
@@ -250,10 +249,10 @@ octua-announcements`) — uncommitted
 ## Blockers
 
 1. ~~**Repo home undecided.**~~ **RESOLVED 2026-09-18 — `geneontology/noctua-announcements`.**
-   The feed lives in the GO org, not a personal fork. Prerequisites on that repo:
-   unarchive it (last push 2022-07-22), enable Pages, give the announcement author write
-   access. Feed URL in `constants.ts` and the repo README:
+   The feed lives in the GO org, not a personal fork. The repo is unarchived, Pages is on,
+   and the feed is published and live:
    `https://geneontology.github.io/noctua-announcements/announcements.json`
+   Still open: give the announcement author write access on that repo.
 
 ## Notes
 - **YAML parses an unquoted `2026-03-14` into a JS `Date`, not a string**, so the schema's
@@ -261,8 +260,9 @@ octua-announcements`) — uncommitted
   now normalizes `starts`/`expires` back to `YYYY-MM-DD` before validating — the
   alternative (making authors quote their dates) is exactly the kind of trap this
   redesign exists to remove.
-- `geneontology/noctua-announcements` is archived — nothing can be pushed and Pages cannot
-  deploy until it is unarchived.
+- The workflow's `paths` filter includes `.github/workflows/build.yml`, so changing the
+  trigger branch is itself enough to fire a publish. `workflow_dispatch` is there as a
+  manual fallback.
 - The old landing page still points at the old `raw.githubusercontent.com` URL. Switching it
   to the new feed is out of scope here but should follow — same JSON shape, so it is a one-line change.
 - Verified `raw.githubusercontent.com` does send `Access-Control-Allow-Origin: *`, so CORS
