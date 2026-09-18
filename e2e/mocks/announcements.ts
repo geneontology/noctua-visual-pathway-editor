@@ -60,16 +60,23 @@ export const dateOffsetByDays = (days: number): string => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-export const mockAnnouncementsFeed = async (
-  page: Page,
-  entries: FeedAnnouncement[]
-): Promise<void> => {
+/** An absolute instant, the way a built feed carries a written time. */
+export const instantOffsetBySeconds = (seconds: number): string =>
+  new Date(Date.now() + seconds * 1000).toISOString()
+
+/**
+ * A function is evaluated when the app actually fetches, so a window measured
+ * from "now" is not eaten by however long the page took to load.
+ */
+export type FeedSource = FeedAnnouncement[] | (() => FeedAnnouncement[])
+
+export const mockAnnouncementsFeed = async (page: Page, entries: FeedSource): Promise<void> => {
   await page.route(FEED_GLOB, route =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify(entries),
+      body: JSON.stringify(typeof entries === 'function' ? entries() : entries),
     })
   )
 }

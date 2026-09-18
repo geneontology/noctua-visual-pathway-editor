@@ -9,19 +9,22 @@ import type { Announcement } from '@/features/announcements/models/announcement'
 interface RowOptions {
   expanded?: boolean
   read?: boolean
+  dismissed?: boolean
 }
 
 const renderRow = (
   overrides: Partial<Announcement> = {},
-  { expanded = false, read = false }: RowOptions = {}
+  { expanded = false, read = false, dismissed = false }: RowOptions = {}
 ) => {
   const onToggle = vi.fn()
   const onDismiss = vi.fn()
+  const onRestore = vi.fn()
   const announcement = buildAnnouncement('a1', overrides)
 
   return {
     onToggle,
     onDismiss,
+    onRestore,
     announcement,
     ...renderWithProviders(
       <MantineProvider>
@@ -29,8 +32,10 @@ const renderRow = (
           announcement={announcement}
           expanded={expanded}
           read={read}
+          dismissed={dismissed}
           onToggle={onToggle}
           onDismiss={onDismiss}
+          onRestore={onRestore}
         />
       </MantineProvider>
     ),
@@ -124,7 +129,7 @@ describe('AnnouncementRow', () => {
   })
 
   describe('dismissing', () => {
-    it('offers a hover control while collapsed', async () => {
+    it('offers a dismiss control without having to hover', async () => {
       const { onDismiss, user } = renderRow({ title: 'Release 2.4' })
 
       await user.click(screen.getByRole('button', { name: 'Dismiss Release 2.4' }))
@@ -132,22 +137,29 @@ describe('AnnouncementRow', () => {
       expect(onDismiss).toHaveBeenCalledOnce()
     })
 
-    // The expanded row has its own Dismiss text button; two would be redundant.
-    it('drops the hover control once expanded', () => {
+    // One control in one place, whether the row is open or closed.
+    it('keeps the same control when expanded', () => {
       renderRow({ title: 'Release 2.4' }, { expanded: true })
 
-      expect(
-        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
-      ).not.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Dismiss Release 2.4' })).toBeInTheDocument()
     })
 
-    it('dismisses from the expanded row', async () => {
-      const { onDismiss, user } = renderRow({}, { expanded: true })
+    it('dismisses from an expanded row', async () => {
+      const { onDismiss, user } = renderRow({ title: 'Release 2.4' }, { expanded: true })
 
-      await user.click(screen.getByRole('button', { name: 'Dismiss' }))
+      await user.click(screen.getByRole('button', { name: 'Dismiss Release 2.4' }))
 
       expect(onDismiss).toHaveBeenCalledOnce()
+    })
+
+    // They used to sit on top of each other, so the expander was unclickable.
+    it('is a separate control from the expander', () => {
+      renderRow({ title: 'Release 2.4' })
+
+      const expander = screen.getByRole('button', { expanded: false })
+      const dismiss = screen.getByRole('button', { name: 'Dismiss Release 2.4' })
+      expect(expander).not.toBe(dismiss)
+      expect(expander).not.toContainElement(dismiss)
     })
 
     it('does not also toggle the row, which would expand it on the way out', async () => {
@@ -166,7 +178,7 @@ describe('AnnouncementRow', () => {
       expect(screen.getByLabelText('Pinned')).toBeInTheDocument()
     })
 
-    it('cannot be dismissed from the hover control', () => {
+    it('has no dismiss control at all', () => {
       renderRow({ title: 'Release 2.4', pinned: true })
 
       expect(
@@ -174,16 +186,61 @@ describe('AnnouncementRow', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('cannot be dismissed from the expanded row either', () => {
-      renderRow({ pinned: true }, { expanded: true })
+    it('has none when expanded either', () => {
+      renderRow({ title: 'Release 2.4', pinned: true }, { expanded: true })
 
-      expect(screen.queryByRole('button', { name: 'Dismiss' })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+      ).not.toBeInTheDocument()
     })
 
     it('still expands like any other row', async () => {
       const { onToggle, user } = renderRow({ title: 'Pinned notice', pinned: true })
 
       await user.click(screen.getByText('Pinned notice'))
+
+      expect(onToggle).toHaveBeenCalledOnce()
+    })
+  })
+
+  // Shown only in the panel's "all" view, where a dismissed row can be put back.
+  describe('dismissed', () => {
+    it('is faded, so it reads as already cleared', () => {
+      const { container } = renderRow({}, { dismissed: true })
+
+      expect(container.querySelector('.opacity-60')).toBeTruthy()
+    })
+
+    it('offers Restore instead of Dismiss', async () => {
+      const { onRestore, user } = renderRow({ title: 'Release 2.4' }, { dismissed: true })
+
+      expect(
+        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+      ).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Restore Release 2.4' }))
+
+      expect(onRestore).toHaveBeenCalledOnce()
+    })
+
+    it('offers Restore instead of Dismiss in an expanded row', async () => {
+      const { onRestore, onDismiss, user } = renderRow(
+        { title: 'Release 2.4' },
+        { dismissed: true, expanded: true }
+      )
+
+      expect(
+        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+      ).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Restore Release 2.4' }))
+
+      expect(onRestore).toHaveBeenCalledOnce()
+      expect(onDismiss).not.toHaveBeenCalled()
+    })
+
+    it('still expands to show the body', async () => {
+      const { onToggle, user } = renderRow({ title: 'Release 2.4' }, { dismissed: true })
+
+      await user.click(screen.getByText('Release 2.4'))
 
       expect(onToggle).toHaveBeenCalledOnce()
     })

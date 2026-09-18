@@ -11,6 +11,19 @@ import type { AnnouncementState } from '@/features/announcements/hooks/useAnnoun
 /** A real state object, so the panel is exercised against the actual rules. */
 const realState = () => renderHook(() => useAnnouncementState()).result
 
+/** The panel wired to a live state hook, so its updates reach the rows. */
+const LivePanel = ({ announcements }: { announcements: Announcement[] }) => {
+  const state = useAnnouncementState()
+  return (
+    <AnnouncementPanel
+      announcements={announcements}
+      state={state}
+      opened
+      onClose={() => {}}
+    />
+  )
+}
+
 const stubState = (overrides: Partial<AnnouncementState> = {}): AnnouncementState => ({
   isRead: () => false,
   isBannerClosed: () => false,
@@ -19,6 +32,7 @@ const stubState = (overrides: Partial<AnnouncementState> = {}): AnnouncementStat
   closeBanner: vi.fn(),
   dismiss: vi.fn(),
   dismissAll: vi.fn(),
+  restore: vi.fn(),
   ...overrides,
 })
 
@@ -198,7 +212,7 @@ describe('AnnouncementPanel', () => {
       )
 
       await user.click(screen.getByText('First'))
-      await user.click(screen.getByRole('button', { name: 'Dismiss' }))
+      await user.click(screen.getByRole('button', { name: 'Dismiss First' }))
 
       expect(dismiss).toHaveBeenCalledWith('a')
     })
@@ -225,7 +239,7 @@ describe('AnnouncementPanel', () => {
 
       await user.click(screen.getByText('Pinned'))
 
-      expect(screen.queryByRole('button', { name: 'Dismiss' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Dismiss Pinned' })).not.toBeInTheDocument()
     })
 
     it('is left out of Clear all', async () => {
@@ -273,12 +287,139 @@ describe('AnnouncementPanel', () => {
     })
   })
 
+  // Dismissing hides rather than deletes, so nothing is lost to a stray click on
+  // Clear all.
+  describe('showing dismissed announcements', () => {
+    it('offers no toggle while nothing has been dismissed', () => {
+      renderPanel([buildAnnouncement('a'), buildAnnouncement('b')], stubState())
+
+      expect(screen.queryByRole('button', { name: /Show dismissed/ })).not.toBeInTheDocument()
+    })
+
+    it('counts what is hidden behind the toggle', () => {
+      renderPanel(
+        [buildAnnouncement('a'), buildAnnouncement('b'), buildAnnouncement('c')],
+        stubState({ isDismissed: id => id !== 'a' })
+      )
+
+      expect(screen.getByRole('button', { name: 'Show dismissed (2)' })).toBeInTheDocument()
+    })
+
+    it('lists the dismissed ones once toggled on', async () => {
+      const { user } = renderPanel(
+        [
+          buildAnnouncement('a', { title: 'Still here' }),
+          buildAnnouncement('b', { title: 'Cleared earlier' }),
+        ],
+        stubState({ isDismissed: id => id === 'b' })
+      )
+      expect(screen.queryByText('Cleared earlier')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+
+      expect(screen.getByText('Cleared earlier')).toBeInTheDocument()
+      expect(screen.getByText('Still here')).toBeInTheDocument()
+    })
+
+    it('goes back to the new ones', async () => {
+      const { user } = renderPanel(
+        [
+          buildAnnouncement('a', { title: 'Still here' }),
+          buildAnnouncement('b', { title: 'Cleared earlier' }),
+        ],
+        stubState({ isDismissed: id => id === 'b' })
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+      await user.click(screen.getByRole('button', { name: 'Show new only' }))
+
+      expect(screen.queryByText('Cleared earlier')).not.toBeInTheDocument()
+    })
+
+    it('restores one from its row', async () => {
+      const restore = vi.fn()
+      const { user } = renderPanel(
+        [buildAnnouncement('b', { title: 'Cleared earlier' })],
+        stubState({ isDismissed: () => true, restore })
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+      await user.click(screen.getByRole('button', { name: 'Restore Cleared earlier' }))
+
+      expect(restore).toHaveBeenCalledWith('b')
+    })
+
+    it('restores one from its expanded row', async () => {
+      const restore = vi.fn()
+      const { user } = renderPanel(
+        [buildAnnouncement('b', { title: 'Cleared earlier' })],
+        stubState({ isDismissed: () => true, restore })
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+      await user.click(screen.getByText('Cleared earlier'))
+      await user.click(screen.getByRole('button', { name: 'Restore Cleared earlier' }))
+
+      expect(restore).toHaveBeenCalledWith('b')
+    })
+
+    // Clearing while looking at the dismissed ones reads as "clear these too",
+    // which is the opposite of what the view is for.
+    it('hides Clear all while the dismissed ones are showing', async () => {
+      const { user } = renderPanel(
+        [buildAnnouncement('a'), buildAnnouncement('b')],
+        stubState({ isDismissed: id => id === 'b' })
+      )
+      expect(screen.getByRole('button', { name: 'Clear all' })).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+
+      expect(screen.queryByRole('button', { name: 'Clear all' })).not.toBeInTheDocument()
+    })
+
+    it('says there is nothing at all when the feed is empty', async () => {
+      renderPanel([], stubState())
+
+      expect(screen.getByText("You're all caught up")).toBeInTheDocument()
+    })
+
+    // Driven through a live hook rather than `realState()`: that returns a
+    // snapshot, so the panel would never see the state change.
+    it('comes back through the real state hook', async () => {
+      const { user } = renderWithProviders(
+        <MantineProvider>
+          <LivePanel
+            announcements={[
+              buildAnnouncement('a', { title: 'Keeper' }),
+              buildAnnouncement('b', { title: 'Cleared earlier' }),
+            ]}
+          />
+        </MantineProvider>
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Dismiss Cleared earlier' }))
+      expect(screen.queryByText('Cleared earlier')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Show dismissed (1)' }))
+      await user.click(screen.getByRole('button', { name: 'Restore Cleared earlier' }))
+
+      // Nothing is dismissed any more, so the toggle goes and the list is back
+      // to showing everything that counts as new.
+      expect(screen.queryByRole('button', { name: /Show dismissed/ })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Show new only' })).not.toBeInTheDocument()
+      expect(screen.getByText('Cleared earlier')).toBeInTheDocument()
+      expect(
+        JSON.parse(localStorage.getItem('noctua.announcements.state') ?? '{}').dismissed
+      ).toEqual([])
+    })
+  })
+
   it('persists a dismissal through the real state hook', async () => {
     const state = realState()
     const { user } = renderPanel([buildAnnouncement('a', { title: 'First' })], state.current)
 
     await user.click(screen.getByText('First'))
-    await user.click(screen.getByRole('button', { name: 'Dismiss' }))
+    await user.click(screen.getByRole('button', { name: 'Dismiss First' }))
 
     await act(async () => {})
 

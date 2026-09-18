@@ -5,10 +5,11 @@ import { getModelIdFromRaw, loadRaw, mockBaristaMetadata, mockBaristaModel } fro
 import {
   announcement,
   dateOffsetByDays,
+  instantOffsetBySeconds,
   mockAnnouncementsFailure,
   mockAnnouncementsFeed,
 } from './mocks/announcements'
-import type { FeedAnnouncement } from './mocks/announcements'
+import type { FeedSource } from './mocks/announcements'
 
 // By test id, not role=status: the loading overlay is a status region too, and
 // it is on screen while a model loads.
@@ -17,10 +18,10 @@ const panel = (page: Page) => page.getByRole('dialog')
 // The banner's "Close announcement" button also matches /announcement/, so the
 // bell is addressed by its counting label.
 const bell = (page: Page) =>
-  page.getByRole('button', { name: /^\d+ (unread of \d+ )?announcements?$/ })
+  page.getByRole('button', { name: /^(No|\d+( unread of \d+)?) announcements?$/ })
 
 /** Loads the editor with a mocked model and a mocked announcements feed. */
-const openEditor = async (page: Page, entries: FeedAnnouncement[] | 'broken') => {
+const openEditor = async (page: Page, entries: FeedSource | 'broken') => {
   const raw = loadRaw('small-baseline')
   await mockBaristaMetadata(page)
   await mockBaristaModel(page, raw)
@@ -118,7 +119,57 @@ test.describe('announcements — scheduling and targeting', () => {
     ])
 
     await expect(banner(page)).toHaveCount(0)
-    await expect(bell(page)).toHaveCount(0)
+    await expect(bell(page)).toHaveAccessibleName('No announcements')
+  })
+
+  // The bell is the only way to reach the panel, and the panel is the only way
+  // back to something dismissed.
+  test('the bell still opens the panel with nothing to show', async ({ page }) => {
+    await openEditor(page, [])
+
+    await bell(page).click()
+
+    await expect(panel(page).getByText("You're all caught up")).toBeVisible()
+  })
+
+  test('shows one whose timed window is open', async ({ page }) => {
+    await openEditor(page, [
+      announcement('window', {
+        title: 'Maintenance window',
+        starts: instantOffsetBySeconds(-3600),
+        expires: instantOffsetBySeconds(3600),
+      }),
+    ])
+
+    await expect(banner(page)).toContainText('Maintenance window')
+  })
+
+  test('hides one whose timed window closed an hour ago', async ({ page }) => {
+    await openEditor(page, [
+      announcement('window', {
+        title: 'Maintenance window',
+        starts: instantOffsetBySeconds(-7200),
+        expires: instantOffsetBySeconds(-3600),
+      }),
+    ])
+
+    await expect(banner(page)).toHaveCount(0)
+    await expect(bell(page)).toHaveAccessibleName('No announcements')
+  })
+
+  // Waiting for the next poll would leave it up for minutes after it ended.
+  test('takes a timed announcement down when its window closes', async ({ page }) => {
+    // Built when the app fetches, so the window is not spent loading the page.
+    await openEditor(page, () => [
+      announcement('window', {
+        title: 'Ends shortly',
+        expires: instantOffsetBySeconds(10),
+      }),
+    ])
+    await expect(banner(page)).toContainText('Ends shortly')
+
+    await expect(banner(page)).toHaveCount(0, { timeout: 30_000 })
+    await expect(bell(page)).toHaveAccessibleName('No announcements')
   })
 
   test('hides an announcement that has not started yet', async ({ page }) => {
@@ -306,6 +357,57 @@ test.describe('announcements — dismissing', () => {
     await expect(banner(page)).toContainText('Pinned notice')
   })
 
+  test('a dismissed announcement can be found again and restored', async ({ page }) => {
+    await openEditor(page, [
+      announcement('first', { title: 'Newest notice' }),
+      announcement('second', { title: 'Older notice' }),
+    ])
+    await page.getByRole('button', { name: 'View more' }).click()
+    await panel(page).getByRole('button', { name: 'Dismiss Newest notice' }).click()
+    await expect(panel(page).getByText('Newest notice')).toHaveCount(0)
+
+    await panel(page).getByRole('button', { name: 'Show dismissed (1)' }).click()
+    await expect(panel(page).getByText('Newest notice')).toBeVisible()
+
+    await panel(page).getByRole('button', { name: 'Restore Newest notice' }).click()
+
+    await expect(panel(page).getByText('Newest notice')).toBeVisible()
+    await expect(banner(page)).toContainText('Newest notice')
+    // Nothing is dismissed any more, so the toggle goes with it.
+    await expect(panel(page).getByRole('button', { name: /Show dismissed/ })).toHaveCount(0)
+  })
+
+  test('everything comes back after Clear all', async ({ page }) => {
+    await openEditor(page, [
+      announcement('first', { title: 'Newest notice' }),
+      announcement('second', { title: 'Older notice' }),
+    ])
+    await page.getByRole('button', { name: 'View more' }).click()
+    await panel(page).getByRole('button', { name: 'Clear all' }).click()
+    await expect(panel(page).getByText("You're all caught up")).toBeVisible()
+
+    await panel(page).getByRole('button', { name: 'Show dismissed (2)' }).click()
+    await panel(page).getByRole('button', { name: 'Restore Newest notice' }).click()
+    await panel(page).getByRole('button', { name: 'Restore Older notice' }).click()
+
+    await expect(panel(page).getByText('Newest notice')).toBeVisible()
+    await expect(panel(page).getByText('Older notice')).toBeVisible()
+    await expect(banner(page)).toContainText('Newest notice')
+  })
+
+  test('a restore survives a reload', async ({ page }) => {
+    await openEditor(page, [announcement('a', { title: 'A notice' })])
+    await page.getByRole('button', { name: 'View more' }).click()
+    await panel(page).getByRole('button', { name: 'Dismiss A notice' }).click()
+    await panel(page).getByRole('button', { name: 'Show dismissed (1)' }).click()
+    await panel(page).getByRole('button', { name: 'Restore A notice' }).click()
+
+    await page.reload()
+    await expect(page.getByTestId('model-title')).toBeVisible({ timeout: 10_000 })
+
+    await expect(banner(page)).toContainText('A notice')
+  })
+
   test('a dismissal survives a reload', async ({ page }) => {
     await openEditor(page, [
       announcement('first', { title: 'Newest notice' }),
@@ -329,7 +431,7 @@ test.describe('announcements — a broken feed', () => {
     await openEditor(page, 'broken')
 
     await expect(banner(page)).toHaveCount(0)
-    await expect(bell(page)).toHaveCount(0)
+    await expect(bell(page)).toHaveAccessibleName('No announcements')
     await expect(page.getByTestId('model-title')).toBeVisible()
   })
 

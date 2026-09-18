@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   useGetAnnouncementsQuery,
   POLL_INTERVAL_MS,
@@ -8,6 +8,11 @@ import { CURRENT_APP } from '../models/announcement'
 import type { Announcement } from '../models/announcement'
 
 const STORAGE_KEY = 'noctua.announcements.state'
+
+// setTimeout fires immediately past this, which would spin.
+const MAX_TIMEOUT_MS = 2_147_483_647
+// Timers can fire a hair early; without a floor that would retry in a tight loop.
+const MIN_BOUNDARY_DELAY_MS = 250
 
 interface StoredState {
   /** Expanded in the panel. Clears the bell badge. */
@@ -21,21 +26,54 @@ interface StoredState {
 const EMPTY_STATE: StoredState = { read: [], bannerClosed: [], dismissed: [] }
 
 /**
- * Today as YYYY-MM-DD in the viewer's own timezone. Deliberately not
- * `toISOString()`, which is UTC and would flip the date a day early or late
- * either side of midnight.
+ * The moment a schedule value refers to.
+ *
+ * `YYYY-MM-DD` means the whole of that day in the *viewer's* own timezone —
+ * deliberately not UTC, which would start and end the day at the wrong moment
+ * for everyone outside it. `edge: 'end'` therefore lands on the following
+ * midnight, so `expires: 2026-03-14` runs to the end of the 14th.
+ *
+ * Anything with a time is already an absolute instant, converted from the
+ * author's timezone when the feed was built.
  */
-function today(): string {
-  const now = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+function instantOf(value: string, edge: 'start' | 'end'): number {
+  if (value.includes('T')) return Date.parse(value)
+
+  const at = new Date(`${value}T00:00:00`)
+  if (edge === 'end') at.setDate(at.getDate() + 1)
+  return at.getTime()
 }
 
-/** `expires` is exclusive — an announcement stops showing on that date. */
-function isActive(announcement: Announcement, date: string): boolean {
-  if (announcement.starts && announcement.starts > date) return false
-  if (announcement.expires && announcement.expires <= date) return false
+const startsAt = (announcement: Announcement): number | null =>
+  announcement.starts ? instantOf(announcement.starts, 'start') : null
+
+const endsAt = (announcement: Announcement): number | null =>
+  announcement.expires ? instantOf(announcement.expires, 'end') : null
+
+function isActive(announcement: Announcement, now: number): boolean {
+  const start = startsAt(announcement)
+  if (start !== null && now < start) return false
+
+  const end = endsAt(announcement)
+  if (end !== null && now >= end) return false
+
   return true
+}
+
+/**
+ * The next moment this list could change, so it can be re-checked exactly then
+ * rather than on a tick.
+ */
+function nextBoundary(announcements: Announcement[], now: number): number | null {
+  let next: number | null = null
+
+  for (const announcement of announcements) {
+    for (const at of [startsAt(announcement), endsAt(announcement)]) {
+      if (at !== null && at > now && (next === null || at < next)) next = at
+    }
+  }
+
+  return next
 }
 
 /**
@@ -60,14 +98,26 @@ export function useAnnouncements(): Announcement[] {
   const { data } = useGetAnnouncementsQuery(undefined, {
     pollingInterval: POLL_INTERVAL_MS,
   })
+  const [now, setNow] = useState(() => Date.now())
+
+  // A maintenance banner set for 4pm should go up at 4pm, not whenever the next
+  // poll happens to land. One timeout to the next boundary does that without
+  // ticking; the same timer takes a whole-day announcement down at midnight.
+  useEffect(() => {
+    if (!data) return
+
+    const next = nextBoundary(data, now)
+    if (next === null) return
+
+    const delay = Math.min(Math.max(next - Date.now(), MIN_BOUNDARY_DELAY_MS), MAX_TIMEOUT_MS)
+    const timer = setTimeout(() => setNow(Date.now()), delay)
+    return () => clearTimeout(timer)
+  }, [data, now])
 
   return useMemo(() => {
     if (!data) return []
-    const date = today()
-    return data.filter(
-      a => a.apps.includes(CURRENT_APP) && isReleased(a) && isActive(a, date)
-    )
-  }, [data])
+    return data.filter(a => a.apps.includes(CURRENT_APP) && isReleased(a) && isActive(a, now))
+  }, [data, now])
 }
 
 function readStored(): StoredState {
@@ -96,6 +146,7 @@ export interface AnnouncementState {
   closeBanner: (id: string) => void
   dismiss: (id: string) => void
   dismissAll: (ids: string[]) => void
+  restore: (id: string) => void
 }
 
 /**
@@ -171,6 +222,18 @@ export function useAnnouncementState(): AnnouncementState {
     [update]
   )
 
+  // Puts a dismissed announcement back in the list. `read` is left alone — you
+  // have already seen it, so it should not come back badged as new.
+  const restore = useCallback(
+    (id: string) =>
+      update(previous =>
+        previous.dismissed.includes(id)
+          ? { ...previous, dismissed: previous.dismissed.filter(other => other !== id) }
+          : previous
+      ),
+    [update]
+  )
+
   const isRead = useCallback((id: string) => state.read.includes(id), [state.read])
   const isBannerClosed = useCallback(
     (id: string) => state.bannerClosed.includes(id),
@@ -189,13 +252,14 @@ export function useAnnouncementState(): AnnouncementState {
     closeBanner,
     dismiss,
     dismissAll,
+    restore,
   }
 }
 
 /** "now", "3d", "2w" — the age stamp on a panel row. */
 export function relativeAge(starts: string | null): string {
   if (!starts) return 'now'
-  const then = new Date(`${starts}T00:00:00`).getTime()
+  const then = instantOf(starts, 'start')
   if (Number.isNaN(then)) return ''
 
   const days = Math.floor((Date.now() - then) / 86_400_000)

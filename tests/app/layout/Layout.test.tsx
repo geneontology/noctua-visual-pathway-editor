@@ -63,7 +63,7 @@ const banner = () => screen.getByRole('status')
 
 // The banner's own "Close announcement" button also matches /announcement/, so
 // the bell is addressed by its counting label.
-const BELL_LABEL = /^\d+ (unread of \d+ )?announcements?$/
+const BELL_LABEL = /^(No|\d+( unread of \d+)?) announcements?$/
 const bell = () => screen.getByRole('button', { name: BELL_LABEL })
 
 /**
@@ -87,12 +87,23 @@ afterEach(() => {
 
 describe('Layout announcements', () => {
   describe('an empty or irrelevant feed', () => {
-    it('shows no banner and no bell when there is nothing to say', async () => {
+    it('shows no banner when there is nothing to say, but keeps the bell', async () => {
       serveFeed([])
       await renderLayout({ expectBanner: false })
 
       expect(screen.queryByRole('status')).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: BELL_LABEL })).not.toBeInTheDocument()
+      expect(bell()).toHaveAccessibleName('No announcements')
+    })
+
+    // Without this there is no way to reach the panel, and so no way to restore
+    // anything that was dismissed.
+    it('opens the panel from the bell with nothing to show', async () => {
+      serveFeed([])
+      const { user } = await renderLayout({ expectBanner: false })
+
+      await openPanel(user, 'bell')
+
+      expect(panel().getByText("You're all caught up")).toBeInTheDocument()
     })
 
     it('ignores announcements aimed at the other Noctua apps', async () => {
@@ -102,7 +113,7 @@ describe('Layout announcements', () => {
       await renderLayout({ expectBanner: false })
 
       expect(screen.queryByText('Landing page notice')).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: BELL_LABEL })).not.toBeInTheDocument()
+      expect(bell()).toHaveAccessibleName('No announcements')
     })
 
     it('ignores an expired announcement', async () => {
@@ -166,10 +177,9 @@ describe('Layout announcements', () => {
 
       await renderLayout({ expectBanner: false })
 
-      // Waits for the refetched feed to land: fetch was already called once, so
-      // the bell appearing is what marks the second mount as settled.
-      expect(await screen.findByRole('button', { name: BELL_LABEL })).toBeInTheDocument()
-      // Still reachable in the panel — closing a banner is not dismissing it.
+      // The bell is always rendered, so the count is what says the refetched
+      // feed has landed. Still listed there: closing a banner is not dismissing.
+      await waitFor(() => expect(bell()).toHaveAccessibleName('1 unread of 1 announcements'))
       expect(screen.queryByRole('status')).not.toBeInTheDocument()
     })
 
@@ -260,6 +270,46 @@ describe('Layout announcements', () => {
       await waitFor(() => expect(banner()).toHaveTextContent('Older notice'))
       expect(panel().queryByText('Newest notice')).not.toBeInTheDocument()
       expect(bell()).toHaveAccessibleName('1 unread of 1 announcements')
+    })
+
+    // The way back from a stray Clear all: the dismissed ones are hidden, not
+    // deleted.
+    it('restores a dismissed announcement to the panel, the banner and the bell', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user } = await renderLayout()
+
+      await openPanel(user, 'banner')
+      await user.click(panel().getByRole('button', { name: 'Dismiss Newest notice' }))
+      await waitFor(() => expect(banner()).toHaveTextContent('Older notice'))
+
+      await user.click(panel().getByRole('button', { name: 'Show dismissed (1)' }))
+      await user.click(panel().getByRole('button', { name: 'Restore Newest notice' }))
+
+      expect(panel().getByText('Newest notice')).toBeInTheDocument()
+      await waitFor(() => expect(banner()).toHaveTextContent('Newest notice'))
+      expect(bell()).toHaveAccessibleName('1 unread of 2 announcements')
+    })
+
+    it('brings everything back after Clear all', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user } = await renderLayout()
+
+      await openPanel(user, 'banner')
+      await user.click(panel().getByRole('button', { name: 'Clear all' }))
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+
+      await user.click(panel().getByRole('button', { name: 'Show dismissed (2)' }))
+      await user.click(panel().getByRole('button', { name: 'Restore Newest notice' }))
+      await user.click(panel().getByRole('button', { name: 'Restore Older notice' }))
+
+      await waitFor(() => expect(banner()).toHaveTextContent('Newest notice'))
+      expect(panel().getByText('Older notice')).toBeInTheDocument()
     })
 
     it('empties the panel and the banner with Clear all', async () => {
