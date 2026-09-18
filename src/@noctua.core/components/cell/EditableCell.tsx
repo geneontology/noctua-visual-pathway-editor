@@ -7,7 +7,11 @@ interface EditableCellProps {
   onDelete?: () => void
   /** Open the comment editor for this cell's individual (#231). Sits just above the edit icon. */
   onComment?: () => void
-  /** Number of comments on this cell's individual — turns the comment icon green and shows a count. */
+  /**
+   * Number of comments on this cell's individual — turns the comment icon green
+   * and shows a count. The icon itself is always visible (grey when there are
+   * none): curators found the hover-only affordance too subtle (#289).
+   */
   commentCount?: number
   className?: string
   style?: CSSProperties
@@ -38,10 +42,8 @@ const EditableCell = forwardRef<HTMLDivElement, EditableCellProps>(
           onClick={onComment}
           title={commentCount > 0 ? `${commentCount} comment${commentCount > 1 ? 's' : ''}` : 'Add comment'}
           aria-label={commentCount > 0 ? `Comments (${commentCount})` : 'Add comment'}
-          className={`absolute bottom-5 right-0 flex h-5 w-5 items-center justify-center transition-opacity hover:bg-primary-500 hover:text-white ${
-            commentCount > 0
-              ? 'text-green-600 opacity-100'
-              : 'text-gray-400 opacity-0 pointer-events-none group-hover/cell:opacity-100 group-hover/cell:pointer-events-auto'
+          className={`absolute bottom-5 right-0 flex h-5 w-5 items-center justify-center hover:bg-primary-500 hover:text-white ${
+            commentCount > 0 ? 'text-green-600' : 'text-gray-400'
           }`}
         >
           <FaComment size={9} />

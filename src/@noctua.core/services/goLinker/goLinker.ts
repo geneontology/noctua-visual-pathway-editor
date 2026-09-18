@@ -81,3 +81,29 @@ export function getEntityUrl(id: string | null | undefined): string | null {
   const template = GO_XREFS[prefix]
   return template ? template.replace('[example_id]', accession) : null
 }
+
+/**
+ * CURIE → the issuing database's own page, i.e. the db-xref template wins over the
+ * AmiGO gene_product routing {@link getEntityUrl} applies: `WB:` → WormBase,
+ * `PomBase:` → PomBase, `UniProtKB:` → UniProt.
+ *
+ * Use this where a curator needs to look the entity up at the source — notably an
+ * annotation extension target whose label GOlr could not resolve (#286). Prefixes
+ * with no template of their own (ComplexPortal, Xenbase) fall back to
+ * {@link getEntityUrl}, so they still link somewhere rather than going dead.
+ */
+export function getSourceDbUrl(id: string | null | undefined): string | null {
+  if (!id) return null
+
+  // Reference-style CURIEs keep the targets getEntityUrl resolves for them; their
+  // db-xref templates are the stale ones #266 was filed about.
+  if (id.startsWith('ECO') || id.startsWith('PMID') || id.startsWith('GO_REF')) {
+    return getEntityUrl(id)
+  }
+
+  const colon = id.indexOf(':')
+  if (colon < 1) return null
+
+  const template = GO_XREFS[id.slice(0, colon).toLowerCase()]
+  return template ? template.replace('[example_id]', id.slice(colon + 1)) : getEntityUrl(id)
+}

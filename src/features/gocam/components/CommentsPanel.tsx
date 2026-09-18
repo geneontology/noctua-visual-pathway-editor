@@ -1,10 +1,14 @@
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ActionIcon, Button, Tooltip } from '@mantine/core'
-import { FaTimes, FaPen, FaPlus, FaComment } from 'react-icons/fa'
+import { FaTimes, FaPen, FaPlus, FaComment, FaArrowLeft } from 'react-icons/fa'
 import type { Activity, Edge, Evidence, GraphModel, GraphNode } from '../models/cam'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import { setRightDrawerOpen } from '@/@noctua.core/components/drawer/drawerSlice'
+import {
+  setRightDrawerOpen,
+  setCommentsScope,
+  selectCommentsActivityScope,
+} from '@/@noctua.core/components/drawer/drawerSlice'
 import { setSelectedActivity, selectSelectedActivityId } from '../slices/camSlice'
 import { countComments } from '../services/graphServices'
 import { selectAuthUser } from '@/features/auth/slices/authSlice'
@@ -12,45 +16,20 @@ import { openDialog, DialogComponent } from '@/@noctua.core/components/dialog/di
 import {
   getCommentCategoryBadgeClass,
   parseComment,
-  ANNOTATION_DISPUTE_CATEGORY,
   INDIVIDUAL_COMMENT_CATEGORIES,
   REFERENCE_COMMENT_CATEGORIES,
 } from '../data/commentCategories'
-import { buildAnnotationDisputeUrl } from '../data/annotationDispute'
-import DisputeTicketButton from './DisputeTicketButton'
+import { commentTicket } from '../data/annotationDispute'
+import {
+  activityLabel,
+  individualLabel,
+  statementLabel,
+  evidenceLabel,
+} from '../services/commentSubjects'
+import CommentTicketButton from './CommentTicketButton'
 
 interface CommentsPanelProps {
   model: GraphModel
-}
-
-function activityLabel(activity: Activity): string {
-  return (
-    activity.enabledBy?.label ??
-    activity.molecularFunction?.label ??
-    activity.rootNode.label ??
-    'Activity'
-  )
-}
-
-function nodeLabel(node: GraphNode): string {
-  if (node.label && node.id) return `${node.label} (${node.id})`
-  return node.label || node.id || 'Individual'
-}
-
-function nodeShort(node?: GraphNode): string {
-  return node?.label || node?.id || '?'
-}
-
-// The statement a reference belongs to, as relation → object (e.g.
-// "enabled by → ABCA14 Sscr"). The subject is dropped — it's already the
-// activity the section is under — to keep the line short (#231).
-function statementLabel(edge: Edge): string {
-  return `${edge.label || edge.id} → ${nodeShort(edge.target)}`
-}
-
-// Evidence code + reference, e.g. "IDA · PMID:25415977".
-function referenceLabel(ev: Evidence): string {
-  return [ev.evidenceCode?.label, ev.reference].filter(Boolean).join(' · ') || 'Reference'
 }
 
 const CommentText: React.FC<{ comment: string }> = ({ comment }) => {
@@ -168,10 +147,13 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const authUser = useAppSelector(selectAuthUser)
   const isLoggedIn = !!authUser
   const selectedActivityId = useAppSelector(selectSelectedActivityId)
+  // Set when the panel was opened from one activity unit's own comment icon:
+  // that icon shows only that unit's comments (#289).
+  const commentsScope = useAppSelector(selectCommentsActivityScope)
 
   const modelComments = model.comments ?? []
 
-  const activitiesWithComments = useMemo<ActivityComments[]>(
+  const allActivitiesWithComments = useMemo<ActivityComments[]>(
     () =>
       model.activities
         .map(activity => {
@@ -194,6 +176,18 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
     [model.activities, selectedActivityId]
   )
 
+  // Scoped to one activity unit, the panel drops every other section (and the
+  // model comments, which belong to no unit) — #289.
+  const scopedActivity = commentsScope
+    ? (allActivitiesWithComments.find(a => a.activity.uid === commentsScope) ?? null)
+    : null
+  const isScoped = scopedActivity !== null
+  const activitiesWithComments = scopedActivity ? [scopedActivity] : allActivitiesWithComments
+
+  const handleShowAllComments = useCallback(() => {
+    dispatch(setCommentsScope(null))
+  }, [dispatch])
+
   // Scroll the selected activity's section into view when selection changes, so
   // the highlight is actually visible even when it's below the fold.
   const selectedSectionRef = useRef<HTMLElement | null>(null)
@@ -206,8 +200,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
   const totalCount = countComments(model)
 
   // Sum of every comment sitting on an activity unit (node + relation), shown as
-  // the count on the "Activity units" group header (#231).
+  // the count on the "Activity units" group header (#231). Scoped, that's the
+  // one unit's comments, which is also all the panel is showing.
   const activityCommentTotal = activitiesWithComments.reduce((s, a) => s + a.total, 0)
+  const headerCount = isScoped ? activityCommentTotal : totalCount
 
   const handleClose = useCallback(() => {
     dispatch(setRightDrawerOpen(false))
@@ -234,7 +230,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           customProps: {
             individualUid: node.uid,
             categories: INDIVIDUAL_COMMENT_CATEGORIES,
-            subjectLabel: nodeLabel(node),
+            subjectLabel: individualLabel(node),
           },
         })
       )
@@ -253,7 +249,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
           customProps: {
             individualUid: ev.uid,
             categories: REFERENCE_COMMENT_CATEGORIES,
-            subjectLabel: `${statementLabel(edge)} · ${referenceLabel(ev)}`,
+            subjectLabel: `${statementLabel(edge)} · ${evidenceLabel(ev)}`,
           },
         })
       )
@@ -272,73 +268,96 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex h-10 shrink-0 items-center justify-between bg-white px-6 shadow-sm">
-        <div className="flex items-center gap-2">
-          <FaComment size={14} className="text-slate-600" />
-          <span className="text-base font-semibold text-slate-800">Comments</span>
-          {totalCount > 0 && (
-            <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
-              {totalCount}
+      <div className="flex h-10 shrink-0 items-center justify-between gap-2 bg-white px-6 shadow-sm">
+        <div className="flex min-w-0 items-center gap-2">
+          <FaComment size={14} className="shrink-0 text-slate-600" />
+          <span className="shrink-0 text-base font-semibold text-slate-800">Comments</span>
+          {scopedActivity && (
+            <span
+              className="truncate text-xs text-slate-500"
+              title={activityLabel(scopedActivity.activity)}
+            >
+              {activityLabel(scopedActivity.activity)}
+            </span>
+          )}
+          {headerCount > 0 && (
+            <span className="shrink-0 rounded-md bg-slate-200 px-1.5 py-0.5 text-2xs font-semibold text-slate-700">
+              {headerCount}
             </span>
           )}
         </div>
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={handleClose}
-          leftSection={<FaTimes size={10} />}
-          className="!min-h-[26px] !border-gray-300 !text-xs !normal-case !text-primary-500 hover:!border-primary-500"
-        >
-          Close
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {isScoped && (
+            <Button
+              variant="subtle"
+              size="xs"
+              onClick={handleShowAllComments}
+              leftSection={<FaArrowLeft size={10} />}
+              className="!min-h-[26px] !text-xs !normal-case"
+            >
+              Show all comments
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={handleClose}
+            leftSection={<FaTimes size={10} />}
+            className="!min-h-[26px] !border-gray-300 !text-xs !normal-case !text-primary-500 hover:!border-primary-500"
+          >
+            Close
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto bg-white">
-        {/* ── Model comments (not tied to an activity) ── */}
-        <section className="border-b border-slate-200">
-          <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-3 py-2">
-            <span className="grow text-xs font-bold uppercase tracking-wider text-primary-700">
-              Model
-            </span>
-            {modelComments.length > 0 && (
-              <span className="mr-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-2xs font-semibold text-primary-700">
-                {modelComments.length}
+        {/* ── Model comments — not tied to an activity, so hidden while scoped to one ── */}
+        {!isScoped && (
+          <section className="border-b border-slate-200">
+            <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-3 py-2">
+              <span className="grow text-xs font-bold uppercase tracking-wider text-primary-700">
+                Model
               </span>
-            )}
-            {isLoggedIn && (
-              <Tooltip
-                label={modelComments.length > 0 ? 'Edit model comments' : 'Add model comment'}
-                position="bottom"
-                withArrow
-                openDelay={300}
-              >
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="sm"
-                  onClick={handleEditModelComments}
-                  aria-label="Edit model comments"
+              {modelComments.length > 0 && (
+                <span className="mr-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-2xs font-semibold text-primary-700">
+                  {modelComments.length}
+                </span>
+              )}
+              {isLoggedIn && (
+                <Tooltip
+                  label={modelComments.length > 0 ? 'Edit model comments' : 'Add model comment'}
+                  position="bottom"
+                  withArrow
+                  openDelay={300}
                 >
-                  {modelComments.length > 0 ? <FaPen size={11} /> : <FaPlus size={11} />}
-                </ActionIcon>
-              </Tooltip>
-            )}
-          </div>
-          {modelComments.length === 0 ? (
-            <div className="px-3 py-2 text-xs italic text-gray-400">No model comments yet</div>
-          ) : (
-            <div className="flex flex-col gap-1 px-3 py-2">
-              {modelComments.map((comment, i) => (
-                <div
-                  key={i}
-                  className="rounded-sm border-l-2 border-primary-300 bg-primary-50/40 px-2 py-1 text-xs text-gray-700"
-                >
-                  <CommentText comment={comment} />
-                </div>
-              ))}
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    onClick={handleEditModelComments}
+                    aria-label="Edit model comments"
+                  >
+                    {modelComments.length > 0 ? <FaPen size={11} /> : <FaPlus size={11} />}
+                  </ActionIcon>
+                </Tooltip>
+              )}
             </div>
-          )}
-        </section>
+            {modelComments.length === 0 ? (
+              <div className="px-3 py-2 text-xs italic text-gray-400">No model comments yet</div>
+            ) : (
+              <div className="flex flex-col gap-1 px-3 py-2">
+                {modelComments.map((comment, i) => (
+                  <div
+                    key={i}
+                    className="rounded-sm border-l-2 border-primary-300 bg-primary-50/40 px-2 py-1 text-xs text-gray-700"
+                  >
+                    <CommentText comment={comment} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* ── Activity units: group header over the per-activity sections ── */}
         <div className="flex items-center border-l-4 border-primary-500 bg-primary-50 px-3 py-2">
@@ -393,24 +412,21 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                     onSelectActivity={() => handleSelectActivity(activity)}
                     subjects={nodes.map(node => ({
                       key: node.uid,
-                      label: nodeLabel(node),
+                      label: individualLabel(node),
                       comments: node.comments ?? [],
                       onEdit: () => handleEditNodeComments(node, activity),
                       renderCommentAction: comment => {
-                        const { option } = parseComment(comment)
-                        if (option !== ANNOTATION_DISPUTE_CATEGORY) return null
-                        return (
-                          <DisputeTicketButton
-                            href={buildAnnotationDisputeUrl({
-                              modelUrl: window.location.href,
-                              gene: activityLabel(activity),
-                              goTerm: nodeLabel(node),
-                              // Curators on the ticket = whoever contributed the
-                              // disputed individual, not whoever is filing (#231).
-                              contributors: node.contributors ?? [],
-                            })}
-                          />
-                        )
+                        const { option, text } = parseComment(comment)
+                        const ticket = commentTicket(option, {
+                          modelUrl: window.location.href,
+                          gene: activityLabel(activity),
+                          goTerm: individualLabel(node),
+                          // Curators on the ticket = whoever contributed the
+                          // individual, not whoever is filing (#231).
+                          contributors: node.contributors ?? [],
+                          comment: text,
+                        })
+                        return ticket ? <CommentTicketButton ticket={ticket} /> : null
                       },
                     }))}
                   />
@@ -421,9 +437,24 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ model }) => {
                     subjects={evidences.map(({ edge, ev }) => ({
                       key: ev.uid,
                       label: statementLabel(edge),
-                      sublabel: referenceLabel(ev),
+                      sublabel: evidenceLabel(ev),
                       comments: ev.comments ?? [],
                       onEdit: () => handleEditEvidenceComments(edge, ev, activity),
+                      renderCommentAction: comment => {
+                        const { option, text } = parseComment(comment)
+                        const ticket = commentTicket(option, {
+                          modelUrl: window.location.href,
+                          gene: activityLabel(activity),
+                          // An evidence individual supports a statement rather
+                          // than a term, so the ticket names both it and the
+                          // evidence (#289).
+                          statement: statementLabel(edge),
+                          evidence: evidenceLabel(ev),
+                          contributors: ev.contributors ?? [],
+                          comment: text,
+                        })
+                        return ticket ? <CommentTicketButton ticket={ticket} /> : null
+                      },
                     }))}
                   />
                 </div>

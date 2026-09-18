@@ -246,6 +246,52 @@ const lookupApi = apiService
         },
       }),
 
+      /**
+       * Resolve a single CURIE to its label against the NEO GOlr, which indexes gene
+       * products alongside ontology terms. The annotation GOlr echoes the CURIE back
+       * as the label for gene-product annotation extension targets, so this fills in
+       * the name a curator would otherwise have to look up by hand (#286).
+       */
+      getEntityLabel: builder.query<string | null, string>({
+        queryFn: async id => {
+          try {
+            const requestParams = {
+              q: '*:*',
+              defType: 'edismax',
+              indent: 'on',
+              qt: 'standard',
+              wt: 'json',
+              rows: '1',
+              start: '0',
+              fl: 'annotation_class,annotation_class_label',
+              packet: '1',
+              callback_type: 'search',
+              fq: ['document_category:"ontology_class"', `annotation_class:"${id}"`],
+            }
+
+            const params = new URLSearchParams()
+            for (const [key, value] of Object.entries(requestParams)) {
+              if (Array.isArray(value)) {
+                value.forEach(v => params.append(key, v))
+              } else {
+                params.append(key, value)
+              }
+            }
+
+            const url = `${ENVIRONMENT.globalGolrNeoServer}select?${params.toString()}`
+            const response = await createJsonpScript(url)
+            const label = response?.response?.docs?.[0]?.annotation_class_label
+
+            // Treat an echoed CURIE as "still unresolved" rather than a real label.
+            return { data: label && label !== id ? label : null }
+          } catch (error) {
+            return {
+              error: { status: 'CUSTOM_ERROR', error: (error as Error)?.message },
+            }
+          }
+        },
+      }),
+
       getPubmedInfo: builder.query<
         { title: string; authors: string; date: string } | null,
         string
@@ -277,4 +323,5 @@ export const {
   useSearchAnnotationsQuery,
   useLazyGetChemicalParticipantsQuery,
   useLazyGetPubmedInfoQuery,
+  useLazyGetEntityLabelQuery,
 } = lookupApi
