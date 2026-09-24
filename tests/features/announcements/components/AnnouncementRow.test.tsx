@@ -9,22 +9,22 @@ import type { Announcement } from '@/features/announcements/models/announcement'
 interface RowOptions {
   expanded?: boolean
   read?: boolean
-  dismissed?: boolean
+  filedAsRead?: boolean
 }
 
 const renderRow = (
   overrides: Partial<Announcement> = {},
-  { expanded = false, read = false, dismissed = false }: RowOptions = {}
+  { expanded = false, read = false, filedAsRead = false }: RowOptions = {}
 ) => {
   const onToggle = vi.fn()
-  const onDismiss = vi.fn()
-  const onRestore = vi.fn()
+  const onMarkRead = vi.fn()
+  const onMarkUnread = vi.fn()
   const announcement = buildAnnouncement('a1', overrides)
 
   return {
     onToggle,
-    onDismiss,
-    onRestore,
+    onMarkRead,
+    onMarkUnread,
     announcement,
     ...renderWithProviders(
       <MantineProvider>
@@ -32,10 +32,10 @@ const renderRow = (
           announcement={announcement}
           expanded={expanded}
           read={read}
-          dismissed={dismissed}
+          filedAsRead={filedAsRead}
           onToggle={onToggle}
-          onDismiss={onDismiss}
-          onRestore={onRestore}
+          onMarkRead={onMarkRead}
+          onMarkUnread={onMarkUnread}
         />
       </MantineProvider>
     ),
@@ -128,28 +128,28 @@ describe('AnnouncementRow', () => {
     })
   })
 
-  describe('dismissing', () => {
-    it('offers a dismiss control without having to hover', async () => {
-      const { onDismiss, user } = renderRow({ title: 'Release 2.4' })
+  describe('marking read', () => {
+    it('offers a mark-read control without having to hover', async () => {
+      const { onMarkRead, user } = renderRow({ title: 'Release 2.4' })
 
-      await user.click(screen.getByRole('button', { name: 'Dismiss Release 2.4' }))
+      await user.click(screen.getByRole('button', { name: 'Mark Release 2.4 as read' }))
 
-      expect(onDismiss).toHaveBeenCalledOnce()
+      expect(onMarkRead).toHaveBeenCalledOnce()
     })
 
     // One control in one place, whether the row is open or closed.
     it('keeps the same control when expanded', () => {
       renderRow({ title: 'Release 2.4' }, { expanded: true })
 
-      expect(screen.getByRole('button', { name: 'Dismiss Release 2.4' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Mark Release 2.4 as read' })).toBeInTheDocument()
     })
 
-    it('dismisses from an expanded row', async () => {
-      const { onDismiss, user } = renderRow({ title: 'Release 2.4' }, { expanded: true })
+    it('marks read from an expanded row', async () => {
+      const { onMarkRead, user } = renderRow({ title: 'Release 2.4' }, { expanded: true })
 
-      await user.click(screen.getByRole('button', { name: 'Dismiss Release 2.4' }))
+      await user.click(screen.getByRole('button', { name: 'Mark Release 2.4 as read' }))
 
-      expect(onDismiss).toHaveBeenCalledOnce()
+      expect(onMarkRead).toHaveBeenCalledOnce()
     })
 
     // They used to sit on top of each other, so the expander was unclickable.
@@ -157,15 +157,15 @@ describe('AnnouncementRow', () => {
       renderRow({ title: 'Release 2.4' })
 
       const expander = screen.getByRole('button', { expanded: false })
-      const dismiss = screen.getByRole('button', { name: 'Dismiss Release 2.4' })
-      expect(expander).not.toBe(dismiss)
-      expect(expander).not.toContainElement(dismiss)
+      const markRead = screen.getByRole('button', { name: 'Mark Release 2.4 as read' })
+      expect(expander).not.toBe(markRead)
+      expect(expander).not.toContainElement(markRead)
     })
 
     it('does not also toggle the row, which would expand it on the way out', async () => {
       const { onToggle, user } = renderRow({ title: 'Release 2.4' })
 
-      await user.click(screen.getByRole('button', { name: 'Dismiss Release 2.4' }))
+      await user.click(screen.getByRole('button', { name: 'Mark Release 2.4 as read' }))
 
       expect(onToggle).not.toHaveBeenCalled()
     })
@@ -178,11 +178,11 @@ describe('AnnouncementRow', () => {
       expect(screen.getByLabelText('Pinned')).toBeInTheDocument()
     })
 
-    it('has no dismiss control at all', () => {
+    it('has no mark-read control at all', () => {
       renderRow({ title: 'Release 2.4', pinned: true })
 
       expect(
-        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+        screen.queryByRole('button', { name: 'Mark Release 2.4 as read' })
       ).not.toBeInTheDocument()
     })
 
@@ -190,7 +190,7 @@ describe('AnnouncementRow', () => {
       renderRow({ title: 'Release 2.4', pinned: true }, { expanded: true })
 
       expect(
-        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+        screen.queryByRole('button', { name: 'Mark Release 2.4 as read' })
       ).not.toBeInTheDocument()
     })
 
@@ -203,42 +203,49 @@ describe('AnnouncementRow', () => {
     })
   })
 
-  // Shown only in the panel's "all" view, where a dismissed row can be put back.
-  describe('dismissed', () => {
-    it('is faded, so it reads as already cleared', () => {
-      const { container } = renderRow({}, { dismissed: true })
+  describe('filed under Read', () => {
+    it('is muted with solid greys rather than faded', () => {
+      const { container } = renderRow({ title: 'Release 2.4' }, { filedAsRead: true })
 
-      expect(container.querySelector('.opacity-60')).toBeTruthy()
+      expect(container.querySelector('.opacity-60')).toBeNull()
+      expect(container.querySelector('.bg-gray-50.border-l-gray-300')).toBeTruthy()
+      expect(screen.getByText('Release 2.4')).toHaveClass('text-gray-600')
     })
 
-    it('offers Restore instead of Dismiss', async () => {
-      const { onRestore, user } = renderRow({ title: 'Release 2.4' }, { dismissed: true })
+    it('drops the level colour', () => {
+      const { container } = renderRow({ level: 'warning' }, { filedAsRead: true })
+
+      expect(container.querySelector('.border-l-yellow-400')).toBeNull()
+    })
+
+    it('offers Mark as unread instead of Mark as read', async () => {
+      const { onMarkUnread, user } = renderRow({ title: 'Release 2.4' }, { filedAsRead: true })
 
       expect(
-        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+        screen.queryByRole('button', { name: 'Mark Release 2.4 as read' })
       ).not.toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'Restore Release 2.4' }))
+      await user.click(screen.getByRole('button', { name: 'Mark Release 2.4 as unread' }))
 
-      expect(onRestore).toHaveBeenCalledOnce()
+      expect(onMarkUnread).toHaveBeenCalledOnce()
     })
 
-    it('offers Restore instead of Dismiss in an expanded row', async () => {
-      const { onRestore, onDismiss, user } = renderRow(
+    it('offers Mark as unread in an expanded row too', async () => {
+      const { onMarkUnread, onMarkRead, user } = renderRow(
         { title: 'Release 2.4' },
-        { dismissed: true, expanded: true }
+        { filedAsRead: true, expanded: true }
       )
 
       expect(
-        screen.queryByRole('button', { name: 'Dismiss Release 2.4' })
+        screen.queryByRole('button', { name: 'Mark Release 2.4 as read' })
       ).not.toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'Restore Release 2.4' }))
+      await user.click(screen.getByRole('button', { name: 'Mark Release 2.4 as unread' }))
 
-      expect(onRestore).toHaveBeenCalledOnce()
-      expect(onDismiss).not.toHaveBeenCalled()
+      expect(onMarkUnread).toHaveBeenCalledOnce()
+      expect(onMarkRead).not.toHaveBeenCalled()
     })
 
     it('still expands to show the body', async () => {
-      const { onToggle, user } = renderRow({ title: 'Release 2.4' }, { dismissed: true })
+      const { onToggle, user } = renderRow({ title: 'Release 2.4' }, { filedAsRead: true })
 
       await user.click(screen.getByText('Release 2.4'))
 
@@ -271,6 +278,28 @@ describe('AnnouncementRow', () => {
       renderRow({ starts })
 
       expect(screen.getByText(expected)).toBeInTheDocument()
+    })
+
+    it('stamps by the date in the id before starts', () => {
+      renderWithProviders(
+        <MantineProvider>
+          <AnnouncementRow
+            announcement={buildAnnouncement('2026-03-08-release', { starts: '2026-03-15' })}
+            expanded={false}
+            read={false}
+            onToggle={() => {}}
+            onMarkRead={() => {}}
+          />
+        </MantineProvider>
+      )
+
+      expect(screen.getByText('1w')).toBeInTheDocument()
+    })
+
+    it('is a grey dark enough to read', () => {
+      renderRow({ starts: '2026-03-15' })
+
+      expect(screen.getByText('today')).toHaveClass('text-gray-500')
     })
   })
 })

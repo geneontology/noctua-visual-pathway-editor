@@ -26,14 +26,14 @@ const runningOn = (appEnv: 'dev' | 'beta' | 'prod') => {
 const { useGetAnnouncementsQuery } = await import(
   '@/features/announcements/slices/announcementsApiSlice'
 )
-const { useAnnouncements, relativeAge } = await import(
+const { useAnnouncements, relativeAge, createdOn } = await import(
   '@/features/announcements/hooks/useAnnouncements'
 )
 
 const mockedQuery = vi.mocked(useGetAnnouncementsQuery)
 
 const feed = (...announcements: Announcement[]) => {
-  mockedQuery.mockReturnValue({ data: announcements } as ReturnType<
+  mockedQuery.mockReturnValue({ data: announcements } as unknown as ReturnType<
     typeof useGetAnnouncementsQuery
   >)
 }
@@ -53,7 +53,7 @@ describe('useAnnouncements', () => {
   })
 
   it('returns an empty list before the feed arrives', () => {
-    mockedQuery.mockReturnValue({ data: undefined } as ReturnType<
+    mockedQuery.mockReturnValue({ data: undefined } as unknown as ReturnType<
       typeof useGetAnnouncementsQuery
     >)
 
@@ -61,7 +61,7 @@ describe('useAnnouncements', () => {
   })
 
   it('returns an empty list when the fetch failed, so a bad feed is never load-bearing', () => {
-    mockedQuery.mockReturnValue({ data: undefined, isError: true } as ReturnType<
+    mockedQuery.mockReturnValue({ data: undefined, isError: true } as unknown as ReturnType<
       typeof useGetAnnouncementsQuery
     >)
 
@@ -369,5 +369,31 @@ describe('relativeAge', () => {
 
   it('returns an empty string for an unparseable date rather than NaN', () => {
     expect(relativeAge('not-a-date')).toBe('')
+  })
+})
+
+describe('createdOn', () => {
+  it('reads the date the id starts with', () => {
+    expect(createdOn(buildAnnouncement('2026-09-08-group-selection'))).toBe('2026-09-08')
+  })
+
+  it('prefers the id over starts', () => {
+    expect(createdOn(buildAnnouncement('2026-09-08-release', { starts: '2026-09-20' }))).toBe(
+      '2026-09-08'
+    )
+  })
+
+  it('falls back to starts for an id with no date', () => {
+    expect(
+      createdOn(buildAnnouncement('New dangerous functionality', { starts: '2026-09-22' }))
+    ).toBe('2026-09-22')
+  })
+
+  it('is null with neither', () => {
+    expect(createdOn(buildAnnouncement('undated', { starts: null }))).toBeNull()
+  })
+
+  it('ignores a date later in the id', () => {
+    expect(createdOn(buildAnnouncement('update-2026-06-23', { starts: null }))).toBeNull()
   })
 })

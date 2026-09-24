@@ -58,10 +58,11 @@ panel — with `starts`/`expires` scheduling and per-app targeting actually impl
   republishes `announcements.json` when everything parses. Bad input leaves the previously
   published file live. GitHub's default notification settings email the author when their
   own commit fails a workflow — so the author learns about it without anyone else in the loop.
-- **Dismissing hides, it does not delete.** The panel header toggles between the new ones
-  and everything, and a dismissed row offers Restore. Nothing is unrecoverable, so
-  `Clear all` is safe to hit. State is still per browser (localStorage), so it does not
-  follow a curator to another machine.
+- **Dismissed and read are separate.** Dismissing (Got it / ✕ on the banner) only stops
+  it popping up; the panel groups by read, with a "Read" section and a remembered
+  "Show read" switch, and a read row can be marked unread. "Clear all" has since been
+  removed — see `.plans/feature/announcements-panel-feedback.md`. State is still per
+  browser (localStorage), so it does not follow a curator to another machine.
 - **Row layout: expander left, action right.** The chevron is a tree-style expander on the
   left of the row; dismiss/restore is a permanently visible icon on the right with a
   tooltip. They were previously stacked in the same spot, which made the expander
@@ -143,8 +144,13 @@ deployed.
       long expired — port for format reference, then decide with the user which to keep).
 - [x] Fold `docs/model-copy/` and `docs/updates/` content into announcement bodies where
       it belongs; leave the rest as linked docs.
-- [ ] Retire `notification.json` + `archived-notifications.json` only **after** the new
-      published URL is live and consumers are switched.
+- [x] Retire `notification.json` + `archived-notifications.json` — **already done
+      2026-09-08** (`e0c3872`, "remove the old JSON feed", along with `docs/`), on both
+      `main` and `dev`; this box was just never ticked. The user confirmed it should go
+      ("never used it"). Consequence: the Form editor, SAE and the old Angular landing
+      page still request `…/noctua-announcements/dev/notification.json`, which now 404s
+      — no announcements there until they move to the new feed. The React landing
+      page has its banner unmounted.
 
 ### Phase 2: Announcements repo — build + publish
 - [x] `schema.json` — JSON Schema for the frontmatter fields.
@@ -212,9 +218,9 @@ deployed.
   `package.json`, `.gitignore`, `.github/workflows/build.yml`, rewritten `README.md`,
   new `AUTHORS.md`. VPE has `src/features/announcements/**` wired into `store.ts`,
   `Toolbar.tsx`, `Layout.tsx`, `constants.ts`.
-- **Next immediate action:** Grant the announcement author write access, then retire
-  `notification.json` / `archived-notifications.json` and switch the landing page and SAE
-  to the new feed.
+- **Next immediate action:** Grant the announcement author write access, then switch
+  the landing page, SAE and Form editor to the new feed (`notification.json` is
+  already gone — see Phase 1).
 - **Verified so far:**
   - `npm run build` in the announcements repo → 5 entries, correct HTML + plain-text split.
   - Bad `level`, unknown field, `expires` before `starts`, empty body, and malformed
@@ -262,7 +268,7 @@ octua-announcements`) — uncommitted
 | `.github/workflows/build.yml` | create | done |
 | `README.md` | rewrite | done |
 | `AUTHORS.md` | create | done |
-| `notification.json`, `archived-notifications.json`, `docs/` | retire | deferred — see Phase 1 |
+| `notification.json`, `archived-notifications.json`, `docs/` | retire | done 2026-09-08 (`e0c3872`) |
 
 ### VPE
 | File | Action | Status |

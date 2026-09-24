@@ -6,6 +6,7 @@ import type { UserEvent } from '@testing-library/user-event'
 import { renderWithProviders } from '@tests/test-utils'
 import { buildAnnouncement } from '@tests/fixtures/builders'
 import type { Announcement } from '@/features/announcements/models/announcement'
+import type * as Constants from '@/@noctua.core/data/constants'
 
 // The parts of the shell this test is not about. CamToolbar and Footer pull in
 // the whole CAM feature; the auth provider would try to reach Barista.
@@ -20,6 +21,21 @@ vi.mock('@/features/auth/authProvider', () => ({
     noctuaUrl: 'https://example.org/noctua',
   }),
 }))
+
+// Read at render time, so a test can flip it to check the dev-only tools.
+const env = vi.hoisted(() => ({ isDev: true }))
+vi.mock('@/@noctua.core/data/constants', async importOriginal => {
+  const actual = await importOriginal<typeof Constants>()
+  return {
+    ...actual,
+    ENVIRONMENT: {
+      ...actual.ENVIRONMENT,
+      get isDev() {
+        return env.isDev
+      },
+    },
+  }
+})
 
 const Layout = (await import('@/app/layout/Layout')).default
 
@@ -54,31 +70,40 @@ const renderLayout = async ({ expectBanner = true } = {}) => {
   const rendered = renderShell()
 
   await waitFor(() => expect(fetchMock).toHaveBeenCalled())
-  if (expectBanner) await screen.findByRole('status')
+  if (expectBanner) await screen.findAllByRole('status')
 
   return rendered
 }
 
-const banner = () => screen.getByRole('status')
+const card = () => screen.getByTestId('announcement-banner')
+const queryCard = () => screen.queryByTestId('announcement-banner')
+/** The strip above the top nav, for a pinned announcement. */
+const strip = () => screen.getByTestId('pinned-announcement')
 
-// The banner's own "Close announcement" button also matches /announcement/, so
+// The card's own "Close announcement" button also matches /announcement/, so
 // the bell is addressed by its counting label.
 const BELL_LABEL = /^(No|\d+( unread of \d+)?) announcements?$/
 const bell = () => screen.getByRole('button', { name: BELL_LABEL })
 
 /**
- * Scoped to the drawer: the banner renders the same titles, and the portal is
- * not reliably last in document order.
+ * Scoped to the drawer: the card renders the same titles, and the portal is not
+ * reliably last in document order.
  */
 const panel = () => within(screen.getByRole('dialog'))
 
-const openPanel = async (user: UserEvent, from: 'banner' | 'bell') => {
-  await user.click(from === 'banner' ? screen.getByRole('button', { name: 'View more' }) : bell())
+const openPanel = async (user: UserEvent, from: 'card' | 'bell') => {
+  await user.click(
+    from === 'card' ? within(card()).getByRole('button', { name: 'View more' }) : bell()
+  )
   await screen.findByRole('dialog')
 }
 
+const isBefore = (first: Element, second: Element) =>
+  Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
+
 beforeEach(() => {
   localStorage.clear()
+  env.isDev = true
 })
 
 afterEach(() => {
@@ -136,61 +161,137 @@ describe('Layout announcements', () => {
     })
   })
 
-  describe('banner', () => {
-    it('banners the topmost announcement in the feed', async () => {
+  describe('the floating card', () => {
+    it('shows the topmost announcement in the feed', async () => {
       serveFeed([
         buildAnnouncement('first', { title: 'Newest notice' }),
         buildAnnouncement('second', { title: 'Older notice' }),
       ])
       await renderLayout()
 
-      expect(banner()).toHaveTextContent('Newest notice')
-      expect(banner()).not.toHaveTextContent('Older notice')
+      expect(card()).toHaveTextContent('Newest notice')
+      expect(card()).not.toHaveTextContent('Older notice')
     })
 
-    it('reveals the next announcement when the top one is closed', async () => {
+    it('reveals the next announcement after Got it', async () => {
       serveFeed([
         buildAnnouncement('first', { title: 'Newest notice' }),
         buildAnnouncement('second', { title: 'Older notice' }),
       ])
       const { user } = await renderLayout()
 
-      await user.click(screen.getByRole('button', { name: 'Close announcement' }))
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
 
-      await waitFor(() => expect(banner()).toHaveTextContent('Older notice'))
+      await waitFor(() => expect(card()).toHaveTextContent('Older notice'))
     })
 
-    it('stops bannering once every announcement has been closed', async () => {
+    it('treats ✕ exactly like Got it', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user } = await renderLayout()
+
+      await user.click(within(card()).getByRole('button', { name: 'Close announcement' }))
+
+      await waitFor(() => expect(card()).toHaveTextContent('Older notice'))
+    })
+
+    // Dismissing is about the banner only; it hasn't been read.
+    it('leaves a dismissed announcement unread in the panel and the bell', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user } = await renderLayout()
+
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
+      await openPanel(user, 'bell')
+
+      expect(panel().getByText('Newest notice')).toBeInTheDocument()
+      expect(panel().queryByText('Read', { exact: true })).not.toBeInTheDocument()
+      expect(bell()).toHaveAccessibleName('2 unread of 2 announcements')
+    })
+
+    it('goes away once every announcement is acknowledged', async () => {
       serveFeed([buildAnnouncement('only', { title: 'Only notice' })])
       const { user } = await renderLayout()
 
-      await user.click(screen.getByRole('button', { name: 'Close announcement' }))
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
 
-      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+      await waitFor(() => expect(queryCard()).not.toBeInTheDocument())
     })
 
-    it('remembers a closed banner across a reload', async () => {
-      serveFeed([buildAnnouncement('only', { title: 'Only notice' })])
+    it('remembers an acknowledgement across a reload', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Acknowledged' }),
+        buildAnnouncement('second', { title: 'Still new' }),
+      ])
       const { user, unmount } = await renderLayout()
-      await user.click(screen.getByRole('button', { name: 'Close announcement' }))
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
       unmount()
 
-      await renderLayout({ expectBanner: false })
+      await renderLayout()
 
-      // The bell is always rendered, so the count is what says the refetched
-      // feed has landed. Still listed there: closing a banner is not dismissing.
-      await waitFor(() => expect(bell()).toHaveAccessibleName('1 unread of 1 announcements'))
-      expect(screen.queryByRole('status')).not.toBeInTheDocument()
+      expect(card()).toHaveTextContent('Still new')
+      expect(bell()).toHaveAccessibleName('2 unread of 2 announcements')
     })
 
-    it('keeps a pinned announcement in the banner, with nothing to close it', async () => {
+    it('stays up after the announcement is read in the panel', async () => {
+      serveFeed([buildAnnouncement('a', { title: 'A notice', body: '<p>The full text</p>' })])
+      const { user } = await renderLayout()
+
+      await openPanel(user, 'bell')
+      await user.click(panel().getByText('A notice'))
+
+      expect(panel().getByText('The full text')).toBeInTheDocument()
+      expect(card()).toHaveTextContent('A notice')
+    })
+
+    it('never shows a pinned announcement — that gets the strip', async () => {
       serveFeed([buildAnnouncement('pin', { title: 'Pinned notice', pinned: true })])
       await renderLayout()
 
-      expect(banner()).toHaveTextContent('Pinned notice')
+      expect(strip()).toHaveTextContent('Pinned notice')
+      expect(queryCard()).not.toBeInTheDocument()
+    })
+  })
+
+  describe('the pinned strip', () => {
+    it('has no way to close it', async () => {
+      serveFeed([buildAnnouncement('pin', { title: 'Pinned notice', pinned: true })])
+      await renderLayout()
+
+      expect(within(strip()).queryByRole('button', { name: 'Got it' })).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: 'Close announcement' })
+        within(strip()).queryByRole('button', { name: 'Close announcement' })
       ).not.toBeInTheDocument()
+    })
+
+    it('shows alongside the card for the rest', async () => {
+      serveFeed([
+        buildAnnouncement('pin', { title: 'Pinned notice', pinned: true }),
+        buildAnnouncement('normal', { title: 'Ordinary notice' }),
+      ])
+      await renderLayout()
+
+      expect(strip()).toHaveTextContent('Pinned notice')
+      expect(card()).toHaveTextContent('Ordinary notice')
+    })
+
+    it('opens the panel on the pinned announcement, expanded', async () => {
+      serveFeed([
+        buildAnnouncement('pin', {
+          title: 'Pinned notice',
+          pinned: true,
+          body: '<p>Pinned body</p>',
+        }),
+      ])
+      const { user } = await renderLayout()
+
+      await user.click(within(strip()).getByRole('button', { name: 'View more' }))
+
+      expect(await panel().findByText('Pinned body')).toBeInTheDocument()
     })
   })
 
@@ -208,43 +309,41 @@ describe('Layout announcements', () => {
 
       expect(bell()).toHaveAccessibleName('1 unread of 1 announcements')
     })
+
+    it('keeps counting a dismissed banner until it is read', async () => {
+      serveFeed([buildAnnouncement('a'), buildAnnouncement('b')])
+      const { user } = await renderLayout()
+
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
+
+      await waitFor(() => expect(card()).toHaveTextContent('Title b'))
+      expect(bell()).toHaveAccessibleName('2 unread of 2 announcements')
+    })
   })
 
   describe('panel', () => {
-    it('opens from the banner and lists every announcement, closed banner included', async () => {
+    it('opens from the card on that announcement, expanded and read', async () => {
       serveFeed([
-        buildAnnouncement('first', { title: 'Newest notice' }),
-        buildAnnouncement('second', { title: 'Older notice' }),
+        buildAnnouncement('first', { title: 'Newest notice', body: '<p>Newest body</p>' }),
+        buildAnnouncement('second', { title: 'Older notice', body: '<p>Older body</p>' }),
       ])
       const { user } = await renderLayout()
 
-      await openPanel(user, 'banner')
+      await openPanel(user, 'card')
 
-      expect(panel().getByText('Notifications')).toBeInTheDocument()
-      expect(panel().getByText('Newest notice')).toBeInTheDocument()
-      expect(panel().getByText('Older notice')).toBeInTheDocument()
+      expect(panel().getByText('Newest body')).toBeInTheDocument()
+      expect(panel().queryByText('Older body')).not.toBeInTheDocument()
+      await waitFor(() => expect(bell()).toHaveAccessibleName('1 unread of 2 announcements'))
     })
 
-    it('opens from the bell', async () => {
-      serveFeed([buildAnnouncement('a', { title: 'A notice' })])
+    it('opens from the bell with nothing expanded', async () => {
+      serveFeed([buildAnnouncement('a', { title: 'A notice', body: '<p>The full text</p>' })])
       const { user } = await renderLayout()
 
       await openPanel(user, 'bell')
 
       expect(panel().getByText('A notice')).toBeInTheDocument()
-    })
-
-    // The regression that forced "read" and "banner closed" apart: opening the
-    // panel used to make the banner disappear under the reader.
-    it('leaves the banner up after the announcement is read in the panel', async () => {
-      serveFeed([buildAnnouncement('a', { title: 'A notice', body: '<p>The full text</p>' })])
-      const { user } = await renderLayout()
-
-      await openPanel(user, 'banner')
-      await user.click(panel().getByText('A notice'))
-
-      expect(panel().getByText('The full text')).toBeInTheDocument()
-      expect(banner()).toHaveTextContent('A notice')
+      expect(panel().queryByText('The full text')).not.toBeInTheDocument()
     })
 
     it('clears the bell badge once everything has been read', async () => {
@@ -257,88 +356,93 @@ describe('Layout announcements', () => {
       await waitFor(() => expect(bell()).toHaveAccessibleName('1 announcement'))
     })
 
-    it('takes a dismissed announcement out of the banner and the bell', async () => {
+    it('has no Clear all', async () => {
+      serveFeed([buildAnnouncement('a'), buildAnnouncement('b')])
+      const { user } = await renderLayout()
+
+      await openPanel(user, 'bell')
+
+      expect(panel().queryByRole('button', { name: 'Clear all' })).not.toBeInTheDocument()
+    })
+
+    it('moves one marked read under Read and off the bell badge', async () => {
       serveFeed([
         buildAnnouncement('first', { title: 'Newest notice' }),
         buildAnnouncement('second', { title: 'Older notice' }),
       ])
       const { user } = await renderLayout()
 
-      await openPanel(user, 'banner')
-      await user.click(panel().getByRole('button', { name: 'Dismiss Newest notice' }))
+      await openPanel(user, 'bell')
+      await user.click(panel().getByRole('button', { name: 'Mark Newest notice as read' }))
 
-      await waitFor(() => expect(banner()).toHaveTextContent('Older notice'))
+      expect(
+        isBefore(panel().getByText('Read', { exact: true }), panel().getByText('Newest notice'))
+      ).toBe(true)
+      await waitFor(() => expect(bell()).toHaveAccessibleName('1 unread of 2 announcements'))
+    })
+
+    // Reading belongs to the panel; only Got it or ✕ take the banner down.
+    it('leaves the banner up when it is marked read in the panel', async () => {
+      serveFeed([buildAnnouncement('first', { title: 'Newest notice' })])
+      const { user } = await renderLayout()
+
+      await openPanel(user, 'bell')
+      await user.click(panel().getByRole('button', { name: 'Mark Newest notice as read' }))
+
+      expect(card()).toHaveTextContent('Newest notice')
+    })
+
+    it('never brings a dismissed banner back when marked unread', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user } = await renderLayout()
+      await user.click(within(card()).getByRole('button', { name: 'Got it' }))
+      await waitFor(() => expect(card()).toHaveTextContent('Older notice'))
+
+      await openPanel(user, 'bell')
+      await user.click(panel().getByRole('button', { name: 'Mark Newest notice as read' }))
+      await user.click(panel().getByRole('button', { name: 'Mark Newest notice as unread' }))
+
+      expect(card()).toHaveTextContent('Older notice')
+      expect(bell()).toHaveAccessibleName('2 unread of 2 announcements')
+    })
+
+    it('keeps the Show read choice across a reload', async () => {
+      serveFeed([
+        buildAnnouncement('first', { title: 'Newest notice' }),
+        buildAnnouncement('second', { title: 'Older notice' }),
+      ])
+      const { user, unmount } = await renderLayout()
+      await openPanel(user, 'bell')
+      await user.click(panel().getByRole('button', { name: 'Mark Newest notice as read' }))
+      await user.click(panel().getByRole('switch', { name: 'Show read' }))
+      unmount()
+
+      const { user: again } = await renderLayout()
+      await openPanel(again, 'bell')
+
+      expect(panel().getByRole('switch', { name: 'Show read' })).not.toBeChecked()
       expect(panel().queryByText('Newest notice')).not.toBeInTheDocument()
-      expect(bell()).toHaveAccessibleName('1 unread of 1 announcements')
-    })
-
-    // The way back from a stray Clear all: the dismissed ones are hidden, not
-    // deleted.
-    it('restores a dismissed announcement to the panel, the banner and the bell', async () => {
-      serveFeed([
-        buildAnnouncement('first', { title: 'Newest notice' }),
-        buildAnnouncement('second', { title: 'Older notice' }),
-      ])
-      const { user } = await renderLayout()
-
-      await openPanel(user, 'banner')
-      await user.click(panel().getByRole('button', { name: 'Dismiss Newest notice' }))
-      await waitFor(() => expect(banner()).toHaveTextContent('Older notice'))
-
-      await user.click(panel().getByRole('button', { name: 'Show dismissed (1)' }))
-      await user.click(panel().getByRole('button', { name: 'Restore Newest notice' }))
-
-      expect(panel().getByText('Newest notice')).toBeInTheDocument()
-      await waitFor(() => expect(banner()).toHaveTextContent('Newest notice'))
-      expect(bell()).toHaveAccessibleName('1 unread of 2 announcements')
-    })
-
-    it('brings everything back after Clear all', async () => {
-      serveFeed([
-        buildAnnouncement('first', { title: 'Newest notice' }),
-        buildAnnouncement('second', { title: 'Older notice' }),
-      ])
-      const { user } = await renderLayout()
-
-      await openPanel(user, 'banner')
-      await user.click(panel().getByRole('button', { name: 'Clear all' }))
-      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
-
-      await user.click(panel().getByRole('button', { name: 'Show dismissed (2)' }))
-      await user.click(panel().getByRole('button', { name: 'Restore Newest notice' }))
-      await user.click(panel().getByRole('button', { name: 'Restore Older notice' }))
-
-      await waitFor(() => expect(banner()).toHaveTextContent('Newest notice'))
       expect(panel().getByText('Older notice')).toBeInTheDocument()
     })
+  })
 
-    it('empties the panel and the banner with Clear all', async () => {
-      serveFeed([
-        buildAnnouncement('first', { title: 'Newest notice' }),
-        buildAnnouncement('second', { title: 'Older notice' }),
-      ])
-      const { user } = await renderLayout()
+  describe('testing tools', () => {
+    it('are offered on a dev build', async () => {
+      serveFeed([])
+      await renderLayout({ expectBanner: false })
 
-      await openPanel(user, 'banner')
-      await user.click(panel().getByRole('button', { name: 'Clear all' }))
-
-      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
-      expect(panel().getByText("You're all caught up")).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Testing tools' })).toBeInTheDocument()
     })
 
-    it('keeps a pinned announcement through Clear all', async () => {
-      serveFeed([
-        buildAnnouncement('pin', { title: 'Pinned notice', pinned: true }),
-        buildAnnouncement('normal', { title: 'Ordinary notice' }),
-      ])
-      const { user } = await renderLayout()
+    it('are not there on any other build', async () => {
+      env.isDev = false
+      serveFeed([])
+      await renderLayout({ expectBanner: false })
 
-      await openPanel(user, 'banner')
-      await user.click(panel().getByRole('button', { name: 'Clear all' }))
-
-      await waitFor(() => expect(panel().queryByText('Ordinary notice')).not.toBeInTheDocument())
-      expect(panel().getByText('Pinned notice')).toBeInTheDocument()
-      expect(banner()).toHaveTextContent('Pinned notice')
+      expect(screen.queryByRole('button', { name: 'Testing tools' })).not.toBeInTheDocument()
     })
   })
 })

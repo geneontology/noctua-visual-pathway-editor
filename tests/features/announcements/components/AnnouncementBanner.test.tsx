@@ -8,19 +8,19 @@ import type { Announcement } from '@/features/announcements/models/announcement'
 
 const renderBanner = (overrides: Partial<Announcement> = {}) => {
   const onViewMore = vi.fn()
-  const onClose = vi.fn()
+  const onDismiss = vi.fn()
   const announcement = buildAnnouncement('a1', overrides)
 
   return {
     onViewMore,
-    onClose,
+    onDismiss,
     announcement,
     ...renderWithProviders(
       <MantineProvider>
         <AnnouncementBanner
           announcement={announcement}
           onViewMore={onViewMore}
-          onClose={onClose}
+          onDismiss={onDismiss}
         />
       </MantineProvider>
     ),
@@ -43,12 +43,37 @@ describe('AnnouncementBanner', () => {
     expect(onViewMore).toHaveBeenCalledOnce()
   })
 
-  it('closes with the announcement id, so the close is remembered per announcement', async () => {
-    const { onClose, user } = renderBanner()
+  describe('acknowledging', () => {
+    it('dismisses with Got it, by announcement id', async () => {
+      const { onDismiss, user } = renderBanner()
 
-    await user.click(screen.getByRole('button', { name: 'Close announcement' }))
+      await user.click(screen.getByRole('button', { name: 'Got it' }))
 
-    expect(onClose).toHaveBeenCalledWith('a1')
+      expect(onDismiss).toHaveBeenCalledWith('a1')
+    })
+
+    it('dismisses with ✕ too', async () => {
+      const { onDismiss, user } = renderBanner()
+
+      await user.click(screen.getByRole('button', { name: 'Close announcement' }))
+
+      expect(onDismiss).toHaveBeenCalledWith('a1')
+    })
+
+    it('does not open the panel on the way out', async () => {
+      const { onViewMore, user } = renderBanner()
+
+      await user.click(screen.getByRole('button', { name: 'Got it' }))
+
+      expect(onViewMore).not.toHaveBeenCalled()
+    })
+  })
+
+  it('capitalises its actions without changing their names', () => {
+    renderBanner()
+
+    expect(screen.getByRole('button', { name: 'Got it' })).toHaveClass('uppercase')
+    expect(screen.getByRole('button', { name: 'View more' })).toHaveClass('uppercase')
   })
 
   describe('descriptionUrl', () => {
@@ -66,22 +91,6 @@ describe('AnnouncementBanner', () => {
       renderBanner({ descriptionUrl: null })
 
       expect(screen.queryByRole('link', { name: 'More details' })).not.toBeInTheDocument()
-    })
-  })
-
-  describe('pinned', () => {
-    it('cannot be closed', () => {
-      renderBanner({ pinned: true })
-
-      expect(
-        screen.queryByRole('button', { name: 'Close announcement' })
-      ).not.toBeInTheDocument()
-    })
-
-    it('can still be opened in the panel', () => {
-      renderBanner({ pinned: true })
-
-      expect(screen.getByRole('button', { name: 'View more' })).toBeInTheDocument()
     })
   })
 

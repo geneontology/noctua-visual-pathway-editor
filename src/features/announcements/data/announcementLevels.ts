@@ -9,10 +9,10 @@ import type { AnnouncementLevel } from '../models/announcement'
  * and the icon carries the severity well enough at that size.
  */
 export const BANNER_STYLES: Record<AnnouncementLevel, string> = {
-  info: 'bg-blue-100 border-blue-300 text-blue-900',
-  success: 'bg-green-100 border-green-300 text-green-900',
-  warning: 'bg-yellow-100 border-yellow-300 text-yellow-900',
-  danger: 'bg-red-100 border-red-300 text-red-900',
+  info: 'bg-blue-100 border-blue-400 text-blue-900',
+  success: 'bg-green-100 border-green-400 text-green-900',
+  warning: 'bg-yellow-100 border-yellow-400 text-yellow-900',
+  danger: 'bg-red-100 border-red-400 text-red-900',
 }
 
 /** Icon tint + left edge for a row in the panel. */
