@@ -30,7 +30,8 @@ interface NodeContextMenuProps {
   onDelete: () => void
   /**
    * Set when 2+ nodes are selected, e.g. "8 nodes". The region rows take the
-   * place of the single-node Copy/Delete rather than sitting beside them.
+   * place of the single-node Copy/Delete, and Edit and Comments are hidden —
+   * they act on the one node under the cursor, not the selection.
    */
   regionSummary?: string | null
   onCopyRegion?: () => void
@@ -86,9 +87,11 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
     <CursorAnchoredMenu open={open} x={x} y={y} onClose={onClose}>
       {interactive ? (
         <>
-          <MenuItem onClick={run(onEdit)}>
-            <Row icon={<FaPencilAlt size={13} />}>Edit</Row>
-          </MenuItem>
+          {!regionSummary && (
+            <MenuItem onClick={run(onEdit)}>
+              <Row icon={<FaPencilAlt size={13} />}>Edit</Row>
+            </MenuItem>
+          )}
           {regionSummary && onCopyRegion ? (
             <MenuItem onClick={run(onCopyRegion)} disabled={overBulkLimit}>
               <Row icon={<FaObjectGroup size={13} />}>Copy {regionSummary}</Row>
@@ -98,9 +101,11 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
               <Row icon={<FaCopy size={13} />}>Copy</Row>
             </MenuItem>
           )}
-          <MenuItem onClick={run(onComments)}>
-            <Row icon={<FaComment size={13} />}>Comments</Row>
-          </MenuItem>
+          {!regionSummary && (
+            <MenuItem onClick={run(onComments)}>
+              <Row icon={<FaComment size={13} />}>Comments</Row>
+            </MenuItem>
+          )}
           {regionSummary && onDeleteRegion ? (
             <MenuItem
               onClick={run(onDeleteRegion)}
@@ -125,9 +130,11 @@ const NodeContextMenu: React.FC<NodeContextMenuProps> = ({
           <MenuItem onClick={run(onView)}>
             <Row icon={<FaInfoCircle size={13} />}>View activity</Row>
           </MenuItem>
-          <MenuItem onClick={run(onComments)}>
-            <Row icon={<FaComment size={13} />}>Comments</Row>
-          </MenuItem>
+          {!regionSummary && (
+            <MenuItem onClick={run(onComments)}>
+              <Row icon={<FaComment size={13} />}>Comments</Row>
+            </MenuItem>
+          )}
         </>
       )}
 
