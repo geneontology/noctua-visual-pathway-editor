@@ -71,6 +71,9 @@ Press **Ctrl+A** (**Cmd+A** on a Mac), or use **Select → Select all** in the t
   that node is also part of a selection, blue wins.
 - A pill appears at the right of the toolbar: **"N selected"**, with **Copy**, **Delete** and
   **✕** (clear) beside it.
+- With two or more nodes selected, right-clicking a node offers only **Copy N nodes** and
+  **Delete N nodes**. **Edit**, **Comments** and the **Select** rows act on a single node, so they
+  are hidden.
 
 A selection survives a save. After the graph redraws, any node that still exists stays
 selected; anything that has gone is quietly dropped.
@@ -90,6 +93,7 @@ In the toolbar, **Select** opens a list of one-click selections.
 | **Protein complexes** | Complex nodes only                                                   |
 | **Without evidence**  | Any activity carrying at least one statement with no evidence        |
 | **With comments**     | Any activity with at least one comment — the same count as its badge |
+| **Unconnected nodes** | Any node with no relation to another node                            |
 
 If a filter matches nothing, a message says so (for example _"No chemicals in this model"_) and
 **your existing selection is left alone**. A mis-click never empties the canvas selection.
@@ -158,7 +162,7 @@ shared with the originals.
 | Right-click a node | **Copy** (that node), or **Copy N nodes** with a selection |
 
 A message confirms what went to the clipboard, e.g.
-_"Copied 3 activities and 2 relations — paste into this or any other model"_.
+_"Copied 3 nodes and 2 relations — paste into this or any other model"_.
 
 > **The clipboard lives in your browser**, not the system clipboard. That means no permission
 > prompt, and it works in Firefox. It is shared across **tabs and windows of the same browser**,
@@ -178,13 +182,11 @@ a paste that would fail.
 
 ### 4.4 The paste dialog
 
-Paste does **not** open the Activity Form — the activities are written to the model directly, so
-a confirmation step spells out exactly what is about to happen:
+Paste does **not** open the Activity Form — the nodes are written to the model directly, so a
+confirmation step, **Paste copied nodes**, spells out exactly what is about to happen:
 
-- **how many** activities and relations
-- a **small preview** of the copied region, drawn in its real layout and colours
-- whether it was copied **from this model or another one**, and **how long ago** (_"just now"_,
-  _"4 minutes ago"_, _"2 days ago"_) — so a stale clipboard is obvious
+- **how many** nodes — _"Paste 3 nodes and their relations?"_
+- a **small preview** of the copied nodes, drawn in their real layout and colours
 - **Include evidence** — on by default. Turn it off to paste the structure without its evidence
   and references.
 
@@ -210,8 +212,9 @@ With a selection in place:
 - use **Delete** in the selection bar, or
 - right-click a node and choose **Delete N nodes**
 
-A confirmation dialog names how many activities will go. Confirm, and all of them are removed in
-**one** save. Relations between deleted activities go with them.
+A confirmation dialog, **Delete selected nodes**, asks _"Delete 3 nodes and their relations?"_ and
+shows a small preview of the selected nodes and the relations between them. Confirm, and all of
+them are removed in **one** save, together with their relations.
 
 The same **13-node cap** applies as for copy — see section 4.
 
@@ -229,7 +232,7 @@ Right-click a node, and under **Select** choose:
   directions
 
 Each one **replaces** the current selection and always includes the node you right-clicked. A
-message confirms how many activities ended up selected.
+message confirms how many nodes ended up selected.
 
 These rows are hidden once two or more nodes are already selected — they act on the single node
 under the cursor, which would read as ambiguous next to rows that act on the whole selection.
@@ -289,7 +292,8 @@ forms is unaffected.
 
 Logged out, the canvas is for viewing:
 
-- right-clicking a node offers **View activity** and **Comments** only
+- right-clicking a node offers **View activity** and **Comments** only — just **View activity**
+  with two or more nodes selected
 - right-clicking empty canvas says **"Log in to edit"**
 - the selection bar shows no **Copy** or **Delete**
 - keyboard shortcuts are off, and nodes cannot be nudged or dragged as a group
