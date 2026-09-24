@@ -19,8 +19,9 @@ function labelFor(key: string): string | null {
   if (key === ANNOUNCEMENTS_STORAGE_KEY) return 'Announcements — read, dismissed'
   if (key === PREFERENCES_STORAGE_KEY) return 'Preferences'
   if (key === TOKEN_KEY) return 'Login token — deleting it logs you out'
+  // Listed under the Node positions group, so the model id is enough.
   const positions = key.match(POSITIONS_KEY)
-  if (positions) return `Node positions — ${positions[1]}`
+  if (positions) return positions[1]
   return null
 }
 
@@ -48,8 +49,8 @@ function displayValue(entry: StoredEntry): string {
   }
 }
 
-const formatSize = (value: string): string =>
-  value.length < 1024 ? `${value.length} B` : `${(value.length / 1024).toFixed(1)} KB`
+const formatSize = (length: number): string =>
+  length < 1024 ? `${length} B` : `${(length / 1024).toFixed(1)} KB`
 
 interface TestingPanelProps {
   opened: boolean
@@ -65,6 +66,7 @@ interface TestingPanelProps {
 const TestingPanel: React.FC<TestingPanelProps> = ({ opened, onClose }) => {
   const [entries, setEntries] = useState<StoredEntry[]>([])
   const [expandedKey, setExpandedKey] = useState<string | null>(null)
+  const [positionsOpen, setPositionsOpen] = useState(false)
   const [needsReload, setNeedsReload] = useState(false)
 
   useEffect(() => {
@@ -82,6 +84,62 @@ const TestingPanel: React.FC<TestingPanelProps> = ({ opened, onClose }) => {
   }
 
   const resettable = entries.filter(entry => isResettable(entry.key)).map(entry => entry.key)
+  // One per model, so they'd bury everything else; grouped at the bottom instead.
+  const positions = entries.filter(entry => POSITIONS_KEY.test(entry.key))
+  const others = entries.filter(entry => !POSITIONS_KEY.test(entry.key))
+  const positionsSize = positions.reduce((total, entry) => total + entry.value.length, 0)
+
+  const renderEntry = (entry: StoredEntry, nested = false) => {
+    const expanded = expandedKey === entry.key
+
+    return (
+      <div
+        key={entry.key}
+        className={`relative rounded ${nested ? 'bg-gray-50' : 'bg-white shadow-sm'}`}
+      >
+        <button
+          type="button"
+          className="flex w-full items-start gap-2 p-2.5 pr-9 text-left"
+          onClick={() => setExpandedKey(expanded ? null : entry.key)}
+          aria-expanded={expanded}
+        >
+          <IoChevronDown
+            className={`mt-1 shrink-0 text-xs text-gray-400 transition-transform ${expanded ? '' : '-rotate-90'}`}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate text-sm text-gray-900">{entry.label ?? entry.key}</span>
+              <span className="ml-auto shrink-0 text-xs text-gray-400">
+                {formatSize(entry.value.length)}
+              </span>
+            </div>
+            {entry.label && !nested && (
+              <div className="truncate font-mono text-2xs text-gray-500">{entry.key}</div>
+            )}
+          </div>
+        </button>
+
+        {expanded && (
+          <pre className="mx-2.5 mb-2.5 max-h-64 overflow-auto rounded bg-white p-2 font-mono text-2xs text-gray-700">
+            {displayValue(entry)}
+          </pre>
+        )}
+
+        <Tooltip label="Delete" position="left" withArrow openDelay={300}>
+          <ActionIcon
+            className="!absolute !top-2.5 !right-1.5"
+            variant="subtle"
+            color="gray"
+            size="xs"
+            aria-label={`Delete ${entry.key}`}
+            onClick={() => remove([entry.key])}
+          >
+            <IoTrashOutline />
+          </ActionIcon>
+        </Tooltip>
+      </div>
+    )
+  }
 
   return (
     <Drawer
@@ -134,56 +192,52 @@ const TestingPanel: React.FC<TestingPanelProps> = ({ opened, onClose }) => {
             Reset clears announcements, preferences and node positions, and keeps you logged in.
           </span>
 
-          {entries.map(entry => {
-            const expanded = expandedKey === entry.key
+          {others.map(entry => renderEntry(entry))}
 
-            return (
-              <div key={entry.key} className="relative rounded bg-white shadow-sm">
-                <button
-                  type="button"
-                  className="flex w-full items-start gap-2 p-2.5 pr-9 text-left"
-                  onClick={() => setExpandedKey(expanded ? null : entry.key)}
-                  aria-expanded={expanded}
-                >
-                  <IoChevronDown
-                    className={`mt-1 shrink-0 text-xs text-gray-400 transition-transform ${expanded ? '' : '-rotate-90'}`}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="truncate text-sm text-gray-900">
-                        {entry.label ?? entry.key}
-                      </span>
-                      <span className="ml-auto shrink-0 text-xs text-gray-400">
-                        {formatSize(entry.value)}
-                      </span>
-                    </div>
-                    {entry.label && (
-                      <div className="truncate font-mono text-2xs text-gray-500">{entry.key}</div>
-                    )}
+          {positions.length > 0 && (
+            <div className="relative rounded bg-white shadow-sm">
+              <button
+                type="button"
+                className="flex w-full items-start gap-2 p-2.5 pr-9 text-left"
+                onClick={() => setPositionsOpen(open => !open)}
+                aria-expanded={positionsOpen}
+              >
+                <IoChevronDown
+                  className={`mt-1 shrink-0 text-xs text-gray-400 transition-transform ${positionsOpen ? '' : '-rotate-90'}`}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate text-sm text-gray-900">Node positions</span>
+                    <span className="ml-auto shrink-0 text-xs text-gray-400">
+                      {formatSize(positionsSize)}
+                    </span>
                   </div>
-                </button>
+                  <div className="text-2xs text-gray-500">
+                    {positions.length} {positions.length === 1 ? 'model' : 'models'}
+                  </div>
+                </div>
+              </button>
 
-                {expanded && (
-                  <pre className="mx-2.5 mb-2.5 max-h-64 overflow-auto rounded bg-gray-50 p-2 font-mono text-2xs text-gray-700">
-                    {displayValue(entry)}
-                  </pre>
-                )}
+              <Tooltip label="Delete all" position="left" withArrow openDelay={300}>
+                <ActionIcon
+                  className="!absolute !top-2.5 !right-1.5"
+                  variant="subtle"
+                  color="gray"
+                  size="xs"
+                  aria-label="Delete all node positions"
+                  onClick={() => remove(positions.map(entry => entry.key))}
+                >
+                  <IoTrashOutline />
+                </ActionIcon>
+              </Tooltip>
 
-                <Tooltip label="Delete" position="left" withArrow openDelay={300}>
-                  <ActionIcon
-                    className="!absolute !top-2.5 !right-1.5"
-                    variant="subtle"
-                    color="gray"
-                    size="xs"
-                    aria-label={`Delete ${entry.key}`}
-                    onClick={() => remove([entry.key])}
-                  >
-                    <IoTrashOutline />
-                  </ActionIcon>
-                </Tooltip>
-              </div>
-            )
-          })}
+              {positionsOpen && (
+                <div className="flex flex-col gap-1 px-1.5 pb-1.5 pl-6">
+                  {positions.map(entry => renderEntry(entry, true))}
+                </div>
+              )}
+            </div>
+          )}
 
           {entries.length === 0 && (
             <div className="py-8 text-center text-xs text-gray-400">Nothing saved</div>

@@ -39,7 +39,7 @@ describe('TestingPanel', () => {
 
       expect(screen.getByText('Announcements — read, dismissed')).toBeInTheDocument()
       expect(screen.getByText('Preferences')).toBeInTheDocument()
-      expect(screen.getByText('Node positions — gomodel:abc123')).toBeInTheDocument()
+      expect(screen.getByText('Node positions')).toBeInTheDocument()
       expect(screen.getByText('Login token — deleting it logs you out')).toBeInTheDocument()
       expect(screen.getByText('another-workbench.state')).toBeInTheDocument()
     })
@@ -73,19 +73,64 @@ describe('TestingPanel', () => {
     it('removes it from storage and the list', async () => {
       const { user } = renderPanel()
 
-      await user.click(screen.getByRole('button', { name: `Delete ${POSITIONS_KEY}` }))
+      await user.click(screen.getByRole('button', { name: `Delete ${PREFERENCES_STORAGE_KEY}` }))
 
-      expect(localStorage.getItem(POSITIONS_KEY)).toBeNull()
-      expect(screen.queryByText('Node positions — gomodel:abc123')).not.toBeInTheDocument()
+      expect(localStorage.getItem(PREFERENCES_STORAGE_KEY)).toBeNull()
+      expect(screen.queryByText('Preferences')).not.toBeInTheDocument()
     })
 
     it('leaves every other key alone', async () => {
       const { user } = renderPanel()
 
-      await user.click(screen.getByRole('button', { name: `Delete ${POSITIONS_KEY}` }))
+      await user.click(screen.getByRole('button', { name: `Delete ${PREFERENCES_STORAGE_KEY}` }))
 
       expect(localStorage.getItem(ANNOUNCEMENTS_STORAGE_KEY)).not.toBeNull()
+      expect(localStorage.getItem(POSITIONS_KEY)).not.toBeNull()
       expect(localStorage.getItem(TOKEN_KEY)).toBe('secret-token-value')
+    })
+  })
+
+  // One key per model, so they're folded into a single row rather than burying the rest.
+  describe('node positions', () => {
+    const SECOND_POSITIONS_KEY = 'activityLocations-gomodel:def456'
+
+    beforeEach(() => {
+      localStorage.setItem(SECOND_POSITIONS_KEY, JSON.stringify({ n2: { x: 3, y: 4 } }))
+    })
+
+    it('are one collapsed row at the bottom, counting the models', () => {
+      renderPanel()
+
+      const group = screen.getByRole('button', { name: /^Node positions/ })
+      expect(group).toHaveAttribute('aria-expanded', 'false')
+      expect(group).toHaveTextContent('2 models')
+      expect(screen.queryByText('gomodel:abc123')).not.toBeInTheDocument()
+      expect(
+        screen.getByText('another-workbench.state').compareDocumentPosition(group) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy()
+    })
+
+    it('expand to a row per model, each deletable on its own', async () => {
+      const { user } = renderPanel()
+
+      await user.click(screen.getByRole('button', { name: /^Node positions/ }))
+      await user.click(screen.getByRole('button', { name: `Delete ${POSITIONS_KEY}` }))
+
+      expect(localStorage.getItem(POSITIONS_KEY)).toBeNull()
+      expect(localStorage.getItem(SECOND_POSITIONS_KEY)).not.toBeNull()
+      expect(screen.getByText('gomodel:def456')).toBeInTheDocument()
+    })
+
+    it('can all be deleted at once, leaving the rest', async () => {
+      const { user } = renderPanel()
+
+      await user.click(screen.getByRole('button', { name: 'Delete all node positions' }))
+
+      expect(localStorage.getItem(POSITIONS_KEY)).toBeNull()
+      expect(localStorage.getItem(SECOND_POSITIONS_KEY)).toBeNull()
+      expect(localStorage.getItem(PREFERENCES_STORAGE_KEY)).not.toBeNull()
+      expect(screen.queryByRole('button', { name: /^Node positions/ })).not.toBeInTheDocument()
     })
   })
 
@@ -144,7 +189,7 @@ describe('TestingPanel', () => {
     it('reloads the page', async () => {
       const { user } = renderPanel()
 
-      await user.click(screen.getByRole('button', { name: `Delete ${POSITIONS_KEY}` }))
+      await user.click(screen.getByRole('button', { name: `Delete ${PREFERENCES_STORAGE_KEY}` }))
       await user.click(screen.getByRole('button', { name: 'Reload' }))
 
       expect(window.location.reload).toHaveBeenCalledOnce()
