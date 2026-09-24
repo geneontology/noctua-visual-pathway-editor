@@ -9,14 +9,16 @@ interface PathwayGraphProps {
   spacing?: LayoutSpacing
   onActivityClick?: (activityId: string) => void
   onEditClick?: (activityId: string) => void
-  onDuplicateClick?: (activityId: string) => void
   onDeleteClick?: (activityId: string) => void
   onCommentClick?: (activityId: string) => void
+  onContextMenu?: (activityId: string, clientX: number, clientY: number) => void
+  onBlankContextMenu?: (clientX: number, clientY: number) => void
   onLinkClick?: (sourceId: string, targetId: string) => void
   onLinkCreated?: (sourceId: string, targetId: string) => void
   onDuplicateLink?: () => void
   onUpdateLocations?: (positions: Record<string, { x: number; y: number }>) => void
   onStencilDrop?: (type: ActivityType) => void
+  onSelectionChange?: (activityIds: string[]) => void
   canvasRef?: React.MutableRefObject<CamCanvas | null>
 }
 
@@ -26,14 +28,16 @@ export default function PathwayGraph({
   spacing = 'compact',
   onActivityClick,
   onEditClick,
-  onDuplicateClick,
   onDeleteClick,
   onCommentClick,
+  onContextMenu,
+  onBlankContextMenu,
   onLinkClick,
   onLinkCreated,
   onDuplicateLink,
   onUpdateLocations,
   onStencilDrop,
+  onSelectionChange,
   canvasRef: externalCanvasRef,
 }: PathwayGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -60,25 +64,29 @@ export default function PathwayGraph({
     if (!canvas) return
     canvas.onActivityClick = onActivityClick
     canvas.onEditClick = onEditClick
-    canvas.onDuplicateClick = onDuplicateClick
     canvas.onDeleteClick = onDeleteClick
     canvas.onCommentClick = onCommentClick
+    canvas.onContextMenu = onContextMenu
+    canvas.onBlankContextMenu = onBlankContextMenu
     canvas.onLinkClick = onLinkClick
     canvas.onLinkCreated = onLinkCreated
     canvas.onDuplicateLink = onDuplicateLink
     canvas.onUpdateLocations = onUpdateLocations
     canvas.onStencilDrop = onStencilDrop as CamCanvas['onStencilDrop']
+    canvas.onSelectionChange = onSelectionChange
   }, [
     onActivityClick,
     onEditClick,
-    onDuplicateClick,
     onDeleteClick,
     onCommentClick,
+    onContextMenu,
+    onBlankContextMenu,
     onLinkClick,
     onLinkCreated,
     onDuplicateLink,
     onUpdateLocations,
     onStencilDrop,
+    onSelectionChange,
     canvasRef,
   ])
 

@@ -17,26 +17,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 // ── Tree traversal ──────────────────────────────────────────────────
 
-/**
- * Deep-clone a TermNode tree and assign fresh uids to every TermNode,
- * RelationNode, and EvidenceForm. Preserves term content (id, label,
- * rootTypes, aspect, isComplement) and evidence content (evidenceCode,
- * reference, withFrom). Used by initDuplicateForm so the prefilled form
- * has no identity overlap with the source activity.
- */
-function reIdTree(node: TermNode): TermNode {
-  return {
-    ...node,
-    uid: uuidv4(),
-    relations: node.relations.map(rel => ({
-      ...rel,
-      uid: uuidv4(),
-      target: reIdTree(rel.target),
-      evidence: rel.evidence.map(ev => ({ ...ev, uid: uuidv4() })),
-    })),
-  }
-}
-
 function findTermNode(root: TermNode, uid: string): TermNode | null {
   if (root.uid === uid) return root
   for (const rel of root.relations) {
@@ -114,19 +94,6 @@ export const activityFormSlice = createSlice({
       state.mode = FormMode.EDIT
       state.existingActivityUid = activity.uid
       state.isDirty = false
-      state.errors = []
-    },
-
-    initDuplicateForm(
-      state,
-      action: PayloadAction<{ activity: Activity; activityType: ActivityFormType }>
-    ) {
-      const { activity, activityType } = action.payload
-      state.root = reIdTree(activityToFormTree(activity))
-      state.activityType = activityType
-      state.mode = FormMode.CREATE
-      state.existingActivityUid = null
-      state.isDirty = true
       state.errors = []
     },
 
@@ -395,7 +362,6 @@ export const activityFormSlice = createSlice({
 export const {
   initCreateForm,
   initEditForm,
-  initDuplicateForm,
   loadActivity,
   updateTerm,
   updateRelationPredicate,

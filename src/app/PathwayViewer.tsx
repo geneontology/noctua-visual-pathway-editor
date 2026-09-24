@@ -11,6 +11,8 @@ import { useSearchParams } from 'react-router-dom'
 import PathwayGraph from '@/features/pathway/components/PathwayGraph'
 import GraphToolbar from '@/features/pathway/components/GraphToolbar'
 import StencilPalette from '@/features/pathway/components/StencilPalette'
+import NodeContextMenu from '@/features/pathway/components/NodeContextMenu'
+import CanvasContextMenu from '@/features/pathway/components/CanvasContextMenu'
 import {
   setRightDrawerOpen,
   setRightPanelTab,
@@ -19,12 +21,10 @@ import {
 } from '@/@noctua.core/components/drawer/drawerSlice'
 import type { Activity, Edge } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
+import type { SelectionPreset } from '@/features/pathway/data/toolbarOptions'
 import type { ActivityFormType } from '@/features/gocam/models/formModels'
-import {
-  resetForm,
-  initCreateForm,
-  initDuplicateForm,
-} from '@/features/gocam/slices/activityFormSlice'
+import { resetForm, initCreateForm } from '@/features/gocam/slices/activityFormSlice'
+import { showToast } from '@/@noctua.core/components/toast/toastSlice'
 import { Button, Modal } from '@mantine/core'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import { resolveModalSize } from '@/@noctua.core/components/dialog/modalSize'
@@ -39,12 +39,68 @@ import { useGroupGuard } from '@/features/gocam/components/GroupGuardProvider'
 import { usePathwayCanvas } from './hooks/usePathwayCanvas'
 import { useDeleteConfirmation } from './hooks/useDeleteConfirmation'
 import { useBaristaModelWatch } from './hooks/useBaristaModelWatch'
+import { useCanvasKeyboard } from './hooks/useCanvasKeyboard'
+import { useRegionDelete } from './hooks/useRegionDelete'
+import { useUserContext } from './hooks/useUserContext'
+import { useUpdateGraphModelMutation } from '@/features/gocam/slices/camApiSlice'
+import {
+  buildRegionPayload,
+  writeRegion,
+} from '@/features/gocam/services/regionClipboard'
+import type { RegionClipboardPayload } from '@/features/gocam/services/regionClipboard'
+import { readClipboard } from '@/features/gocam/services/clipboardStore'
+import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
+import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
+import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
+import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
+import RegionPreview from '@/features/gocam/components/dialogs/RegionPreview'
+import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
 
 interface ConnectorDialog {
   open: boolean
   source: Activity | null
   target: Activity | null
   edge: Edge | null
+}
+
+interface NodeMenuState {
+  open: boolean
+  activityId: string | null
+  x: number
+  y: number
+}
+
+const closedNodeMenu: NodeMenuState = { open: false, activityId: null, x: 0, y: 0 }
+
+interface CanvasMenuState {
+  open: boolean
+  x: number
+  y: number
+  /** Read as the menu opens, so Paste only appears when something is available. */
+  clipboard: ClipboardEntry | null
+}
+
+const closedCanvasMenu: CanvasMenuState = {
+  open: false,
+  x: 0,
+  y: 0,
+  clipboard: null,
+}
+
+interface RegionPasteState {
+  open: boolean
+  payload: RegionClipboardPayload | null
+  /** Viewport point the region should land on, when it came from a right-click. */
+  at: { x: number; y: number } | undefined
+}
+
+const closedRegionPaste: RegionPasteState = { open: false, payload: null, at: undefined }
+
+/** e.g. "3 nodes" / "2 nodes and 1 relation" — used in the copy and paste toasts. */
+const describeRegion = (nodes: number, relations: number): string => {
+  const head = `${nodes} ${nodes === 1 ? 'node' : 'nodes'}`
+  if (relations === 0) return head
+  return `${head} and ${relations} ${relations === 1 ? 'relation' : 'relations'}`
 }
 
 const closedConnector: ConnectorDialog = {
@@ -69,9 +125,15 @@ const PathwayEditor: React.FC = () => {
   const checkGroup = useGroupGuard()
 
   const canvas = usePathwayCanvas(isLoggedIn)
+  const userContext = useUserContext()
+  const [updateGraphModel] = useUpdateGraphModelMutation()
   const [activityFormOpen, setActivityFormOpen] = useState(false)
   const [connector, setConnector] = useState<ConnectorDialog>(closedConnector)
   const [duplicateLinkOpen, setDuplicateLinkOpen] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [regionPaste, setRegionPaste] = useState<RegionPasteState>(closedRegionPaste)
+  const [nodeMenu, setNodeMenu] = useState<NodeMenuState>(closedNodeMenu)
+  const [canvasMenu, setCanvasMenu] = useState<CanvasMenuState>(closedCanvasMenu)
 
   const {
     data: graphModel,
@@ -92,6 +154,9 @@ const PathwayEditor: React.FC = () => {
   }, [acknowledge, refetch])
 
   const del = useDeleteConfirmation(graphModel?.data ?? null)
+  const regionDel = useRegionDelete(graphModel?.data ?? null, () =>
+    canvas.canvasRef.current?.clearSelection()
+  )
 
   useEffect(() => {
     if (isSuccess && graphModel?.data) {
@@ -161,24 +226,268 @@ const PathwayEditor: React.FC = () => {
     setDuplicateLinkOpen(true)
   }, [])
 
-  const handleDuplicateActivity = useCallback(
-    (activityId: string) => {
-      const activity = graphModel?.data?.activities.find(a => a.uid === activityId)
-      if (!activity) return
-      const activityType: ActivityFormType =
-        activity.type === ActivityType.MOLECULE
-          ? 'molecule'
-          : activity.type === ActivityType.PROTEIN_COMPLEX
-            ? 'proteinComplex'
-            : 'activity'
-      checkGroup(() => {
-        dispatch(resetForm())
-        dispatch(initDuplicateForm({ activity, activityType }))
-        setActivityFormOpen(true)
-      })
+  // ── Copy/paste ────────────────────────────────────────────────
+  //
+  // One clipboard for everything: a right-clicked node copies as a region of
+  // one, so 1 node and N nodes take the same path. It lives in localStorage
+  // rather than the system clipboard, so pasting needs no clipboard-read
+  // permission (which Firefox never grants) and Ctrl+V and the context menu
+  // share one code path.
+
+  /** Copies `uids`, or the canvas selection when called without them. */
+  const handleCopyRegion = useCallback(
+    (uids?: string[]) => {
+      const model = graphModel?.data
+      const canvasApi = canvas.canvasRef.current
+      if (!model || !canvasApi) return
+
+      const selection = uids ?? canvasApi.getSelection()
+      if (selection.length === 0) return
+      // The toolbar and menu already grey this out; this catches Ctrl+C.
+      if (selection.length > MAX_BULK_NODES) {
+        dispatch(
+          showToast({
+            message: `Select ${MAX_BULK_NODES} or fewer nodes to copy`,
+            severity: 'warning',
+          })
+        )
+        return
+      }
+
+      const payload = buildRegionPayload(model, selection, canvasApi.getSelectionPositions())
+      if (!payload) return
+
+      const summary = describeRegion(payload.activities.length, payload.connections.length)
+      const stored = writeRegion(payload)
+      dispatch(
+        showToast(
+          stored
+            ? { message: `Copied ${summary} — paste into this or any other model` }
+            : { message: 'Could not store the copied region', severity: 'error' }
+        )
+      )
     },
-    [graphModel, dispatch, checkGroup]
+    [graphModel, canvas.canvasRef, dispatch]
   )
+
+  /**
+   * Ctrl+S. Every edit already ends with a STORE, so this is a reassurance
+   * affordance more than a necessity — but curators press it, and a browser
+   * "Save page" dialog is never the right answer on a graph editor.
+   */
+  const handleSaveModel = useCallback(async () => {
+    if (!modelId) return
+    try {
+      await updateGraphModel([
+        {
+          entity: OperationEntity.MODEL,
+          operation: OperationType.STORE,
+          arguments: { 'model-id': modelId },
+        },
+      ]).unwrap()
+      dispatch(showToast({ message: 'Model saved' }))
+    } catch {
+      dispatch(showToast({ message: 'Could not save the model', severity: 'error' }))
+    }
+  }, [modelId, updateGraphModel, dispatch])
+
+  /**
+   * Paste whatever was copied last. Regions go through the confirm dialog;
+   * a single activity opens the prefilled form as it always has. Returns false
+   * when there is nothing stored, so Ctrl+V can be left unclaimed.
+   */
+  const handleRequestPaste = useCallback(
+    (at?: { x: number; y: number }): boolean => {
+      const entry = readClipboard()
+      if (!entry) return false
+
+      checkGroup(() => setRegionPaste({ open: true, payload: entry.payload, at }))
+      return true
+    },
+    [checkGroup]
+  )
+
+  const handleCancelPasteRegion = useCallback(() => {
+    setRegionPaste(closedRegionPaste)
+  }, [])
+
+  const handleConfirmPasteRegion = useCallback(
+    async (includeEvidence: boolean) => {
+      const { payload, at } = regionPaste
+      if (!payload || !modelId) return
+
+      const operations = buildPasteRegionOperations(payload, modelId, userContext, {
+        includeEvidence,
+      })
+
+      // Armed like a stencil drop, so the new activities rebuild their copied
+      // layout once they come back from the server.
+      canvas.canvasRef.current?.armRegionAt(
+        payload.activities.map(entry => ({ termId: entry.rootTermId, offset: entry.offset })),
+        at
+      )
+      setRegionPaste(closedRegionPaste)
+
+      try {
+        await updateGraphModel(operations).unwrap()
+        dispatch(
+          showToast({
+            message: `Pasted ${describeRegion(
+              payload.activities.length,
+              payload.connections.length
+            )}`,
+          })
+        )
+      } catch {
+        canvas.canvasRef.current?.clearPendingRegion()
+        dispatch(showToast({ message: 'Could not paste the region', severity: 'error' }))
+      }
+    },
+    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch]
+  )
+
+  // Paste is off while a dialog owns the screen so it can't open a second form
+  // underneath the one already showing.
+  const pasteEnabled =
+    isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
+  // Same guard as paste — a dialog on screen owns the keyboard.
+  const handleDeleteSelection = useCallback(() => {
+    const canvasApi = canvas.canvasRef.current
+    const selection = canvasApi?.getSelection() ?? []
+    if (!canvasApi || selection.length === 0) return
+    // As with copy — the Delete key bypasses the greyed-out buttons otherwise.
+    if (selection.length > MAX_BULK_NODES) {
+      dispatch(
+        showToast({
+          message: `Select ${MAX_BULK_NODES} or fewer nodes to delete`,
+          severity: 'warning',
+        })
+      )
+      return
+    }
+    // Read alongside the selection, for the dialog's thumbnail.
+    const positions = canvasApi.getSelectionPositions()
+    checkGroup(() => regionDel.requestDelete(selection, positions))
+  }, [canvas.canvasRef, checkGroup, regionDel, dispatch])
+
+  useCanvasKeyboard(pasteEnabled, canvas.canvasRef, {
+    onCopyRegion: handleCopyRegion,
+    onPasteRegion: () => handleRequestPaste(),
+    onDeleteRegion: handleDeleteSelection,
+    onSaveModel: handleSaveModel,
+  })
+
+  /** Grow the selection along the causal graph from the right-clicked node. */
+  const handleSelectConnected = useCallback(
+    (direction: 'downstream' | 'upstream' | 'connected') => {
+      const uid = nodeMenu.activityId
+      if (!uid) return
+      const count = canvas.canvasRef.current?.selectConnected(uid, direction) ?? 0
+      dispatch(
+        showToast({
+          message: `Selected ${count} ${count === 1 ? 'node' : 'nodes'}`,
+        })
+      )
+    },
+    [nodeMenu.activityId, canvas.canvasRef, dispatch]
+  )
+
+  /**
+   * Toolbar Select menu. A filter that matches nothing leaves the selection
+   * alone and says so, rather than silently emptying it.
+   */
+  const handleSelectPreset = useCallback(
+    (preset: SelectionPreset) => {
+      const canvasApi = canvas.canvasRef.current
+      if (!canvasApi) return
+
+      if (preset === 'all') {
+        canvasApi.selectAll()
+        return
+      }
+      if (preset === 'invert') {
+        canvasApi.invertSelection()
+        return
+      }
+
+      const filters: Record<string, { run: () => number; noun: string }> = {
+        activities: {
+          run: () => canvasApi.selectByType(ActivityType.ACTIVITY),
+          noun: 'activities',
+        },
+        chemicals: {
+          run: () => canvasApi.selectByType(ActivityType.MOLECULE),
+          noun: 'chemicals',
+        },
+        complexes: {
+          run: () => canvasApi.selectByType(ActivityType.PROTEIN_COMPLEX),
+          noun: 'protein complexes',
+        },
+        noEvidence: {
+          run: () => canvasApi.selectWithoutEvidence(),
+          noun: 'nodes without evidence',
+        },
+        withComments: {
+          run: () => canvasApi.selectWithComments(),
+          noun: 'nodes with comments',
+        },
+        unconnected: {
+          run: () => canvasApi.selectUnconnected(),
+          noun: 'unconnected nodes',
+        },
+      }
+
+      const filter = filters[preset]
+      if (!filter) return
+
+      const count = filter.run()
+      if (count === 0) {
+        dispatch(
+          showToast({
+            message: `No ${filter.noun} in this model`,
+            severity: 'warning',
+          })
+        )
+      }
+    },
+    [canvas.canvasRef, dispatch]
+  )
+
+  /**
+   * Toolbar search: highlight the matches. A single pick also scrolls it into
+   * view; selecting all matches highlights them in place instead — jumping the
+   * viewport somewhere arbitrary would hide that there are matches elsewhere.
+   */
+  const handleFindActivity = useCallback(
+    (uids: string[]) => {
+      if (uids.length === 0) return
+      const canvasApi = canvas.canvasRef.current
+      canvasApi?.setSelection(uids)
+      if (uids.length === 1) canvasApi?.centerOnActivity(uids[0])
+    },
+    [canvas.canvasRef]
+  )
+
+  const handleClearSelection = useCallback(() => {
+    canvas.canvasRef.current?.clearSelection()
+  }, [canvas.canvasRef])
+
+
+  const handleNodeContextMenu = useCallback((activityId: string, x: number, y: number) => {
+    setNodeMenu({ open: true, activityId, x, y })
+  }, [])
+
+  const closeNodeMenu = useCallback(() => {
+    setNodeMenu(prev => ({ ...prev, open: false }))
+  }, [])
+
+  const handleBlankContextMenu = useCallback((x: number, y: number) => {
+    setCanvasMenu({ open: true, x, y, clipboard: readClipboard() })
+  }, [])
+
+  const closeCanvasMenu = useCallback(() => {
+    setCanvasMenu(prev => ({ ...prev, open: false }))
+  }, [])
 
   const handleStencilDrop = useCallback(
     (type: string) => {
@@ -222,6 +531,14 @@ const PathwayEditor: React.FC = () => {
         onZoomIn={canvas.onZoomIn}
         onZoomOut={canvas.onZoomOut}
         onZoomReset={canvas.onZoomReset}
+        selectionCount={selectedIds.length}
+        onClearSelection={handleClearSelection}
+        onCopySelection={handleCopyRegion}
+        onDeleteSelection={handleDeleteSelection}
+        canEdit={isLoggedIn}
+        onSelectPreset={handleSelectPreset}
+        activities={graphModel?.data?.activities ?? []}
+        onFindActivity={handleFindActivity}
       />
       <div className="flex min-h-0 flex-1 flex-row">
         {isLoggedIn && <StencilPalette />}
@@ -236,6 +553,18 @@ const PathwayEditor: React.FC = () => {
               <div className="p-4 text-red-500">Error loading graph data</div>
             </div>
           )}
+          {isSuccess && graphModel?.data?.activities.length === 0 && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <div className="rounded-lg border border-dashed border-gray-300 bg-white/90 px-8 py-6 text-center">
+                <p className="text-base font-medium text-gray-700">This model is empty</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {isLoggedIn
+                    ? 'Drag an Activity Unit from the palette on the left to create your first activity.'
+                    : 'Log in to start adding activities.'}
+                </p>
+              </div>
+            </div>
+          )}
           <PathwayGraph
             model={graphModel?.data ?? null}
             layoutDetail={canvas.layoutDetail}
@@ -243,9 +572,11 @@ const PathwayEditor: React.FC = () => {
             canvasRef={canvas.canvasRef}
             onActivityClick={handleSelectActivity}
             onEditClick={handleSelectActivity}
-            onDuplicateClick={handleDuplicateActivity}
             onDeleteClick={del.requestDelete}
             onCommentClick={handleShowComments}
+            onContextMenu={handleNodeContextMenu}
+            onBlankContextMenu={handleBlankContextMenu}
+            onSelectionChange={setSelectedIds}
             onLinkClick={handleLinkClick}
             onLinkCreated={handleLinkCreated}
             onDuplicateLink={handleDuplicateLink}
@@ -254,6 +585,42 @@ const PathwayEditor: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Node right-click menu — same actions as the hover icons */}
+      {nodeMenu.activityId && (
+        <NodeContextMenu
+          open={nodeMenu.open}
+          x={nodeMenu.x}
+          y={nodeMenu.y}
+          interactive={isLoggedIn}
+          onClose={closeNodeMenu}
+          onView={() => handleSelectActivity(nodeMenu.activityId!)}
+          onEdit={() => handleSelectActivity(nodeMenu.activityId!)}
+          onCopy={() => handleCopyRegion([nodeMenu.activityId!])}
+          regionSummary={selectedIds.length > 1 ? `${selectedIds.length} nodes` : null}
+          overBulkLimit={selectedIds.length > MAX_BULK_NODES}
+          onCopyRegion={handleCopyRegion}
+          onDeleteRegion={handleDeleteSelection}
+          onSelectConnected={handleSelectConnected}
+          onComments={() => handleShowComments(nodeMenu.activityId!)}
+          onDelete={() => del.requestDelete(nodeMenu.activityId!)}
+        />
+      )}
+
+      {/* Blank-canvas right-click menu — paste lands at the click point */}
+      <CanvasContextMenu
+        open={canvasMenu.open}
+        x={canvasMenu.x}
+        y={canvasMenu.y}
+        paste={
+          canvasMenu.clipboard
+            ? { summary: canvasMenu.clipboard.summary }
+            : null
+        }
+        canEdit={isLoggedIn}
+        onClose={closeCanvasMenu}
+        onPaste={() => handleRequestPaste({ x: canvasMenu.x, y: canvasMenu.y })}
+      />
 
       {/* External update notification */}
       <Modal
@@ -283,7 +650,7 @@ const PathwayEditor: React.FC = () => {
         onClose={del.cancelDelete}
         onConfirm={del.confirmDelete}
         title="Confirm Delete?"
-        message="Deleting this activity cannot be undone. Continue?"
+        message="Deleting this node cannot be undone. Continue?"
       />
 
       {/* Connector form dialog */}
@@ -307,6 +674,35 @@ const PathwayEditor: React.FC = () => {
           />
         )}
       </SimpleDialog>
+
+      {/* Bulk delete confirmation (#114 follow-on) */}
+      <ConfirmDialog
+        open={regionDel.isDeleteOpen}
+        onClose={regionDel.cancelDelete}
+        onConfirm={regionDel.confirmDelete}
+        title="Delete selected nodes"
+        size="sm"
+        confirmLabel="Delete"
+        busy={regionDel.isDeleting}
+        message={
+          <div className="flex flex-col gap-3">
+            <p>
+              Delete {regionDel.deleteTargets?.length ?? 0}{' '}
+              {(regionDel.deleteTargets?.length ?? 0) === 1 ? 'node' : 'nodes'} and their relations?
+            </p>
+            {regionDel.deletePreview && <RegionPreview payload={regionDel.deletePreview} />}
+            <p className="text-xs text-gray-500">This cannot be undone.</p>
+          </div>
+        }
+      />
+
+      {/* Region paste confirmation (#114 follow-on) */}
+      <PasteRegionDialog
+        open={regionPaste.open}
+        payload={regionPaste.payload}
+        onCancel={handleCancelPasteRegion}
+        onConfirm={handleConfirmPasteRegion}
+      />
 
       {/* Duplicate connection warning */}
       <SimpleDialog

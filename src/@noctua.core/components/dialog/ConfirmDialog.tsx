@@ -22,6 +22,8 @@ interface ConfirmDialogProps {
    * biasing the user toward backing out. Used for warnings like "edit another group's model".
    */
   highlightCancel?: boolean
+  /** Widen the dialog when the body carries more than a sentence (e.g. a preview). */
+  size?: 'xs' | 'sm' | 'md'
 }
 
 const ConfirmDialog = ({
@@ -36,12 +38,13 @@ const ConfirmDialog = ({
   preventBackdropClose = false,
   busy = false,
   highlightCancel = false,
+  size = 'xs',
 }: ConfirmDialogProps) => (
   <SimpleDialog
     open={open}
     onClose={onClose}
     title={title}
-    size="xs"
+    size={size}
     preventBackdropClose={preventBackdropClose}
   >
     <div className="px-4 py-4 text-sm text-gray-700">

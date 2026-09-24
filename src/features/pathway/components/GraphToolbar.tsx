@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ActionIcon, Button, Menu, Tooltip } from '@mantine/core'
 import {
   MdZoomIn as ZoomInIcon,
@@ -5,9 +6,20 @@ import {
   MdYoutubeSearchedFor as ZoomResetIcon,
   MdArrowDropDown as ArrowDropDownIcon,
   MdAutoFixHigh as AutoLayoutIcon,
+  MdContentCopy as CopyIcon,
+  MdDeleteOutline as DeleteIcon,
+  MdClose as ClearIcon,
 } from 'react-icons/md'
 import type { LayoutDetail, LayoutSpacing } from '../graph/camCanvas'
-import { layoutDetailOptions, spacingOptions } from '../data/toolbarOptions'
+import {
+  layoutDetailOptions,
+  spacingOptions,
+  selectionPresetOptions,
+} from '../data/toolbarOptions'
+import type { SelectionPreset } from '../data/toolbarOptions'
+import { MAX_BULK_NODES } from '../data/selectionLimits'
+import ActivitySearch from './ActivitySearch'
+import type { Activity } from '@/features/gocam/models/cam'
 
 interface GraphToolbarProps {
   layoutDetail: LayoutDetail
@@ -18,6 +30,17 @@ interface GraphToolbarProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onZoomReset: () => void
+  /** Number of activities in the canvas multi-selection (#114). */
+  selectionCount?: number
+  onClearSelection?: () => void
+  onCopySelection?: () => void
+  onDeleteSelection?: () => void
+  /** False when not logged in — hides the editing actions. */
+  canEdit?: boolean
+  onSelectPreset?: (preset: SelectionPreset) => void
+  /** Model activities, searchable by name from the toolbar. */
+  activities?: Activity[]
+  onFindActivity?: (uids: string[]) => void
 }
 
 export default function GraphToolbar({
@@ -29,7 +52,18 @@ export default function GraphToolbar({
   onZoomIn,
   onZoomOut,
   onZoomReset,
+  selectionCount = 0,
+  onClearSelection,
+  onCopySelection,
+  onDeleteSelection,
+  canEdit = true,
+  onSelectPreset,
+  activities,
+  onFindActivity,
 }: GraphToolbarProps) {
+  // Copy and Delete each go to the server as one batch, so past the cap the
+  // chip turns red and both actions go dead rather than letting it through.
+  const overBulkLimit = selectionCount > MAX_BULK_NODES
   const currentDetail = layoutDetailOptions.find(o => o.id === layoutDetail)?.label ?? 'Detailed'
   const currentSpacing = spacingOptions.find(o => o.id === spacing)?.label ?? 'Compact'
 
@@ -64,7 +98,73 @@ export default function GraphToolbar({
         onChange={onSpacingChange}
       />
 
-      <div className="ml-auto flex items-center gap-1 rounded-full bg-gray-100 p-0.5">
+      {onSelectPreset && <SelectMenu onSelect={onSelectPreset} />}
+
+      {activities && onFindActivity && (
+        <ActivitySearch activities={activities} onSelect={onFindActivity} />
+      )}
+
+      {selectionCount > 0 && (
+        <div
+          className={`ml-auto flex h-8 items-center gap-0.5 rounded-full p-0.5 pl-3 ${
+            overBulkLimit ? 'bg-red-50' : 'bg-blue-50'
+          }`}
+        >
+          <span
+            className={`mr-1 text-xs font-semibold whitespace-nowrap ${
+              overBulkLimit ? 'text-red-700' : 'text-blue-900'
+            }`}
+          >
+            {selectionCount} selected{overBulkLimit && ` — max ${MAX_BULK_NODES}`}
+          </span>
+
+          {canEdit && (
+            <>
+              <SelectionAction
+                label="Copy"
+                icon={<CopyIcon size={14} />}
+                tooltip={
+                  overBulkLimit
+                    ? `Select ${MAX_BULK_NODES} or fewer to copy`
+                    : 'Copy selection (Ctrl+C)'
+                }
+                disabled={overBulkLimit}
+                // Called with no arguments on purpose: the handler behind this
+                // takes an optional uid list, and must never get the click event.
+                onClick={() => onCopySelection?.()}
+              />
+              <SelectionAction
+                label="Delete"
+                icon={<DeleteIcon size={14} />}
+                tooltip={
+                  overBulkLimit
+                    ? `Select ${MAX_BULK_NODES} or fewer to delete`
+                    : 'Delete selected nodes'
+                }
+                disabled={overBulkLimit}
+                danger
+                onClick={() => onDeleteSelection?.()}
+              />
+              <span className={`mx-0.5 h-4 w-px ${overBulkLimit ? 'bg-red-200' : 'bg-blue-200'}`} />
+            </>
+          )}
+
+          <Tooltip label="Clear selection (Esc)" withArrow position="bottom">
+            <button
+              type="button"
+              onClick={onClearSelection}
+              aria-label="Clear selection"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-xs"
+            >
+              <ClearIcon size={14} />
+            </button>
+          </Tooltip>
+        </div>
+      )}
+
+      <div
+        className={`flex items-center gap-1 rounded-full bg-gray-100 p-0.5 ${selectionCount > 0 ? '' : 'ml-auto'}`}
+      >
         <Tooltip label="Zoom out" withArrow position="bottom">
           <ActionIcon
             variant="subtle"
@@ -106,6 +206,52 @@ export default function GraphToolbar({
   )
 }
 
+interface SelectionActionProps {
+  label: string
+  icon: ReactNode
+  tooltip: string
+  onClick: () => void
+  disabled?: boolean
+  /** Red text, for Delete. */
+  danger?: boolean
+}
+
+/**
+ * A borderless icon-and-label action in the selection chip. It lifts to white on
+ * hover, like the zoom controls. Disabled through `aria-disabled` rather than the
+ * `disabled` attribute, so the tooltip that says why still shows on hover.
+ */
+function SelectionAction({
+  label,
+  icon,
+  tooltip,
+  onClick,
+  disabled = false,
+  danger = false,
+}: SelectionActionProps) {
+  const tone = disabled
+    ? 'cursor-not-allowed text-gray-400'
+    : danger
+      ? 'text-red-700 hover:bg-white hover:shadow-xs'
+      : 'text-blue-800 hover:bg-white hover:shadow-xs'
+
+  return (
+    <Tooltip label={tooltip} withArrow position="bottom">
+      <button
+        type="button"
+        aria-disabled={disabled}
+        onClick={() => {
+          if (!disabled) onClick()
+        }}
+        className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors ${tone}`}
+      >
+        {icon}
+        {label}
+      </button>
+    </Tooltip>
+  )
+}
+
 interface PillMenuProps<T extends string> {
   label: string
   current: string
@@ -144,6 +290,52 @@ function PillMenu<T extends string>({
           >
             {opt.label}
           </Menu.Item>
+        ))}
+      </Menu.Dropdown>
+    </Menu>
+  )
+}
+
+/**
+ * Selection actions that aren't tied to a particular node. Unlike PillMenu this
+ * is a list of one-shot actions rather than a current-value picker, so it has no
+ * active state.
+ */
+function SelectMenu({ onSelect }: { onSelect: (preset: SelectionPreset) => void }) {
+  return (
+    <Menu shadow="md" width={210} position="bottom-start">
+      <Menu.Target>
+        <Button
+          variant="subtle"
+          size="xs"
+          radius="xl"
+          rightSection={<ArrowDropDownIcon size={16} />}
+          className="!h-7 !px-3 !text-xs !font-normal !text-gray-700 hover:!bg-gray-100"
+        >
+          Select
+        </Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {selectionPresetOptions.map(option => (
+          <div key={option.id}>
+            {option.group && (
+              <>
+                <Menu.Divider />
+                <Menu.Label>{option.group}</Menu.Label>
+              </>
+            )}
+            <Menu.Item
+              onClick={() => onSelect(option.id)}
+              rightSection={
+                option.shortcut && (
+                  <span className="text-xs text-gray-400">{option.shortcut}</span>
+                )
+              }
+              className="!text-xs"
+            >
+              {option.label}
+            </Menu.Item>
+          </div>
         ))}
       </Menu.Dropdown>
     </Menu>

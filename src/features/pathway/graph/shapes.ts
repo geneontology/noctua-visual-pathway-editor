@@ -106,7 +106,6 @@ const headerMarkup = [
   { tagName: 'text', selector: 'commentCount' },
   { tagName: 'image', selector: 'viewIcon' },
   { tagName: 'image', selector: 'editIcon' },
-  { tagName: 'image', selector: 'duplicateIcon' },
   { tagName: 'image', selector: 'deleteIcon' },
 ]
 
@@ -209,25 +208,13 @@ const headerAttributes = {
       cursor: 'pointer',
       visibility: 'hidden',
     },
-    duplicateIcon: {
-      event: 'element:duplicate:pointerdown',
-      xlinkHref: './assets/icons/duplicate.svg',
-      ref: 'wrapper',
-      refX: '100%',
-      refX2: 5,
-      y: 30,
-      width: 20,
-      height: 20,
-      cursor: 'pointer',
-      visibility: 'hidden',
-    },
     deleteIcon: {
       event: 'element:delete:pointerdown',
       xlinkHref: './assets/icons/delete.svg',
       ref: 'wrapper',
       refX: '100%',
       refX2: 5,
-      y: 60,
+      y: 30,
       width: 20,
       height: 20,
       cursor: 'pointer',
@@ -346,7 +333,6 @@ export class NodeCellList extends joint.dia.Element {
     this.attr('wrapper/strokeWidth', on ? 40 : 0)
     const iconVis = on && interactive ? 'visible' : 'hidden'
     this.attr('editIcon/visibility', iconVis)
-    this.attr('duplicateIcon/visibility', iconVis)
     this.attr('deleteIcon/visibility', iconVis)
     // Read-only: only the view icon appears on hover.
     this.attr('viewIcon/visibility', on && !interactive ? 'visible' : 'hidden')
@@ -367,6 +353,16 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         magnet: true,
         fill: 'transparent',
         stroke: WRAPPER_STROKE,
+      },
+      // Selection ring, mirroring the box's `highlighter` rect: drawn under
+      // `.circle` at the same radius, so only the outer half of its stroke shows.
+      '.highlighter': {
+        refCx: '50%',
+        refCy: '50%',
+        refR: '50%',
+        fill: 'none',
+        stroke: 'transparent',
+        strokeWidth: 10,
       },
       '.circle': {
         refCx: '50%',
@@ -440,25 +436,13 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
         cursor: 'pointer',
         visibility: 'hidden',
       },
-      '.duplicate': {
-        event: 'element:duplicate:pointerdown',
-        'xlink:href': './assets/icons/duplicate.svg',
-        ref: '.wrapper',
-        refX: '100%',
-        refX2: 5,
-        y: 30,
-        height: 20,
-        width: 20,
-        cursor: 'pointer',
-        visibility: 'hidden',
-      },
       '.delete': {
         event: 'element:delete:pointerdown',
         'xlink:href': './assets/icons/delete.svg',
         ref: '.wrapper',
         refX: '100%',
         refX2: 5,
-        y: 60,
+        y: 30,
         height: 20,
         width: 20,
         cursor: 'pointer',
@@ -469,6 +453,7 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
   {
     markup: [
       '<circle class="wrapper"/>',
+      '<circle class="highlighter"/>',
       '<g class="rotatable">',
       '<g class="scalable">',
       '<circle class="circle"/>',
@@ -478,7 +463,6 @@ const NodeCellMoleculeDefaults = joint.dia.Element.define(
       '<text class="commentCount"/>',
       '<image class="view"/>',
       '<image class="edit"/>',
-      '<image class="duplicate"/>',
       '<image class="delete"/>',
       '</g>',
     ].join(''),
@@ -505,11 +489,21 @@ export class NodeCellMolecule extends NodeCellMoleculeDefaults {
     return this
   }
 
+  setBorder(colorKey: string, hue?: number): this {
+    const deep = getColor(colorKey, hue ?? 500)
+    if (deep) this.attr('.highlighter/stroke', deep)
+    return this
+  }
+
+  unsetBorder(): this {
+    this.attr('.highlighter/stroke', 'transparent')
+    return this
+  }
+
   hover(on: boolean, interactive = true): this {
     this.attr('.wrapper/strokeWidth', on ? 40 : 0)
     const iconVis = on && interactive ? 'visible' : 'hidden'
     this.attr('.edit/visibility', iconVis)
-    this.attr('.duplicate/visibility', iconVis)
     this.attr('.delete/visibility', iconVis)
     // Read-only: only the view icon appears on hover.
     this.attr('.view/visibility', on && !interactive ? 'visible' : 'hidden')
@@ -628,10 +622,33 @@ export class NodeLink extends joint.shapes.standard.Link {
   }
 
   hover(on: boolean): this {
-    this.attr('line/strokeWidth', on ? 4 : 1)
-    this.label(0, { attrs: { labelBody: { strokeWidth: on ? 2 : 1 } } })
+    this.prop('hovered', on)
+    return this._applyEmphasis()
+  }
+
+  /**
+   * A relation is selected when both of its activities are (#114). Kept as a
+   * prop rather than written straight to `line/strokeWidth` so that hovering a
+   * selected relation and then leaving it doesn't reset it to unselected.
+   */
+  setSelected(on: boolean): this {
+    this.prop('selected', on)
+    return this._applyEmphasis()
+  }
+
+  private _applyEmphasis(): this {
+    const emphasized = this.prop('selected') === true || this.prop('hovered') === true
+    this.attr('line/strokeWidth', emphasized ? 4 : 1)
+    this.label(0, { attrs: { labelBody: { strokeWidth: emphasized ? 2 : 1 } } })
     return this
   }
+}
+
+/** Cells that can render a selection border. */
+export type SelectableCell = NodeCellList | NodeCellMolecule
+
+export function isSelectableCell(cell: joint.dia.Cell): cell is SelectableCell {
+  return cell instanceof NodeCellList || cell instanceof NodeCellMolecule
 }
 
 // ── Cell namespace for JointJS Graph/Paper ────────────────────────

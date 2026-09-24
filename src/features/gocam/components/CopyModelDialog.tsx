@@ -12,7 +12,8 @@ const CopyModelDialog: React.FC = () => {
   const [copyModel, { isLoading }] = useCopyGraphModelMutation()
 
   const [title, setTitle] = useState(cam?.title ? `Copy of ${cam.title}` : '')
-  const [preserveEvidence, setPreserveEvidence] = useState(false)
+  // On by default — a copied model keeps its evidence unless the curator opts out.
+  const [preserveEvidence, setPreserveEvidence] = useState(true)
 
   const handleCopy = useCallback(async () => {
     if (!cam?.id || !title.trim()) return
