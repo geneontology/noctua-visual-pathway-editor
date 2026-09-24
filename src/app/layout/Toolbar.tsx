@@ -65,7 +65,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               window.location.reload()
             }}
           >
-            Pathway Editor
+            Visual Pathway Editor
           </a>
           {envLabel && <span className="text-xl text-gray-700">{envLabel}</span>}
         </div>
