@@ -26,10 +26,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const userMenu = usePopover()
   const helpMenu = usePopover()
 
-  // Pinned announcements can't be dismissed, so they always count toward the bell.
-  const shown = announcements.filter(
-    a => a.pinned || !announcementState.isDismissed(a.id)
-  )
+  // The panel lists every announcement, dismissed banner or not.
+  const shown = announcements
   const unread = shown.filter(a => !announcementState.isRead(a.id)).length
 
   const { isLoggedIn, loginUrl, logoutUrl, noctuaUrl } = useAuth()
