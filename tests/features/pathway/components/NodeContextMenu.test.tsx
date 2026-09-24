@@ -137,10 +137,10 @@ describe('NodeContextMenu — multi-selection', () => {
     expect(screen.queryByText('Delete')).not.toBeInTheDocument()
   })
 
-  it('still offers Edit and Comments', () => {
+  it('drops Edit and Comments — they act on one node, not the selection', () => {
     renderMenu({ regionSummary: '8 nodes' })
-    expect(screen.getByText('Edit')).toBeInTheDocument()
-    expect(screen.getByText('Comments')).toBeInTheDocument()
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+    expect(screen.queryByText('Comments')).not.toBeInTheDocument()
   })
 
   it('drops the Select section — it grows from one node, not the selection', () => {
@@ -193,6 +193,12 @@ describe('NodeContextMenu — read-only (logged out)', () => {
     await user.click(screen.getByText('View activity'))
     expect(h.onView).toHaveBeenCalledTimes(1)
     expect(h.onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('offers only View with 2+ selected — Comments shows a single node', () => {
+    renderMenu({ interactive: false, regionSummary: '8 nodes' })
+    expect(screen.getByText('View activity')).toBeInTheDocument()
+    expect(screen.queryByText('Comments')).not.toBeInTheDocument()
   })
 
   it('Comments still works when logged out', async () => {

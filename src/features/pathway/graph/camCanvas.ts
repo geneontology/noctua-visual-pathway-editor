@@ -1019,15 +1019,18 @@ export class CamCanvas {
   }
 
   /**
-   * Replace the selection with the activities matching `predicate`. Returns how
-   * many matched; when nothing does the selection is left untouched, so a
-   * mis-click on a filter doesn't silently wipe what you had.
+   * Replace the selection with the activities matching `predicate`, which also
+   * gets the node's canvas element. Returns how many matched; when nothing does
+   * the selection is left untouched, so a mis-click on a filter doesn't silently
+   * wipe what you had.
    */
-  private _selectMatching(predicate: (activity: Activity) => boolean): number {
+  private _selectMatching(
+    predicate: (activity: Activity, element: joint.dia.Element) => boolean
+  ): number {
     const uids = this._activityElements()
       .filter(el => {
         const activity = el.prop('activity') as Activity | undefined
-        return !!activity && predicate(activity)
+        return !!activity && predicate(activity, el)
       })
       .map(el => String(el.id))
 
@@ -1057,6 +1060,14 @@ export class CamCanvas {
    */
   selectWithComments(): number {
     return this._selectMatching(activity => activityCommentCount(activity) > 0)
+  }
+
+  /**
+   * Nodes with no relation to any other node — read off the links drawn on the
+   * canvas, so the selection matches what the curator sees.
+   */
+  selectUnconnected(): number {
+    return this._selectMatching((_activity, el) => this.graph.getConnectedLinks(el).length === 0)
   }
 
   /** Swap selected for unselected. Always applies — emptying is a valid result. */

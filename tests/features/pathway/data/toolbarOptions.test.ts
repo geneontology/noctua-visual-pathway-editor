@@ -43,6 +43,7 @@ describe('selectionPresetOptions', () => {
       'complexes',
       'noEvidence',
       'withComments',
+      'unconnected',
     ])
   })
 

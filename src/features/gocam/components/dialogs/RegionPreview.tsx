@@ -30,8 +30,9 @@ interface RegionPreviewProps {
 }
 
 /**
- * Miniature of the region about to be pasted, drawn from the offsets stored at
- * copy time — so it is the actual copied layout, not an approximation of it.
+ * Miniature of the nodes about to be pasted or deleted, drawn from the offsets
+ * recorded when the payload was built — so it is the actual layout, not an
+ * approximation of it.
  *
  * Relations are drawn between the activities that own their endpoints, which
  * needs the full node-uid walk: an endpoint isn't always an activity root.
@@ -70,7 +71,7 @@ const RegionPreview: React.FC<RegionPreviewProps> = ({ payload }) => {
         viewBox={`${-PADDING} ${-PADDING} ${width} ${height}`}
         className="max-h-48 w-full"
         role="img"
-        aria-label={`Preview of ${activities.length} activities to paste`}
+        aria-label={`Preview of ${activities.length} ${activities.length === 1 ? 'node' : 'nodes'}`}
       >
         {edges.map(edge => {
           const a = centreOf(edge.from)

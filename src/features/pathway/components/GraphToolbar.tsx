@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ActionIcon, Button, Menu, Tooltip } from '@mantine/core'
 import {
   MdZoomIn as ZoomInIcon,
@@ -105,7 +106,7 @@ export default function GraphToolbar({
 
       {selectionCount > 0 && (
         <div
-          className={`ml-auto flex items-center gap-1 rounded-full py-1 pr-1 pl-3 ${
+          className={`ml-auto flex h-8 items-center gap-0.5 rounded-full p-0.5 pl-3 ${
             overBulkLimit ? 'bg-red-50' : 'bg-blue-50'
           }`}
         >
@@ -119,68 +120,44 @@ export default function GraphToolbar({
 
           {canEdit && (
             <>
-              <Tooltip
-                label={
+              <SelectionAction
+                label="Copy"
+                icon={<CopyIcon size={14} />}
+                tooltip={
                   overBulkLimit
                     ? `Select ${MAX_BULK_NODES} or fewer to copy`
                     : 'Copy selection (Ctrl+C)'
                 }
-                withArrow
-                position="bottom"
-              >
-                <Button
-                  variant="default"
-                  size="compact-xs"
-                  radius="xl"
-                  // Called with no arguments on purpose: the handler behind this
-                  // takes an optional uid list, and onClick would hand it the
-                  // click event as that list.
-                  onClick={() => onCopySelection?.()}
-                  disabled={overBulkLimit}
-                  leftSection={<CopyIcon size={14} />}
-                  className="!border-blue-300 !bg-white !text-xs !text-blue-800 hover:!bg-blue-100"
-                >
-                  Copy
-                </Button>
-              </Tooltip>
-              <Tooltip
-                label={
+                disabled={overBulkLimit}
+                // Called with no arguments on purpose: the handler behind this
+                // takes an optional uid list, and must never get the click event.
+                onClick={() => onCopySelection?.()}
+              />
+              <SelectionAction
+                label="Delete"
+                icon={<DeleteIcon size={14} />}
+                tooltip={
                   overBulkLimit
                     ? `Select ${MAX_BULK_NODES} or fewer to delete`
-                    : 'Delete selected activities'
+                    : 'Delete selected nodes'
                 }
-                withArrow
-                position="bottom"
-              >
-                <Button
-                  variant="default"
-                  size="compact-xs"
-                  radius="xl"
-                  onClick={onDeleteSelection}
-                  disabled={overBulkLimit}
-                  leftSection={<DeleteIcon size={14} />}
-                  className="!border-red-300 !bg-white !text-xs !text-red-700 hover:!bg-red-50"
-                >
-                  Delete
-                </Button>
-              </Tooltip>
-              <span
-                className={`mx-1 h-4 w-px ${overBulkLimit ? 'bg-red-200' : 'bg-blue-200'}`}
+                disabled={overBulkLimit}
+                danger
+                onClick={() => onDeleteSelection?.()}
               />
+              <span className={`mx-0.5 h-4 w-px ${overBulkLimit ? 'bg-red-200' : 'bg-blue-200'}`} />
             </>
           )}
 
           <Tooltip label="Clear selection (Esc)" withArrow position="bottom">
-            <ActionIcon
-              variant="subtle"
-              size="sm"
-              radius="xl"
+            <button
+              type="button"
               onClick={onClearSelection}
               aria-label="Clear selection"
-              className="!text-blue-800 hover:!bg-blue-100"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-xs"
             >
               <ClearIcon size={14} />
-            </ActionIcon>
+            </button>
           </Tooltip>
         </div>
       )}
@@ -226,6 +203,52 @@ export default function GraphToolbar({
         </Tooltip>
       </div>
     </div>
+  )
+}
+
+interface SelectionActionProps {
+  label: string
+  icon: ReactNode
+  tooltip: string
+  onClick: () => void
+  disabled?: boolean
+  /** Red text, for Delete. */
+  danger?: boolean
+}
+
+/**
+ * A borderless icon-and-label action in the selection chip. It lifts to white on
+ * hover, like the zoom controls. Disabled through `aria-disabled` rather than the
+ * `disabled` attribute, so the tooltip that says why still shows on hover.
+ */
+function SelectionAction({
+  label,
+  icon,
+  tooltip,
+  onClick,
+  disabled = false,
+  danger = false,
+}: SelectionActionProps) {
+  const tone = disabled
+    ? 'cursor-not-allowed text-gray-400'
+    : danger
+      ? 'text-red-700 hover:bg-white hover:shadow-xs'
+      : 'text-blue-800 hover:bg-white hover:shadow-xs'
+
+  return (
+    <Tooltip label={tooltip} withArrow position="bottom">
+      <button
+        type="button"
+        aria-disabled={disabled}
+        onClick={() => {
+          if (!disabled) onClick()
+        }}
+        className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors ${tone}`}
+      >
+        {icon}
+        {label}
+      </button>
+    </Tooltip>
   )
 }
 
