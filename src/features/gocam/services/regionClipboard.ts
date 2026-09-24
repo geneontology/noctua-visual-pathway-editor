@@ -56,7 +56,7 @@ export interface RegionConnectionEntry {
 
 export interface RegionClipboardPayload {
   kind: typeof REGION_CLIPBOARD_KIND
-  /** ISO timestamp, surfaced in the paste dialog so a stale paste is obvious. */
+  /** ISO timestamp of the copy. */
   copiedAt: string
   sourceModelId: string | null
   activities: RegionActivityEntry[]
@@ -208,6 +208,6 @@ export function clearRegion() {
   try {
     localStorage.removeItem(REGION_CLIPBOARD_KEY)
   } catch {
-    // Nothing to do — a stale payload is harmless, the paste dialog dates it.
+    // Nothing to do — a stale payload is harmless; the paste dialog previews it first.
   }
 }

@@ -53,6 +53,7 @@ import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
 import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
 import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
 import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
+import RegionPreview from '@/features/gocam/components/dialogs/RegionPreview'
 import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
 
 interface ConnectorDialog {
@@ -95,9 +96,9 @@ interface RegionPasteState {
 
 const closedRegionPaste: RegionPasteState = { open: false, payload: null, at: undefined }
 
-/** e.g. "3 activities" / "2 activities and 1 relation" — used in menus. */
-const describeRegion = (activities: number, relations: number): string => {
-  const head = `${activities} ${activities === 1 ? 'activity' : 'activities'}`
+/** e.g. "3 nodes" / "2 nodes and 1 relation" — used in the copy and paste toasts. */
+const describeRegion = (nodes: number, relations: number): string => {
+  const head = `${nodes} ${nodes === 1 ? 'node' : 'nodes'}`
   if (relations === 0) return head
   return `${head} and ${relations} ${relations === 1 ? 'relation' : 'relations'}`
 }
@@ -351,8 +352,9 @@ const PathwayEditor: React.FC = () => {
     isLoggedIn && !activityFormOpen && !connector.open && !externalChangePending
   // Same guard as paste — a dialog on screen owns the keyboard.
   const handleDeleteSelection = useCallback(() => {
-    const selection = canvas.canvasRef.current?.getSelection() ?? []
-    if (selection.length === 0) return
+    const canvasApi = canvas.canvasRef.current
+    const selection = canvasApi?.getSelection() ?? []
+    if (!canvasApi || selection.length === 0) return
     // As with copy — the Delete key bypasses the greyed-out buttons otherwise.
     if (selection.length > MAX_BULK_NODES) {
       dispatch(
@@ -363,7 +365,9 @@ const PathwayEditor: React.FC = () => {
       )
       return
     }
-    checkGroup(() => regionDel.requestDelete(selection))
+    // Read alongside the selection, for the dialog's thumbnail.
+    const positions = canvasApi.getSelectionPositions()
+    checkGroup(() => regionDel.requestDelete(selection, positions))
   }, [canvas.canvasRef, checkGroup, regionDel, dispatch])
 
   useCanvasKeyboard(pasteEnabled, canvas.canvasRef, {
@@ -381,7 +385,7 @@ const PathwayEditor: React.FC = () => {
       const count = canvas.canvasRef.current?.selectConnected(uid, direction) ?? 0
       dispatch(
         showToast({
-          message: `Selected ${count} ${count === 1 ? 'activity' : 'activities'}`,
+          message: `Selected ${count} ${count === 1 ? 'node' : 'nodes'}`,
         })
       )
     },
@@ -421,11 +425,11 @@ const PathwayEditor: React.FC = () => {
         },
         noEvidence: {
           run: () => canvasApi.selectWithoutEvidence(),
-          noun: 'activities without evidence',
+          noun: 'nodes without evidence',
         },
         withComments: {
           run: () => canvasApi.selectWithComments(),
-          noun: 'activities with comments',
+          noun: 'nodes with comments',
         },
       }
 
@@ -642,7 +646,7 @@ const PathwayEditor: React.FC = () => {
         onClose={del.cancelDelete}
         onConfirm={del.confirmDelete}
         title="Confirm Delete?"
-        message="Deleting this activity cannot be undone. Continue?"
+        message="Deleting this node cannot be undone. Continue?"
       />
 
       {/* Connector form dialog */}
@@ -672,16 +676,17 @@ const PathwayEditor: React.FC = () => {
         open={regionDel.isDeleteOpen}
         onClose={regionDel.cancelDelete}
         onConfirm={regionDel.confirmDelete}
-        title="Delete selected activities"
+        title="Delete selected nodes"
+        size="sm"
         confirmLabel="Delete"
         busy={regionDel.isDeleting}
         message={
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <p>
               Delete {regionDel.deleteTargets?.length ?? 0}{' '}
-              {(regionDel.deleteTargets?.length ?? 0) === 1 ? 'activity' : 'activities'} and
-              their relations?
+              {(regionDel.deleteTargets?.length ?? 0) === 1 ? 'node' : 'nodes'} and their relations?
             </p>
+            {regionDel.deletePreview && <RegionPreview payload={regionDel.deletePreview} />}
             <p className="text-xs text-gray-500">This cannot be undone.</p>
           </div>
         }
@@ -691,7 +696,6 @@ const PathwayEditor: React.FC = () => {
       <PasteRegionDialog
         open={regionPaste.open}
         payload={regionPaste.payload}
-        currentModelId={modelId}
         onCancel={handleCancelPasteRegion}
         onConfirm={handleConfirmPasteRegion}
       />

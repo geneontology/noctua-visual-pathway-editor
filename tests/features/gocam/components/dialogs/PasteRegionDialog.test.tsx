@@ -31,16 +31,10 @@ const payload = (activities = 2, connections = 1): RegionClipboardPayload => ({
 const onConfirm = vi.fn()
 const onCancel = vi.fn()
 
-const renderDialog = (open = true) =>
+const renderDialog = (open = true, copied: RegionClipboardPayload = payload()) =>
   renderWithProviders(
     <MantineProvider>
-      <PasteRegionDialog
-        open={open}
-        payload={payload()}
-        currentModelId="gomodel:src"
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
+      <PasteRegionDialog open={open} payload={copied} onCancel={onCancel} onConfirm={onConfirm} />
     </MantineProvider>
   )
 
@@ -48,6 +42,34 @@ const evidenceBox = () => screen.getByLabelText('Include evidence') as HTMLInput
 
 beforeEach(() => {
   vi.clearAllMocks()
+})
+
+describe('PasteRegionDialog — wording', () => {
+  it('is titled "Paste copied nodes"', () => {
+    renderDialog()
+    expect(screen.getByText('Paste copied nodes')).toBeInTheDocument()
+  })
+
+  it('asks about the nodes and their relations', () => {
+    renderDialog(true, payload(2, 1))
+    expect(screen.getByText('Paste 2 nodes and their relations?')).toBeInTheDocument()
+  })
+
+  it('leaves relations out when the copy has none', () => {
+    renderDialog(true, payload(1, 0))
+    expect(screen.getByText('Paste 1 node?')).toBeInTheDocument()
+  })
+
+  it('no longer says where or when the nodes were copied', () => {
+    renderDialog()
+    expect(screen.queryByText(/Copied from/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/straight away/)).not.toBeInTheDocument()
+  })
+
+  it('shows a preview of the copied nodes', () => {
+    renderDialog()
+    expect(screen.getByRole('img', { name: 'Preview of 2 nodes' })).toBeInTheDocument()
+  })
 })
 
 describe('PasteRegionDialog — include evidence', () => {
@@ -85,7 +107,6 @@ describe('PasteRegionDialog — include evidence', () => {
           <PasteRegionDialog
             open={open}
             payload={payload()}
-            currentModelId="gomodel:src"
             onCancel={onCancel}
             onConfirm={onConfirm}
           />
