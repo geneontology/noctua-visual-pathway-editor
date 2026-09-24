@@ -175,7 +175,8 @@ Five commits on `issue-114-group-selection`:
 | `7c9c87e` | "node" wording; paste dialog (title, question, no age line, primary button); delete dialog (wording + thumbnail) |
 | `08a2eab` | Select → Unconnected nodes |
 | `2c04ef8` | Toolbar selection chip restyled; Copy/Delete really disabled past the cap |
-| (docs) | `docs/ui-selection-and-copy-paste.md` and this plan |
+| `6d21b4b` | `docs/ui-selection-and-copy-paste.md` and this plan |
+| (docs follow-up) | UI doc says "node" throughout (as the UI now does), defines a node, links #290, tables realigned |
 
 `PathwayViewer.tsx` was split across the second and third commits by taking the unconnected
 filter entry out of the working file, staging, and putting it back.
