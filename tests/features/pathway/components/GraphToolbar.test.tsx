@@ -3,11 +3,13 @@ import { screen } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { renderWithProviders } from '@tests/test-utils'
 import GraphToolbar from '@/features/pathway/components/GraphToolbar'
+import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
 
 const renderToolbar = (
   props: Partial<{ selectionCount: number; canEdit: boolean }> = {},
   onCopySelection = vi.fn()
 ) => {
+  const onDeleteSelection = vi.fn()
   const utils = renderWithProviders(
     <MantineProvider>
       <GraphToolbar
@@ -22,12 +24,12 @@ const renderToolbar = (
         selectionCount={props.selectionCount ?? 3}
         onClearSelection={vi.fn()}
         onCopySelection={onCopySelection}
-        onDeleteSelection={vi.fn()}
+        onDeleteSelection={onDeleteSelection}
         canEdit={props.canEdit ?? true}
       />
     </MantineProvider>
   )
-  return { ...utils, onCopySelection }
+  return { ...utils, onCopySelection, onDeleteSelection }
 }
 
 describe('GraphToolbar — selection actions', () => {
@@ -50,6 +52,15 @@ describe('GraphToolbar — selection actions', () => {
     expect(onCopySelection).toHaveBeenCalledWith()
   })
 
+  it('calls onDeleteSelection with no arguments', async () => {
+    const { user, onDeleteSelection } = renderToolbar()
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    expect(onDeleteSelection).toHaveBeenCalledTimes(1)
+    expect(onDeleteSelection).toHaveBeenCalledWith()
+  })
+
   // Removed — Copy covers it.
   it('offers no Duplicate action', () => {
     renderToolbar()
@@ -66,5 +77,36 @@ describe('GraphToolbar — selection actions', () => {
     renderToolbar({ selectionCount: 0 })
     expect(screen.queryByRole('button', { name: 'Copy' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Duplicate' })).not.toBeInTheDocument()
+  })
+})
+
+describe('GraphToolbar — bulk cap', () => {
+  it('says the selection is over the cap', () => {
+    renderToolbar({ selectionCount: MAX_BULK_NODES + 1 })
+    expect(
+      screen.getByText(`${MAX_BULK_NODES + 1} selected — max ${MAX_BULK_NODES}`)
+    ).toBeInTheDocument()
+  })
+
+  it('greys out Copy and Delete past the cap, and they do nothing', async () => {
+    const { user, onCopySelection, onDeleteSelection } = renderToolbar({
+      selectionCount: MAX_BULK_NODES + 1,
+    })
+    const copy = screen.getByRole('button', { name: 'Copy' })
+    const del = screen.getByRole('button', { name: 'Delete' })
+    expect(copy).toHaveAttribute('aria-disabled', 'true')
+    expect(del).toHaveAttribute('aria-disabled', 'true')
+
+    await user.click(copy)
+    await user.click(del)
+
+    expect(onCopySelection).not.toHaveBeenCalled()
+    expect(onDeleteSelection).not.toHaveBeenCalled()
+  })
+
+  it('keeps Copy and Delete live at exactly the cap', () => {
+    renderToolbar({ selectionCount: MAX_BULK_NODES })
+    expect(screen.getByRole('button', { name: 'Copy' })).toHaveAttribute('aria-disabled', 'false')
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'false')
   })
 })
