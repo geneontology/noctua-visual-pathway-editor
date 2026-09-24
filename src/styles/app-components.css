@@ -3,3 +3,63 @@
  */
 
 @import './print.css';
+
+/**
+ * Announcement bodies are HTML built from Markdown in the noctua-announcements
+ * repo, so they arrive as plain <p>/<ul>/<h3>/<a> with no classes to hang
+ * utilities off. Tailwind's preflight strips list markers, paragraph margins and
+ * heading sizes, which would render every announcement as one undifferentiated
+ * block — these put back just enough structure to read.
+ */
+.noc-announcement-body > * + * {
+  margin-top: 0.5em;
+}
+
+.noc-announcement-body ul,
+.noc-announcement-body ol {
+  padding-left: 1.15em;
+}
+
+.noc-announcement-body ul {
+  list-style: disc;
+}
+
+.noc-announcement-body ol {
+  list-style: decimal;
+}
+
+.noc-announcement-body li + li {
+  margin-top: 0.2em;
+}
+
+.noc-announcement-body ul ul {
+  margin-top: 0.2em;
+  list-style: circle;
+}
+
+.noc-announcement-body h3,
+.noc-announcement-body h4,
+.noc-announcement-body h5,
+.noc-announcement-body h6 {
+  margin-top: 0.9em;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+/* Links have to be findable inside a wall of grey text, so they get an
+   underline the global `a` rule doesn't provide. */
+.noc-announcement-body a {
+  text-decoration: underline;
+}
+
+.noc-announcement-body code {
+  border-radius: 0.2em;
+  background: var(--color-gray-100);
+  padding: 0.05em 0.3em;
+}
+
+.noc-announcement-body blockquote {
+  border-left: 2px solid var(--color-gray-300);
+  padding-left: 0.6em;
+  color: var(--color-gray-500);
+}

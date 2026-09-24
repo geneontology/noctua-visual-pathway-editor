@@ -32,6 +32,15 @@
   --text-2xs--line-height: 0.875rem;
   --text-3xs: 0.5rem;
   --text-3xs--line-height: 0.625rem;
+
+  /* The announcement banner's drop-in. */
+  --animate-heads-up: heads-up 250ms ease-out;
+  @keyframes heads-up {
+    from {
+      opacity: 0;
+      transform: translateY(-1rem);
+    }
+  }
 }
 
 .navbar {

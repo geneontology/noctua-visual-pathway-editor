@@ -12,6 +12,7 @@ import { dialogSlice } from '@/@noctua.core/components/dialog/dialogSlice'
 import { toastSlice } from '@/@noctua.core/components/toast/toastSlice'
 import { loadingOverlaySlice } from '@/@noctua.core/components/loading-overlay/loadingOverlaySlice'
 import { loadingOverlayMiddleware } from '@/@noctua.core/components/loading-overlay/loadingOverlayMiddleware'
+import { announcementsApiSlice } from '@/features/announcements/slices/announcementsApiSlice'
 
 const rootReducer = combineSlices({
   auth: authSlice.reducer,
@@ -24,9 +25,16 @@ const rootReducer = combineSlices({
   toast: toastSlice.reducer,
   loadingOverlay: loadingOverlaySlice.reducer,
   [apiService.reducerPath]: apiService.reducer,
+  [announcementsApiSlice.reducerPath]: announcementsApiSlice.reducer,
 })
 
-const middlewares: Middleware[] = [apiService.middleware, loadingOverlayMiddleware]
+const middlewares: Middleware[] = [
+  apiService.middleware,
+  // Announcements come from GitHub Pages, not the Noctua API, so they get their
+  // own api slice rather than sharing apiService's base URL and headers.
+  announcementsApiSlice.middleware,
+  loadingOverlayMiddleware,
+]
 export type RootState = ReturnType<typeof rootReducer>
 
 export const makeStore = (preloadedState?: Partial<RootState>) => {

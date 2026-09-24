@@ -1,5 +1,6 @@
 import type { Activity, Edge, GraphModel, GraphNode } from '@/features/gocam/models/cam'
 import { ActivityType } from '@/features/gocam/models/cam'
+import type { Announcement } from '@/features/announcements/models/announcement'
 
 export const buildNode = (
   id: string,
@@ -79,4 +80,23 @@ export const buildModel = (activities: Activity[]): GraphModel => ({
     total: 0,
     hasErrors: false,
   },
+})
+
+export const buildAnnouncement = (
+  id: string,
+  overrides: Partial<Announcement> = {}
+): Announcement => ({
+  id,
+  title: `Title ${id}`,
+  level: 'info',
+  type: 'announcement',
+  pinned: false,
+  testing: false,
+  apps: ['landing-page', 'sae', 'vpe'],
+  starts: null,
+  expires: null,
+  description: `Description for ${id}`,
+  body: `<p>Body for ${id}</p>`,
+  descriptionUrl: null,
+  ...overrides,
 })

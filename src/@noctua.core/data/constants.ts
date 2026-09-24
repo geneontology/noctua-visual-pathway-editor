@@ -6,6 +6,7 @@ declare global {
     global_golr_server?: string
     global_noctua_url?: string
     global_workbench_url?: string
+    global_announcements_url?: string
   }
 }
 
@@ -15,6 +16,12 @@ const golrNeoServer = window.global_golr_neo_server ?? 'http://noctua-golr.berke
 const golrServer = window.global_golr_server ?? 'https://golr-aux.geneontology.io/solr/'
 const noctuaUrl = window.global_noctua_url ?? window.location.origin
 const workbenchUrl = window.global_workbench_url ?? `${window.location.origin}/workbench/`
+// One feed serves all three Noctua apps and every environment, so this is a
+// plain constant rather than a per-env var — overridable by the shell if the
+// announcements repo ever moves.
+const announcementsUrl =
+  window.global_announcements_url ??
+  'https://geneontology.github.io/noctua-announcements/announcements.json'
 
 const appEnv: AppEnv = (import.meta.env.VITE_APP_ENV ?? 'dev') as AppEnv
 
@@ -32,6 +39,8 @@ export const ENVIRONMENT = {
   noctuaUrl,
 
   workbenchUrl,
+
+  announcementsUrl,
 
   amigoTermUrl: 'http://amigo.geneontology.org/amigo/term/',
   pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/',
