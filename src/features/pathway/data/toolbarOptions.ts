@@ -20,6 +20,7 @@ export type SelectionPreset =
   | 'complexes'
   | 'noEvidence'
   | 'withComments'
+  | 'unconnected'
 
 export interface SelectionPresetOption {
   id: SelectionPreset
@@ -37,4 +38,5 @@ export const selectionPresetOptions: SelectionPresetOption[] = [
   { id: 'complexes', label: 'Protein complexes' },
   { id: 'noEvidence', label: 'Without evidence', group: 'Quality' },
   { id: 'withComments', label: 'With comments' },
+  { id: 'unconnected', label: 'Unconnected nodes' },
 ]

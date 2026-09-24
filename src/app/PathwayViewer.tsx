@@ -431,6 +431,10 @@ const PathwayEditor: React.FC = () => {
           run: () => canvasApi.selectWithComments(),
           noun: 'nodes with comments',
         },
+        unconnected: {
+          run: () => canvasApi.selectUnconnected(),
+          noun: 'unconnected nodes',
+        },
       }
 
       const filter = filters[preset]
