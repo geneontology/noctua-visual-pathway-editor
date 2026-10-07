@@ -99,9 +99,11 @@ In the toolbar, **Select** opens a list of one-click selections.
 | **Unconnected nodes**   | Any node with no relation to another node, in either direction   |
 | **No causal relations** | Activity units with no causal relation to another activity unit  |
 
-**No causal relations** ignores links to chemicals, except a chain through one: if A has output a
-chemical and that chemical is input of B, A and B count as connected. Chemicals themselves are
-never selected.
+**No causal relations** ignores links to chemicals, except a chain through one where both arrows
+run the same way, A → chemical → B. For example, A has output a chemical that is input of B, or
+that is a small molecule activator or inhibitor of B. Two units that both output (or both take as
+input) the same chemical are not connected, and links between two chemicals are ignored.
+Chemicals themselves are never selected.
 
 If a filter matches nothing, a message says so (for example _"No chemicals in this model"_) and
 **the selection is cleared**, so nothing selected earlier is left looking like a match.

@@ -25,9 +25,11 @@ const isActivityUnit = (activity: Activity) => activity.type !== ActivityType.MO
 
 /**
  * Activity units with no causal relation to another activity unit — not
- * allowed in a model (#305). Links to chemicals don't count, except a chain
- * through one: A has output X and X is input of B connects A and B.
- * Chemicals are never returned; they aren't activity units.
+ * allowed in a model (#305). One chemical in between counts when the links run
+ * the same way through it, as drawn on the canvas: A → X → B, e.g. A has output
+ * X and X is input of B, or X is a small molecule activator/inhibitor of B.
+ * Links between two chemicals are never valid, so they're ignored. Chemicals
+ * are never returned; they aren't activity units.
  */
 export function activitiesWithoutCausalRelations(model: GraphModel): string[] {
   const activityOf = new Map<string, Activity>()
@@ -36,33 +38,37 @@ export function activitiesWithoutCausalRelations(model: GraphModel): string[] {
   }
 
   const connected = new Set<string>()
-  // Chemical uid → the activity units that output it / take it as input.
-  const outputs = new Map<string, string[]>()
-  const inputs = new Map<string, string[]>()
+  // Chemical uid → the activity units whose links run into it / out of it.
+  const into = new Map<string, string[]>()
+  const outOf = new Map<string, string[]>()
+  const add = (map: Map<string, string[]>, chemical: string, unit: string) =>
+    map.set(chemical, [...(map.get(chemical) ?? []), unit])
 
   for (const edge of model.activityConnections) {
     const source = activityOf.get(edge.sourceId)
     const target = activityOf.get(edge.targetId)
-    if (!source || !target || !isActivityUnit(source)) continue
+    if (!source || !target) continue
 
-    if (isActivityUnit(target)) {
+    if (isActivityUnit(source) && isActivityUnit(target)) {
       if (CAUSAL_RELATIONS.has(edge.id)) {
         connected.add(source.uid)
         connected.add(target.uid)
       }
-    } else if (edge.id === Relations.HAS_OUTPUT) {
-      outputs.set(target.uid, [...(outputs.get(target.uid) ?? []), source.uid])
-    } else if (edge.id === Relations.HAS_INPUT) {
-      inputs.set(target.uid, [...(inputs.get(target.uid) ?? []), source.uid])
+    } else if (isActivityUnit(source)) {
+      // "has input" is drawn from the chemical to the unit, as "input of".
+      if (edge.id === Relations.HAS_INPUT) add(outOf, target.uid, source.uid)
+      else add(into, target.uid, source.uid)
+    } else if (isActivityUnit(target)) {
+      add(outOf, source.uid, target.uid)
     }
   }
 
-  for (const [chemical, producers] of outputs) {
-    for (const producer of producers) {
-      for (const consumer of inputs.get(chemical) ?? []) {
-        if (producer === consumer) continue
-        connected.add(producer)
-        connected.add(consumer)
+  for (const [chemical, upstream] of into) {
+    for (const from of upstream) {
+      for (const to of outOf.get(chemical) ?? []) {
+        if (from === to) continue
+        connected.add(from)
+        connected.add(to)
       }
     }
   }

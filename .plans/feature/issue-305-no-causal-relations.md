@@ -22,8 +22,11 @@ relation to another activity unit. These aren't allowed in a model.
 ## Decisions (user)
 
 - Reported through the **Select menu**, not the errors panel.
-- Links to chemicals don't count, **except** a chain through one: A has output X and X is input of
-  B connects A and B.
+- Links to chemicals don't count, **except** a chain through one chemical where both arrows run the
+  same way as drawn, A → X → B: has output then input of, or has output then small molecule
+  activator/inhibitor of. A → X ← B and A ← X → B don't count. (User widened this after the first
+  commit, which counted only has output → input of.)
+- Links between two chemicals are never valid, so they're ignored — no multi-chemical chains.
 - Chemicals themselves are never flagged; they aren't activity units.
 - Causal = the activity-to-activity relations in `Relations`: the causally-upstream family,
   regulates family (direct/indirect), constitutively upstream of, provides/removes input for.
@@ -51,6 +54,10 @@ relation to another activity unit. These aren't allowed in a model.
       chemicals never flagged, four causal relations, non-causal unit link, and the chemical chain
       (output → input connects; shared input, self-loop and small-molecule activator don't).
       21/21 pass; lint clean; type-check still 101
+- [x] Direction rule (user follow-up): `causalConnections.ts` now pairs units whose links run into
+      a chemical with units whose links run out of it ("has input" counts as out, since it's drawn
+      as "input of"). Tests: activator test flipped to "connects", inhibitor added, A ← X → B and a
+      chemical-to-chemical link stay flagged. Docs note rewritten
 - [ ] Browser check by the user
 
 ## Recovery Checkpoint

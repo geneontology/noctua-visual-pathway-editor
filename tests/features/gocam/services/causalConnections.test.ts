@@ -139,13 +139,40 @@ describe('activitiesWithoutCausalRelations', () => {
       expect(activitiesWithoutCausalRelations(model)).toEqual(['A'])
     })
 
-    it('does not connect a unit to the one its output activates', () => {
-      // Only output → input counts; a small-molecule regulator link does not.
+    it.each([
+      ['activates', Relations.IS_SMALL_MOLECULE_ACTIVATOR_OF],
+      ['inhibits', Relations.IS_SMALL_MOLECULE_INHIBITOR_OF],
+    ])('connects a unit to the one its output %s', (_label, relation) => {
+      // A —has output→ X —regulates→ B: both links run the same way through X.
+      const model = modelOf(
+        [unit('A'), unit('B'), chemical('X')],
+        [link(Relations.HAS_OUTPUT, mf('A'), 'X'), link(relation, 'X', mf('B'))]
+      )
+
+      expect(activitiesWithoutCausalRelations(model)).toEqual([])
+    })
+
+    it('does not connect a unit that takes it as input to one it activates', () => {
+      // A ←input of— X —activates→ B: both links leave X.
       const model = modelOf(
         [unit('A'), unit('B'), chemical('X')],
         [
-          link(Relations.HAS_OUTPUT, mf('A'), 'X'),
+          link(Relations.HAS_INPUT, mf('A'), 'X'),
           link(Relations.IS_SMALL_MOLECULE_ACTIVATOR_OF, 'X', mf('B')),
+        ]
+      )
+
+      expect(activitiesWithoutCausalRelations(model)).toEqual(['A', 'B'])
+    })
+
+    it('does not follow a link between two chemicals', () => {
+      // A —has output→ X —?→ Y —input of→ B: chemical-to-chemical links aren't valid.
+      const model = modelOf(
+        [unit('A'), unit('B'), chemical('X'), chemical('Y')],
+        [
+          link(Relations.HAS_OUTPUT, mf('A'), 'X'),
+          link(Relations.HAS_PART, 'X', 'Y'),
+          link(Relations.HAS_INPUT, mf('B'), 'Y'),
         ]
       )
 
