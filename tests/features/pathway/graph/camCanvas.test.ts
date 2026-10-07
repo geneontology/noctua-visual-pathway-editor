@@ -38,13 +38,13 @@ describe('CamCanvas.selectUnconnected', () => {
     expect(canvas.getSelection().sort()).toEqual(['c', 'd'])
   })
 
-  it('leaves the selection alone when every node is connected', () => {
+  it('clears the selection when every node is connected', () => {
     const graph = new joint.dia.Graph()
     graph.addCells([node('a'), node('b'), relation('a', 'b')])
     const canvas = canvasOver(graph, ['a'])
 
     expect(canvas.selectUnconnected()).toBe(0)
-    expect(canvas.getSelection()).toEqual(['a'])
+    expect(canvas.getSelection()).toEqual([])
   })
 })
 

@@ -393,8 +393,8 @@ const PathwayEditor: React.FC = () => {
   )
 
   /**
-   * Toolbar Select menu. A filter that matches nothing leaves the selection
-   * alone and says so, rather than silently emptying it.
+   * Toolbar Select menu. A filter that matches nothing clears the selection
+   * and says so.
    */
   const handleSelectPreset = useCallback(
     (preset: SelectionPreset) => {
@@ -457,10 +457,10 @@ const PathwayEditor: React.FC = () => {
    * Toolbar search: highlight the matches. A single pick also scrolls it into
    * view; selecting all matches highlights them in place instead — jumping the
    * viewport somewhere arbitrary would hide that there are matches elsewhere.
+   * No matches clears the selection.
    */
   const handleFindActivity = useCallback(
     (uids: string[]) => {
-      if (uids.length === 0) return
       const canvasApi = canvas.canvasRef.current
       canvasApi?.setSelection(uids)
       if (uids.length === 1) canvasApi?.centerOnActivity(uids[0])

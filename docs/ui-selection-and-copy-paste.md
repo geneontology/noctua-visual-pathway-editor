@@ -99,10 +99,7 @@ In the toolbar, **Select** opens a list of one-click selections.
 | **Unconnected nodes** | Any node with no relation to another node, in either direction   |
 
 If a filter matches nothing, a message says so (for example _"No chemicals in this model"_) and
-**your existing selection is left alone**. A mis-click never empties the canvas selection.
-
-**Invert** is the exception: it always applies, and inverting a full selection legitimately
-leaves you with nothing selected.
+**the selection is cleared**, so nothing selected earlier is left looking like a match.
 
 ---
 
@@ -135,7 +132,8 @@ Each row shows the node's name, plus what matched and where (`BP: mitotic cell c
 If there are more than 8 hits, a line at the bottom says how many more there are — **Select all**
 still includes them.
 
-When nothing matches you get **"No match in this model"**.
+When nothing matches you get **"No match in this model"**; pressing **Enter** then clears the
+selection.
 
 ---
 

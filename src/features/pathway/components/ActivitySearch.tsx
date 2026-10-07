@@ -12,7 +12,8 @@ interface ActivitySearchProps {
   activities: Activity[]
   /**
    * Fired with the matching activity uids. One uid = a picked row (select and
-   * centre it); several = "select all matches", highlighting them in place.
+   * centre it); several = "select all matches", highlighting them in place;
+   * none = Enter on a query with no match, clearing the selection.
    */
   onSelect: (uids: string[]) => void
 }
@@ -67,6 +68,10 @@ const ActivitySearch: React.FC<ActivitySearchProps> = ({ activities, onSelect })
     } else if (e.key === 'Enter' && rowCount > 0) {
       e.preventDefault()
       pickRow(highlighted)
+    } else if (e.key === 'Enter' && query.trim()) {
+      // No match: clear the selection so earlier picks don't linger (#303).
+      e.preventDefault()
+      onSelect([])
     } else if (e.key === 'Escape') {
       close()
     }

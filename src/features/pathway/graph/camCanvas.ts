@@ -1030,8 +1030,8 @@ export class CamCanvas {
   /**
    * Replace the selection with the activities matching `predicate`, which also
    * gets the node's canvas element. Returns how many matched; when nothing does
-   * the selection is left untouched, so a mis-click on a filter doesn't silently
-   * wipe what you had.
+   * the selection is cleared, so earlier picks don't linger behind the "none
+   * found" toast (#303).
    */
   private _selectMatching(
     predicate: (activity: Activity, element: joint.dia.Element) => boolean
@@ -1043,9 +1043,7 @@ export class CamCanvas {
       })
       .map(el => String(el.id))
 
-    if (uids.length === 0) return 0
-    this._selection.replace(uids)
-    this._commitSelection()
+    if (this._selection.replace(uids)) this._commitSelection()
     return uids.length
   }
 
