@@ -52,6 +52,7 @@ import { readClipboard } from '@/features/gocam/services/clipboardStore'
 import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
 import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
 import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
+import { activitiesWithoutCausalRelations } from '@/features/gocam/services/causalConnections'
 import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
 import RegionPreview from '@/features/gocam/components/dialogs/RegionPreview'
 import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
@@ -435,6 +436,15 @@ const PathwayEditor: React.FC = () => {
           run: () => canvasApi.selectUnconnected(),
           noun: 'unconnected nodes',
         },
+        noCausal: {
+          run: () => {
+            const model = graphModel?.data
+            const uids = model ? activitiesWithoutCausalRelations(model) : []
+            canvasApi.setSelection(uids)
+            return uids.length
+          },
+          noun: 'activities without causal relations',
+        },
       }
 
       const filter = filters[preset]
@@ -450,7 +460,7 @@ const PathwayEditor: React.FC = () => {
         )
       }
     },
-    [canvas.canvasRef, dispatch]
+    [canvas.canvasRef, dispatch, graphModel]
   )
 
   /**

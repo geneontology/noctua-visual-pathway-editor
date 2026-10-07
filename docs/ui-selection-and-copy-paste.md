@@ -87,16 +87,21 @@ selected; anything that has gone is quietly dropped.
 
 In the toolbar, **Select** opens a list of one-click selections.
 
-| Item                  | What it selects                                                  |
-| --------------------- | ---------------------------------------------------------------- |
-| **Select all**        | Every node on the canvas (`Ctrl+A`)                              |
-| **Invert selection**  | Swaps selected for unselected                                    |
-| **Activities**        | Activity units only                                              |
-| **Chemicals**         | Small-molecule nodes only                                        |
-| **Protein complexes** | Complex nodes only                                               |
-| **Without evidence**  | Any node carrying at least one statement with no evidence        |
-| **With comments**     | Any node with at least one comment — the same count as its badge |
-| **Unconnected nodes** | Any node with no relation to another node, in either direction   |
+| Item                    | What it selects                                                  |
+| ----------------------- | ---------------------------------------------------------------- |
+| **Select all**          | Every node on the canvas (`Ctrl+A`)                              |
+| **Invert selection**    | Swaps selected for unselected                                    |
+| **Activities**          | Activity units only                                              |
+| **Chemicals**           | Small-molecule nodes only                                        |
+| **Protein complexes**   | Complex nodes only                                               |
+| **Without evidence**    | Any node carrying at least one statement with no evidence        |
+| **With comments**       | Any node with at least one comment — the same count as its badge |
+| **Unconnected nodes**   | Any node with no relation to another node, in either direction   |
+| **No causal relations** | Activity units with no causal relation to another activity unit  |
+
+**No causal relations** ignores links to chemicals, except a chain through one: if A has output a
+chemical and that chemical is input of B, A and B count as connected. Chemicals themselves are
+never selected.
 
 If a filter matches nothing, a message says so (for example _"No chemicals in this model"_) and
 **the selection is cleared**, so nothing selected earlier is left looking like a match.
