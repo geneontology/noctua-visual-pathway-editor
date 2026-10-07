@@ -319,6 +319,7 @@ const PathwayEditor: React.FC = () => {
 
       const operations = buildPasteRegionOperations(payload, modelId, userContext, {
         includeEvidence,
+        currentModelTitle: graphModel?.data?.title,
       })
 
       // Armed like a stencil drop, so the new activities rebuild their copied
@@ -344,7 +345,7 @@ const PathwayEditor: React.FC = () => {
         dispatch(showToast({ message: 'Could not paste the region', severity: 'error' }))
       }
     },
-    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch]
+    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch, graphModel]
   )
 
   // Paste is off while a dialog owns the screen so it can't open a second form

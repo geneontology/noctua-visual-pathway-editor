@@ -38,6 +38,34 @@ const buildDefaultModelTitle = (root: TermNode): string | undefined => {
 }
 
 /**
+ * The title annotation for a model that has none yet, named after the first of
+ * `roots` with a gene product. Null when the model already has a title or no
+ * root names one.
+ */
+function defaultModelTitleOperation(
+  roots: TermNode[],
+  modelId: string,
+  currentModelTitle?: string
+): Operation | null {
+  if (currentModelTitle?.trim()) return null
+
+  for (const root of roots) {
+    const title = buildDefaultModelTitle(root)
+    if (title) {
+      return {
+        entity: OperationEntity.MODEL,
+        operation: OperationType.ADD_ANNOTATION,
+        arguments: {
+          'model-id': modelId,
+          values: [{ key: AnnotationKey.TITLE, value: title }],
+        },
+      }
+    }
+  }
+  return null
+}
+
+/**
  * Emit the INDIVIDUAL + EDGE (+ evidence) operations for a TermNode tree.
  * No trailing STORE — callers append it after any model-level annotations.
  */
@@ -126,19 +154,8 @@ export const buildCreateActivityOperations = (
 ): Operation[] => {
   const operations = buildActivityGraphOperations(root, modelId, userContext)
 
-  if (!currentModelTitle?.trim()) {
-    const title = buildDefaultModelTitle(root)
-    if (title) {
-      operations.push({
-        entity: OperationEntity.MODEL,
-        operation: OperationType.ADD_ANNOTATION,
-        arguments: {
-          'model-id': modelId,
-          values: [{ key: AnnotationKey.TITLE, value: title }],
-        },
-      })
-    }
-  }
+  const titleOperation = defaultModelTitleOperation([root], modelId, currentModelTitle)
+  if (titleOperation) operations.push(titleOperation)
 
   operations.push({
     entity: OperationEntity.MODEL,
@@ -172,6 +189,9 @@ function stripTreeEvidence(node: TermNode): TermNode {
  *
  * A relation whose endpoint didn't make it into any copied tree is dropped
  * rather than emitted with a dangling reference.
+ *
+ * Pasting into an untitled model gives it the same default title the Activity
+ * Form would, from the first pasted activity with a gene product (#302).
  */
 export const buildPasteRegionOperations = (
   region: {
@@ -185,7 +205,7 @@ export const buildPasteRegionOperations = (
   },
   modelId: string,
   userContext?: UserContext,
-  options?: { includeEvidence?: boolean }
+  options?: { includeEvidence?: boolean; currentModelTitle?: string }
 ): Operation[] => {
   const includeEvidence = options?.includeEvidence ?? false
   const operations: Operation[] = []
@@ -226,6 +246,13 @@ export const buildPasteRegionOperations = (
       )
     }
   }
+
+  const titleOperation = defaultModelTitleOperation(
+    region.activities.map(entry => entry.root),
+    modelId,
+    options?.currentModelTitle
+  )
+  if (titleOperation) operations.push(titleOperation)
 
   operations.push({
     entity: OperationEntity.MODEL,
