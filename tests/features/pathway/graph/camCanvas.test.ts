@@ -69,12 +69,12 @@ describe('CamCanvas activity node coverage icon', () => {
   }
 
   it.each([
-    ['MF only', [mf, gp], 4],
-    ['MF + BP', [mf, gp, bp], 6],
-    ['MF + CC', [mf, gp, cc], 5],
-    ['MF + BP + CC', [mf, gp, bp, cc], 7],
-    ['no GO terms', [gp], 0],
-  ])('%s → coverage-%i', (_name, nodes, coverage) => {
+    ['MF only', 4, [mf, gp]],
+    ['MF + BP', 6, [mf, gp, bp]],
+    ['MF + CC', 5, [mf, gp, cc]],
+    ['MF + BP + CC', 7, [mf, gp, bp, cc]],
+    ['no GO terms', 0, [gp]],
+  ])('%s → coverage-%i', (_name, coverage, nodes) => {
     expect(iconFor(nodes)).toBe(`./assets/images/activity/coverage-${coverage}.png`)
   })
 
