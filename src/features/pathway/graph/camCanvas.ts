@@ -8,7 +8,7 @@ import { MarqueeSelection } from './marqueeSelection'
 import { getEdgeColor } from './edgeDisplayService'
 import { orderActivityEdgesForDisplay } from '@/features/gocam/services/formUtils'
 import type { GraphModel, Activity, Edge } from '@/features/gocam/models/cam'
-import { ActivityType } from '@/features/gocam/models/cam'
+import { ActivityType, RootTypes } from '@/features/gocam/models/cam'
 import { Relations } from '@/@noctua.core/models/relations'
 
 export type LayoutDetail = 'detailed' | 'activity' | 'simple'
@@ -45,6 +45,26 @@ function activityCommentCount(activity: Activity): number {
     for (const ev of edge.evidence ?? []) count += ev.comments?.length ?? 0
   }
   return count
+}
+
+// Which GO aspects an activity's terms cover, as a bitmask (MF = 4, BP = 2, CC = 1)
+// that picks the node's coverage-N icon. Complexes are CC terms in GO, but here they
+// fill enabled-by / part-of / input slots rather than locations, so they don't count.
+function activityCoverage(activity: Activity): number {
+  let coverage = 0
+  for (const node of activity.nodes) {
+    const roots = node.rootTypes ?? []
+    if (roots.includes(RootTypes.MOLECULAR_FUNCTION)) coverage |= 4
+    else if (roots.includes(RootTypes.BIOLOGICAL_PROCESS)) coverage |= 2
+    else if (
+      !roots.includes(RootTypes.PROTEIN_CONTAINING_COMPLEX) &&
+      (roots.includes(RootTypes.CELLULAR_COMPONENT) ||
+        roots.includes(RootTypes.CELLULAR_ANATOMICAL))
+    ) {
+      coverage |= 1
+    }
+  }
+  return coverage
 }
 
 export class CamCanvas {
@@ -787,24 +807,13 @@ export class CamCanvas {
 
   // ── Node/Link creation ────────────────────────────────────────
 
-  private _activityIconUrl(activity: Activity): string {
-    switch (activity.type) {
-      case ActivityType.MOLECULE:
-        return './assets/images/activity/molecule.png'
-      case ActivityType.PROTEIN_COMPLEX:
-        return './assets/images/activity/proteinComplex.png'
-      default:
-        return './assets/images/activity/default.png'
-    }
-  }
-
   private _createNode(activity: Activity, layoutDetail: LayoutDetail = 'detailed'): NodeCellList {
     const el = new NodeCellList()
     const colorKey = activityColorKey(activity)
 
     const gpLabel = activity.enabledBy?.label ?? activity.rootNode?.label ?? 'Unknown'
     el.addHeader(gpLabel)
-    el.addIcon(this._activityIconUrl(activity))
+    el.addIcon(`./assets/images/activity/coverage-${activityCoverage(activity)}.png`)
 
     if (layoutDetail === 'detailed') {
       const { gpEdges, fdEdges } = orderActivityEdgesForDisplay(activity)
@@ -1021,8 +1030,8 @@ export class CamCanvas {
   /**
    * Replace the selection with the activities matching `predicate`, which also
    * gets the node's canvas element. Returns how many matched; when nothing does
-   * the selection is left untouched, so a mis-click on a filter doesn't silently
-   * wipe what you had.
+   * the selection is cleared, so earlier picks don't linger behind the "none
+   * found" toast (#303).
    */
   private _selectMatching(
     predicate: (activity: Activity, element: joint.dia.Element) => boolean
@@ -1034,9 +1043,7 @@ export class CamCanvas {
       })
       .map(el => String(el.id))
 
-    if (uids.length === 0) return 0
-    this._selection.replace(uids)
-    this._commitSelection()
+    if (this._selection.replace(uids)) this._commitSelection()
     return uids.length
   }
 

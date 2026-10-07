@@ -52,6 +52,7 @@ import { readClipboard } from '@/features/gocam/services/clipboardStore'
 import type { ClipboardEntry } from '@/features/gocam/services/clipboardStore'
 import { OperationEntity, OperationType } from '@/features/gocam/models/operations'
 import { buildPasteRegionOperations } from '@/features/gocam/services/activityOperations'
+import { activitiesWithoutCausalRelations } from '@/features/gocam/services/causalConnections'
 import PasteRegionDialog from '@/features/gocam/components/dialogs/PasteRegionDialog'
 import RegionPreview from '@/features/gocam/components/dialogs/RegionPreview'
 import { MAX_BULK_NODES } from '@/features/pathway/data/selectionLimits'
@@ -318,6 +319,7 @@ const PathwayEditor: React.FC = () => {
 
       const operations = buildPasteRegionOperations(payload, modelId, userContext, {
         includeEvidence,
+        currentModelTitle: graphModel?.data?.title,
       })
 
       // Armed like a stencil drop, so the new activities rebuild their copied
@@ -343,7 +345,7 @@ const PathwayEditor: React.FC = () => {
         dispatch(showToast({ message: 'Could not paste the region', severity: 'error' }))
       }
     },
-    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch]
+    [regionPaste, modelId, userContext, canvas.canvasRef, updateGraphModel, dispatch, graphModel]
   )
 
   // Paste is off while a dialog owns the screen so it can't open a second form
@@ -393,8 +395,8 @@ const PathwayEditor: React.FC = () => {
   )
 
   /**
-   * Toolbar Select menu. A filter that matches nothing leaves the selection
-   * alone and says so, rather than silently emptying it.
+   * Toolbar Select menu. A filter that matches nothing clears the selection
+   * and says so.
    */
   const handleSelectPreset = useCallback(
     (preset: SelectionPreset) => {
@@ -435,6 +437,15 @@ const PathwayEditor: React.FC = () => {
           run: () => canvasApi.selectUnconnected(),
           noun: 'unconnected nodes',
         },
+        noCausal: {
+          run: () => {
+            const model = graphModel?.data
+            const uids = model ? activitiesWithoutCausalRelations(model) : []
+            canvasApi.setSelection(uids)
+            return uids.length
+          },
+          noun: 'activities without causal relations',
+        },
       }
 
       const filter = filters[preset]
@@ -450,17 +461,17 @@ const PathwayEditor: React.FC = () => {
         )
       }
     },
-    [canvas.canvasRef, dispatch]
+    [canvas.canvasRef, dispatch, graphModel]
   )
 
   /**
    * Toolbar search: highlight the matches. A single pick also scrolls it into
    * view; selecting all matches highlights them in place instead — jumping the
    * viewport somewhere arbitrary would hide that there are matches elsewhere.
+   * No matches clears the selection.
    */
   const handleFindActivity = useCallback(
     (uids: string[]) => {
-      if (uids.length === 0) return
       const canvasApi = canvas.canvasRef.current
       canvasApi?.setSelection(uids)
       if (uids.length === 1) canvasApi?.centerOnActivity(uids[0])

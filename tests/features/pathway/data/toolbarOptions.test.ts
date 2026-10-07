@@ -44,6 +44,7 @@ describe('selectionPresetOptions', () => {
       'noEvidence',
       'withComments',
       'unconnected',
+      'noCausal',
     ])
   })
 

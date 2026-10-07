@@ -21,6 +21,7 @@ export type SelectionPreset =
   | 'noEvidence'
   | 'withComments'
   | 'unconnected'
+  | 'noCausal'
 
 export interface SelectionPresetOption {
   id: SelectionPreset
@@ -39,4 +40,5 @@ export const selectionPresetOptions: SelectionPresetOption[] = [
   { id: 'noEvidence', label: 'Without evidence', group: 'Quality' },
   { id: 'withComments', label: 'With comments' },
   { id: 'unconnected', label: 'Unconnected nodes' },
+  { id: 'noCausal', label: 'No causal relations' },
 ]
