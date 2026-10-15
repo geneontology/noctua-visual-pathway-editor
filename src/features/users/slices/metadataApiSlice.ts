@@ -30,19 +30,29 @@ export const noctuaDataApi = apiService
             if (usersResponse.error) return { error: usersResponse.error };
             if (groupsResponse.error) return { error: groupsResponse.error };
 
-            const users: Contributor[] = usersResponse.data.map((item: any) => ({
-              name: item.nickname,
-              uri: item.uri,
-              group: item.group,
-              initials: getInitials(item.nickname),
-              color: item.color
-            }))
+            // Sorted at load, as the Angular `NoctuaDataService` did: Barista
+            // returns both lists in no useful order, and every picker shows them.
+            const users: Contributor[] = ((usersResponse.data as any[]) ?? [])
+              .map((item: any) => {
+                const initials = getInitials(item.nickname);
+                return {
+                  name: item.nickname,
+                  uri: item.uri,
+                  group: item.group,
+                  initials,
+                  // Barista sends no colour; Angular derived one from the initials.
+                  color: item.color ?? getColor(initials),
+                };
+              })
+              .sort((a: Contributor, b: Contributor) => byText(a.name, b.name));
 
-            const groups: Group[] = groupsResponse.data.map((item: any) => ({
-              id: item.id,
-              label: item.label,
-              shorthand: item.shorthand,
-            }))
+            const groups: Group[] = ((groupsResponse.data as any[]) ?? [])
+              .map((item: any) => ({
+                id: item.id,
+                label: item.label,
+                shorthand: item.shorthand,
+              }))
+              .sort((a: Group, b: Group) => byText(a.label, b.label));
 
 
             return {
@@ -70,7 +80,53 @@ export const noctuaDataApi = apiService
   });
 
 // Helper functions
+
+/** Case-insensitive A–Z; a missing name sorts last rather than first. */
+function byText(a: string | undefined, b: string | undefined): number {
+  if (!a) return b ? 1 : 0;
+  if (!b) return -1;
+  return a.localeCompare(b, undefined, { sensitivity: 'base' });
+}
+
+/**
+ * Material `[100]` shades in Angular's `MatColors.all` order (red … brown), the
+ * 17 that `NoctuaDataService.getColor` picked from.
+ */
+const CONTRIBUTOR_COLORS = [
+  '#ffcdd2',
+  '#f8bbd0',
+  '#e1bee7',
+  '#d1c4e9',
+  '#c5cae9',
+  '#bbdefb',
+  '#b3e5fc',
+  '#b2ebf2',
+  '#b2dfdb',
+  '#c8e6c9',
+  '#dcedc8',
+  '#f0f4c3',
+  '#fff9c4',
+  '#ffecb3',
+  '#ffe0b2',
+  '#ffccbc',
+  '#d7ccc8',
+];
+
+/**
+ * Port of Angular's `getColor`: the first initial picks a shade, so a person keeps
+ * the same colour everywhere. Index 0 (A, R, …) fell back to an invalid colour
+ * there; leaving it undefined here gives the default chip colour, which is
+ * what prod showed.
+ */
+function getColor(initials: string): string | undefined {
+  if (!initials) return undefined;
+  const index = (initials.charCodeAt(0) - 65) % CONTRIBUTOR_COLORS.length;
+  return index > 0 ? CONTRIBUTOR_COLORS[index] : undefined;
+}
+
 function getInitials(string: string): string {
+  // One user without a nickname must not take down the whole metadata load.
+  if (!string) return '';
   const names = string.split(' ');
   let initials = names[0].substring(0, 1).toUpperCase();
   if (names.length > 1) {
