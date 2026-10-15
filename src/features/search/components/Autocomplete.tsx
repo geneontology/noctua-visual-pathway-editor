@@ -35,7 +35,6 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
   onChange,
   onBlur,
   disabled = false,
-  variant = 'outlined',
   onOpenTermDetails,
   initialOptions = [],
 }) => {

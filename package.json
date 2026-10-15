@@ -33,7 +33,7 @@
     "@rtk-query/graphql-request-base-query": "^2.3.1",
     "@tailwindcss/vite": "^4.2.4",
     "@use-gesture/react": "^10.3.1",
-    "axios": "^1.7.2",
+    "axios": "^1.20.0",
     "dagre": "^0.8.5",
     "framer-motion": "^11.11.17",
     "graphlib": "^2.1.8",
@@ -45,13 +45,13 @@
     "react-hook-form": "^7.52.0",
     "react-icons": "^5.5.0",
     "react-redux": "^9.1.0",
-    "react-router-dom": "^7.1.5",
+    "react-router-dom": "^7.18.2",
     "reactflow": "^11.11.4",
     "socket.io-client": "^2.5.0",
-    "uuid": "^11.1.0",
-    "vite-plugin-checker": "^0.8.0"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -62,17 +62,25 @@
     "@types/react-dom": "^19.0.0",
     "@types/socket.io-client": "^1.4.36",
     "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-react-app": "^7.0.1",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
     "jsdom": "^23.2.0",
     "prettier": "^3.4.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.71.0",
     "vite": "^6.2.5",
+    "vite-plugin-checker": "^0.14.5",
     "vitest": "^3.1.1"
+  },
+  "overrides": {
+    "jointjs": {
+      "lodash": "^4.18.1"
+    }
   }
 }

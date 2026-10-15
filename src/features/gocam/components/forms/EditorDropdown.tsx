@@ -110,7 +110,7 @@ const EditorDropdown: React.FC<EditorDropdownProps> = ({
       setReference(initialReference)
       setWithVal(initialWith)
     }
-  }, [open, initialTerm, initialEvidence, initialReference, initialWith]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, initialTerm, initialEvidence, initialReference, initialWith])
 
   const handleSave = useCallback(() => {
     onSave({

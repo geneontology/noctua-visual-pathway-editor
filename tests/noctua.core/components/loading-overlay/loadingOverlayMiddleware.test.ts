@@ -7,7 +7,6 @@ const setup = () => {
   const dispatch = vi.fn()
   const next = vi.fn((a: unknown) => a)
   const api = { dispatch, getState: () => ({}) }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const invoke = (action: unknown) => (loadingOverlayMiddleware as any)(api)(next)(action)
   return { dispatch, next, invoke }
 }

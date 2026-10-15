@@ -7,7 +7,7 @@ import tsChecker from 'vite-plugin-checker'
 import { loadEnv } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const outDir = env.VITE_OUTPUT_PATH || 'dist'
 

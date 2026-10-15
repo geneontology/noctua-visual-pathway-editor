@@ -7,7 +7,6 @@ import type {
   Activity,
   Edge,
   GraphModel,
-  GraphNode,
   ShExViolation,
 } from '@/features/gocam/models/cam'
 import { ErrorLevel, ErrorType, RootTypes } from '@/features/gocam/models/cam'

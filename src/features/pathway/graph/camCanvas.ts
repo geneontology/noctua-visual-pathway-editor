@@ -121,6 +121,7 @@ export class CamCanvas {
   constructor(container: HTMLElement) {
     // Captured so the paper's validate* callbacks (where `this` is the paper)
     // can read the canvas read-only state at drag time.
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this
     this._container = container
     this._wrapper = document.createElement('div')

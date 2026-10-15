@@ -35,18 +35,6 @@ function findRelationNode(root: TermNode, uid: string): RelationNode | null {
   return null
 }
 
-function findParentOfRelation(
-  root: TermNode,
-  relationUid: string
-): TermNode | null {
-  for (const rel of root.relations) {
-    if (rel.uid === relationUid) return root
-    const found = findParentOfRelation(rel.target, relationUid)
-    if (found) return found
-  }
-  return null
-}
-
 /** Find the relation whose target has the given uid */
 function findRelationByTargetUid(
   root: TermNode,

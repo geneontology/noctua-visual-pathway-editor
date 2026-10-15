@@ -60,7 +60,7 @@ export const noctuaDataApi = apiService
             const { data } = await queryFulfilled;
             dispatch(setUsers(data.users));
             dispatch(setGroups(data.groups));
-          } catch (error) {
+          } catch {
             // Error handling if needed
           }
         }
