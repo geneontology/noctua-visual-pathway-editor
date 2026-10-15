@@ -41,6 +41,14 @@
       transform: translateY(-1rem);
     }
   }
+
+  /* The Angular `.noc-term-autocomplete` panel: a pale yellow list with each
+     option ruled off in the primary colour at 60% (measured on prod). Hover is
+     a primary tint rather than Material's 4% black, which barely showed.
+     Shared with the landing page. */
+  --color-noc-dropdown: #fbf9de;
+  --color-noc-dropdown-rule: rgba(59, 89, 152, 0.6);
+  --color-noc-dropdown-hover: rgba(59, 89, 152, 0.12);
 }
 
 .navbar {

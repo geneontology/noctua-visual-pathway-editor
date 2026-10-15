@@ -51,14 +51,15 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
     autocompleteType === AutocompleteType.TERM ||
     autocompleteType === AutocompleteType.EVIDENCE_CODE
 
-  const { data, isLoading, isFetching } = useSearchTermsQuery(
+  const { data, isLoading, isFetching, isError } = useSearchTermsQuery(
     { searchText: debouncedSearchTerm, closureIds: rootTypeIds, excludeClosureIds: excludeRootTypeIds },
     {
       skip: !useAutocomplete || !debouncedSearchTerm || debouncedSearchTerm.length < MIN_SEARCH_LENGTH,
-      selectFromResult: ({ data, isLoading, isFetching }) => ({
+      selectFromResult: ({ data, isLoading, isFetching, isError }) => ({
         data: data || [],
         isLoading,
         isFetching,
+        isError,
       }),
     }
   )
@@ -91,7 +92,11 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
     const update = () => {
       const rect = anchorRef.current?.getBoundingClientRect()
       if (!rect) return
-      setDropdownPos({ top: rect.bottom, left: rect.left, width: Math.max(rect.width, 400) })
+      // At least 400px, but kept on screen: on a narrow window a 400px list from
+      // the field's left edge ran off the right side.
+      const width = Math.min(Math.max(rect.width, 400), window.innerWidth - 8)
+      const left = Math.max(4, Math.min(rect.left, window.innerWidth - width - 4))
+      setDropdownPos({ top: rect.bottom, left, width })
     }
     update()
     window.addEventListener('resize', update)
@@ -131,6 +136,10 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
   }, [open])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // A term is one line. With the list shut (after Escape), Enter used to fall
+    // through to the textarea and add a newline, which pushed the text out of
+    // view and changed the search.
+    if (event.key === 'Enter') event.preventDefault()
     if (!open) return
 
     switch (event.key) {
@@ -149,6 +158,9 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
         }
         break
       case 'Escape':
+        // Closing the list is all this Escape does — not also the drawer or
+        // dialog the field sits in.
+        event.stopPropagation()
         setOpen(false)
         break
     }
@@ -201,7 +213,7 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
         <Portal>
           <div
             ref={listRef}
-            className="!bg-accent-50 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg"
+            className="max-h-64 overflow-y-auto rounded bg-noc-dropdown shadow-lg"
             style={{
               position: 'fixed',
               top: dropdownPos.top + 4,
@@ -214,7 +226,11 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               <div className="p-4 text-center text-xs text-gray-500">
                 {inputValue.length < MIN_SEARCH_LENGTH
                   ? 'Type at least 3 characters to search'
-                  : 'No results found'}
+                  : // A failed GOlr lookup is not an empty one: "No results
+                    // found" told the curator their term did not exist.
+                    isError
+                    ? 'Search failed — the term service did not answer. Try again.'
+                    : 'No results found'}
               </div>
             )}
 
@@ -224,12 +240,12 @@ const TermAutocomplete: React.FC<TermAutocompleteProps> = ({
               const bgClass = doNotAnnotate
                 ? 'bg-red-200'
                 : index === highlightedIndex
-                  ? 'bg-primary-100'
-                  : 'bg-accent-50 hover:bg-primary-50'
+                  ? 'bg-noc-dropdown-hover'
+                  : 'hover:bg-noc-dropdown-hover'
               return (
               <div
                 key={option.id}
-                className={`flex min-h-[40px] cursor-pointer items-center border-b border-primary-100 px-4 py-2 text-xs ${bgClass} ${disabled ? 'pointer-events-none' : ''} ${option.isObsolete ? 'opacity-40 line-through' : ''}`}
+                className={`flex min-h-[40px] cursor-pointer items-center border-b border-noc-dropdown-rule px-4 py-2 text-xs ${bgClass} ${disabled ? 'pointer-events-none' : ''} ${option.isObsolete ? 'opacity-40 line-through' : ''}`}
                 onClick={() => !disabled && handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 title={doNotAnnotate ? 'Do not annotate' : undefined}
