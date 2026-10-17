@@ -1,4 +1,4 @@
-import io from 'socket.io-client'
+import { io, type Socket } from 'socket.io-client'
 
 const DEDUP_DELAY_MS = 500
 
@@ -15,7 +15,7 @@ export interface ModelWatchHandlers {
 
 type Unsubscribe = () => void
 
-let socket: SocketIOClient.Socket | null = null
+let socket: Socket | null = null
 let connectedUrl: string | null = null
 
 const processedPacketIds = new Set<string>()
@@ -65,7 +65,7 @@ export const baristaSocketService = {
     if (socket) return
 
     connectedUrl = baseUrl
-    socket = io.connect(baseUrl)
+    socket = io(baseUrl)
 
     socket.on('relay', handleRelay)
   },
