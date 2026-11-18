@@ -4,12 +4,16 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import App from './App'
 import { store } from './app/store/store'
+import { disableShellStylesheets } from './@noctua.core/theme/shellStyles'
 import 'jointjs/dist/joint.css'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import './index.css'
 import './styles/app-base.css'
 import './styles/app-components.css'
+
+// Before the first render, so the page never paints under the shell's Bootstrap.
+disableShellStylesheets()
 
 const container = document.getElementById('root')
 
